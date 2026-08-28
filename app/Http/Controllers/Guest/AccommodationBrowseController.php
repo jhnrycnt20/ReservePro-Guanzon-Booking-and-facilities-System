@@ -63,7 +63,7 @@ class AccommodationBrowseController extends Controller
     public function availability(Request $request, Accommodation $accommodation): View
     {
         $request->validate([
-            'check_in' => ['required', 'date'],
+            'check_in' => ['required', 'date', 'after_or_equal:today'],
             'check_out' => ['required', 'date', 'after:check_in'],
         ]);
 

@@ -1,0 +1,25 @@
+{
+  "appId": "com.guanzon.reservepro",
+  "appName": "ReservePro",
+  "webDir": "www",
+  "server": {
+    "url": "https://YOUR-PRODUCTION-URL.onrender.com",
+    "cleartext": false,
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#14532d",
+      "showSpinner": true,
+      "spinnerColor": "#ffffff"
+    },
+    "StatusBar": {
+      "style": "LIGHT",
+      "backgroundColor": "#14532d"
+    }
+  }
+}

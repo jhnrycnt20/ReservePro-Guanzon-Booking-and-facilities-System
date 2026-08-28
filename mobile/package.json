@@ -1,0 +1,22 @@
+{
+  "name": "reservepro-mobile",
+  "version": "1.0.0",
+  "description": "ReservePro Android app (Capacitor)",
+  "scripts": {
+    "config": "node scripts/set-server-url.js",
+    "sync": "npm run config && npx cap sync android",
+    "open:android": "npx cap open android",
+    "build:android": "npm run sync && npx cap open android"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@capacitor/android": "^6.2.1",
+    "@capacitor/cli": "^6.2.1",
+    "@capacitor/core": "^6.2.1",
+    "@capacitor/splash-screen": "^6.0.4",
+    "@capacitor/status-bar": "^6.0.3"
+  }
+}

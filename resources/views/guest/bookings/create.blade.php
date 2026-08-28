@@ -36,11 +36,11 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Check-in date</label>
-                        <input type="date" name="check_in_date" data-calc-check-in class="form-control" value="{{ old('check_in_date', $checkIn ?? request('check_in')) }}" required>
+                        <input type="date" name="check_in_date" data-calc-check-in data-stay-check-in class="form-control" value="{{ old('check_in_date', $checkIn ?? request('check_in')) }}" min="{{ now()->toDateString() }}" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Check-out date</label>
-                        <input type="date" name="check_out_date" data-calc-check-out class="form-control" value="{{ old('check_out_date', $checkOut ?? request('check_out')) }}" required>
+                        <input type="date" name="check_out_date" data-calc-check-out data-stay-check-out class="form-control" value="{{ old('check_out_date', $checkOut ?? request('check_out')) }}" min="{{ now()->addDay()->toDateString() }}" required>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Adults</label>

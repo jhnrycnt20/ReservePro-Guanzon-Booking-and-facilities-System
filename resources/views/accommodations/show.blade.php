@@ -39,11 +39,11 @@
             <form method="GET" action="{{ route('accommodations.availability', $accommodation) }}" class="mb-3">
                 <div class="mb-3">
                     <label class="form-label">Check-in</label>
-                    <input type="date" name="check_in" class="form-control" value="{{ request('check_in', old('check_in_date')) }}" required>
+                    <input type="date" name="check_in" class="form-control" value="{{ request('check_in', old('check_in_date')) }}" min="{{ now()->toDateString() }}" data-stay-check-in required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Check-out</label>
-                    <input type="date" name="check_out" class="form-control" value="{{ request('check_out', old('check_out_date')) }}" required>
+                    <input type="date" name="check_out" class="form-control" value="{{ request('check_out', old('check_out_date')) }}" min="{{ now()->addDay()->toDateString() }}" data-stay-check-out required>
                 </div>
                 <button class="btn btn-rp-soft w-100">Check Availability</button>
             </form>

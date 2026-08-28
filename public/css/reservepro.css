@@ -293,6 +293,15 @@ body.rp-public {
     max-width: 34rem;
 }
 
+.rp-ios-install {
+    max-width: 34rem;
+    padding: .85rem 1rem;
+    border-radius: .85rem;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    backdrop-filter: blur(6px);
+}
+
 .rp-footer {
     background: #10261c;
     color: rgba(255,255,255,.8);

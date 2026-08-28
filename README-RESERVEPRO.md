@@ -55,6 +55,10 @@ Password for all: `password`
 6. Admin monitoring, users, accommodations, pricing, analytics, settings  
 7. Internal database notifications + audit logs  
 
+## Mobile app
+
+See **[README-MOBILE.md](README-MOBILE.md)** for the Android app (Capacitor) and production deployment without tunnel.
+
 ## Architecture
 
 - Controllers + Form Requests + Policies + Middleware (`role`, `active`)

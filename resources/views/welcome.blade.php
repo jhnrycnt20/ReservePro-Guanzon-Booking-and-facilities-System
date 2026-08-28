@@ -12,6 +12,17 @@
             <div class="d-flex flex-wrap gap-2 mt-4">
                 <a href="{{ route('accommodations.browse') }}" class="btn btn-light btn-lg">Browse Resort</a>
                 <a href="{{ route('register') }}" class="btn btn-outline-light btn-lg">Create Guest Account</a>
+                <button type="button" id="pwaInstallBtn" class="btn btn-outline-light btn-lg d-none">
+                    <i class="bi bi-download me-1"></i> Install App
+                </button>
+            </div>
+            <div id="iosInstallHelp" class="rp-ios-install d-none mt-3">
+                <div class="small">
+                    <strong>Install on iPhone:</strong>
+                    tap <i class="bi bi-box-arrow-up"></i> <em>Share</em>, then
+                    <strong>Add to Home Screen</strong>.
+                    Use Safari for the best result.
+                </div>
             </div>
         </div>
     </div>

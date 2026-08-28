@@ -7,6 +7,9 @@
     <div class="row justify-content-center">
         <div class="col-md-7 col-lg-6">
             <div class="rp-card">
+                <a href="{{ route('login') }}" class="btn btn-rp-soft btn-sm mb-3">
+                    <i class="bi bi-arrow-left me-1"></i> Back to login
+                </a>
                 <h1 class="h3 mb-1" style="font-family: var(--rp-display);">Create guest account</h1>
                 <p class="text-muted mb-4">Register to browse and reserve accommodations</p>
 

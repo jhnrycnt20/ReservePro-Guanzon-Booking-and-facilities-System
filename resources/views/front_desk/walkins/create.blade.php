@@ -38,11 +38,11 @@
             </div>
             <div class="col-md-3">
                 <label class="form-label">Check-in</label>
-                <input type="date" name="check_in_date" class="form-control" value="{{ old('check_in_date', now()->toDateString()) }}" required>
+                <input type="date" name="check_in_date" data-stay-check-in class="form-control" value="{{ old('check_in_date', now()->toDateString()) }}" min="{{ now()->toDateString() }}" required>
             </div>
             <div class="col-md-3">
                 <label class="form-label">Check-out</label>
-                <input type="date" name="check_out_date" class="form-control" value="{{ old('check_out_date', now()->addDay()->toDateString()) }}" required>
+                <input type="date" name="check_out_date" data-stay-check-out class="form-control" value="{{ old('check_out_date', now()->addDay()->toDateString()) }}" min="{{ now()->addDay()->toDateString() }}" required>
             </div>
             <div class="col-md-2">
                 <label class="form-label">Adults</label>

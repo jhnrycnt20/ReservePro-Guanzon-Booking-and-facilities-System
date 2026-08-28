@@ -27,11 +27,11 @@
         </div>
         <div class="col-md-3">
             <label class="form-label">Check-in</label>
-            <input type="date" name="check_in" value="{{ request('check_in') }}" class="form-control">
+            <input type="date" name="check_in" value="{{ request('check_in') }}" class="form-control" min="{{ now()->toDateString() }}" data-stay-check-in>
         </div>
         <div class="col-md-3">
             <label class="form-label">Check-out</label>
-            <input type="date" name="check_out" value="{{ request('check_out') }}" class="form-control">
+            <input type="date" name="check_out" value="{{ request('check_out') }}" class="form-control" min="{{ now()->addDay()->toDateString() }}" data-stay-check-out>
         </div>
         <div class="col-md-3">
             <button class="btn btn-rp-primary w-100">Check Availability</button>

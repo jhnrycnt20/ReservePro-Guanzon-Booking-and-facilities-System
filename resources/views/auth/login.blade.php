@@ -19,8 +19,13 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="password">Password</label>
-                        <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required>
-                        @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        <div class="input-group">
+                            <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required>
+                            <button type="button" class="btn btn-outline-secondary" id="togglePassword" aria-label="Show password">
+                                <i class="bi bi-eye" id="togglePasswordIcon"></i>
+                            </button>
+                        </div>
+                        @error('password')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     </div>
                     <div class="mb-3 form-check">
                         <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
