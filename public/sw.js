@@ -1,4 +1,4 @@
-const CACHE_NAME = 'reservepro-shell-v1';
+const CACHE_NAME = 'reservepro-shell-v3';
 const OFFLINE_URL = '/offline.html';
 const PRECACHE = [
     OFFLINE_URL,

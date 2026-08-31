@@ -1,4 +1,96 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const publicNav = document.querySelector('.rp-public-nav');
+
+    if (publicNav) {
+        const scrollThreshold = 120;
+        let navIsScrolled = false;
+
+        const updateNavOnScroll = () => {
+            const shouldBeScrolled = window.scrollY > scrollThreshold;
+            if (shouldBeScrolled !== navIsScrolled) {
+                navIsScrolled = shouldBeScrolled;
+                publicNav.classList.toggle('rp-nav-scrolled', navIsScrolled);
+            }
+        };
+
+        updateNavOnScroll();
+        window.addEventListener('scroll', updateNavOnScroll, { passive: true });
+    }
+
+    const scrollTopBtn = document.getElementById('rpScrollTop');
+    scrollTopBtn?.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    const planSlider = document.getElementById('rpPlanSlider');
+
+    if (planSlider) {
+        let isDown = false;
+        let startX = 0;
+        let startScroll = 0;
+        let velocity = 0;
+        let lastX = 0;
+        let lastT = 0;
+        let momentumId = null;
+
+        const stopMomentum = () => {
+            if (momentumId) cancelAnimationFrame(momentumId);
+            momentumId = null;
+        };
+
+        const runMomentum = () => {
+            if (Math.abs(velocity) < 0.5) {
+                stopMomentum();
+                return;
+            }
+            planSlider.scrollLeft -= velocity;
+            velocity *= 0.94;
+            momentumId = requestAnimationFrame(runMomentum);
+        };
+
+        planSlider.addEventListener('pointerdown', (e) => {
+            isDown = true;
+            stopMomentum();
+            planSlider.classList.add('is-dragging');
+            startX = e.clientX;
+            startScroll = planSlider.scrollLeft;
+            lastX = e.clientX;
+            lastT = performance.now();
+            velocity = 0;
+            planSlider.setPointerCapture(e.pointerId);
+        });
+
+        planSlider.addEventListener('pointermove', (e) => {
+            if (!isDown) return;
+            const dx = e.clientX - startX;
+            planSlider.scrollLeft = startScroll - dx;
+
+            const now = performance.now();
+            const dt = now - lastT || 16;
+            velocity = (e.clientX - lastX) / dt * 16;
+            lastX = e.clientX;
+            lastT = now;
+        });
+
+        const endDrag = (e) => {
+            if (!isDown) return;
+            isDown = false;
+            planSlider.classList.remove('is-dragging');
+            if (e?.pointerId !== undefined && planSlider.hasPointerCapture?.(e.pointerId)) {
+                planSlider.releasePointerCapture(e.pointerId);
+            }
+            runMomentum();
+        };
+
+        planSlider.addEventListener('pointerup', endDrag);
+        planSlider.addEventListener('pointercancel', endDrag);
+        planSlider.addEventListener('pointerleave', endDrag);
+
+        planSlider.querySelectorAll('a, img').forEach((el) => {
+            el.addEventListener('dragstart', (e) => e.preventDefault());
+        });
+    }
+
     const sidebar = document.getElementById('rpSidebar');
     const toggle = document.getElementById('sidebarToggle');
     const backdrop = document.getElementById('sidebarBackdrop');
@@ -14,6 +106,35 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     backdrop?.addEventListener('click', closeSidebar);
+
+    const navMenuBtn = document.getElementById('rpNavMenuBtn');
+    const navOverlay = document.getElementById('rpNavOverlay');
+
+    const closeNavOverlay = () => {
+        navMenuBtn?.classList.remove('is-open');
+        navOverlay?.classList.remove('is-open');
+        navMenuBtn?.setAttribute('aria-expanded', 'false');
+    };
+
+    navMenuBtn?.addEventListener('click', () => {
+        const isOpen = navMenuBtn.classList.toggle('is-open');
+        navOverlay?.classList.toggle('is-open', isOpen);
+        navMenuBtn.setAttribute('aria-expanded', String(isOpen));
+    });
+
+    navOverlay?.querySelectorAll('a').forEach((link) => {
+        link.addEventListener('click', closeNavOverlay);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeNavOverlay();
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!navOverlay?.classList.contains('is-open')) return;
+        if (navOverlay.contains(e.target) || navMenuBtn?.contains(e.target)) return;
+        closeNavOverlay();
+    });
 
     const toastEl = document.getElementById('rpToast');
     if (toastEl && window.bootstrap) {

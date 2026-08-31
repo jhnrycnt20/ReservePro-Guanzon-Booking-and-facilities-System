@@ -3,7 +3,7 @@
 @section('title', 'Register')
 
 @section('content')
-<div class="container py-5">
+<div class="container pt-5 pb-5" style="padding-top: 7rem;">
     <div class="row justify-content-center">
         <div class="col-md-7 col-lg-6">
             <div class="rp-card">

@@ -8,41 +8,110 @@
     @include('partials.pwa-head')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,600&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
     <link href="{{ asset('css/reservepro.css') }}" rel="stylesheet">
     @stack('styles')
 </head>
 <body class="rp-public">
-    <nav class="navbar navbar-expand-lg rp-public-nav">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ url('/') }}">
-                <i class="bi bi-water me-1"></i> ReservePro
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#publicNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="publicNav">
-                <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
-                    <li class="nav-item"><a class="nav-link" href="{{ route('accommodations.browse') }}">Browse Resort</a></li>
-                    @guest
-                        <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Login</a></li>
-                        <li class="nav-item"><a class="btn btn-rp-primary btn-sm" href="{{ route('register') }}">Register</a></li>
-                    @else
-                        <li class="nav-item"><a class="btn btn-rp-primary btn-sm" href="{{ auth()->user()->dashboardRoute() }}">My Dashboard</a></li>
-                    @endguest
-                </ul>
+    <nav class="rp-public-nav">
+        <div class="rp-public-nav-inner">
+            <div class="rp-nav-menu-btn">
+                <button type="button" class="rp-nav-hamburger-btn" id="rpNavMenuBtn" aria-label="Menu" aria-expanded="false" aria-controls="rpNavOverlay">
+                    <span class="rp-nav-hamburger">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </span>
+                </button>
+                <img class="rp-nav-logo-img" src="{{ asset('images/guanzon_logo.png') }}" alt="Guanzon Resort">
+            </div>
+            <div class="rp-nav-links">
+                <a class="rp-nav-link rp-nav-link-extra" href="{{ url('/') }}">The Resort</a>
+                <a class="rp-nav-link rp-nav-link-extra" href="{{ route('accommodations.browse') }}">Accommodations</a>
+                <a class="rp-nav-link rp-nav-link-extra" href="{{ route('blog') }}">Gallery</a>
+                <a class="rp-nav-link rp-nav-link-extra" href="{{ route('blog') }}">Offers</a>
+                <a class="rp-nav-link rp-nav-link-extra" href="{{ route('blog') }}">FAQs</a>
+                <a class="rp-nav-link rp-nav-link-extra" href="{{ route('blog') }}">Contact Us</a>
+                @guest
+                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('login') }}">Login</a>
+                @else
+                    <a class="rp-nav-link rp-nav-link-extra" href="{{ auth()->user()->dashboardRoute() }}">My Dashboard</a>
+                @endguest
+                <a class="rp-nav-link" href="{{ route('accommodations.browse') }}">Book Now</a>
             </div>
         </div>
     </nav>
 
+    <div class="rp-nav-overlay" id="rpNavOverlay">
+        <nav class="rp-nav-overlay-links">
+            <a href="{{ url('/') }}">The Resort</a>
+            <a href="{{ route('accommodations.browse') }}">Accommodations</a>
+            <a href="{{ route('blog') }}">Gallery</a>
+            <a href="{{ route('blog') }}">Offers</a>
+            <a href="{{ route('blog') }}">FAQs</a>
+            <a href="{{ route('blog') }}">Contact Us</a>
+            @guest
+                <a href="{{ route('login') }}">Login</a>
+            @else
+                <a href="{{ auth()->user()->dashboardRoute() }}">My Dashboard</a>
+            @endguest
+        </nav>
+        <div class="rp-nav-overlay-social">
+            <div class="rp-nav-overlay-social-label">Connect With Us</div>
+            <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+        </div>
+    </div>
+
     @include('partials.alerts')
     @yield('content')
 
+    <div class="rp-insta-strip">
+        <a href="#" class="rp-insta-cell" style="background-image: url('https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=500&q=80');"></a>
+        <a href="#" class="rp-insta-cell" style="background-image: url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=500&q=80');"></a>
+        <a href="#" class="rp-insta-cell" style="background-image: url('https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=500&q=80');"></a>
+        <a href="#" class="rp-insta-cell" style="background-image: url('https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=500&q=80');"></a>
+        <a href="#" class="rp-insta-cell" style="background-image: url('https://images.unsplash.com/photo-1552733407-5d5c46c3bb3b?auto=format&fit=crop&w=500&q=80');"></a>
+        <a href="#" class="rp-insta-cell" style="background-image: url('https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=500&q=80');"></a>
+        <div class="rp-insta-badge"><i class="bi bi-instagram"></i></div>
+    </div>
+
     <footer class="rp-footer">
-        <div class="container py-4 d-flex flex-column flex-md-row justify-content-between gap-2">
-            <div>&copy; {{ date('Y') }} ReservePro Resort Management</div>
-            <div class="text-muted">Guanzon Booking & Facilities System</div>
+        <div class="container py-5">
+            <div class="row g-4">
+                <div class="col-6 col-md-3">
+                    <div class="rp-footer-heading">Working Hours</div>
+                    <p class="rp-footer-text">Front Desk: Open 24/7</p>
+                    <p class="rp-footer-text">Check-in: 2:00 PM</p>
+                    <p class="rp-footer-text">Check-out: 12:00 PM</p>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="rp-footer-heading">Office</div>
+                    <p class="rp-footer-text">Guanzon Resort —<br>Guanzon Beach Road,<br>Philippines</p>
+                    <a href="mailto:info@guanzonresort.com" class="rp-footer-link-underline">info@guanzonresort.com</a>
+                    <p class="rp-footer-phone">+63 900 000 0000</p>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="rp-footer-heading">Links</div>
+                    <a href="{{ url('/') }}">Home</a>
+                    <a href="{{ route('blog') }}">Gallery</a>
+                    <a href="{{ url('/') }}">About Us</a>
+                    <a href="{{ route('accommodations.browse') }}">Accommodations</a>
+                    <a href="{{ route('blog') }}">Contacts</a>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="rp-footer-heading">Get in Touch</div>
+                    <div class="rp-footer-social">
+                        <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="rp-footer-bottom">
+                <div>ReservePro &copy; {{ date('Y') }}. All rights reserved.</div>
+            </div>
         </div>
+        <button type="button" class="rp-scroll-top" id="rpScrollTop" aria-label="Scroll to top">
+            <i class="bi bi-arrow-up"></i>
+        </button>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

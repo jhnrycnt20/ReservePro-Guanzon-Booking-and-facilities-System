@@ -3,7 +3,7 @@
 @section('title', 'Login')
 
 @section('content')
-<div class="container py-5">
+<div class="container pt-5 pb-5" style="padding-top: 7rem;">
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-5">
             <div class="rp-card">
