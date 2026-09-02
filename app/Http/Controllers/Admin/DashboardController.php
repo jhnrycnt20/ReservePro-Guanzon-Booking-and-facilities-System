@@ -37,17 +37,17 @@ class DashboardController extends Controller
         $monthKeys = collect(range(5, 0))->map(fn ($i) => Carbon::now()->subMonths($i)->format('Y-m'));
 
         $reservationMap = Booking::query()
-            ->select(DB::raw("DATE_FORMAT(created_at, '%Y-%m') as ym"), DB::raw('COUNT(*) as total'))
             ->where('created_at', '>=', now()->subMonths(5)->startOfMonth())
-            ->groupBy('ym')
-            ->pluck('total', 'ym');
+            ->get(['created_at'])
+            ->groupBy(fn (Booking $booking) => $booking->created_at->format('Y-m'))
+            ->map->count();
 
         $revenueMap = Payment::query()
-            ->select(DB::raw("DATE_FORMAT(payment_date, '%Y-%m') as ym"), DB::raw('SUM(amount) as total'))
             ->where('status', 'verified')
             ->where('payment_date', '>=', now()->subMonths(5)->startOfMonth())
-            ->groupBy('ym')
-            ->pluck('total', 'ym');
+            ->get(['payment_date', 'amount'])
+            ->groupBy(fn (Payment $payment) => Carbon::parse($payment->payment_date)->format('Y-m'))
+            ->map(fn ($payments) => (float) $payments->sum('amount'));
 
         $charts = [
             'months' => $months->values(),

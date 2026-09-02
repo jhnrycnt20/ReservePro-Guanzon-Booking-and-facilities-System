@@ -16,19 +16,28 @@ class DashboardController extends Controller
     {
         $guestId = $request->user()->guest?->id;
 
-        $recentBookings = Booking::query()
+        $bookingQuery = Booking::query()->when(
+            $guestId,
+            fn ($query) => $query->where('guest_id', $guestId),
+            fn ($query) => $query->whereRaw('1 = 0')
+        );
+
+        $recentBookings = (clone $bookingQuery)
             ->with('accommodation')
-            ->where('guest_id', $guestId)
             ->latest()
             ->take(5)
             ->get();
 
         $stats = [
-            'bookings' => Booking::query()->where('guest_id', $guestId)->count(),
-            'pending' => Booking::query()->where('guest_id', $guestId)->where('status', BookingStatus::Pending)->count(),
-            'checked_in' => Booking::query()->where('guest_id', $guestId)->where('status', BookingStatus::CheckedIn)->count(),
+            'bookings' => (clone $bookingQuery)->count(),
+            'pending' => (clone $bookingQuery)->where('status', BookingStatus::Pending)->count(),
+            'checked_in' => (clone $bookingQuery)->where('status', BookingStatus::CheckedIn)->count(),
             'open_reports' => IncidentReport::query()
-                ->where('guest_id', $guestId)
+                ->when(
+                    $guestId,
+                    fn ($query) => $query->where('guest_id', $guestId),
+                    fn ($query) => $query->whereRaw('1 = 0')
+                )
                 ->whereNotIn('status', [IncidentStatus::Resolved, IncidentStatus::Closed, IncidentStatus::Invalid])
                 ->count(),
         ];
