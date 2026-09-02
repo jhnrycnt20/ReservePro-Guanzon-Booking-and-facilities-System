@@ -34,7 +34,7 @@ ENV APP_ENV=production \
     CACHE_DRIVER=file \
     QUEUE_CONNECTION=sync
 
-RUN cp .env.example .env \
+RUN cp .env.docker .env \
     && php artisan key:generate --force \
     && php artisan storage:link
 

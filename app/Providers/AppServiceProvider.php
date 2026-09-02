@@ -12,7 +12,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        if ($this->app->environment('production')) {
+            config([
+                'database.default' => 'sqlite',
+                'database.connections.sqlite.database' => env(
+                    'DB_DATABASE',
+                    database_path('database.sqlite')
+                ),
+            ]);
+        }
     }
 
     /**
