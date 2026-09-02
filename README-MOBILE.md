@@ -123,6 +123,18 @@ iPhone users can still use **Safari → Add to Home Screen** on the live HTTPS w
 - Ensure production `APP_URL` matches your live domain
 - Use HTTPS only
 
+**Demo login accounts (seeded on Render)**  
+All passwords: `password`
+
+| Role | Email |
+|------|-------|
+| Guest | `guest@reservepro.test` |
+| Admin | `admin@reservepro.test` |
+| Front Desk | `frontdesk@reservepro.test` |
+| Security | `security@reservepro.test` |
+
+On the login page, tap any demo account to auto-fill the form.
+
 **App still needs tunnel**  
 - The app loads your **deployed** site, not your laptop. Deploy first, then rebuild the APK.
 

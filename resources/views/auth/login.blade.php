@@ -37,6 +37,29 @@
                 <div class="mt-3 small text-muted">
                     No account? <a href="{{ route('register') }}">Register as guest</a>
                 </div>
+
+                @if(config('demo.accounts'))
+                    <div class="rp-demo-accounts mt-4 pt-3 border-top">
+                        <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                            <div class="small fw-semibold text-uppercase" style="letter-spacing:.08em;">Demo accounts</div>
+                            <span class="badge text-bg-light border">Password: {{ config('demo.password') }}</span>
+                        </div>
+                        <p class="small text-muted mb-3">Tap a role to fill the login form. All demo actors are seeded on Render.</p>
+                        <div class="rp-demo-accounts-list">
+                            @foreach(config('demo.accounts') as $account)
+                                <button
+                                    type="button"
+                                    class="rp-demo-account-btn"
+                                    data-demo-email="{{ $account['email'] }}"
+                                    data-demo-password="{{ config('demo.password') }}"
+                                >
+                                    <span class="rp-demo-account-role">{{ $account['label'] }}</span>
+                                    <span class="rp-demo-account-email">{{ $account['email'] }}</span>
+                                </button>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

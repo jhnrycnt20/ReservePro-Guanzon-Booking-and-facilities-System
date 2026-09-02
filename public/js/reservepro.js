@@ -211,6 +211,20 @@ document.addEventListener('DOMContentLoaded', () => {
         togglePasswordIcon?.classList.toggle('bi-eye-slash', show);
     });
 
+    document.querySelectorAll('[data-demo-email]').forEach((button) => {
+        button.addEventListener('click', () => {
+            const emailInput = document.getElementById('email');
+            const demoPasswordInput = document.getElementById('password');
+            if (!emailInput || !demoPasswordInput) return;
+
+            emailInput.value = button.dataset.demoEmail || '';
+            demoPasswordInput.value = button.dataset.demoPassword || '';
+            emailInput.dispatchEvent(new Event('input', { bubbles: true }));
+            demoPasswordInput.dispatchEvent(new Event('input', { bubbles: true }));
+            emailInput.focus();
+        });
+    });
+
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').catch(() => {});
     }

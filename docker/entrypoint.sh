@@ -26,8 +26,9 @@ if [ ! -f "$DB_PATH" ] || [ ! -s "$DB_PATH" ]; then
     php artisan migrate:fresh --seed --force
 else
     php artisan migrate --force
-    php artisan db:seed --force
 fi
+
+php artisan db:seed --force
 
 php artisan storage:link 2>/dev/null || true
 
