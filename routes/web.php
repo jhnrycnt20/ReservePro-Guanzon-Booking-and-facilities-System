@@ -38,6 +38,10 @@ Route::get('/blog', function () {
     return view('blog');
 })->name('blog');
 
+Route::get('/gallery', function () {
+    return view('gallery');
+})->name('gallery');
+
 Auth::routes();
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');

@@ -237,6 +237,21 @@ document.addEventListener('DOMContentLoaded', () => {
         installBtn?.classList.add('d-none');
     });
 
+    const galleryFilters = document.querySelectorAll('.rp-gallery-filter');
+    const galleryItems = document.querySelectorAll('#rpGalleryGrid .rp-gallery-item');
+
+    galleryFilters.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            galleryFilters.forEach((b) => b.classList.remove('is-active'));
+            btn.classList.add('is-active');
+            const filter = btn.dataset.filter;
+            galleryItems.forEach((item) => {
+                const show = filter === 'all' || item.dataset.category === filter;
+                item.classList.toggle('is-hidden', !show);
+            });
+        });
+    });
+
     const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches
         || window.navigator.standalone === true;

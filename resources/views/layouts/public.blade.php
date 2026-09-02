@@ -8,7 +8,7 @@
     @include('partials.pwa-head')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,600&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="{{ asset('css/reservepro.css') }}" rel="stylesheet">
     @stack('styles')
 </head>
@@ -23,21 +23,17 @@
                         <span></span>
                     </span>
                 </button>
-                <img class="rp-nav-logo-img" src="{{ asset('images/guanzon_logo.png') }}" alt="Guanzon Resort">
+                <a href="{{ route('accommodations.browse') }}">
+                    <img class="rp-nav-logo-img" src="{{ asset('images/guanzon_logoW.png') }}" alt="Guanzon Resort">
+                </a>
             </div>
             <div class="rp-nav-links">
                 <a class="rp-nav-link rp-nav-link-extra" href="{{ url('/') }}">The Resort</a>
                 <a class="rp-nav-link rp-nav-link-extra" href="{{ route('accommodations.browse') }}">Accommodations</a>
-                <a class="rp-nav-link rp-nav-link-extra" href="{{ route('blog') }}">Gallery</a>
+                <a class="rp-nav-link rp-nav-link-extra" href="{{ route('gallery') }}">Gallery</a>
                 <a class="rp-nav-link rp-nav-link-extra" href="{{ route('blog') }}">Offers</a>
-                <a class="rp-nav-link rp-nav-link-extra" href="{{ route('blog') }}">FAQs</a>
-                <a class="rp-nav-link rp-nav-link-extra" href="{{ route('blog') }}">Contact Us</a>
-                @guest
-                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('login') }}">Login</a>
-                @else
-                    <a class="rp-nav-link rp-nav-link-extra" href="{{ auth()->user()->dashboardRoute() }}">My Dashboard</a>
-                @endguest
-                <a class="rp-nav-link" href="{{ route('accommodations.browse') }}">Book Now</a>
+                <a class="rp-nav-link rp-nav-link-extra" href="{{ route('blog') }}">Contact</a>
+                <a class="rp-nav-link rp-nav-link-booknow" href="{{ route('accommodations.browse') }}">Book Now</a>
             </div>
         </div>
     </nav>
@@ -46,15 +42,10 @@
         <nav class="rp-nav-overlay-links">
             <a href="{{ url('/') }}">The Resort</a>
             <a href="{{ route('accommodations.browse') }}">Accommodations</a>
-            <a href="{{ route('blog') }}">Gallery</a>
+            <a href="{{ route('gallery') }}">Gallery</a>
             <a href="{{ route('blog') }}">Offers</a>
-            <a href="{{ route('blog') }}">FAQs</a>
-            <a href="{{ route('blog') }}">Contact Us</a>
-            @guest
-                <a href="{{ route('login') }}">Login</a>
-            @else
-                <a href="{{ auth()->user()->dashboardRoute() }}">My Dashboard</a>
-            @endguest
+            <a href="{{ route('blog') }}">Contact</a>
+            <a href="{{ route('accommodations.browse') }}">Book Now</a>
         </nav>
         <div class="rp-nav-overlay-social">
             <div class="rp-nav-overlay-social-label">Connect With Us</div>
@@ -92,11 +83,11 @@
                 </div>
                 <div class="col-6 col-md-3">
                     <div class="rp-footer-heading">Links</div>
-                    <a href="{{ url('/') }}">Home</a>
-                    <a href="{{ route('blog') }}">Gallery</a>
-                    <a href="{{ url('/') }}">About Us</a>
+                    <a href="{{ url('/') }}">The Resort</a>
                     <a href="{{ route('accommodations.browse') }}">Accommodations</a>
-                    <a href="{{ route('blog') }}">Contacts</a>
+                    <a href="{{ route('gallery') }}">Gallery</a>
+                    <a href="{{ route('blog') }}">Offers</a>
+                    <a href="{{ route('blog') }}">Contact us</a>
                 </div>
                 <div class="col-6 col-md-3">
                     <div class="rp-footer-heading">Get in Touch</div>
