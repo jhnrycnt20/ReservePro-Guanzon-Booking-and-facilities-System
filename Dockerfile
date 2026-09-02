@@ -30,7 +30,7 @@ ENV APP_ENV=production \
     LOG_CHANNEL=stderr \
     DB_CONNECTION=sqlite \
     DB_DATABASE=/app/database/database.sqlite \
-    SESSION_DRIVER=file \
+    SESSION_DRIVER=cookie \
     CACHE_DRIVER=file \
     QUEUE_CONNECTION=sync
 

@@ -9,10 +9,20 @@ fi
 
 export DB_CONNECTION=sqlite
 export DB_DATABASE="${DB_DATABASE:-/app/database/database.sqlite}"
+export SESSION_DRIVER="${SESSION_DRIVER:-cookie}"
 
 if [ -f .env ]; then
     sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
     sed -i "s|^DB_DATABASE=.*|DB_DATABASE=${DB_DATABASE}|" .env
+    sed -i "s|^SESSION_DRIVER=.*|SESSION_DRIVER=${SESSION_DRIVER}|" .env
+
+    if [ -n "$APP_URL" ]; then
+        sed -i "s|^APP_URL=.*|APP_URL=${APP_URL}|" .env
+    fi
+
+    if [ -n "$APP_KEY" ]; then
+        sed -i "s|^APP_KEY=.*|APP_KEY=${APP_KEY}|" .env
+    fi
 fi
 
 php artisan config:clear
@@ -20,6 +30,7 @@ php artisan cache:clear
 
 DB_PATH="${DB_DATABASE}"
 mkdir -p "$(dirname "$DB_PATH")"
+mkdir -p storage/framework/sessions storage/framework/cache storage/framework/views
 
 if [ ! -f "$DB_PATH" ] || [ ! -s "$DB_PATH" ]; then
     touch "$DB_PATH"
