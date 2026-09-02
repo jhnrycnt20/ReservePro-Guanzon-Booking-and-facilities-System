@@ -3,7 +3,7 @@
   "appName": "ReservePro",
   "webDir": "www",
   "server": {
-    "url": "https://YOUR-PRODUCTION-URL.onrender.com",
+    "url": "https://reservepro-9a0b.onrender.com",
     "cleartext": false,
     "androidScheme": "https"
   },
@@ -13,13 +13,13 @@
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 2000,
-      "backgroundColor": "#14532d",
+      "backgroundColor": "#0b0b0b",
       "showSpinner": true,
-      "spinnerColor": "#ffffff"
+      "spinnerColor": "#5eead4"
     },
     "StatusBar": {
       "style": "LIGHT",
-      "backgroundColor": "#14532d"
+      "backgroundColor": "#0b0b0b"
     }
   }
 }

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'reservepro-shell-v3';
+const CACHE_NAME = 'reservepro-shell-v4';
 const OFFLINE_URL = '/offline.html';
 const PRECACHE = [
     OFFLINE_URL,
@@ -7,6 +7,7 @@ const PRECACHE = [
     '/js/reservepro.js',
     '/icons/icon-192.png',
     '/icons/icon-512.png',
+    '/icons/apple-touch-icon.png',
 ];
 
 self.addEventListener('install', (event) => {

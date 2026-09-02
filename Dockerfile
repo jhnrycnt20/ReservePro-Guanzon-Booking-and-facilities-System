@@ -8,7 +8,9 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libpng-dev \
     libonig-dev \
-    && docker-php-ext-install pdo pdo_mysql zip \
+    sqlite3 \
+    libsqlite3-dev \
+    && docker-php-ext-install pdo pdo_sqlite zip \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -20,7 +22,8 @@ COPY . .
 
 RUN composer dump-autoload --optimize \
     && mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache database \
-    && chmod -R 775 storage bootstrap/cache
+    && chmod -R 775 storage bootstrap/cache database \
+    && chmod +x docker/entrypoint.sh
 
 ENV APP_ENV=production \
     APP_DEBUG=false \
@@ -33,10 +36,8 @@ ENV APP_ENV=production \
 
 RUN cp .env.example .env \
     && php artisan key:generate --force \
-    && touch database/database.sqlite \
-    && php artisan migrate:fresh --seed --force \
     && php artisan storage:link
 
 EXPOSE 10000
 
-CMD php artisan serve --host=0.0.0.0 --port=${PORT:-10000}
+CMD ["docker/entrypoint.sh"]
