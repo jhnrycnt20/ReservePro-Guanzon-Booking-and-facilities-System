@@ -18,45 +18,43 @@ function New-GuanzonIcon {
         [int]$Size
     )
 
-    if ($Size -lt 48) { throw "Invalid icon size: $Size" }
-
     $src = [System.Drawing.Bitmap]::FromFile($SrcPath)
     $bmp = New-Object System.Drawing.Bitmap $Size, $Size
     $g = [System.Drawing.Graphics]::FromImage($bmp)
     $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::HighQuality
     $g.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
-    $g.Clear([System.Drawing.Color]::FromArgb(255, 11, 11, 11))
+    $g.PixelOffsetMode = [System.Drawing.Drawing2D.PixelOffsetMode]::HighQuality
 
-    $pad = [Math]::Max(8, [int][Math]::Round($Size * 0.12))
+    $black = [System.Drawing.Color]::FromArgb(255, 11, 11, 11)
+    $mint = [System.Drawing.Color]::FromArgb(255, 94, 234, 212)
+    $g.Clear($black)
+
+    $pad = [Math]::Max(10, [int][Math]::Round($Size * 0.14))
     $w = $Size - (2 * $pad)
     $h = $Size - (2 * $pad)
 
-    $temp = New-Object System.Drawing.Bitmap $w, $h, ([System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+    $temp = New-Object System.Drawing.Bitmap $src.Width, $src.Height, ([System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
     $tg = [System.Drawing.Graphics]::FromImage($temp)
-    $tg.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
-    $tg.Clear([System.Drawing.Color]::Transparent)
-    $tg.DrawImage($src, 0, 0, $w, $h)
+    $tg.DrawImage($src, 0, 0, $src.Width, $src.Height)
     $tg.Dispose()
 
-    $mint = [System.Drawing.Color]::FromArgb(255, 94, 234, 212)
-
     for ($y = 0; $y -lt $h; $y++) {
+        $sy = [int][Math]::Floor($y * $temp.Height / $h)
         for ($x = 0; $x -lt $w; $x++) {
-            $p = $temp.GetPixel($x, $y)
-            $lum = (0.299 * $p.R) + (0.587 * $p.G) + (0.114 * $p.B)
+            $sx = [int][Math]::Floor($x * $temp.Width / $w)
+            $p = $temp.GetPixel($sx, $sy)
 
-            if ($lum -gt 165) {
-                $temp.SetPixel($x, $y, $mint)
-            } elseif ($lum -gt 95) {
-                $alpha = [Math]::Min(255, [Math]::Max(0, [int](($lum - 95) / 70 * 255)))
-                $temp.SetPixel($x, $y, [System.Drawing.Color]::FromArgb($alpha, $mint.R, $mint.G, $mint.B))
-            } else {
-                $temp.SetPixel($x, $y, [System.Drawing.Color]::Transparent)
+            $brightness = ($p.R + $p.G + $p.B) / 3.0
+            if ($brightness -gt 140) {
+                $strength = [Math]::Min(1.0, ($brightness - 140) / 80.0)
+                $r = [int]($black.R + ($mint.R - $black.R) * $strength)
+                $gr = [int]($black.G + ($mint.G - $black.G) * $strength)
+                $b = [int]($black.B + ($mint.B - $black.B) * $strength)
+                $bmp.SetPixel($pad + $x, $pad + $y, [System.Drawing.Color]::FromArgb(255, $r, $gr, $b))
             }
         }
     }
 
-    $g.DrawImage($temp, $pad, $pad, $w, $h)
     $dir = Split-Path $OutPath -Parent
     if (-not (Test-Path $dir)) {
         New-Item -ItemType Directory -Force -Path $dir | Out-Null
