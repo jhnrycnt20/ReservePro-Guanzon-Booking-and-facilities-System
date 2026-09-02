@@ -36,16 +36,21 @@
     <div class="col-lg-5">
         <div class="rp-card">
             <h2 class="h5 mb-3">Check Availability</h2>
-            <form method="GET" action="{{ route('accommodations.availability', $accommodation) }}" class="mb-3">
+            <form method="GET" action="{{ route('accommodations.availability', $accommodation) }}" class="mb-3" id="rpAvailabilityForm"
+                  data-rp-availability-form
+                  data-occupied-url="{{ route('accommodations.occupied-dates', $accommodation) }}">
                 <div class="mb-3">
                     <label class="form-label">Check-in</label>
-                    <input type="date" name="check_in" class="form-control" value="{{ request('check_in', old('check_in_date')) }}" min="{{ now()->toDateString() }}" data-stay-check-in required>
+                    <input type="date" name="check_in" class="form-control" value="{{ request('check_in', old('check_in_date')) }}" min="{{ now()->toDateString() }}" data-stay-check-in data-rp-open-calendar readonly required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Check-out</label>
-                    <input type="date" name="check_out" class="form-control" value="{{ request('check_out', old('check_out_date')) }}" min="{{ now()->addDay()->toDateString() }}" data-stay-check-out required>
+                    <input type="date" name="check_out" class="form-control" value="{{ request('check_out', old('check_out_date')) }}" min="{{ now()->addDay()->toDateString() }}" data-stay-check-out data-rp-open-calendar readonly required>
                 </div>
-                <button class="btn btn-rp-soft w-100">Check Availability</button>
+                <button type="button" class="btn btn-rp-soft w-100 mb-2" data-rp-show-calendar>
+                    <i class="bi bi-calendar3 me-1"></i> Open calendar
+                </button>
+                <button type="button" class="btn btn-rp-primary w-100" data-rp-show-calendar>Check Availability</button>
             </form>
 
             @isset($available)
@@ -67,4 +72,6 @@
 @if(!auth()->check())
 </div>
 @endif
+
+@include('partials.availability-calendar')
 @endsection

@@ -57,6 +57,7 @@ Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::get('/accommodations', [AccommodationBrowseController::class, 'index'])->name('accommodations.browse');
 Route::get('/accommodations/{accommodation}', [AccommodationBrowseController::class, 'show'])->name('accommodations.show');
 Route::get('/accommodations/{accommodation}/availability', [AccommodationBrowseController::class, 'availability'])->name('accommodations.availability');
+Route::get('/accommodations/{accommodation}/occupied-dates', [AccommodationBrowseController::class, 'occupiedDates'])->name('accommodations.occupied-dates');
 
 Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');

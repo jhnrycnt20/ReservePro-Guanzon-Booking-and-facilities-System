@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link href="{{ asset('css/reservepro.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/reservepro.css') }}?v={{ filemtime(public_path('css/reservepro.css')) }}" rel="stylesheet">
     @stack('styles')
 </head>
 <body class="rp-public">
@@ -32,7 +32,15 @@
                 <a class="rp-nav-link rp-nav-link-extra" href="{{ route('gallery') }}">Gallery</a>
                 <a class="rp-nav-link rp-nav-link-extra" href="{{ route('blog') }}">Offers</a>
                 <a class="rp-nav-link rp-nav-link-extra" href="{{ route('blog') }}">Contact</a>
-                <a class="rp-nav-link rp-nav-link-booknow" href="{{ route('accommodations.browse') }}">Book Now</a>
+                <div class="rp-nav-actions">
+                    @guest
+                        <a class="rp-nav-auth-btn" href="{{ route('login') }}">Login</a>
+                        <a class="rp-nav-auth-btn rp-nav-auth-btn-primary" href="{{ route('register') }}">Sign Up</a>
+                    @else
+                        <a class="rp-nav-auth-btn" href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
+                    @endguest
+                    <a class="rp-nav-link rp-nav-link-booknow" href="{{ route('accommodations.browse') }}">Book Now</a>
+                </div>
             </div>
         </div>
     </nav>
@@ -43,6 +51,12 @@
             <a href="{{ route('gallery') }}">Gallery</a>
             <a href="{{ route('blog') }}">Offers</a>
             <a href="{{ route('blog') }}">Contact</a>
+            @guest
+                <a href="{{ route('login') }}">Login</a>
+                <a href="{{ route('register') }}">Sign Up</a>
+            @else
+                <a href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
+            @endguest
             <a href="{{ route('accommodations.browse') }}">Book Now</a>
         </nav>
         <div class="rp-nav-overlay-social">
@@ -65,29 +79,33 @@
     </div>
 
     <footer class="rp-footer">
-        <div class="container py-5">
-            <div class="row g-4">
-                <div class="col-6 col-md-3">
+        <div class="container py-2 py-sm-3 py-md-5">
+            <div class="row g-1 g-sm-2 g-md-4">
+                <div class="col-12 col-md-3">
                     <div class="rp-footer-heading">Working Hours</div>
-                    <p class="rp-footer-text">Front Desk: Open 24/7</p>
-                    <p class="rp-footer-text">Check-in: 2:00 PM</p>
-                    <p class="rp-footer-text">Check-out: 12:00 PM</p>
+                    <div class="rp-footer-hours">
+                        <p class="rp-footer-text">Front Desk: Open 24/7</p>
+                        <p class="rp-footer-text">Check-in: 2:00 PM</p>
+                        <p class="rp-footer-text">Check-out: 12:00 PM</p>
+                    </div>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col-12 col-md-3">
                     <div class="rp-footer-heading">Office</div>
                     <p class="rp-footer-text">Guanzon Beach · Bluepool Waterpark</p>
                     <a href="mailto:info@guanzonresort.com" class="rp-footer-link-underline">info@guanzonresort.com</a>
                     <p class="rp-footer-phone">09190644054 · 265-7942</p>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col-12 col-md-3">
                     <div class="rp-footer-heading">Links</div>
-                    <a href="{{ url('/') }}">The Resort</a>
-                    <a href="{{ route('accommodations.browse') }}">Accommodations</a>
-                    <a href="{{ route('gallery') }}">Gallery</a>
-                    <a href="{{ route('blog') }}">Offers</a>
-                    <a href="{{ route('blog') }}">Contact us</a>
+                    <div class="rp-footer-links">
+                        <a href="{{ url('/') }}">The Resort</a>
+                        <a href="{{ route('accommodations.browse') }}">Accommodations</a>
+                        <a href="{{ route('gallery') }}">Gallery</a>
+                        <a href="{{ route('blog') }}">Offers</a>
+                        <a href="{{ route('blog') }}">Contact us</a>
+                    </div>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col-12 col-md-3">
                     <div class="rp-footer-heading">Get in Touch</div>
                     <div class="rp-footer-social">
                         <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
@@ -104,7 +122,7 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ asset('js/reservepro.js') }}"></script>
+    <script src="{{ asset('js/reservepro.js') }}?v={{ filemtime(public_path('js/reservepro.js')) }}"></script>
     @stack('scripts')
 </body>
 </html>

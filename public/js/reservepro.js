@@ -260,4 +260,246 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isIos && !isStandalone) {
         iosInstallHelp?.classList.remove('d-none');
     }
+
+    initAvailabilityCalendar();
 });
+
+function initAvailabilityCalendar() {
+    const modalEl = document.getElementById('rpAvailabilityModal');
+    const form = document.querySelector('[data-rp-availability-form]');
+    const calendarRoot = document.querySelector('[data-rp-availability-calendar]');
+
+    if (!modalEl || !form || !calendarRoot || !window.bootstrap) {
+        return;
+    }
+
+    const occupiedUrl = form.dataset.occupiedUrl;
+    const checkInInput = form.querySelector('[data-stay-check-in]');
+    const checkOutInput = form.querySelector('[data-stay-check-out]');
+    const titleEl = calendarRoot.querySelector('[data-rp-cal-title]');
+    const daysEl = calendarRoot.querySelector('[data-rp-cal-days]');
+    const selectionEl = calendarRoot.querySelector('[data-rp-cal-selection]');
+    const applyBtn = modalEl.querySelector('[data-rp-cal-apply]');
+    const prevBtn = calendarRoot.querySelector('[data-rp-cal-prev]');
+    const nextBtn = calendarRoot.querySelector('[data-rp-cal-next]');
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+    const pad = (n) => String(n).padStart(2, '0');
+    const toYmd = (date) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+    const parseYmd = (ymd) => new Date(`${ymd}T00:00:00`);
+    const todayYmd = toYmd(new Date());
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+    let viewYear = new Date().getFullYear();
+    let viewMonth = new Date().getMonth() + 1;
+    let occupiedSet = new Set();
+    let pendingCheckIn = checkInInput?.value || '';
+    let pendingCheckOut = checkOutInput?.value || '';
+    let selectingCheckout = false;
+
+    const updateApplyState = () => {
+        const valid = pendingCheckIn && pendingCheckOut && pendingCheckOut > pendingCheckIn;
+        applyBtn.disabled = !valid;
+    };
+
+    const formatSelection = () => {
+        if (!pendingCheckIn) {
+            return 'Pick a check-in date, then a check-out date.';
+        }
+        if (!pendingCheckOut) {
+            return `Check-in: ${pendingCheckIn}. Now pick a check-out date.`;
+        }
+        return `Check-in: ${pendingCheckIn} · Check-out: ${pendingCheckOut}`;
+    };
+
+    const isPast = (ymd) => ymd < todayYmd;
+    const isOccupied = (ymd) => occupiedSet.has(ymd);
+
+    const rangeHasOccupied = (startYmd, endYmd) => {
+        let cursor = parseYmd(startYmd);
+        const end = parseYmd(endYmd);
+        while (cursor < end) {
+            if (isOccupied(toYmd(cursor)) || isPast(toYmd(cursor))) {
+                return true;
+            }
+            cursor.setDate(cursor.getDate() + 1);
+        }
+        return false;
+    };
+
+    const fetchOccupied = async (year, month) => {
+        const url = new URL(occupiedUrl, window.location.origin);
+        url.searchParams.set('year', String(year));
+        url.searchParams.set('month', String(month));
+        const response = await fetch(url.toString(), {
+            headers: { Accept: 'application/json' },
+        });
+        if (!response.ok) {
+            throw new Error('Could not load availability');
+        }
+        const data = await response.json();
+        return data.occupied || [];
+    };
+
+    const renderCalendar = () => {
+        titleEl.textContent = `${monthNames[viewMonth - 1]} ${viewYear}`;
+        daysEl.innerHTML = '';
+
+        const firstDay = new Date(viewYear, viewMonth - 1, 1);
+        const startOffset = firstDay.getDay();
+        const daysInMonth = new Date(viewYear, viewMonth, 0).getDate();
+
+        for (let i = 0; i < startOffset; i += 1) {
+            const spacer = document.createElement('span');
+            spacer.className = 'rp-availability-day is-empty';
+            spacer.setAttribute('aria-hidden', 'true');
+            daysEl.appendChild(spacer);
+        }
+
+        for (let day = 1; day <= daysInMonth; day += 1) {
+            const ymd = `${viewYear}-${pad(viewMonth)}-${pad(day)}`;
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'rp-availability-day';
+            btn.textContent = String(day);
+            btn.dataset.date = ymd;
+
+            const past = isPast(ymd);
+            const occupied = isOccupied(ymd);
+
+            if (past) {
+                btn.classList.add('is-past');
+                btn.disabled = true;
+            } else if (occupied) {
+                btn.classList.add('is-occupied');
+                btn.disabled = true;
+                btn.title = 'Occupied';
+            } else {
+                btn.classList.add('is-available');
+            }
+
+            if (pendingCheckIn && ymd === pendingCheckIn) {
+                btn.classList.add('is-check-in');
+            }
+            if (pendingCheckOut && ymd === pendingCheckOut) {
+                btn.classList.add('is-check-out');
+            }
+            if (pendingCheckIn && pendingCheckOut && ymd > pendingCheckIn && ymd < pendingCheckOut) {
+                btn.classList.add('is-in-range');
+            }
+
+            if (!btn.disabled) {
+                btn.addEventListener('click', () => handleDayClick(ymd));
+            }
+
+            daysEl.appendChild(btn);
+        }
+
+        selectionEl.textContent = formatSelection();
+        updateApplyState();
+    };
+
+    const handleDayClick = (ymd) => {
+        if (isOccupied(ymd) || isPast(ymd)) {
+            return;
+        }
+
+        if (!pendingCheckIn || selectingCheckout === false) {
+            pendingCheckIn = ymd;
+            pendingCheckOut = '';
+            selectingCheckout = true;
+            renderCalendar();
+            return;
+        }
+
+        if (ymd <= pendingCheckIn) {
+            pendingCheckIn = ymd;
+            pendingCheckOut = '';
+            selectingCheckout = true;
+            renderCalendar();
+            return;
+        }
+
+        if (rangeHasOccupied(pendingCheckIn, ymd)) {
+            selectionEl.textContent = 'Those dates include occupied nights. Pick a different range.';
+            pendingCheckOut = '';
+            selectingCheckout = true;
+            renderCalendar();
+            return;
+        }
+
+        pendingCheckOut = ymd;
+        selectingCheckout = false;
+        renderCalendar();
+    };
+
+    const loadMonth = async () => {
+        daysEl.classList.add('is-loading');
+        try {
+            const occupied = await fetchOccupied(viewYear, viewMonth);
+            occupied.forEach((date) => occupiedSet.add(date));
+            renderCalendar();
+        } catch {
+            selectionEl.textContent = 'Unable to load availability. Please try again.';
+        } finally {
+            daysEl.classList.remove('is-loading');
+        }
+    };
+
+    const openCalendar = () => {
+        pendingCheckIn = checkInInput?.value || '';
+        pendingCheckOut = checkOutInput?.value || '';
+        selectingCheckout = Boolean(pendingCheckIn && !pendingCheckOut);
+        occupiedSet = new Set();
+
+        const base = pendingCheckIn ? parseYmd(pendingCheckIn) : new Date();
+        viewYear = base.getFullYear();
+        viewMonth = base.getMonth() + 1;
+
+        modal.show();
+        loadMonth();
+    };
+
+    prevBtn?.addEventListener('click', () => {
+        viewMonth -= 1;
+        if (viewMonth < 1) {
+            viewMonth = 12;
+            viewYear -= 1;
+        }
+        loadMonth();
+    });
+
+    nextBtn?.addEventListener('click', () => {
+        viewMonth += 1;
+        if (viewMonth > 12) {
+            viewMonth = 1;
+            viewYear += 1;
+        }
+        loadMonth();
+    });
+
+    applyBtn?.addEventListener('click', () => {
+        if (!pendingCheckIn || !pendingCheckOut) {
+            return;
+        }
+        checkInInput.value = pendingCheckIn;
+        checkOutInput.value = pendingCheckOut;
+        checkInInput.dispatchEvent(new Event('change', { bubbles: true }));
+        modal.hide();
+        form.submit();
+    });
+
+    document.querySelectorAll('[data-rp-show-calendar]').forEach((el) => {
+        el.addEventListener('click', (event) => {
+            event.preventDefault();
+            openCalendar();
+        });
+    });
+
+    form.querySelectorAll('[data-rp-open-calendar]').forEach((el) => {
+        el.addEventListener('click', (event) => {
+            event.preventDefault();
+            openCalendar();
+        });
+    });
+}

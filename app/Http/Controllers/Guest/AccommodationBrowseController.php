@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Accommodation;
 use App\Models\AccommodationType;
 use App\Services\AvailabilityService;
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -68,5 +70,28 @@ class AccommodationBrowseController extends Controller
         ]);
 
         return $this->show($request, $accommodation);
+    }
+
+    public function occupiedDates(Request $request, Accommodation $accommodation): JsonResponse
+    {
+        $request->validate([
+            'year' => ['required', 'integer', 'min:2000', 'max:2100'],
+            'month' => ['required', 'integer', 'min:1', 'max:12'],
+        ]);
+
+        $start = Carbon::create($request->integer('year'), $request->integer('month'), 1)->startOfMonth();
+        $end = $start->copy()->endOfMonth();
+
+        $occupied = $this->availabilityService->getOccupiedDates(
+            $accommodation->id,
+            $start,
+            $end
+        );
+
+        return response()->json([
+            'occupied' => $occupied,
+            'year' => $start->year,
+            'month' => $start->month,
+        ]);
     }
 }

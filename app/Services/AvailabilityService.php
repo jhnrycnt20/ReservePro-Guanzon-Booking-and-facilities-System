@@ -71,4 +71,47 @@ class AvailabilityService
 
         return $query->exists();
     }
+
+    /**
+     * @return list<string> Date strings (Y-m-d) that are occupied for the accommodation.
+     */
+    public function getOccupiedDates(
+        int $accommodationId,
+        CarbonInterface|string $from,
+        CarbonInterface|string $to
+    ): array {
+        $fromDate = Carbon::parse($from)->startOfDay();
+        $toDate = Carbon::parse($to)->startOfDay();
+
+        if ($toDate->lt($fromDate)) {
+            return [];
+        }
+
+        $bookings = Booking::query()
+            ->where('accommodation_id', $accommodationId)
+            ->whereIn('status', [
+                BookingStatus::Pending->value,
+                BookingStatus::Approved->value,
+                BookingStatus::CheckedIn->value,
+            ])
+            ->where('check_in_date', '<', $toDate->copy()->addDay()->toDateString())
+            ->where('check_out_date', '>', $fromDate->toDateString())
+            ->get(['check_in_date', 'check_out_date']);
+
+        $occupied = [];
+
+        foreach ($bookings as $booking) {
+            $cursor = Carbon::parse($booking->check_in_date)->startOfDay();
+            $end = Carbon::parse($booking->check_out_date)->startOfDay();
+
+            while ($cursor->lt($end) && $cursor->lte($toDate)) {
+                if ($cursor->gte($fromDate)) {
+                    $occupied[] = $cursor->toDateString();
+                }
+                $cursor->addDay();
+            }
+        }
+
+        return array_values(array_unique($occupied));
+    }
 }

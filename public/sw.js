@@ -1,10 +1,8 @@
-const CACHE_NAME = 'reservepro-shell-v5';
+const CACHE_NAME = 'reservepro-shell-v7';
 const OFFLINE_URL = '/offline.html';
 const PRECACHE = [
     OFFLINE_URL,
     '/manifest.webmanifest',
-    '/css/reservepro.css',
-    '/js/reservepro.js',
     '/icons/icon-192.png',
     '/icons/icon-512.png',
     '/icons/apple-touch-icon.png',
@@ -42,6 +40,11 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
+    if (isFreshAsset(url.pathname)) {
+        event.respondWith(networkFirst(request));
+        return;
+    }
+
     event.respondWith(
         caches.match(request).then((cached) => {
             const networkFetch = fetch(request)
@@ -59,10 +62,24 @@ self.addEventListener('fetch', (event) => {
     );
 });
 
+function isFreshAsset(pathname) {
+    return pathname.startsWith('/css/') || pathname.startsWith('/js/');
+}
+
+function networkFirst(request) {
+    return fetch(request)
+        .then((response) => {
+            if (response && response.ok) {
+                const copy = response.clone();
+                caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+            }
+            return response;
+        })
+        .catch(() => caches.match(request));
+}
+
 function shouldCache(pathname) {
     return (
-        pathname.startsWith('/css/') ||
-        pathname.startsWith('/js/') ||
         pathname.startsWith('/icons/') ||
         pathname.startsWith('/images/') ||
         pathname === '/manifest.webmanifest' ||
