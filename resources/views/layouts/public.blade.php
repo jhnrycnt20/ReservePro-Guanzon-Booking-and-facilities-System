@@ -29,7 +29,6 @@
             </div>
             <div class="rp-nav-links">
                 <a class="rp-nav-link rp-nav-link-extra" href="{{ url('/') }}">The Resort</a>
-                <a class="rp-nav-link rp-nav-link-extra" href="{{ route('accommodations.browse') }}">Accommodations</a>
                 <a class="rp-nav-link rp-nav-link-extra" href="{{ route('gallery') }}">Gallery</a>
                 <a class="rp-nav-link rp-nav-link-extra" href="{{ route('blog') }}">Offers</a>
                 <a class="rp-nav-link rp-nav-link-extra" href="{{ route('blog') }}">Contact</a>
@@ -41,7 +40,6 @@
     <div class="rp-nav-overlay" id="rpNavOverlay">
         <nav class="rp-nav-overlay-links">
             <a href="{{ url('/') }}">The Resort</a>
-            <a href="{{ route('accommodations.browse') }}">Accommodations</a>
             <a href="{{ route('gallery') }}">Gallery</a>
             <a href="{{ route('blog') }}">Offers</a>
             <a href="{{ route('blog') }}">Contact</a>
