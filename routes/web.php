@@ -27,11 +27,19 @@ use App\Http\Controllers\Guest\PaymentController as GuestPaymentController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Security\DashboardController as SecurityDashboardController;
 use App\Http\Controllers\Security\InvestigationController;
+use App\Models\Accommodation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    $featuredAccommodations = Accommodation::query()
+        ->with('type')
+        ->where('is_active', true)
+        ->orderBy('rate')
+        ->take(6)
+        ->get();
+
+    return view('welcome', compact('featuredAccommodations'));
 });
 
 Route::get('/blog', function () {

@@ -18,6 +18,7 @@ class AmenitySeeder extends Seeder
             ['name' => 'Pool Access', 'icon' => 'water', 'description' => 'Access to resort pool'],
             ['name' => 'Kitchenette', 'icon' => 'utensils', 'description' => 'Basic cooking facilities'],
             ['name' => 'Parking', 'icon' => 'car', 'description' => 'Complimentary parking'],
+            ['name' => 'Videoke', 'icon' => 'mic', 'description' => 'Karaoke / videoke available'],
         ];
 
         foreach ($amenities as $amenity) {

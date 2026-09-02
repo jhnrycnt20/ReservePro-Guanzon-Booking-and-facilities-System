@@ -15,6 +15,7 @@ if [ ! -f "$DB_PATH" ] || [ ! -s "$DB_PATH" ]; then
     php artisan migrate:fresh --seed --force
 else
     php artisan migrate --force
+    php artisan db:seed --force
 fi
 
 php artisan config:clear

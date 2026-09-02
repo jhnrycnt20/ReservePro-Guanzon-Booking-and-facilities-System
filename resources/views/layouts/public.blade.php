@@ -75,9 +75,9 @@
                 </div>
                 <div class="col-6 col-md-3">
                     <div class="rp-footer-heading">Office</div>
-                    <p class="rp-footer-text">Guanzon Resort —<br>Guanzon Beach Road,<br>Philippines</p>
+                    <p class="rp-footer-text">Guanzon Beach · Bluepool Waterpark</p>
                     <a href="mailto:info@guanzonresort.com" class="rp-footer-link-underline">info@guanzonresort.com</a>
-                    <p class="rp-footer-phone">+63 900 000 0000</p>
+                    <p class="rp-footer-phone">09190644054 · 265-7942</p>
                 </div>
                 <div class="col-6 col-md-3">
                     <div class="rp-footer-heading">Links</div>

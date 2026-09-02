@@ -84,38 +84,37 @@
 <section class="py-5 rp-cottages-section">
     <div class="container">
         <div class="rp-cottages-kicker">Luxury Property</div>
-        <h2 class="rp-cottages-heading">Cottages that embody comfort</h2>
+        <h2 class="rp-cottages-heading">Guanzon Beach rates & accommodations</h2>
+        <p class="text-muted mb-0">Official day use and overnight rates. Day use hours: 8:00 AM – 5:00 PM.</p>
         <div class="row g-4 mt-2">
-            @foreach ([
-                ['title' => 'Garden Cottage', 'image' => 'https://images.unsplash.com/photo-1602343168117-bb8ffe3e2e9f?auto=format&fit=crop&w=700&q=80', 'status' => 'Available', 'area' => '220 sq. ft.', 'type' => 'Cottage'],
-                ['title' => 'Ocean View Room', 'image' => 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=700&q=80', 'status' => 'Available', 'area' => '180 sq. ft.', 'type' => 'Room'],
-                ['title' => 'Family Suite', 'image' => 'https://images.unsplash.com/photo-1591088398332-8a7791972843?auto=format&fit=crop&w=700&q=80', 'status' => 'Available', 'area' => '260 sq. ft.', 'type' => 'Suite'],
-                ['title' => 'Beachfront Villa', 'image' => 'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=700&q=80', 'status' => 'Booked', 'area' => '320 sq. ft.', 'type' => 'Villa'],
-                ['title' => 'Deluxe Room', 'image' => 'https://images.unsplash.com/photo-1611048267451-e6ed903d4a38?auto=format&fit=crop&w=700&q=80', 'status' => 'Available', 'area' => '150 sq. ft.', 'type' => 'Room'],
-                ['title' => 'Poolside Cabana', 'image' => 'https://images.unsplash.com/photo-1615880484746-a134be9a6ecf?auto=format&fit=crop&w=700&q=80', 'status' => 'Available', 'area' => '95 sq. ft.', 'type' => 'Cabana'],
-            ] as $cottage)
+            @forelse($featuredAccommodations ?? [] as $item)
                 <div class="col-md-4">
-                    <a href="{{ route('accommodations.browse') }}" class="rp-cottage-card">
-                        <img src="{{ $cottage['image'] }}" alt="{{ $cottage['title'] }}">
+                    <a href="{{ route('accommodations.show', $item) }}" class="rp-cottage-card">
+                        <img src="{{ $item->image_url }}" alt="{{ $item->name }}">
                         <div class="rp-cottage-card-body">
-                            <div class="rp-cottage-title">{{ $cottage['title'] }}</div>
-                            <div class="rp-cottage-subtitle">Accommodations</div>
+                            <div class="rp-cottage-title">{{ $item->name }}</div>
+                            <div class="rp-cottage-subtitle">{{ $item->type->name ?? 'Accommodation' }}</div>
+                            <div class="rp-cottage-row">
+                                <span>Rate</span>
+                                <span>₱{{ number_format($item->rate, 0) }}</span>
+                            </div>
+                            <div class="rp-cottage-row">
+                                <span>Max guests</span>
+                                <span>{{ $item->capacity }}</span>
+                            </div>
                             <div class="rp-cottage-row">
                                 <span>Status</span>
-                                <span>{{ $cottage['status'] }}</span>
-                            </div>
-                            <div class="rp-cottage-row">
-                                <span>Area</span>
-                                <span>{{ $cottage['area'] }}</span>
-                            </div>
-                            <div class="rp-cottage-row">
-                                <span>Type</span>
-                                <span>{{ $cottage['type'] }}</span>
+                                <span>{{ ucfirst($item->status->value ?? $item->status) }}</span>
                             </div>
                         </div>
                     </a>
                 </div>
-            @endforeach
+            @empty
+                <div class="col-12 text-muted">Accommodation listings will appear here once configured.</div>
+            @endforelse
+        </div>
+        <div class="text-center mt-4">
+            <a href="{{ route('accommodations.browse') }}" class="btn btn-rp-primary">View all rates & book</a>
         </div>
     </div>
 </section>
