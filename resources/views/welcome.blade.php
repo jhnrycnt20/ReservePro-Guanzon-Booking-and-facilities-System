@@ -83,9 +83,8 @@
 
 <section class="py-5 rp-cottages-section">
     <div class="container">
-        <div class="rp-cottages-kicker">Luxury Property</div>
-        <h2 class="rp-cottages-heading">Guanzon Beach rates & accommodations</h2>
-        <p class="text-muted mb-0">Official day use and overnight rates. Day use hours: 8:00 AM – 5:00 PM.</p>
+        <div class="rp-cottages-kicker">VALUE FILLED STAY</div>
+        <h2 class="rp-cottages-heading">Our Rooms</h2>
         <div class="row g-4 mt-2">
             @forelse($featuredAccommodations ?? [] as $item)
                 <div class="col-md-4">
@@ -113,10 +112,17 @@
                 <div class="col-12 text-muted">Accommodation listings will appear here once configured.</div>
             @endforelse
         </div>
-        <div class="text-center mt-4">
-            <a href="{{ route('accommodations.browse') }}" class="btn btn-rp-primary">View all rates & book</a>
+        <div class="rp-view-rates-wrap">
+            <a href="{{ route('accommodations.browse') }}" class="rp-view-rates-btn">
+                VIEW ALL MORE <span class="rp-view-rates-arrow">→</span>
+            </a>
         </div>
     </div>
 </section>
+
+<div class="rp-gallery-banner">
+    <div class="rp-gallery-banner-bg" style="background-image: url('https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=1800&q=80');"></div>
+    <img class="rp-gallery-banner-logo" src="{{ asset('images/guanzon_logoW.png') }}" alt="Guanzon Resort">
+</div>
 
 @endsection

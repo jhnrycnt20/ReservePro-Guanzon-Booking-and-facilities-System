@@ -30,16 +30,15 @@
             <div class="rp-nav-links">
                 <a class="rp-nav-link rp-nav-link-extra" href="{{ url('/') }}">The Resort</a>
                 <a class="rp-nav-link rp-nav-link-extra" href="{{ route('gallery') }}">Gallery</a>
-                <a class="rp-nav-link rp-nav-link-extra" href="{{ route('blog') }}">Offers</a>
-                <a class="rp-nav-link rp-nav-link-extra" href="{{ route('blog') }}">Contact</a>
+                <a class="rp-nav-link rp-nav-link-extra" href="{{ route('offers') }}">Offers</a>
+                <a class="rp-nav-link rp-nav-link-extra" href="{{ route('contact') }}">Contact</a>
                 <div class="rp-nav-actions">
-                    @guest
-                        <a class="rp-nav-auth-btn" href="{{ route('login') }}">Login</a>
-                        <a class="rp-nav-auth-btn rp-nav-auth-btn-primary" href="{{ route('register') }}">Sign Up</a>
-                    @else
+                    @auth
                         <a class="rp-nav-auth-btn" href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
-                    @endguest
-                    <a class="rp-nav-link rp-nav-link-booknow" href="{{ route('accommodations.browse') }}">Book Now</a>
+                    @endauth
+                    @unless (request()->routeIs('accommodations.*'))
+                        <a class="rp-nav-link rp-nav-link-booknow" href="{{ route('accommodations.browse') }}">Book Now</a>
+                    @endunless
                 </div>
             </div>
         </div>
@@ -49,15 +48,13 @@
         <nav class="rp-nav-overlay-links">
             <a href="{{ url('/') }}">The Resort</a>
             <a href="{{ route('gallery') }}">Gallery</a>
-            <a href="{{ route('blog') }}">Offers</a>
-            <a href="{{ route('blog') }}">Contact</a>
-            @guest
-                <a href="{{ route('login') }}">Login</a>
-                <a href="{{ route('register') }}">Sign Up</a>
-            @else
+            <a href="{{ route('offers') }}">Offers</a>
+            <a href="{{ route('contact') }}">Contact</a>
+            @auth
                 <a href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
-            @endguest
-            <a href="{{ route('accommodations.browse') }}">Book Now</a>
+            @else
+                <a href="{{ route('login') }}">Log in</a>
+            @endauth
         </nav>
         <div class="rp-nav-overlay-social">
             <div class="rp-nav-overlay-social-label">Connect With Us</div>
@@ -67,16 +64,6 @@
 
     @include('partials.alerts')
     @yield('content')
-
-    <div class="rp-insta-strip">
-        <a href="#" class="rp-insta-cell" style="background-image: url('https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=500&q=80');"></a>
-        <a href="#" class="rp-insta-cell" style="background-image: url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=500&q=80');"></a>
-        <a href="#" class="rp-insta-cell" style="background-image: url('https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=500&q=80');"></a>
-        <a href="#" class="rp-insta-cell" style="background-image: url('https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=500&q=80');"></a>
-        <a href="#" class="rp-insta-cell" style="background-image: url('https://images.unsplash.com/photo-1552733407-5d5c46c3bb3b?auto=format&fit=crop&w=500&q=80');"></a>
-        <a href="#" class="rp-insta-cell" style="background-image: url('https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=500&q=80');"></a>
-        <div class="rp-insta-badge"><i class="bi bi-instagram"></i></div>
-    </div>
 
     <footer class="rp-footer">
         <div class="container py-2 py-sm-3 py-md-5">
@@ -90,7 +77,7 @@
                     </div>
                 </div>
                 <div class="col-12 col-md-3">
-                    <div class="rp-footer-heading">Office</div>
+                    <div class="rp-footer-heading">Location</div>
                     <p class="rp-footer-text">Guanzon Beach · Bluepool Waterpark</p>
                     <a href="mailto:info@guanzonresort.com" class="rp-footer-link-underline">info@guanzonresort.com</a>
                     <p class="rp-footer-phone">09190644054 · 265-7942</p>
@@ -99,10 +86,9 @@
                     <div class="rp-footer-heading">Links</div>
                     <div class="rp-footer-links">
                         <a href="{{ url('/') }}">The Resort</a>
-                        <a href="{{ route('accommodations.browse') }}">Accommodations</a>
                         <a href="{{ route('gallery') }}">Gallery</a>
-                        <a href="{{ route('blog') }}">Offers</a>
-                        <a href="{{ route('blog') }}">Contact us</a>
+                        <a href="{{ route('offers') }}">Offers</a>
+                        <a href="{{ route('contact') }}">Contact us</a>
                     </div>
                 </div>
                 <div class="col-12 col-md-3">

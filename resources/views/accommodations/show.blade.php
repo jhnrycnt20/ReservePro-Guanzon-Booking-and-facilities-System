@@ -11,17 +11,32 @@
 
 @section('content')
 @if(!auth()->check())
-<div class="container py-4">
+<div class="container rp-public-page-top pb-4">
 @endif
 
 <div class="row g-4">
-    <div class="col-lg-7">
-        <div class="rp-card">
-            <img class="w-100 rounded-3 mb-3" style="max-height:360px;object-fit:cover;" src="{{ $accommodation->image_url }}" alt="{{ $accommodation->name }}">
-            <div class="d-flex gap-2 mb-3">
-                <x-status-badge :status="$accommodation->status" />
-                <span class="badge text-bg-light">Capacity: {{ $accommodation->capacity }}</span>
+    <div class="col-lg-6">
+        <div class="rp-cottage-card rp-cottage-card--static mb-4">
+            <img src="{{ $accommodation->image_url }}" alt="{{ $accommodation->name }}">
+            <div class="rp-cottage-card-body">
+                <div class="rp-cottage-title">{{ $accommodation->name }}</div>
+                <div class="rp-cottage-subtitle">{{ $accommodation->accommodationType->name ?? 'Accommodation' }}</div>
+                <div class="rp-cottage-row">
+                    <span>Rate</span>
+                    <span>₱{{ number_format($accommodation->rate, 0) }}</span>
+                </div>
+                <div class="rp-cottage-row">
+                    <span>Max guests</span>
+                    <span>{{ $accommodation->capacity }}</span>
+                </div>
+                <div class="rp-cottage-row">
+                    <span>Status</span>
+                    <span>{{ ucfirst($accommodation->status->value ?? $accommodation->status) }}</span>
+                </div>
             </div>
+        </div>
+
+        <div class="rp-card">
             <p>{{ $accommodation->description }}</p>
             <h3 class="h6">Amenities</h3>
             <div class="d-flex flex-wrap gap-2">
@@ -33,7 +48,7 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-5">
+    <div class="col-lg-6">
         <div class="rp-card">
             <h2 class="h5 mb-3">Check Availability</h2>
             <form method="GET" action="{{ route('accommodations.availability', $accommodation) }}" class="mb-3" id="rpAvailabilityForm"
@@ -48,7 +63,7 @@
                     <input type="date" name="check_out" class="form-control" value="{{ request('check_out', old('check_out_date')) }}" min="{{ now()->addDay()->toDateString() }}" data-stay-check-out data-rp-open-calendar readonly required>
                 </div>
                 <button type="button" class="btn btn-rp-soft w-100 mb-2" data-rp-show-calendar>
-                    <i class="bi bi-calendar3 me-1"></i> Open calendar
+                    Check in - Check out
                 </button>
                 <button type="button" class="btn btn-rp-primary w-100" data-rp-show-calendar>Check Availability</button>
             </form>

@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\PricingController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FrontDesk\CheckInController;
 use App\Http\Controllers\FrontDesk\CheckOutController;
 use App\Http\Controllers\FrontDesk\DashboardController as FrontDeskDashboardController;
@@ -49,6 +50,16 @@ Route::get('/blog', function () {
 Route::get('/gallery', function () {
     return view('gallery');
 })->name('gallery');
+
+Route::get('/offers', function () {
+    return view('offers');
+})->name('offers');
+
+Route::get('/contact', function () {
+    return view('contact');
+})->name('contact');
+
+Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 
 Auth::routes();
 

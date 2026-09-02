@@ -17,6 +17,92 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('scroll', updateNavOnScroll, { passive: true });
     }
 
+    const galleryBannerBg = document.querySelector('.rp-gallery-banner-bg');
+
+    if (galleryBannerBg) {
+        const parallaxRatio = 0.12;
+        const maxOffset = 24;
+        let ticking = false;
+
+        const updateParallax = () => {
+            const rect = galleryBannerBg.parentElement.getBoundingClientRect();
+            const offset = Math.max(-maxOffset, Math.min(maxOffset, -rect.top * parallaxRatio));
+            galleryBannerBg.style.transform = `scale(1.15) translateY(${offset}px)`;
+            ticking = false;
+        };
+
+        updateParallax();
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                requestAnimationFrame(updateParallax);
+                ticking = true;
+            }
+        }, { passive: true });
+    }
+
+    const galleryItems = document.querySelectorAll('#rpGalleryGrid .rp-gallery-item');
+
+    if (galleryItems.length) {
+        if ('IntersectionObserver' in window) {
+            galleryItems.forEach((item, index) => {
+                item.style.transitionDelay = `${(index % 4) * 0.08}s`;
+            });
+
+            const revealObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+
+            galleryItems.forEach((item) => revealObserver.observe(item));
+        } else {
+            galleryItems.forEach((item) => item.classList.add('is-visible'));
+        }
+    }
+
+    const offersContent = document.getElementById('rpOffersContent');
+    const offersNextBtn = document.getElementById('rpOffersNextBtn');
+
+    if (offersContent && offersNextBtn) {
+        const offerRows = Array.from(offersContent.querySelectorAll('.rp-offer-row'));
+        const pageSize = 2;
+        const totalPages = Math.ceil(offerRows.length / pageSize);
+        let currentPage = 0;
+
+        const renderOffersPage = () => {
+            offerRows.forEach((row, index) => {
+                const page = Math.floor(index / pageSize);
+                const isVisible = page === currentPage;
+                row.classList.remove('is-visible', 'rp-offer-row--first', 'rp-offer-row--last');
+                row.style.display = isVisible ? 'flex' : 'none';
+            });
+
+            const visibleRows = offerRows.filter((_, index) => Math.floor(index / pageSize) === currentPage);
+            visibleRows[0]?.classList.add('rp-offer-row--first');
+            visibleRows[visibleRows.length - 1]?.classList.add('rp-offer-row--last');
+
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    visibleRows.forEach((row) => row.classList.add('is-visible'));
+                });
+            });
+        };
+
+        offersNextBtn.addEventListener('click', () => {
+            currentPage = (currentPage + 1) % totalPages;
+            renderOffersPage();
+        });
+
+        if (totalPages <= 1) {
+            offersNextBtn.style.display = 'none';
+        }
+
+        renderOffersPage();
+    }
+
     const scrollTopBtn = document.getElementById('rpScrollTop');
     scrollTopBtn?.addEventListener('click', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -249,21 +335,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('appinstalled', () => {
         deferredInstallPrompt = null;
         installBtn?.classList.add('d-none');
-    });
-
-    const galleryFilters = document.querySelectorAll('.rp-gallery-filter');
-    const galleryItems = document.querySelectorAll('#rpGalleryGrid .rp-gallery-item');
-
-    galleryFilters.forEach((btn) => {
-        btn.addEventListener('click', () => {
-            galleryFilters.forEach((b) => b.classList.remove('is-active'));
-            btn.classList.add('is-active');
-            const filter = btn.dataset.filter;
-            galleryItems.forEach((item) => {
-                const show = filter === 'all' || item.dataset.category === filter;
-                item.classList.toggle('is-hidden', !show);
-            });
-        });
     });
 
     const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);

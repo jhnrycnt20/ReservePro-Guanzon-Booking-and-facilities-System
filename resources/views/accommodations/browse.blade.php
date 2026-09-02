@@ -11,7 +11,7 @@
 
 @section('content')
 @if(!auth()->check() || optional(auth()->user()->role)->slug !== 'guest')
-<div class="container py-4">
+<div class="container rp-public-page-top pb-4">
 @endif
 
 <div class="rp-card mb-4">
@@ -34,29 +34,33 @@
             <input type="date" name="check_out" value="{{ request('check_out') }}" class="form-control" min="{{ now()->addDay()->toDateString() }}" data-stay-check-out>
         </div>
         <div class="col-md-3">
-            <button class="btn btn-rp-primary w-100">Check Availability</button>
+            <button class="rp-btn-check-availability">Check Availability</button>
         </div>
     </form>
 </div>
 
 <div class="row g-4">
     @forelse($accommodations ?? [] as $item)
-        <div class="col-md-6 col-xl-4">
-            <div class="rp-card accommodation-card h-100">
+        <div class="col-md-4">
+            <a href="{{ route('accommodations.show', $item) }}" class="rp-cottage-card">
                 <img src="{{ $item->image_url }}" alt="{{ $item->name }}">
-                <div class="d-flex justify-content-between align-items-start mt-3">
-                    <div>
-                        <h2 class="h5 mb-1">{{ $item->name }}</h2>
-                        <div class="text-muted small">{{ $item->type->name ?? $item->accommodationType->name ?? 'Accommodation' }} · Cap {{ $item->capacity }}</div>
+                <div class="rp-cottage-card-body">
+                    <div class="rp-cottage-title">{{ $item->name }}</div>
+                    <div class="rp-cottage-subtitle">{{ $item->type->name ?? $item->accommodationType->name ?? 'Accommodation' }}</div>
+                    <div class="rp-cottage-row">
+                        <span>Rate</span>
+                        <span>₱{{ number_format($item->rate, 0) }}</span>
                     </div>
-                    <x-status-badge :status="$item->status" />
+                    <div class="rp-cottage-row">
+                        <span>Max guests</span>
+                        <span>{{ $item->capacity }}</span>
+                    </div>
+                    <div class="rp-cottage-row">
+                        <span>Status</span>
+                        <span>{{ ucfirst($item->status->value ?? $item->status) }}</span>
+                    </div>
                 </div>
-                <p class="mt-2 mb-3 text-muted">{{ \Illuminate\Support\Str::limit($item->description, 100) }}</p>
-                <div class="d-flex justify-content-between align-items-center">
-                    <strong>₱{{ number_format($item->rate, 2) }}/night</strong>
-                    <a href="{{ route('accommodations.show', $item) }}" class="btn btn-sm btn-rp-primary">View & Book</a>
-                </div>
-            </div>
+            </a>
         </div>
     @empty
         <div class="col-12"><div class="rp-card text-muted">No accommodations match your search.</div></div>

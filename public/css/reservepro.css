@@ -322,11 +322,6 @@ body.rp-public {
 }
 
 .rp-public-nav .rp-nav-link.rp-nav-link-booknow {
-    font-family: "Cormorant Garamond", var(--rp-display);
-    font-weight: 500;
-    font-size: 15px;
-    letter-spacing: 5px;
-    color: #fff;
     white-space: nowrap;
 }
 
@@ -1132,6 +1127,31 @@ body.rp-public {
     box-shadow: 0 18px 36px rgba(22, 53, 40, .14);
 }
 
+.rp-cottage-card--static:hover {
+    transform: none;
+    box-shadow: 0 12px 28px rgba(22, 53, 40, .08);
+}
+
+.rp-cottage-card--static img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    height: auto;
+    object-fit: contain;
+    background: var(--rp-band-light);
+}
+
+.rp-cottage-card--static .rp-cottage-card-body {
+    padding: 1.5rem 1.75rem 1.75rem;
+}
+
+.rp-cottage-card--static .rp-cottage-title {
+    font-size: 24px;
+}
+
+.rp-cottage-card--static .rp-cottage-subtitle {
+    font-size: 14px;
+}
+
 .rp-cottage-card img {
     width: 100%;
     height: 15rem;
@@ -1176,6 +1196,93 @@ body.rp-public {
 .rp-cottage-row span:last-child {
     color: var(--rp-muted);
     font-weight: 400;
+}
+
+.rp-btn-check-availability {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    width: 100%;
+    background: var(--rp-accent);
+    color: #fff;
+    border: none;
+    border-radius: .5rem;
+    padding: .65rem 1rem;
+    font-family: "Montserrat", var(--rp-font);
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+    box-shadow: 0 8px 20px rgba(20, 108, 67, .25);
+    transition: filter .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+
+.rp-btn-check-availability:hover {
+    filter: brightness(1.08);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 26px rgba(20, 108, 67, .32);
+}
+
+.rp-btn-check-availability i {
+    font-size: .85rem;
+}
+
+.rp-view-rates-wrap {
+    text-align: center;
+    margin-top: 3.5rem;
+    padding: 1.5rem 0 2.5rem;
+}
+
+.rp-view-rates-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    background: none;
+    border: none;
+    padding: 0 .1rem .4rem;
+    font-family: "Montserrat", var(--rp-font);
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #0F6B45;
+    text-decoration: none;
+    position: relative;
+    transition: color .3s ease;
+}
+
+.rp-view-rates-btn::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: currentColor;
+    opacity: .45;
+    transform: scaleX(.94);
+    transform-origin: center;
+    transition: opacity .3s ease, transform .3s ease, height .3s ease;
+}
+
+.rp-view-rates-btn:hover {
+    color: #0a4f33;
+}
+
+.rp-view-rates-btn:hover::after {
+    opacity: 1;
+    transform: scaleX(1);
+    height: 1.5px;
+}
+
+.rp-view-rates-arrow {
+    display: inline-block;
+    transition: transform .3s ease;
+}
+
+.rp-view-rates-btn:hover .rp-view-rates-arrow {
+    transform: translateX(4px);
 }
 
 .rp-plan-card-offset {
@@ -1242,6 +1349,16 @@ body.rp-public {
     padding: 7rem 0 3.5rem;
 }
 
+.rp-public-page-top {
+    padding-top: 8.5rem;
+}
+
+@media (max-width: 575px) {
+    .rp-public-page-top {
+        padding-top: 6.5rem;
+    }
+}
+
 .rp-page-hero h1 {
     font-family: var(--rp-display);
     font-size: clamp(2rem, 4vw, 2.8rem);
@@ -1254,40 +1371,21 @@ body.rp-public {
     margin-bottom: 0;
 }
 
-.rp-gallery-filters {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 1.75rem;
-    margin: 0 0 2.75rem;
-}
-
-.rp-gallery-filter {
-    background: none;
-    border: none;
-    font-family: "Montserrat", var(--rp-font);
-    font-weight: 500;
-    font-size: 13px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--rp-muted);
-    padding: 0 0 .4rem;
-    border-bottom: 1px solid transparent;
-    cursor: pointer;
-    transition: color .2s ease, border-color .2s ease;
-}
-
-.rp-gallery-filter:hover,
-.rp-gallery-filter.is-active {
+.rp-gallery-intro-heading {
+    font-family: "Cormorant Garamond", var(--rp-display);
+    font-weight: 600;
+    font-size: clamp(1.9rem, 3.4vw, 2.6rem);
+    line-height: 1.25;
     color: #174F50;
-    border-bottom-color: #174F50;
+    text-align: center;
+    max-width: 40rem;
+    margin: 0 auto;
 }
 
 .rp-gallery-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    grid-auto-rows: 220px;
-    gap: 1rem;
+    gap: 1.25rem;
 }
 
 .rp-gallery-item {
@@ -1295,23 +1393,20 @@ body.rp-public {
     display: block;
     overflow: hidden;
     border-radius: .5rem;
+    box-shadow: 0 12px 28px rgba(22, 53, 40, .12);
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity .6s ease, transform .6s ease;
 }
 
-.rp-gallery-item.is-hidden {
-    display: none;
-}
-
-.rp-gallery-item--tall {
-    grid-row: span 2;
-}
-
-.rp-gallery-item--wide {
-    grid-column: span 2;
+.rp-gallery-item.is-visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .rp-gallery-item img {
     width: 100%;
-    height: 100%;
+    height: 20rem;
     object-fit: cover;
     display: block;
     transition: transform .5s ease;
@@ -1319,40 +1414,6 @@ body.rp-public {
 
 .rp-gallery-item:hover img {
     transform: scale(1.06);
-}
-
-.rp-gallery-item-caption {
-    position: absolute;
-    inset: auto 0 0 0;
-    padding: 1.1rem 1.2rem;
-    background: linear-gradient(to top, rgba(0,0,0,.65), rgba(0,0,0,0) 70%);
-    opacity: 0;
-    transform: translateY(8px);
-    transition: opacity .3s ease, transform .3s ease;
-}
-
-.rp-gallery-item:hover .rp-gallery-item-caption {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.rp-gallery-item-caption span {
-    display: block;
-    font-family: "Montserrat", var(--rp-font);
-    font-weight: 500;
-    font-size: 11px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #7fe0a6;
-    margin-bottom: .2rem;
-}
-
-.rp-gallery-item-caption strong {
-    display: block;
-    font-family: "Cormorant Garamond", var(--rp-display);
-    font-weight: 600;
-    font-size: 1.2rem;
-    color: #fff;
 }
 
 @media (max-width: 991px) {
@@ -1364,14 +1425,33 @@ body.rp-public {
 @media (max-width: 575px) {
     .rp-gallery-grid {
         grid-template-columns: 1fr;
-        grid-auto-rows: 260px;
     }
+}
 
-    .rp-gallery-item--wide,
-    .rp-gallery-item--tall {
-        grid-column: span 1;
-        grid-row: span 1;
-    }
+.rp-gallery-banner {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rp-gallery-banner-bg {
+    position: absolute;
+    inset: -30px 0;
+    background-size: cover;
+    background-position: center;
+    filter: blur(8px);
+    transform: scale(1.15) translateY(0);
+    will-change: transform;
+}
+
+.rp-gallery-banner-logo {
+    position: relative;
+    width: 140px;
+    height: auto;
+    filter: drop-shadow(0 4px 14px rgba(0,0,0,.4));
 }
 
 .rp-blog-card {
@@ -1427,10 +1507,241 @@ body.rp-public {
     margin-bottom: 0;
 }
 
+.rp-offers-layout {
+    display: block;
+}
+
+.rp-offers-section {
+    position: relative;
+}
+
+.rp-offers-next-btn {
+    position: absolute;
+    top: 50%;
+    right: 2rem;
+    transform: translateY(-50%);
+    width: 52px;
+    height: 52px;
+    border: none;
+    background: none;
+    color: #0F6B45;
+    display: grid;
+    place-items: center;
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: color .2s ease, transform .2s ease;
+}
+
+.rp-offers-next-btn:hover {
+    color: #0a4f33;
+    transform: translateY(-50%) translateX(3px);
+}
+
+.rp-offer-row {
+    display: flex;
+    gap: 3rem;
+    align-items: center;
+    padding: 3rem 0;
+    border-bottom: 1px solid var(--rp-border);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity .5s ease, transform .5s ease;
+}
+
+.rp-offer-row.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.rp-offer-row--first {
+    padding-top: 0;
+}
+
+.rp-offer-row--last {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.rp-offer-row-media {
+    flex: 0 0 auto;
+    width: 55%;
+    max-width: 520px;
+    border-radius: .75rem;
+    overflow: hidden;
+    box-shadow: 0 16px 32px rgba(22, 53, 40, .12);
+    transition: box-shadow .3s ease;
+}
+
+.rp-offer-row-media img {
+    width: 100%;
+    height: 380px;
+    object-fit: cover;
+    display: block;
+    transition: transform .5s ease;
+}
+
+.rp-offer-row:hover .rp-offer-row-media {
+    box-shadow: 0 22px 40px rgba(22, 53, 40, .18);
+}
+
+.rp-offer-row:hover .rp-offer-row-media img {
+    transform: scale(1.05);
+}
+
+.rp-offer-row-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.rp-offer-row-title {
+    font-family: "Cormorant Garamond", var(--rp-display);
+    font-weight: 600;
+    font-size: 1.85rem;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    color: #0F6B45;
+    margin: 0 0 .9rem;
+}
+
+.rp-offer-row-title-line {
+    display: block;
+    width: 26px;
+    height: 2px;
+    background: #0F6B45;
+    margin-bottom: 1rem;
+}
+
+.rp-offer-row-desc {
+    font-family: "Montserrat", var(--rp-font);
+    font-weight: 400;
+    font-size: .95rem;
+    line-height: 1.75;
+    color: var(--rp-muted);
+    max-width: 32rem;
+    margin: 0;
+}
+
+.rp-contact-panels {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 3rem;
+    align-items: center;
+}
+
+.rp-contact-heading {
+    font-family: "Montserrat", var(--rp-font);
+    font-weight: 700;
+    font-size: clamp(1.9rem, 3vw, 2.6rem);
+    line-height: 1.3;
+    color: var(--rp-text);
+    margin: 0;
+}
+
+.rp-contact-form-panel {
+    background: var(--rp-band-light);
+    border-radius: .5rem;
+    padding: 2.5rem;
+}
+
+.rp-contact-form-panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
+
+.rp-contact-form-panel-head h2 {
+    font-family: "Montserrat", var(--rp-font);
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    color: var(--rp-text);
+    margin: 0;
+}
+
+.rp-contact-form-panel-head i {
+    color: var(--rp-muted);
+    font-size: 1.1rem;
+}
+
+.rp-contact-input {
+    display: block;
+    width: 100%;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--rp-border);
+    padding: .5rem .1rem;
+    font-family: "Montserrat", var(--rp-font);
+    font-size: .92rem;
+    color: var(--rp-text);
+    resize: vertical;
+}
+
+.rp-contact-input::placeholder {
+    color: var(--rp-muted);
+}
+
+.rp-contact-input:focus {
+    outline: none;
+    border-bottom-color: var(--rp-accent);
+}
+
+.rp-contact-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    margin-top: 2rem;
+    background: none;
+    border: none;
+    font-family: "Montserrat", var(--rp-font);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #0F6B45;
+    cursor: pointer;
+    transition: gap .2s ease, color .2s ease;
+}
+
+.rp-contact-submit:hover {
+    gap: .8rem;
+    color: #0a4f33;
+}
+
+@media (max-width: 991px) {
+    .rp-contact-panels {
+        grid-template-columns: 1fr;
+    }
+
+    .rp-offer-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .rp-offer-row-media {
+        width: 100%;
+        max-width: none;
+    }
+}
+
+@media (max-width: 767px) {
+    .rp-offers-next-btn {
+        position: static;
+        transform: none;
+        margin: 1.5rem auto 0;
+    }
+
+    .rp-offers-next-btn:hover {
+        transform: none;
+    }
+}
+
 .rp-footer {
     position: relative;
-    background: #0D0D0D;
-    color: #B8B8B8;
+    background: #FFFFFF;
+    color: var(--rp-muted);
+    border-top: 1px solid var(--rp-border);
     margin-top: auto;
 }
 
@@ -1438,7 +1749,7 @@ body.rp-public {
     font-family: "Cormorant Garamond", var(--rp-display);
     font-weight: 600;
     font-size: 1.2rem;
-    color: #fff;
+    color: #174F50;
     display: inline-flex;
     align-items: center;
     gap: .55rem;
@@ -1446,17 +1757,18 @@ body.rp-public {
 }
 
 .rp-footer-tagline {
-    color: #B8B8B8;
+    color: var(--rp-muted);
     font-size: .9rem;
     max-width: 26rem;
 }
 
 .rp-footer-heading {
-    font-family: "Cormorant Garamond", var(--rp-display);
+    font-family: "Montserrat", var(--rp-font);
     font-weight: 600;
-    font-size: 18px;
-    letter-spacing: normal;
-    color: #FFFFFF;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #174F50;
     margin-bottom: 1rem;
 }
 
@@ -1464,7 +1776,7 @@ body.rp-public {
     display: block;
     font-family: "Montserrat", var(--rp-font);
     font-weight: 400;
-    color: #B8B8B8;
+    color: var(--rp-muted);
     text-decoration: none;
     margin-bottom: .4rem;
     font-size: 15px;
@@ -1472,13 +1784,13 @@ body.rp-public {
 }
 
 .rp-footer a:hover {
-    color: #7fe0a6;
+    color: var(--rp-accent);
 }
 
 .rp-footer-text {
     font-family: "Montserrat", var(--rp-font);
     font-weight: 400;
-    color: #B8B8B8;
+    color: var(--rp-muted);
     font-size: 15px;
     line-height: 1.8;
     margin-bottom: 0;
@@ -1488,7 +1800,7 @@ body.rp-public {
     display: inline-block;
     font-family: "Montserrat", var(--rp-font);
     font-weight: 400;
-    color: #B8B8B8;
+    color: var(--rp-muted);
     text-decoration: underline;
     text-underline-offset: 3px;
     font-size: 15px;
@@ -1497,14 +1809,15 @@ body.rp-public {
 }
 
 .rp-footer-link-underline:hover {
-    color: #7fe0a6;
+    color: var(--rp-accent);
 }
 
 .rp-footer-phone {
-    font-family: "Cormorant Garamond", var(--rp-display);
-    font-weight: 600;
-    font-size: 16px;
-    color: #fff;
+    font-family: "Montserrat", var(--rp-font);
+    font-weight: 400;
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--rp-muted);
     margin-bottom: 0;
 }
 
@@ -1519,62 +1832,28 @@ body.rp-public {
     justify-content: center;
     width: 38px;
     height: 38px;
-    border: 1px solid rgba(255,255,255,.25);
+    border: 1px solid var(--rp-border);
     border-radius: .35rem;
-    color: #fff;
+    color: var(--rp-text);
     margin-bottom: 0;
     transition: background .2s ease, border-color .2s ease;
 }
 
 .rp-footer-social a:hover {
-    background: rgba(255,255,255,.08);
-    border-color: #7fe0a6;
-    color: #7fe0a6;
+    background: var(--rp-accent-soft);
+    border-color: var(--rp-accent);
+    color: var(--rp-accent);
 }
 
 .rp-footer-bottom {
     position: relative;
-    border-top: 1px solid rgba(255,255,255,.12);
+    border-top: 1px solid var(--rp-border);
     margin-top: 2rem;
     padding-top: 1.5rem;
     font-family: "Montserrat", var(--rp-font);
     font-weight: 400;
     font-size: 13px;
-    color: #B8B8B8;
-}
-
-.rp-insta-strip {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    position: relative;
-}
-
-.rp-insta-cell {
-    display: block;
-    height: 220px;
-    background-size: cover;
-    background-position: center;
-    transition: opacity .2s ease;
-}
-
-.rp-insta-cell:hover {
-    opacity: .85;
-}
-
-.rp-insta-badge {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background: #fff;
-    color: #1c2b24;
-    display: grid;
-    place-items: center;
-    font-size: 1.4rem;
-    pointer-events: none;
+    color: var(--rp-muted);
 }
 
 .rp-scroll-top {
@@ -1584,32 +1863,22 @@ body.rp-public {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: rgba(255,255,255,.1);
-    border: 1px solid rgba(255,255,255,.25);
-    color: #fff;
+    background: var(--rp-band-light);
+    border: 1px solid var(--rp-border);
+    color: var(--rp-text);
     display: grid;
     place-items: center;
     cursor: pointer;
-    transition: background .2s ease, border-color .2s ease;
+    transition: background .2s ease, border-color .2s ease, color .2s ease;
 }
 
 .rp-scroll-top:hover {
-    background: #7fe0a6;
-    border-color: #7fe0a6;
-    color: #0a0a0a;
+    background: var(--rp-accent);
+    border-color: var(--rp-accent);
+    color: #fff;
 }
 
 @media (max-width: 767.98px) {
-    .rp-insta-cell {
-        height: 72px;
-    }
-
-    .rp-insta-badge {
-        width: 40px;
-        height: 40px;
-        font-size: 1rem;
-    }
-
     .rp-footer .container {
         padding-top: .85rem !important;
         padding-bottom: .85rem !important;
@@ -1627,7 +1896,7 @@ body.rp-public {
         align-items: start;
         padding-top: .4rem;
         padding-bottom: .4rem;
-        border-bottom: 1px solid rgba(255, 255, 255, .08);
+        border-bottom: 1px solid var(--rp-border);
     }
 
     .rp-footer [class*="col-md-3"]:last-of-type {
@@ -1649,7 +1918,8 @@ body.rp-public {
 
     .rp-footer-text,
     .rp-footer a,
-    .rp-footer-link-underline {
+    .rp-footer-link-underline,
+    .rp-footer-phone {
         font-size: 12px;
         line-height: 1.35;
     }
@@ -1660,10 +1930,6 @@ body.rp-public {
 
     .rp-footer-link-underline {
         margin-bottom: .2rem;
-    }
-
-    .rp-footer-phone {
-        font-size: 13px;
     }
 
     .rp-footer-hours {
@@ -1691,7 +1957,7 @@ body.rp-public {
     .rp-footer-links a:not(:last-child)::after {
         content: "·";
         margin-left: .45rem;
-        color: rgba(255, 255, 255, .35);
+        color: var(--rp-muted);
         pointer-events: none;
     }
 
