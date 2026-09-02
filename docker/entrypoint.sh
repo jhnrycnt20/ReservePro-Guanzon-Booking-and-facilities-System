@@ -9,7 +9,7 @@ fi
 
 export DB_CONNECTION=sqlite
 export DB_DATABASE="${DB_DATABASE:-/app/database/database.sqlite}"
-export SESSION_DRIVER="${SESSION_DRIVER:-cookie}"
+export SESSION_DRIVER="${SESSION_DRIVER:-database}"
 
 if [ -f .env ]; then
     sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
@@ -19,27 +19,24 @@ if [ -f .env ]; then
     if [ -n "$APP_URL" ]; then
         sed -i "s|^APP_URL=.*|APP_URL=${APP_URL}|" .env
     fi
-
-    if [ -n "$APP_KEY" ]; then
-        sed -i "s|^APP_KEY=.*|APP_KEY=${APP_KEY}|" .env
-    fi
 fi
 
 php artisan config:clear
 php artisan cache:clear
+php artisan view:clear
 
 DB_PATH="${DB_DATABASE}"
 mkdir -p "$(dirname "$DB_PATH")"
 mkdir -p storage/framework/sessions storage/framework/cache storage/framework/views
+chmod -R 775 storage bootstrap/cache database 2>/dev/null || true
 
 if [ ! -f "$DB_PATH" ] || [ ! -s "$DB_PATH" ]; then
     touch "$DB_PATH"
     php artisan migrate:fresh --seed --force
 else
     php artisan migrate --force
+    php artisan db:seed --force
 fi
-
-php artisan db:seed --force
 
 php artisan storage:link 2>/dev/null || true
 

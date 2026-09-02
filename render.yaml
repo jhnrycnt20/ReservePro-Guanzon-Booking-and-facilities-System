@@ -24,7 +24,7 @@ services:
       - key: DB_DATABASE
         value: /app/database/database.sqlite
       - key: SESSION_DRIVER
-        value: cookie
+        value: database
       - key: SESSION_SECURE_COOKIE
         value: "true"
       - key: LOG_CHANNEL
