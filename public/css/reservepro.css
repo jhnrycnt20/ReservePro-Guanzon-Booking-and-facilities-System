@@ -564,40 +564,34 @@ body.rp-public {
     }
 
     .rp-nav-links {
-        gap: 0;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        gap: 1.4rem;
+        padding: .2rem .1rem;
+        mask-image: linear-gradient(to right, transparent, #000 14px, #000 calc(100% - 14px), transparent);
+        -webkit-mask-image: linear-gradient(to right, transparent, #000 14px, #000 calc(100% - 14px), transparent);
+    }
+
+    .rp-nav-links::-webkit-scrollbar {
+        display: none;
+    }
+
+    .rp-nav-link-extra,
+    .rp-nav-actions {
+        flex-shrink: 0;
     }
 
     .rp-nav-actions {
-        gap: .4rem;
-    }
-
-    .rp-nav-auth-btn {
-        padding: .4rem .65rem;
-        font-size: 10px;
+        gap: .6rem;
     }
 
     .rp-public-nav .rp-nav-link.rp-nav-link-booknow {
-        font-size: 12px;
-        letter-spacing: 2px;
         padding-bottom: 0;
         border-bottom: 0;
-    }
-}
-
-@media (max-width: 390px) {
-    .rp-nav-actions {
-        gap: .3rem;
-    }
-
-    .rp-nav-auth-btn {
-        padding: .38rem .55rem;
-        font-size: 9px;
-        letter-spacing: .08em;
-    }
-
-    .rp-public-nav .rp-nav-link.rp-nav-link-booknow {
-        font-size: 11px;
-        letter-spacing: 1.5px;
     }
 }
 
@@ -957,6 +951,15 @@ body.rp-public {
 .rp-story-image {
     max-width: 860px;
     margin: 2.5rem auto 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity .8s ease, transform .8s ease;
+}
+
+.rp-story-image.is-visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .rp-story-image img {
@@ -964,6 +967,11 @@ body.rp-public {
     height: clamp(24rem, 46vw, 38rem);
     object-fit: cover;
     display: block;
+    transition: transform .6s ease;
+}
+
+.rp-story-image:hover img {
+    transform: scale(1.04);
 }
 
 .rp-services-section {

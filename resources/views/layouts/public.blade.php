@@ -33,9 +33,6 @@
                 <a class="rp-nav-link rp-nav-link-extra" href="{{ route('offers') }}">Offers</a>
                 <a class="rp-nav-link rp-nav-link-extra" href="{{ route('contact') }}">Contact</a>
                 <div class="rp-nav-actions">
-                    @auth
-                        <a class="rp-nav-auth-btn" href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
-                    @endauth
                     @unless (request()->routeIs('accommodations.*'))
                         <a class="rp-nav-link rp-nav-link-booknow" href="{{ route('accommodations.browse') }}">Book Now</a>
                     @endunless
@@ -52,6 +49,10 @@
             <a href="{{ route('contact') }}">Contact</a>
             @auth
                 <a href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
+                <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rpNavOverlayLogoutForm').submit();">Sign Out</a>
+                <form id="rpNavOverlayLogoutForm" action="{{ route('logout') }}" method="POST" class="d-none">
+                    @csrf
+                </form>
             @else
                 <a href="{{ route('login') }}">Log in</a>
             @endauth

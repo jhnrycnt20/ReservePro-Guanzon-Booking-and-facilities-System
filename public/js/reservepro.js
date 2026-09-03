@@ -41,8 +41,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const galleryItems = document.querySelectorAll('#rpGalleryGrid .rp-gallery-item');
+    const revealTargets = document.querySelectorAll('#rpGalleryGrid .rp-gallery-item, .rp-story-image');
 
-    if (galleryItems.length) {
+    if (revealTargets.length) {
         if ('IntersectionObserver' in window) {
             galleryItems.forEach((item, index) => {
                 item.style.transitionDelay = `${(index % 4) * 0.08}s`;
@@ -57,9 +58,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
 
-            galleryItems.forEach((item) => revealObserver.observe(item));
+            revealTargets.forEach((item) => revealObserver.observe(item));
         } else {
-            galleryItems.forEach((item) => item.classList.add('is-visible'));
+            revealTargets.forEach((item) => item.classList.add('is-visible'));
         }
     }
 
@@ -221,6 +222,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (navOverlay.contains(e.target) || navMenuBtn?.contains(e.target)) return;
         closeNavOverlay();
     });
+
+    window.addEventListener('scroll', () => {
+        if (navOverlay?.classList.contains('is-open') && publicNav?.classList.contains('rp-nav-scrolled')) {
+            closeNavOverlay();
+        }
+    }, { passive: true });
 
     const toastEl = document.getElementById('rpToast');
     if (toastEl && window.bootstrap) {
