@@ -10,20 +10,22 @@
 @endsection
 
 @section('content')
+<a href="{{ route('guest.bookings.index') }}" class="rp-back-link"><i class="bi bi-arrow-left"></i> Back to My Bookings</a>
+
+@include('partials.booking-tracker', ['activeStep' => 'confirmation'])
+
 <div class="row g-4">
     <div class="col-lg-8">
-        <div class="rp-card mb-4">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-                <div>
-                    <h2 class="h5 mb-1">{{ $booking->accommodation->name }}</h2>
-                    <div class="text-muted">{{ $booking->check_in_date->format('M d, Y') }} → {{ $booking->check_out_date->format('M d, Y') }}</div>
-                </div>
-                <x-status-badge :status="$booking->status" />
+        <div class="rp-flow-card mb-4">
+            <div class="mb-3">
+                <h2 class="h5 mb-1">{{ $booking->accommodation->name }}</h2>
+                <div class="text-muted">{{ $booking->check_in_date->format('M d, Y') }} → {{ $booking->check_out_date->format('M d, Y') }}</div>
             </div>
             <div class="row g-3">
-                <div class="col-md-4"><div class="text-muted small">Guests</div><div>{{ $booking->number_of_guests }} ({{ $booking->adults }} adults, {{ $booking->children }} children)</div></div>
-                <div class="col-md-4"><div class="text-muted small">Total</div><div>₱{{ number_format($booking->total_amount, 2) }}</div></div>
-                <div class="col-md-4"><div class="text-muted small">Remaining balance</div><div>₱{{ number_format($booking->remaining_balance, 2) }}</div></div>
+                <div class="col-md-3"><div class="text-muted small">Guests</div><div>{{ $booking->number_of_guests }} ({{ $booking->adults }} adults, {{ $booking->children }} children)</div></div>
+                <div class="col-md-3"><div class="text-muted small">Total</div><div>₱{{ number_format($booking->total_amount, 2) }}</div></div>
+                <div class="col-md-3"><div class="text-muted small">Remaining balance</div><div>₱{{ number_format($booking->remaining_balance, 2) }}</div></div>
+                <div class="col-md-3"><div class="text-muted small">Status</div><div>{{ ucfirst($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status) }}</div></div>
             </div>
             @if($booking->special_requests)
                 <hr>
@@ -35,7 +37,7 @@
             @endif
         </div>
 
-        <div class="rp-card">
+        <div class="rp-flow-card">
             <h3 class="h6">Payments</h3>
             <div class="table-responsive">
                 <table class="table">
@@ -58,7 +60,7 @@
         </div>
     </div>
     <div class="col-lg-4">
-        <div class="rp-card mb-3">
+        <div class="rp-flow-card mb-3">
             <h3 class="h6">Actions</h3>
             @if(in_array(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status), ['approved', 'checked_in']) && $booking->remaining_balance > 0)
                 <a href="{{ route('guest.payments.create', $booking) }}" class="btn btn-rp-primary w-100 mb-2">Make Payment</a>

@@ -368,6 +368,8 @@ function initAvailabilityCalendar() {
     const occupiedUrl = form.dataset.occupiedUrl;
     const checkInInput = form.querySelector('[data-stay-check-in]');
     const checkOutInput = form.querySelector('[data-stay-check-out]');
+    const checkInDisplay = form.querySelector('[data-rp-date-display="check_in"]');
+    const checkOutDisplay = form.querySelector('[data-rp-date-display="check_out"]');
     const titleEl = calendarRoot.querySelector('[data-rp-cal-title]');
     const daysEl = calendarRoot.querySelector('[data-rp-cal-days]');
     const selectionEl = calendarRoot.querySelector('[data-rp-cal-selection]');
@@ -379,6 +381,7 @@ function initAvailabilityCalendar() {
     const pad = (n) => String(n).padStart(2, '0');
     const toYmd = (date) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
     const parseYmd = (ymd) => new Date(`${ymd}T00:00:00`);
+    const formatDisplay = (ymd) => (ymd ? parseYmd(ymd).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '');
     const todayYmd = toYmd(new Date());
     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -576,6 +579,8 @@ function initAvailabilityCalendar() {
         }
         checkInInput.value = pendingCheckIn;
         checkOutInput.value = pendingCheckOut;
+        if (checkInDisplay) checkInDisplay.value = formatDisplay(pendingCheckIn);
+        if (checkOutDisplay) checkOutDisplay.value = formatDisplay(pendingCheckOut);
         checkInInput.dispatchEvent(new Event('change', { bubbles: true }));
         modal.hide();
         form.submit();

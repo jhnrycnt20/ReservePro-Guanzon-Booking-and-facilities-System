@@ -1,4 +1,4 @@
-@extends('layouts.dashboard')
+@extends(auth()->check() ? 'layouts.dashboard' : 'layouts.public')
 
 @section('title', 'Reservation Form')
 @section('theme', 'guest')
@@ -10,9 +10,17 @@
 @endsection
 
 @section('content')
+@unless(auth()->check())
+<div class="container rp-public-page-top pb-4">
+@endunless
+
+<a href="{{ route('accommodations.show', ['accommodation' => $accommodation->id, 'check_in' => $checkIn ?? request('check_in'), 'check_out' => $checkOut ?? request('check_out')]) }}" class="rp-back-link"><i class="bi bi-arrow-left"></i> Back</a>
+
+@include('partials.booking-tracker', ['activeStep' => 'guest'])
+
 <div class="row g-4">
     <div class="col-lg-8">
-        <div class="rp-card">
+        <div class="rp-flow-card">
             <form method="POST" action="{{ route('guest.bookings.store') }}">
                 @csrf
                 <input type="hidden" name="accommodation_id" value="{{ $accommodation->id }}">
@@ -20,15 +28,15 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label">Guest name</label>
-                        <input type="text" name="guest_name" class="form-control" value="{{ old('guest_name', auth()->user()->name) }}" required>
+                        <input type="text" name="guest_name" class="form-control" value="{{ old('guest_name', auth()->user()->name ?? '') }}" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Contact number</label>
-                        <input type="text" name="contact_number" class="form-control" value="{{ old('contact_number', auth()->user()->phone) }}" required>
+                        <input type="text" name="contact_number" class="form-control" value="{{ old('contact_number', auth()->user()->phone ?? '') }}" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-control" value="{{ old('email', auth()->user()->email) }}" required>
+                        <input type="email" name="email" class="form-control" value="{{ old('email', auth()->user()->email ?? '') }}" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Accommodation</label>
@@ -66,17 +74,20 @@
                     <div class="small">Final amount is calculated and stored by the server.</div>
                 </div>
 
-                <button class="btn btn-rp-primary mt-3">Submit Reservation</button>
+                <button type="submit" class="rp-avail-btn-secondary">Submit Reservation</button>
             </form>
         </div>
     </div>
     <div class="col-lg-4">
-        <div class="rp-card">
+        <div class="rp-flow-card">
             <h2 class="h5">{{ $accommodation->name }}</h2>
             <p class="text-muted">{{ $accommodation->description }}</p>
             <div><strong>₱{{ number_format($accommodation->rate, 2) }}</strong> / night</div>
-            <div class="mt-2"><x-status-badge :status="$accommodation->status" /></div>
         </div>
     </div>
 </div>
+
+@unless(auth()->check())
+</div>
+@endunless
 @endsection

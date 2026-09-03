@@ -14,10 +14,19 @@
 <div class="container rp-public-page-top pb-4">
 @endif
 
+<a href="{{ route('accommodations.browse') }}" class="rp-back-link"><i class="bi bi-arrow-left"></i> Back to Accommodations</a>
+
+@include('partials.booking-tracker', ['activeStep' => 'dates'])
+
 <div class="row g-4">
     <div class="col-lg-6">
         <div class="rp-cottage-card rp-cottage-card--static mb-4">
-            <img src="{{ $accommodation->image_url }}" alt="{{ $accommodation->name }}">
+            <div class="rp-cottage-media">
+                <img src="{{ $accommodation->image_url }}" alt="{{ $accommodation->name }}">
+                <a href="{{ $accommodation->image_url }}" target="_blank" rel="noopener" class="rp-view-full-image-btn" aria-label="View full image">
+                    <i class="bi bi-arrows-fullscreen"></i>
+                </a>
+            </div>
             <div class="rp-cottage-card-body">
                 <div class="rp-cottage-title">{{ $accommodation->name }}</div>
                 <div class="rp-cottage-subtitle">{{ $accommodation->accommodationType->name ?? 'Accommodation' }}</div>
@@ -29,14 +38,10 @@
                     <span>Max guests</span>
                     <span>{{ $accommodation->capacity }}</span>
                 </div>
-                <div class="rp-cottage-row">
-                    <span>Status</span>
-                    <span>{{ ucfirst($accommodation->status->value ?? $accommodation->status) }}</span>
-                </div>
             </div>
         </div>
 
-        <div class="rp-card">
+        <div class="rp-flow-card">
             <p>{{ $accommodation->description }}</p>
             <h3 class="h6">Amenities</h3>
             <div class="d-flex flex-wrap gap-2">
@@ -49,35 +54,45 @@
         </div>
     </div>
     <div class="col-lg-6">
-        <div class="rp-card">
-            <h2 class="h5 mb-3">Check Availability</h2>
-            <form method="GET" action="{{ route('accommodations.availability', $accommodation) }}" class="mb-3" id="rpAvailabilityForm"
+        @php
+            $checkInDisplay = request('check_in') ? \Carbon\Carbon::parse(request('check_in'))->format('M j, Y') : '';
+            $checkOutDisplay = request('check_out') ? \Carbon\Carbon::parse(request('check_out'))->format('M j, Y') : '';
+        @endphp
+        <div class="rp-avail-card">
+            <h2 class="rp-avail-heading">Check Availability</h2>
+            <form method="GET" action="{{ route('accommodations.availability', $accommodation) }}" id="rpAvailabilityForm"
                   data-rp-availability-form
                   data-occupied-url="{{ route('accommodations.occupied-dates', $accommodation) }}">
-                <div class="mb-3">
-                    <label class="form-label">Check-in</label>
-                    <input type="date" name="check_in" class="form-control" value="{{ request('check_in', old('check_in_date')) }}" min="{{ now()->toDateString() }}" data-stay-check-in data-rp-open-calendar readonly required>
+                <div class="rp-avail-fields">
+                    <div class="rp-avail-field">
+                        <label class="rp-avail-label">Check-in</label>
+                        <div class="rp-avail-input-wrap" data-rp-open-calendar>
+                            <input type="text" class="rp-avail-input" value="{{ $checkInDisplay }}" placeholder="Select date" readonly data-rp-date-display="check_in">
+                            <i class="bi bi-calendar3 rp-avail-input-icon"></i>
+                        </div>
+                        <input type="hidden" name="check_in" value="{{ request('check_in', old('check_in_date')) }}" data-stay-check-in>
+                    </div>
+                    <div class="rp-avail-field">
+                        <label class="rp-avail-label">Check-out</label>
+                        <div class="rp-avail-input-wrap" data-rp-open-calendar>
+                            <input type="text" class="rp-avail-input" value="{{ $checkOutDisplay }}" placeholder="Select date" readonly data-rp-date-display="check_out">
+                            <i class="bi bi-calendar3 rp-avail-input-icon"></i>
+                        </div>
+                        <input type="hidden" name="check_out" value="{{ request('check_out', old('check_out_date')) }}" data-stay-check-out>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Check-out</label>
-                    <input type="date" name="check_out" class="form-control" value="{{ request('check_out', old('check_out_date')) }}" min="{{ now()->addDay()->toDateString() }}" data-stay-check-out data-rp-open-calendar readonly required>
-                </div>
-                <button type="button" class="btn btn-rp-soft w-100 mb-2" data-rp-show-calendar>
-                    Check in - Check out
-                </button>
-                <button type="button" class="btn btn-rp-primary w-100" data-rp-show-calendar>Check Availability</button>
+                <button type="button" class="rp-avail-btn-primary" data-rp-show-calendar>Check Availability</button>
             </form>
 
             @isset($available)
                 @if($available)
-                    <div class="alert alert-success">Available for selected dates.</div>
-                    @auth
-                        <a href="{{ route('guest.bookings.create', ['accommodation_id' => $accommodation->id, 'check_in' => request('check_in'), 'check_out' => request('check_out')]) }}" class="btn btn-rp-primary w-100">Fill Reservation Form</a>
-                    @else
-                        <a href="{{ route('login') }}" class="btn btn-rp-primary w-100">Login to Reserve</a>
-                    @endauth
+                    <div class="rp-avail-message">
+                        <i class="bi bi-check-circle-fill"></i> Available for selected dates.
+                    </div>
+                    {{-- TEMP: always shows Fill Reservation Form (login requirement bypassed for now, see routes/web.php) --}}
+                    <a href="{{ route('guest.bookings.create', ['accommodation_id' => $accommodation->id, 'check_in' => request('check_in'), 'check_out' => request('check_out')]) }}" class="rp-avail-btn-secondary">Fill Reservation Form</a>
                 @else
-                    <div class="alert alert-warning mb-0">Not available. Choose another room or different dates.</div>
+                    <div class="rp-avail-message rp-avail-message--warning">Not available. Choose another room or different dates.</div>
                 @endif
             @endisset
         </div>

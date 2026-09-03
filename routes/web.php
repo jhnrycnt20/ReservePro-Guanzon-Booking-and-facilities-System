@@ -70,6 +70,10 @@ Route::get('/accommodations/{accommodation}', [AccommodationBrowseController::cl
 Route::get('/accommodations/{accommodation}/availability', [AccommodationBrowseController::class, 'availability'])->name('accommodations.availability');
 Route::get('/accommodations/{accommodation}/occupied-dates', [AccommodationBrowseController::class, 'occupiedDates'])->name('accommodations.occupied-dates');
 
+// TEMP: auth requirement removed so the reservation form can be previewed without logging in.
+// Restore this under the auth+active+role:guest group (see below) before shipping.
+Route::get('/guest/bookings/create', [GuestBookingController::class, 'create'])->name('guest.bookings.create');
+
 Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
@@ -79,7 +83,6 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('/dashboard', [GuestDashboardController::class, 'index'])->name('dashboard');
 
         Route::get('/bookings', [GuestBookingController::class, 'index'])->name('bookings.index');
-        Route::get('/bookings/create', [GuestBookingController::class, 'create'])->name('bookings.create');
         Route::post('/bookings', [GuestBookingController::class, 'store'])->name('bookings.store');
         Route::get('/bookings/{booking}', [GuestBookingController::class, 'show'])->name('bookings.show');
         Route::post('/bookings/{booking}/cancel', [GuestBookingController::class, 'cancel'])->name('bookings.cancel');

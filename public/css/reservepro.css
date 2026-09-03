@@ -1148,6 +1148,203 @@ body.rp-public {
     background: var(--rp-band-light);
 }
 
+.rp-cottage-media {
+    position: relative;
+}
+
+.rp-view-full-image-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    background: rgba(10, 10, 10, .6);
+    color: #fff;
+    border-radius: .4rem;
+    font-size: .9rem;
+    text-decoration: none;
+    backdrop-filter: blur(2px);
+    transition: background .2s ease;
+}
+
+.rp-view-full-image-btn:hover {
+    background: rgba(10, 10, 10, .8);
+    color: #fff;
+}
+
+.rp-avail-card {
+    max-width: 620px;
+    padding: 20px;
+    background: #FFFFFF;
+    border: 1px solid #E2E5E3;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, .06);
+}
+
+.rp-avail-heading {
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: #111827;
+    margin: 0 0 18px;
+}
+
+.rp-avail-fields {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.rp-avail-field {
+    flex: 1;
+    min-width: 0;
+}
+
+.rp-avail-label {
+    display: block;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    color: #1F2937;
+    margin-bottom: 7px;
+}
+
+.rp-avail-input-wrap {
+    position: relative;
+    cursor: pointer;
+}
+
+.rp-avail-input {
+    width: 100%;
+    height: 38px;
+    background: #FFFFFF;
+    border: 1px solid #D7DDE0;
+    border-radius: 6px;
+    padding: 0 34px 0 14px;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px;
+    color: #374151;
+    cursor: pointer;
+}
+
+.rp-avail-input::placeholder {
+    color: #9CA3AF;
+}
+
+.rp-avail-input-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6B7280;
+    font-size: 14px;
+    pointer-events: none;
+}
+
+.rp-avail-btn-primary {
+    display: block;
+    width: 100%;
+    height: 40px;
+    background: #147A4B;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 6px;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .2s ease;
+}
+
+.rp-avail-btn-primary:hover {
+    background: #106640;
+}
+
+.rp-avail-message {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 50px;
+    padding: 0 14px;
+    background: #EAF5EF;
+    border: 1px solid #B9DCC8;
+    border-radius: 6px;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px;
+    color: #166534;
+    margin-top: 12px;
+}
+
+.rp-avail-message--warning {
+    background: #FEF3C7;
+    border-color: #FCD34D;
+    color: #92400E;
+}
+
+.rp-avail-btn-secondary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 40px;
+    background: #FFFFFF;
+    border: 1px solid #147A4B;
+    color: #147A4B;
+    border-radius: 6px;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    margin-top: 12px;
+    transition: background .2s ease;
+}
+
+.rp-avail-btn-secondary:hover {
+    background: #EAF5EF;
+    color: #147A4B;
+}
+
+.rp-flow-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E5E3;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, .06);
+    padding: 20px;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #374151;
+}
+
+.rp-flow-card h2,
+.rp-flow-card h3 {
+    color: #111827;
+}
+
+.rp-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-weight: 500;
+    font-size: .85rem;
+    color: var(--rp-muted);
+    text-decoration: none;
+    margin-bottom: 1.25rem;
+    transition: color .2s ease, gap .2s ease;
+}
+
+.rp-back-link:hover {
+    color: var(--rp-accent);
+    gap: .6rem;
+}
+
+@media (max-width: 480px) {
+    .rp-avail-fields {
+        flex-direction: column;
+    }
+}
+
 .rp-cottage-card--static .rp-cottage-card-body {
     padding: 1.5rem 1.75rem 1.75rem;
 }
@@ -1337,6 +1534,83 @@ body.rp-public {
     background: var(--rp-black);
     color: #fff;
     padding: 4rem 0;
+}
+
+.rp-booking-tracker {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 1rem;
+    margin-bottom: 2.5rem;
+}
+
+.rp-booking-tracker::before {
+    content: '';
+    position: absolute;
+    top: 24px;
+    left: calc(1rem + 24px);
+    right: calc(1rem + 24px);
+    height: 2px;
+    background: var(--rp-border);
+    z-index: 0;
+}
+
+.rp-booking-tracker-step {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .6rem;
+    flex: 1;
+}
+
+.rp-booking-tracker-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid var(--rp-border);
+    color: var(--rp-muted);
+    display: grid;
+    place-items: center;
+    font-size: 1.15rem;
+    transition: border-color .2s ease, color .2s ease, box-shadow .2s ease;
+}
+
+.rp-booking-tracker-label {
+    font-family: "Montserrat", var(--rp-font);
+    font-weight: 600;
+    font-size: .78rem;
+    color: var(--rp-muted);
+    text-align: center;
+    line-height: 1.4;
+}
+
+.rp-booking-tracker-step.is-active .rp-booking-tracker-icon {
+    border-color: var(--rp-accent);
+    color: var(--rp-accent);
+    box-shadow: 0 0 0 3px var(--rp-accent-soft);
+}
+
+.rp-booking-tracker-step.is-active .rp-booking-tracker-label {
+    color: var(--rp-accent);
+}
+
+@media (max-width: 575px) {
+    .rp-booking-tracker-label {
+        font-size: .68rem;
+    }
+
+    .rp-booking-tracker-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    .rp-booking-tracker::before {
+        top: 20px;
+    }
 }
 
 .rp-cta-banner h2 {
