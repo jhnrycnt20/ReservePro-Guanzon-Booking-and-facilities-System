@@ -77,7 +77,7 @@
             @isset($available)
                 @if($available)
                     <div class="rp-avail-message">
-                        <i class="bi bi-check-circle-fill"></i> Available for selected dates.
+                        Available for selected dates.
                     </div>
                     {{-- TEMP: always shows Fill Reservation Form (login requirement bypassed for now, see routes/web.php) --}}
                     <a href="{{ route('guest.bookings.create', ['accommodation_id' => $accommodation->id, 'check_in' => request('check_in'), 'check_out' => request('check_out')]) }}" class="rp-avail-btn-secondary">Fill Reservation Form</a>

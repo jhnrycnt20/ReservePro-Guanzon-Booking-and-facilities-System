@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container rp-public-page-top rp-public-page-top--tight pb-4">
-<a href="{{ route('guest.bookings.index') }}" class="rp-back-link"><i class="bi bi-arrow-left"></i> Back to My Bookings</a>
+<a href="{{ route('guest.bookings.index') }}" class="rp-back-link"><i class="bi bi-arrow-left"></i> Back to My Reservations</a>
 
 <div class="rp-page-intro">
     <h1 class="rp-page-intro-title">Reservation {{ $booking->booking_number }}</h1>
@@ -66,7 +66,7 @@
         <div class="rp-flow-card mb-3">
             <h3 class="h6">Actions</h3>
             @if(in_array(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status), ['approved', 'checked_in']) && $booking->remaining_balance > 0)
-                <a href="{{ route('guest.payments.create', $booking) }}" class="rp-avail-btn-primary mb-2"><i class="bi bi-credit-card"></i> Make Payment</a>
+                <a href="{{ route('guest.payments.create', $booking) }}" class="rp-avail-btn-primary mb-2">Make Payment</a>
             @endif
             @if(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status) === 'pending')
                 <form method="POST" action="{{ route('guest.bookings.cancel', $booking) }}">
@@ -74,11 +74,11 @@
                     <button type="submit" class="rp-avail-btn-secondary rp-avail-btn-secondary--danger" onclick="return confirm('Cancel this reservation?')">Cancel Reservation</button>
                 </form>
             @endif
-            @if(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status) === 'checked_in')
-                <a href="{{ route('guest.incidents.create', ['booking_id' => $booking->id]) }}" class="rp-avail-btn-secondary mt-2"><i class="bi bi-exclamation-triangle"></i> Report Issue</a>
+            @if(in_array(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status), ['approved', 'checked_in', 'checked_out']))
+                <a href="{{ route('guest.incidents.create', ['booking_id' => $booking->id]) }}" class="rp-avail-btn-secondary rp-avail-btn-secondary--danger mt-2">Report Issue</a>
             @endif
             @if(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status) === 'checked_out' && !$booking->feedback)
-                <a href="{{ route('guest.feedback.create', $booking) }}" class="rp-avail-btn-secondary mt-2"><i class="bi bi-star"></i> Leave Feedback</a>
+                <a href="{{ route('guest.feedback.create', $booking) }}" class="rp-avail-btn-secondary mt-2">Leave Feedback</a>
             @endif
         </div>
 

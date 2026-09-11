@@ -82,7 +82,7 @@
                 <div class="form-check mt-3">
                     <input class="form-check-input" type="checkbox" id="agreeTerms" name="agree_terms" required>
                     <label class="form-check-label small" for="agreeTerms">
-                        I have read and agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#rpTermsModal" data-rp-terms-anchor="modal-cancellation-refund">Terms &amp; Conditions, including the Cancellation &amp; Refund Policy</a>.
+                        I have read and agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#rpTermsModal" data-rp-terms-anchor="modal-cancellation-refund">Terms &amp; Conditions</a>
                     </label>
                 </div>
 

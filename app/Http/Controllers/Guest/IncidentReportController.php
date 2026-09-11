@@ -23,7 +23,7 @@ class IncidentReportController extends Controller
         $reports = IncidentReport::query()
             ->where('guest_id', $request->user()->guest?->id)
             ->latest()
-            ->paginate(15);
+            ->paginate(5);
 
         return view('guest.incidents.index', compact('reports'));
     }

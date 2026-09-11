@@ -68,9 +68,7 @@ class BookingController extends Controller
                 new StaffNewReservationNotification($booking)
             ));
 
-        return redirect()
-            ->route('guest.bookings.show', $booking)
-            ->with('success', 'Reservation submitted and placed in the front desk queue.');
+        return redirect()->route('guest.bookings.show', $booking);
     }
 
     public function show(Request $request, Booking $booking): View

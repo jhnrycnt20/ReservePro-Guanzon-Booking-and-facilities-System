@@ -13,7 +13,7 @@
     @stack('styles')
 </head>
 <body class="rp-public">
-    @php $rpNavMinimal = request()->routeIs('guest.bookings.index', 'guest.bookings.show', 'guest.payments.index'); @endphp
+    @php $rpNavMinimal = request()->routeIs('guest.bookings.index', 'guest.bookings.show', 'guest.payments.index', 'guest.incidents.index', 'guest.incidents.show', 'guest.incidents.create'); @endphp
     <nav class="rp-public-nav @if($rpNavMinimal) rp-public-nav--minimal @endif">
         <div class="rp-public-nav-inner">
             <div class="rp-nav-menu-btn">
@@ -82,8 +82,6 @@
                     <div class="rp-footer-heading">Working Hours</div>
                     <div class="rp-footer-hours">
                         <p class="rp-footer-text">Front Desk: Open 24/7</p>
-                        <p class="rp-footer-text">Check-in: 2:00 PM</p>
-                        <p class="rp-footer-text">Check-out: 12:00 PM</p>
                     </div>
                 </div>
                 <div class="col-12 col-md-3">
