@@ -28,9 +28,9 @@ class PaymentController extends Controller
 
         $payments = Payment::query()
             ->whereHas('booking', fn ($q) => $q->where('guest_id', $guestId))
-            ->with('booking')
+            ->with('booking.accommodation')
             ->latest()
-            ->paginate(15);
+            ->paginate(5);
 
         return view('guest.payments.index', compact('payments'));
     }

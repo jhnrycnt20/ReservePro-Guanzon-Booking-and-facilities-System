@@ -13,7 +13,8 @@
     @stack('styles')
 </head>
 <body class="rp-public">
-    <nav class="rp-public-nav">
+    @php $rpNavMinimal = request()->routeIs('guest.bookings.index', 'guest.bookings.show', 'guest.payments.index'); @endphp
+    <nav class="rp-public-nav @if($rpNavMinimal) rp-public-nav--minimal @endif">
         <div class="rp-public-nav-inner">
             <div class="rp-nav-menu-btn">
                 <button type="button" class="rp-nav-hamburger-btn" id="rpNavMenuBtn" aria-label="Menu" aria-expanded="false" aria-controls="rpNavOverlay">
@@ -23,21 +24,25 @@
                         <span></span>
                     </span>
                 </button>
-                <a href="{{ route('accommodations.browse') }}">
-                    <img class="rp-nav-logo-img" src="{{ asset('images/guanzon_logoW.png') }}" alt="Guanzon Resort">
-                </a>
+                @unless($rpNavMinimal)
+                    <a href="{{ route('accommodations.browse') }}">
+                        <img class="rp-nav-logo-img" src="{{ asset('images/guanzon_logoW.png') }}" alt="Guanzon Resort">
+                    </a>
+                @endunless
             </div>
-            <div class="rp-nav-links">
-                <a class="rp-nav-link rp-nav-link-extra" href="{{ url('/') }}">The Resort</a>
-                <a class="rp-nav-link rp-nav-link-extra" href="{{ route('gallery') }}">Gallery</a>
-                <a class="rp-nav-link rp-nav-link-extra" href="{{ route('offers') }}">Offers</a>
-                <a class="rp-nav-link rp-nav-link-extra" href="{{ route('contact') }}">Contact</a>
-                <div class="rp-nav-actions">
-                    @unless (request()->routeIs('accommodations.*') || request()->routeIs('guest.bookings.create'))
-                        <a class="rp-nav-link rp-nav-link-booknow" href="{{ route('accommodations.browse') }}">Book Now</a>
-                    @endunless
+            @unless($rpNavMinimal)
+                <div class="rp-nav-links">
+                    <a class="rp-nav-link rp-nav-link-extra" href="{{ url('/') }}">The Resort</a>
+                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('gallery') }}">Gallery</a>
+                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('offers') }}">Offers</a>
+                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('contact') }}">Contact</a>
+                    <div class="rp-nav-actions">
+                        @unless (request()->routeIs('accommodations.*') || request()->routeIs('guest.bookings.create'))
+                            <a class="rp-nav-link rp-nav-link-booknow" href="{{ route('accommodations.browse') }}">Book Now</a>
+                        @endunless
+                    </div>
                 </div>
-            </div>
+            @endunless
         </div>
     </nav>
 
@@ -48,6 +53,10 @@
             <a href="{{ route('offers') }}">Offers</a>
             <a href="{{ route('contact') }}">Contact</a>
             @auth
+                @if(auth()->user()->hasRole('guest'))
+                    <a href="{{ route('guest.bookings.index') }}">My Reservations</a>
+                    <a href="{{ route('guest.payments.index') }}">Payments</a>
+                @endif
                 <a href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
                 <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rpNavOverlayLogoutForm').submit();">Sign Out</a>
                 <form id="rpNavOverlayLogoutForm" action="{{ route('logout') }}" method="POST" class="d-none">
@@ -101,6 +110,10 @@
             </div>
             <div class="rp-footer-bottom">
                 <div>ReservePro &copy; {{ date('Y') }}. All rights reserved.</div>
+                <div class="rp-footer-legal-links">
+                    <a href="{{ route('legal.privacy') }}">Privacy Policy</a>
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#rpTermsModal">Terms &amp; Conditions</a>
+                </div>
             </div>
         </div>
         <button type="button" class="rp-scroll-top" id="rpScrollTop" aria-label="Scroll to top">
@@ -108,8 +121,12 @@
         </button>
     </footer>
 
+    @include('partials.cookie-consent')
+    @include('partials.terms-modal')
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/reservepro.js') }}?v={{ file_exists(public_path('js/reservepro.js')) ? filemtime(public_path('js/reservepro.js')) : '1' }}"></script>
+    <script src="{{ asset('js/cookie-consent.js') }}?v={{ file_exists(public_path('js/cookie-consent.js')) ? filemtime(public_path('js/cookie-consent.js')) : '1' }}"></script>
     @stack('scripts')
 </body>
 </html>

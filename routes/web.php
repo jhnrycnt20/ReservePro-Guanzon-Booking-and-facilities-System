@@ -61,6 +61,16 @@ Route::get('/contact', function () {
 
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 
+Route::get('/privacy-policy', function () {
+    return view('legal.privacy-policy');
+})->name('legal.privacy');
+
+// Cookie Policy content now lives in the Privacy Policy page (see #cookies section).
+Route::redirect('/cookie-policy', '/privacy-policy#cookies');
+
+// Terms & Conditions is now a modal (see partials.terms-modal), not a standalone page.
+Route::redirect('/terms', '/');
+
 Auth::routes();
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');

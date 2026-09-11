@@ -1,18 +1,9 @@
-@extends(auth()->check() ? 'layouts.dashboard' : 'layouts.public')
+@extends('layouts.public')
 
 @section('title', $accommodation->name)
-@section('theme', 'guest')
-@section('role_label', 'Guest')
-@section('page_title', $accommodation->name)
-@section('page_subtitle', ($accommodation->accommodationType->name ?? 'Accommodation').' · ₱'.number_format($accommodation->rate, 2).'/night')
-@section('sidebar')
-    @include('partials.sidebar-guest')
-@endsection
 
 @section('content')
-@if(!auth()->check())
 <div class="container rp-public-page-top pb-4">
-@endif
 
 <a href="{{ route('accommodations.browse') }}" class="rp-back-link"><i class="bi bi-arrow-left"></i> Back to Accommodations</a>
 
@@ -59,7 +50,6 @@
             $checkOutDisplay = request('check_out') ? \Carbon\Carbon::parse(request('check_out'))->format('M j, Y') : '';
         @endphp
         <div class="rp-avail-card">
-            <h2 class="rp-avail-heading">Check Availability</h2>
             <form method="GET" action="{{ route('accommodations.availability', $accommodation) }}" id="rpAvailabilityForm"
                   data-rp-availability-form
                   data-occupied-url="{{ route('accommodations.occupied-dates', $accommodation) }}">
@@ -81,7 +71,7 @@
                         <input type="hidden" name="check_out" value="{{ request('check_out', old('check_out_date')) }}" data-stay-check-out>
                     </div>
                 </div>
-                <button type="button" class="rp-avail-btn-primary" data-rp-show-calendar>Check Availability</button>
+                <button type="button" class="rp-avail-btn-primary" data-rp-show-calendar>Change Date</button>
             </form>
 
             @isset($available)
@@ -99,9 +89,7 @@
     </div>
 </div>
 
-@if(!auth()->check())
 </div>
-@endif
 
 @include('partials.availability-calendar')
 @endsection

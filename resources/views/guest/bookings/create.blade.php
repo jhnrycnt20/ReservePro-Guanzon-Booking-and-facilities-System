@@ -1,18 +1,9 @@
-@extends(auth()->check() ? 'layouts.dashboard' : 'layouts.public')
+@extends('layouts.public')
 
 @section('title', 'Reservation Form')
-@section('theme', 'guest')
-@section('role_label', 'Guest')
-@section('page_title', 'Reservation Form')
-@section('page_subtitle', 'Submit a reservation for review by front desk staff')
-@section('sidebar')
-    @include('partials.sidebar-guest')
-@endsection
 
 @section('content')
-@unless(auth()->check())
 <div class="container rp-public-page-top pb-4">
-@endunless
 
 <a href="{{ route('accommodations.show', ['accommodation' => $accommodation->id, 'check_in' => $checkIn ?? request('check_in'), 'check_out' => $checkOut ?? request('check_out')]) }}" class="rp-back-link"><i class="bi bi-arrow-left"></i> Back</a>
 
@@ -21,7 +12,13 @@
 <div class="row g-4">
     <div class="col-lg-8">
         <div class="rp-flow-card">
-            <form method="POST" action="{{ route('guest.bookings.store') }}">
+            @php
+                $checkInRaw = old('check_in_date', $checkIn ?? request('check_in'));
+                $checkOutRaw = old('check_out_date', $checkOut ?? request('check_out'));
+                $checkInDisplay = $checkInRaw ? \Carbon\Carbon::parse($checkInRaw)->format('M j, Y') : '';
+                $checkOutDisplay = $checkOutRaw ? \Carbon\Carbon::parse($checkOutRaw)->format('M j, Y') : '';
+            @endphp
+            <form method="POST" action="{{ route('guest.bookings.store') }}" data-rp-availability-form data-occupied-url="{{ route('accommodations.occupied-dates', $accommodation) }}" data-rp-no-auto-submit>
                 @csrf
                 <input type="hidden" name="accommodation_id" value="{{ $accommodation->id }}">
 
@@ -44,11 +41,19 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Check-in date</label>
-                        <input type="date" name="check_in_date" data-calc-check-in data-stay-check-in class="form-control" value="{{ old('check_in_date', $checkIn ?? request('check_in')) }}" min="{{ now()->toDateString() }}" required>
+                        <div class="rp-avail-input-wrap" data-rp-open-calendar>
+                            <input type="text" class="rp-avail-input" value="{{ $checkInDisplay }}" placeholder="Select date" readonly data-rp-date-display="check_in">
+                            <i class="bi bi-calendar3 rp-avail-input-icon"></i>
+                        </div>
+                        <input type="hidden" name="check_in_date" value="{{ $checkInRaw }}" data-calc-check-in data-stay-check-in>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Check-out date</label>
-                        <input type="date" name="check_out_date" data-calc-check-out data-stay-check-out class="form-control" value="{{ old('check_out_date', $checkOut ?? request('check_out')) }}" min="{{ now()->addDay()->toDateString() }}" required>
+                        <div class="rp-avail-input-wrap" data-rp-open-calendar>
+                            <input type="text" class="rp-avail-input" value="{{ $checkOutDisplay }}" placeholder="Select date" readonly data-rp-date-display="check_out">
+                            <i class="bi bi-calendar3 rp-avail-input-icon"></i>
+                        </div>
+                        <input type="hidden" name="check_out_date" value="{{ $checkOutRaw }}" data-calc-check-out data-stay-check-out>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Adults</label>
@@ -74,7 +79,14 @@
                     <div class="small">Final amount is calculated and stored by the server.</div>
                 </div>
 
-                <button type="submit" class="rp-avail-btn-secondary">Submit Reservation</button>
+                <div class="form-check mt-3">
+                    <input class="form-check-input" type="checkbox" id="agreeTerms" name="agree_terms" required>
+                    <label class="form-check-label small" for="agreeTerms">
+                        I have read and agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#rpTermsModal" data-rp-terms-anchor="modal-cancellation-refund">Terms &amp; Conditions, including the Cancellation &amp; Refund Policy</a>.
+                    </label>
+                </div>
+
+                <button type="submit" class="rp-avail-btn-secondary mt-3">Submit Reservation</button>
             </form>
         </div>
     </div>
@@ -87,7 +99,7 @@
     </div>
 </div>
 
-@unless(auth()->check())
 </div>
-@endunless
+
+@include('partials.availability-calendar')
 @endsection

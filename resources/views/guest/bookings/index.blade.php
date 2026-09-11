@@ -1,50 +1,69 @@
-@extends('layouts.dashboard')
+@extends('layouts.public')
 
 @section('title', 'My Reservations')
-@section('theme', 'guest')
-@section('role_label', 'Guest')
-@section('page_title', 'My Reservations')
-@section('page_subtitle', 'Track reservation status through the full stay lifecycle')
-@section('sidebar')
-    @include('partials.sidebar-guest')
-@endsection
 
 @section('content')
-<div class="rp-card">
-    <div class="table-responsive">
-        <table class="table align-middle">
-            <thead>
-                <tr>
-                    <th>Booking #</th>
-                    <th>Accommodation</th>
-                    <th>Check-in</th>
-                    <th>Check-out</th>
-                    <th>Total</th>
-                    <th>Balance</th>
-                    <th>Status</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($bookings as $booking)
-                    <tr>
-                        <td>{{ $booking->booking_number }}</td>
-                        <td>{{ $booking->accommodation->name }}</td>
-                        <td>{{ $booking->check_in_date->format('M d, Y') }}</td>
-                        <td>{{ $booking->check_out_date->format('M d, Y') }}</td>
-                        <td>₱{{ number_format($booking->total_amount, 2) }}</td>
-                        <td>₱{{ number_format($booking->remaining_balance, 2) }}</td>
-                        <td><x-status-badge :status="$booking->status" /></td>
-                        <td><a href="{{ route('guest.bookings.show', $booking) }}" class="btn btn-sm btn-outline-secondary">View</a></td>
-                    </tr>
-                @empty
-                    <tr><td colspan="8" class="text-muted">No reservations yet.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
+<div class="container rp-public-page-top rp-public-page-top--tight pb-4">
+    <div class="rp-page-intro">
+        <h1 class="rp-page-intro-title">My Reservations</h1>
     </div>
-    @if(method_exists($bookings, 'links'))
-        <div class="mt-3">{{ $bookings->links() }}</div>
+
+    <div class="rp-booking-list">
+        @forelse($bookings as $booking)
+            <a href="{{ route('guest.bookings.show', $booking) }}" class="rp-booking-list-item">
+                <div class="rp-booking-list-media">
+                    <img src="{{ $booking->accommodation->image_url }}" alt="{{ $booking->accommodation->name }}">
+                </div>
+                <div class="rp-booking-list-body">
+                    <div class="rp-booking-list-top">
+                        <div>
+                            <div class="rp-booking-list-title">{{ $booking->accommodation->name }}</div>
+                            <div class="rp-booking-list-dates">
+                                <div class="rp-booking-list-date-block">
+                                    <span class="rp-booking-list-date-label">Check-in</span>
+                                    <span class="rp-booking-list-date-value">{{ $booking->check_in_date->format('M d, Y') }}</span>
+                                </div>
+                                <div class="rp-booking-list-date-block">
+                                    <span class="rp-booking-list-date-label">Check-out</span>
+                                    <span class="rp-booking-list-date-value">{{ $booking->check_out_date->format('M d, Y') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="rp-booking-list-arrow"><i class="bi bi-chevron-right"></i></div>
+            </a>
+        @empty
+            <div class="rp-booking-empty">
+                <i class="bi bi-calendar-x"></i>
+                <p>You don't have any reservations yet.</p>
+                <a href="{{ route('accommodations.browse') }}" class="rp-avail-btn-primary">Browse Accommodations</a>
+            </div>
+        @endforelse
+    </div>
+
+    @if($bookings->hasPages())
+        <div class="rp-simple-pagination mt-4">
+            @if($bookings->onFirstPage())
+                <span class="rp-simple-pagination-arrow is-disabled"><i class="bi bi-chevron-left"></i></span>
+            @else
+                <a href="{{ $bookings->previousPageUrl() }}" class="rp-simple-pagination-arrow"><i class="bi bi-chevron-left"></i></a>
+            @endif
+
+            @for($page = 1; $page <= $bookings->lastPage(); $page++)
+                @if($page === $bookings->currentPage())
+                    <span class="rp-simple-pagination-num is-active">{{ $page }}</span>
+                @else
+                    <a href="{{ $bookings->url($page) }}" class="rp-simple-pagination-num">{{ $page }}</a>
+                @endif
+            @endfor
+
+            @if($bookings->hasMorePages())
+                <a href="{{ $bookings->nextPageUrl() }}" class="rp-simple-pagination-arrow"><i class="bi bi-chevron-right"></i></a>
+            @else
+                <span class="rp-simple-pagination-arrow is-disabled"><i class="bi bi-chevron-right"></i></span>
+            @endif
+        </div>
     @endif
 </div>
 @endsection

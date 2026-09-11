@@ -1,50 +1,70 @@
-@extends('layouts.dashboard')
+@extends('layouts.public')
 
 @section('title', 'Payments')
-@section('theme', 'guest')
-@section('role_label', 'Guest')
-@section('page_title', 'Payment History')
-@section('page_subtitle', 'Payments submitted for your reservations')
-@section('sidebar')
-    @include('partials.sidebar-guest')
-@endsection
 
 @section('content')
-<div class="rp-card">
-    <div class="table-responsive">
-        <table class="table align-middle">
-            <thead>
-                <tr>
-                    <th>Booking</th>
-                    <th>Amount</th>
-                    <th>Method</th>
-                    <th>Reference</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($payments as $payment)
-                    <tr>
-                        <td>
-                            @if($payment->booking)
-                                <a href="{{ route('guest.bookings.show', $payment->booking) }}">{{ $payment->booking->booking_number }}</a>
-                            @else
-                                —
-                            @endif
-                        </td>
-                        <td>₱{{ number_format($payment->amount, 2) }}</td>
-                        <td>{{ str_replace('_', ' ', ucfirst($payment->payment_method instanceof \BackedEnum ? $payment->payment_method->value : $payment->payment_method)) }}</td>
-                        <td>{{ $payment->reference_number ?? '—' }}</td>
-                        <td>{{ $payment->payment_date?->format('M d, Y') ?? $payment->created_at?->format('M d, Y') }}</td>
-                        <td><x-status-badge :status="$payment->status" /></td>
-                    </tr>
-                @empty
-                    <tr><td colspan="6" class="text-muted">No payments yet.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
+<div class="container rp-public-page-top rp-public-page-top--tight pb-4">
+    <div class="rp-page-intro">
+        <h1 class="rp-page-intro-title">Payments</h1>
     </div>
-    @if(method_exists($payments, 'links')) {{ $payments->withQueryString()->links() }} @endif
+
+    <div class="rp-booking-list">
+        @forelse($payments as $payment)
+            <a href="{{ $payment->booking ? route('guest.bookings.show', $payment->booking) : '#' }}" class="rp-booking-list-item">
+                <div class="rp-booking-list-media">
+                    @if($payment->booking?->accommodation)
+                        <img src="{{ $payment->booking->accommodation->image_url }}" alt="{{ $payment->booking->accommodation->name }}">
+                    @endif
+                </div>
+                <div class="rp-booking-list-body">
+                    <div class="rp-booking-list-top">
+                        <div>
+                            <div class="rp-booking-list-title">{{ $payment->booking?->accommodation?->name ?? $payment->booking?->booking_number ?? 'Payment' }}</div>
+                        </div>
+                    </div>
+                    <div class="rp-payment-mini-top">
+                        <span class="rp-payment-mini-amount">₱{{ number_format($payment->amount, 2) }}</span>
+                    </div>
+                    <div class="rp-payment-mini-meta">
+                        {{ $payment->payment_date?->format('M d, Y') ?? $payment->created_at?->format('M d, Y') }} &middot; {{ str_replace('_', ' ', ucfirst($payment->payment_method instanceof \BackedEnum ? $payment->payment_method->value : $payment->payment_method)) }}
+                    </div>
+                    @if($payment->reference_number)
+                        <div class="rp-payment-mini-receipt">Reference: {{ $payment->reference_number }}</div>
+                    @endif
+                </div>
+                <div class="rp-booking-list-arrow"><i class="bi bi-chevron-right"></i></div>
+            </a>
+        @empty
+            <div class="rp-booking-empty">
+                <i class="bi bi-cash-stack"></i>
+                <p>You haven't made any payments yet.</p>
+                <a href="{{ route('guest.bookings.index') }}" class="rp-avail-btn-primary">View My Reservations</a>
+            </div>
+        @endforelse
+    </div>
+
+    @if($payments->hasPages())
+        <div class="rp-simple-pagination mt-4">
+            @if($payments->onFirstPage())
+                <span class="rp-simple-pagination-arrow is-disabled"><i class="bi bi-chevron-left"></i></span>
+            @else
+                <a href="{{ $payments->previousPageUrl() }}" class="rp-simple-pagination-arrow"><i class="bi bi-chevron-left"></i></a>
+            @endif
+
+            @for($page = 1; $page <= $payments->lastPage(); $page++)
+                @if($page === $payments->currentPage())
+                    <span class="rp-simple-pagination-num is-active">{{ $page }}</span>
+                @else
+                    <a href="{{ $payments->url($page) }}" class="rp-simple-pagination-num">{{ $page }}</a>
+                @endif
+            @endfor
+
+            @if($payments->hasMorePages())
+                <a href="{{ $payments->nextPageUrl() }}" class="rp-simple-pagination-arrow"><i class="bi bi-chevron-right"></i></a>
+            @else
+                <span class="rp-simple-pagination-arrow is-disabled"><i class="bi bi-chevron-right"></i></span>
+            @endif
+        </div>
+    @endif
 </div>
 @endsection

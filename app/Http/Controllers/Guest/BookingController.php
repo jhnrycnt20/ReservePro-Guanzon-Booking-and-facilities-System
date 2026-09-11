@@ -28,7 +28,7 @@ class BookingController extends Controller
             ->with(['accommodation', 'payments'])
             ->where('guest_id', $request->user()->guest?->id)
             ->latest()
-            ->paginate(15);
+            ->paginate(5);
 
         return view('guest.bookings.index', compact('bookings'));
     }
@@ -86,6 +86,6 @@ class BookingController extends Controller
         $this->authorize('cancel', $booking);
         $this->bookingService->cancel($booking, $request->user());
 
-        return back()->with('success', 'Reservation cancelled.');
+        return back();
     }
 }

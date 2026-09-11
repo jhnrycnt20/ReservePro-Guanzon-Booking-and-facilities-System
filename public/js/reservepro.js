@@ -229,6 +229,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, { passive: true });
 
+    const termsModalEl = document.getElementById('rpTermsModal');
+    const termsModalBody = document.querySelector('[data-rp-terms-modal-body]');
+    let termsScrollTarget = null;
+
+    document.querySelectorAll('[data-rp-terms-anchor]').forEach((trigger) => {
+        trigger.addEventListener('click', () => {
+            termsScrollTarget = trigger.getAttribute('data-rp-terms-anchor');
+        });
+    });
+
+    termsModalEl?.addEventListener('shown.bs.modal', () => {
+        if (!termsScrollTarget || !termsModalBody) return;
+        const target = document.getElementById(termsScrollTarget);
+        if (target) {
+            termsModalBody.scrollTop = target.offsetTop - termsModalBody.offsetTop;
+        }
+        termsScrollTarget = null;
+    });
+
+    termsModalEl?.addEventListener('hidden.bs.modal', () => {
+        if (termsModalBody) termsModalBody.scrollTop = 0;
+    });
+
     const toastEl = document.getElementById('rpToast');
     if (toastEl && window.bootstrap) {
         new bootstrap.Toast(toastEl).show();
@@ -529,6 +552,10 @@ function initAvailabilityCalendar() {
     };
 
     const loadMonth = async () => {
+        if (!occupiedUrl) {
+            renderCalendar();
+            return;
+        }
         daysEl.classList.add('is-loading');
         try {
             const occupied = await fetchOccupied(viewYear, viewMonth);
@@ -583,7 +610,9 @@ function initAvailabilityCalendar() {
         if (checkOutDisplay) checkOutDisplay.value = formatDisplay(pendingCheckOut);
         checkInInput.dispatchEvent(new Event('change', { bubbles: true }));
         modal.hide();
-        form.submit();
+        if (!form.hasAttribute('data-rp-no-auto-submit')) {
+            form.submit();
+        }
     });
 
     document.querySelectorAll('[data-rp-show-calendar]').forEach((el) => {
