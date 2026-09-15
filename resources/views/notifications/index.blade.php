@@ -29,20 +29,15 @@
     </div>
     <div class="list-group list-group-flush">
         @forelse($notifications as $notification)
-            <div class="list-group-item px-0 {{ $notification->read_at ? '' : 'fw-semibold' }}">
-                <div class="d-flex justify-content-between gap-3">
+            <a href="{{ route('notifications.open', $notification->id) }}" class="list-group-item list-group-item-action px-0 {{ $notification->read_at ? '' : 'fw-semibold' }}">
+                <div class="d-flex justify-content-between gap-3 align-items-start">
                     <div>
                         <div>{{ $notification->data['message'] ?? $notification->data['title'] ?? 'Notification' }}</div>
                         <div class="small text-muted">{{ $notification->created_at->diffForHumans() }}</div>
                     </div>
-                    @if(!$notification->read_at)
-                        <form method="POST" action="{{ route('notifications.read', $notification->id) }}">
-                            @csrf
-                            <button class="btn btn-sm btn-outline-secondary">Mark read</button>
-                        </form>
-                    @endif
+                    <span class="small text-nowrap">Open <i class="bi bi-chevron-right"></i></span>
                 </div>
-            </div>
+            </a>
         @empty
             <div class="text-muted">No notifications yet.</div>
         @endforelse

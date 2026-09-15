@@ -27,7 +27,7 @@
             <tbody>
                 @forelse($bookings as $booking)
                     <tr>
-                        <td>{{ $booking->booking_number }}</td>
+                        <td><span class="rp-booking-code" title="{{ $booking->booking_number }}">{{ $booking->short_number }}</span></td>
                         <td>{{ $booking->guest_name }}</td>
                         <td>{{ $booking->accommodation->name ?? '—' }}</td>
                         <td>{{ $booking->check_out_date?->format('M d, Y') }}</td>

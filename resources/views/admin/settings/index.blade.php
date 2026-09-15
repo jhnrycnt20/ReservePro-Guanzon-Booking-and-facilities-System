@@ -61,6 +61,28 @@
                         <label class="form-label">Check-out time</label>
                         <input type="time" name="check_out_time" class="form-control" value="{{ $value('check_out_time', '12:00') }}" required>
                     </div>
+
+                    <div class="col-12"><hr class="my-2"><div class="fw-semibold">Payment details (shown to guests)</div></div>
+                    <div class="col-md-6">
+                        <label class="form-label">GCash number</label>
+                        <input type="text" name="gcash_number" class="form-control" value="{{ $value('gcash_number', '09505584607') }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">GCash account name</label>
+                        <input type="text" name="gcash_name" class="form-control" value="{{ $value('gcash_name') }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Bank name</label>
+                        <input type="text" name="bank_name" class="form-control" value="{{ $value('bank_name', 'BDO') }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Bank account name</label>
+                        <input type="text" name="bank_account_name" class="form-control" value="{{ $value('bank_account_name') }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Bank account number</label>
+                        <input type="text" name="bank_account_number" class="form-control" value="{{ $value('bank_account_number') }}">
+                    </div>
                 </div>
                 <button class="btn btn-rp-primary mt-4">Save Settings</button>
             </form>

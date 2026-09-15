@@ -23,6 +23,7 @@ class Accommodation extends Model
         'rate',
         'status',
         'image',
+        'gallery',
         'is_active',
     ];
 
@@ -31,6 +32,7 @@ class Accommodation extends Model
         'rate' => 'decimal:2',
         'status' => AccommodationStatus::class,
         'is_active' => 'boolean',
+        'gallery' => 'array',
     ];
 
     public function type(): BelongsTo
@@ -68,6 +70,37 @@ class Accommodation extends Model
             return asset('storage/'.$this->image);
         }
 
+        $gallery = $this->gallery_urls;
+        if ($gallery !== []) {
+            return $gallery[0];
+        }
+
         return asset('images/rooms/ocean-view-room.png');
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getGalleryUrlsAttribute(): array
+    {
+        $paths = collect($this->gallery ?? [])
+            ->filter(fn ($path) => is_string($path) && $path !== '')
+            ->values();
+
+        if ($this->image) {
+            $paths = $paths->prepend($this->image)->unique()->values();
+        }
+
+        return $paths->map(function (string $path) {
+            if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+                return $path;
+            }
+
+            if (str_starts_with($path, 'images/')) {
+                return asset($path);
+            }
+
+            return asset('storage/'.$path);
+        })->all();
     }
 }

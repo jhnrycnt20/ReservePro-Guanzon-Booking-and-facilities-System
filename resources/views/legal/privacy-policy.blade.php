@@ -57,7 +57,7 @@
 
             <div class="rp-legal-section" id="contact">
                 <h2>Contact us about privacy</h2>
-                <p>If you have any questions about this Privacy Policy or how we handle your data, reach out to Guanzon Resort at Guanzon Beach, Bluepool Waterpark, Philippines. Email us at <a href="mailto:info@guanzonresort.com">info@guanzonresort.com</a> or call 09190644054.</p>
+                <p>If you have any questions about this Privacy Policy or how we handle your data, reach out to Guanzon Resort at Guanzon Beach, Bluepool Waterpark, Philippines. Email us at <a href="mailto:info@guanzonresort.com">info@guanzonresort.com</a> or call 09505584607.</p>
             </div>
         </div>
     </div>

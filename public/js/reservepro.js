@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (offersContent && offersNextBtn) {
         const offerRows = Array.from(offersContent.querySelectorAll('.rp-offer-row'));
-        const pageSize = 2;
+        const pageSize = 3;
         const totalPages = Math.ceil(offerRows.length / pageSize);
         let currentPage = 0;
 
@@ -194,6 +194,187 @@ document.addEventListener('DOMContentLoaded', () => {
 
     backdrop?.addEventListener('click', closeSidebar);
 
+    document.querySelectorAll('[data-rp-history-back]').forEach((link) => {
+        link.addEventListener('click', (event) => {
+            if (window.history.length > 1) {
+                event.preventDefault();
+                window.history.back();
+            }
+        });
+    });
+
+    const openGCashApp = ({ number, amount }) => {
+        const phone = String(number || '').replace(/\D/g, '');
+        const payAmount = String(amount || '').trim();
+
+        if (phone && navigator.clipboard?.writeText) {
+            navigator.clipboard.writeText(phone).catch(() => {});
+        }
+
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+        // Best-effort deep links. Personal receive QR can't auto-charge without GCash merchant API,
+        // so we open the app and copy the number for Send Money.
+        const candidates = [];
+        if (phone) {
+            candidates.push(`gcash://send?phone=${encodeURIComponent(phone)}${payAmount ? `&amount=${encodeURIComponent(payAmount)}` : ''}`);
+            candidates.push(`gcash://express/send?phone=${encodeURIComponent(phone)}`);
+        }
+        candidates.push('gcash://');
+
+        if (isAndroid) {
+            candidates.push('intent://send#Intent;scheme=gcash;package=com.globe.gcash.android;end');
+            candidates.push('https://play.google.com/store/apps/details?id=com.globe.gcash.android');
+        } else if (isIOS) {
+            candidates.push('https://apps.apple.com/app/gcash/id520020791');
+        } else {
+            candidates.push('https://www.gcash.com/');
+        }
+
+        let opened = false;
+        const tryOpen = (url) => {
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = url;
+            document.body.appendChild(iframe);
+            setTimeout(() => iframe.remove(), 1500);
+            window.location.href = url;
+            opened = true;
+        };
+
+        tryOpen(candidates[0]);
+
+        // If the custom scheme fails on desktop/mobile webview, fall back shortly.
+        setTimeout(() => {
+            if (document.hidden || opened === false) return;
+            const fallback = candidates[candidates.length - 1];
+            if (fallback && fallback !== candidates[0]) {
+                window.location.href = fallback;
+            }
+        }, 1200);
+
+        const note = phone
+            ? `GCash number ${phone} copied. Open Send Money, paste the number${payAmount ? `, enter ₱${payAmount}` : ''}, then return here to upload proof.`
+            : 'Opening GCash. After paying, return here to upload your proof.';
+
+        if (window.bootstrap && document.getElementById('rpToast')) {
+            // optional toast container may not exist
+        }
+        window.alert(note);
+    };
+
+    document.querySelectorAll('[data-rp-open-gcash]').forEach((button) => {
+        button.addEventListener('click', (event) => {
+            event.preventDefault();
+            openGCashApp({
+                number: button.dataset.gcashNumber || '09505584607',
+                amount: button.dataset.gcashAmount || '',
+            });
+
+            const methodSelect = document.getElementById('paymentMethod');
+            if (methodSelect) {
+                methodSelect.value = 'gcash';
+                methodSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        });
+    });
+
+    document.querySelectorAll('[data-rp-print-receipt]').forEach((button) => {
+        button.addEventListener('click', () => {
+            const target = document.querySelector(button.dataset.rpPrintReceipt || '#rpPaymentReceiptPrint');
+            if (!target) return;
+
+            const clone = target.cloneNode(true);
+            clone.querySelectorAll('.no-print').forEach((el) => el.remove());
+
+            // Do not use noopener here — it makes window.open() return null.
+            const printWindow = window.open('', '_blank', 'width=720,height=900');
+            if (!printWindow) {
+                window.alert('Please allow pop-ups to print the receipt.');
+                return;
+            }
+
+            printWindow.document.write(`<!DOCTYPE html><html><head><title>Payment Receipt</title>
+                <style>
+                    @page { size: A4; margin: 16mm; }
+                    html, body { margin: 0; padding: 0; height: auto; overflow: visible; }
+                    body { font-family: Georgia, "Times New Roman", serif; color: #111; }
+                    .rp-receipt-card { max-width: 480px; margin: 0 auto; border: 1px solid #ddd; padding: 24px; }
+                    .rp-receipt-brand { font-size: 22px; font-weight: 700; }
+                    .rp-receipt-meta { color: #666; font-size: 14px; }
+                    .rp-receipt-row { display: flex; justify-content: space-between; gap: 16px; margin: 8px 0; }
+                    hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
+                </style></head><body>${clone.outerHTML}</body></html>`);
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 250);
+        });
+    });
+
+    document.querySelectorAll('[data-rp-payment-form]').forEach((form) => {
+        const amountInput = form.querySelector('#paymentAmount');
+        const methodSelect = form.querySelector('#paymentMethod');
+        const refWrap = form.querySelector('[data-rp-pay-ref-wrap]');
+        const proofWrap = form.querySelector('[data-rp-pay-proof-wrap]');
+
+        form.querySelectorAll('[data-rp-pay-amount]').forEach((button) => {
+            button.addEventListener('click', () => {
+                if (amountInput) {
+                    amountInput.value = button.dataset.rpPayAmount || '';
+                    amountInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            });
+        });
+
+        const syncProofFields = () => {
+            const method = methodSelect?.value || '';
+            const needsProof = method === 'gcash' || method === 'bank_transfer';
+            if (refWrap) refWrap.classList.toggle('d-none', !needsProof && method === 'cash');
+            if (proofWrap) proofWrap.classList.toggle('d-none', !needsProof);
+            const refInput = refWrap?.querySelector('input');
+            const proofInput = proofWrap?.querySelector('input');
+            if (refInput) refInput.required = needsProof;
+            if (proofInput) proofInput.required = needsProof;
+        };
+
+        methodSelect?.addEventListener('change', syncProofFields);
+        syncProofFields();
+    });
+
+    document.querySelectorAll('[data-rp-live-filter]').forEach((form) => {
+        let timer = null;
+        const applyFilter = () => {
+            const action = form.getAttribute('action') || window.location.pathname;
+            const params = new URLSearchParams(new FormData(form));
+            ['q', 'status'].forEach((key) => {
+                if (!(params.get(key) || '').trim()) {
+                    params.delete(key);
+                }
+            });
+            const query = params.toString();
+            window.location.assign(query ? `${action}?${query}` : action);
+        };
+
+        form.querySelectorAll('[data-rp-live-filter-q]').forEach((input) => {
+            input.addEventListener('input', () => {
+                clearTimeout(timer);
+                const delay = input.value.trim() === '' ? 0 : 300;
+                timer = setTimeout(applyFilter, delay);
+            });
+        });
+
+        form.querySelectorAll('[data-rp-live-filter-change]').forEach((select) => {
+            select.addEventListener('change', () => {
+                clearTimeout(timer);
+                applyFilter();
+            });
+        });
+    });
+
     const navMenuBtn = document.getElementById('rpNavMenuBtn');
     const navOverlay = document.getElementById('rpNavOverlay');
 
@@ -258,13 +439,56 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     document.querySelectorAll('[data-rp-auto-dismiss]').forEach((alertEl) => {
-        setTimeout(() => {
+        let dismissed = false;
+        const dismiss = () => {
+            if (dismissed || !alertEl.isConnected) return;
+            dismissed = true;
             if (!window.bootstrap?.Alert) {
                 alertEl.remove();
                 return;
             }
             bootstrap.Alert.getOrCreateInstance(alertEl).close();
-        }, 4000);
+        };
+        alertEl.querySelector('[data-bs-dismiss="alert"]')?.addEventListener('click', dismiss);
+        setTimeout(dismiss, 4000);
+    });
+
+    document.querySelectorAll('[data-rp-notif]').forEach((root) => {
+        const toggle = root.querySelector('[data-rp-notif-toggle]');
+        const panel = root.querySelector('[data-rp-notif-panel]');
+        if (!toggle || !panel) return;
+
+        let open = false;
+        let lastToggleAt = 0;
+
+        const setOpen = (next) => {
+            open = Boolean(next);
+            panel.hidden = !open;
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            root.classList.toggle('is-open', open);
+        };
+
+        toggle.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            const now = Date.now();
+            // Ignore accidental double-clicks that fight open/close.
+            if (now - lastToggleAt < 280) return;
+            lastToggleAt = now;
+            setOpen(!open);
+        });
+
+        panel.addEventListener('click', (event) => {
+            event.stopPropagation();
+        });
+
+        document.addEventListener('click', () => {
+            if (open) setOpen(false);
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && open) setOpen(false);
+        });
     });
 
     const confirmModalEl = document.getElementById('rpConfirmModal');

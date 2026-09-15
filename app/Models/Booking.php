@@ -109,4 +109,22 @@ class Booking extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    /**
+     * Short display code for lists (e.g. BK-7K2M or BK-88166D from older long IDs).
+     */
+    public function getShortNumberAttribute(): string
+    {
+        $number = (string) $this->booking_number;
+
+        if (preg_match('/^BK-[A-Z0-9]{4}$/i', $number)) {
+            return strtoupper($number);
+        }
+
+        if (preg_match('/-([A-Z0-9]+)$/i', $number, $matches)) {
+            return 'BK-'.strtoupper($matches[1]);
+        }
+
+        return $number;
+    }
 }

@@ -11,22 +11,25 @@
 
 @section('content')
 <div class="rp-card mb-3">
-    <form method="GET" class="row g-2 align-items-end">
+    <form method="GET" class="row g-2 align-items-end" data-rp-live-filter>
         <div class="col-md-4">
             <label class="form-label">Status</label>
-            <select name="status" class="form-select">
+            <select name="status" class="form-select" data-rp-live-filter-change>
                 <option value="">All</option>
                 @foreach(['pending','approved','rejected','cancelled','checked_in','checked_out'] as $status)
                     <option value="{{ $status }}" @selected(request('status') === $status)>{{ ucfirst(str_replace('_',' ', $status)) }}</option>
                 @endforeach
             </select>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-5">
             <label class="form-label">Search</label>
-            <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="Booking # or guest">
+            <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="e.g. BK-7K2M or guest name" data-rp-live-filter-q autocomplete="off">
         </div>
-        <div class="col-md-4">
-            <button class="btn btn-rp-primary w-100">Filter</button>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-rp-primary flex-grow-1">Filter</button>
+            @if(request()->filled('q') || request()->filled('status'))
+                <a href="{{ route('front_desk.reservations.index') }}" class="btn btn-rp-soft">Clear</a>
+            @endif
         </div>
     </form>
 </div>
@@ -37,7 +40,7 @@
             <tbody>
                 @forelse($bookings as $booking)
                     <tr>
-                        <td>{{ $booking->booking_number }}</td>
+                        <td><span class="rp-booking-code" title="{{ $booking->booking_number }}">{{ $booking->short_number }}</span></td>
                         <td>{{ $booking->guest_name }}</td>
                         <td>{{ $booking->accommodation->name }}</td>
                         <td>{{ $booking->check_in_date->format('M d') }} → {{ $booking->check_out_date->format('M d') }}</td>

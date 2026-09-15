@@ -47,14 +47,53 @@
                     @endif
                 </div>
                 <div class="rp-topbar-actions ms-auto d-flex align-items-center gap-3">
-                    <a href="{{ route('notifications.index') }}" class="rp-icon-btn position-relative" title="Notifications">
-                        <i class="bi bi-bell"></i>
-                        @if(auth()->user()->unreadNotifications()->count() > 0)
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                {{ auth()->user()->unreadNotifications()->count() > 9 ? '9+' : auth()->user()->unreadNotifications()->count() }}
-                            </span>
-                        @endif
-                    </a>
+                    @php
+                        $rpUnreadCount = auth()->user()->unreadNotifications()->count();
+                        $rpRecentNotifications = auth()->user()->notifications()->latest()->limit(6)->get();
+                    @endphp
+                    <div class="rp-notif" data-rp-notif>
+                        <button
+                            type="button"
+                            class="rp-icon-btn position-relative"
+                            data-rp-notif-toggle
+                            aria-label="Notifications"
+                            aria-expanded="false"
+                            aria-controls="rpNotifPanel"
+                            title="Notifications"
+                        >
+                            <i class="bi bi-bell"></i>
+                            @if($rpUnreadCount > 0)
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" data-rp-notif-badge>
+                                    {{ $rpUnreadCount > 9 ? '9+' : $rpUnreadCount }}
+                                </span>
+                            @endif
+                        </button>
+                        <div class="rp-notif-panel" id="rpNotifPanel" data-rp-notif-panel hidden>
+                            <div class="rp-notif-panel-head">
+                                <strong>Notifications</strong>
+                                @if($rpUnreadCount > 0)
+                                    <form method="POST" action="{{ route('notifications.read_all') }}">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-rp-soft">Mark all read</button>
+                                    </form>
+                                @endif
+                            </div>
+                            <div class="rp-notif-panel-list">
+                                @forelse($rpRecentNotifications as $notification)
+                                    <a href="{{ route('notifications.open', $notification->id) }}" class="rp-notif-item {{ $notification->read_at ? '' : 'is-unread' }}">
+                                        <div class="rp-notif-item-text">{{ $notification->data['message'] ?? $notification->data['title'] ?? 'Notification' }}</div>
+                                        <div class="rp-notif-item-meta">
+                                            <span>{{ $notification->created_at->diffForHumans() }}</span>
+                                            <span class="rp-notif-item-go">Open</span>
+                                        </div>
+                                    </a>
+                                @empty
+                                    <div class="rp-notif-empty">No notifications yet.</div>
+                                @endforelse
+                            </div>
+                            <a href="{{ route('notifications.index') }}" class="rp-notif-panel-foot">View all</a>
+                        </div>
+                    </div>
                     <div class="text-end d-none d-md-block">
                         <div class="fw-semibold">{{ auth()->user()->name }}</div>
                         <div class="small text-muted">{{ auth()->user()->email }}</div>

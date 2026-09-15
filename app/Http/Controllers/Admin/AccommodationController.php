@@ -14,9 +14,16 @@ class AccommodationController extends Controller
 {
     public function index(): View
     {
-        $accommodations = Accommodation::query()->with('type')->latest()->paginate(20);
+        $accommodations = Accommodation::query()
+            ->with(['type', 'amenities'])
+            ->latest()
+            ->paginate(20);
 
-        return view('admin.accommodations.index', compact('accommodations'));
+        return view('admin.accommodations.index', [
+            'accommodations' => $accommodations,
+            'types' => AccommodationType::query()->orderBy('name')->get(),
+            'amenities' => Amenity::query()->orderBy('name')->get(),
+        ]);
     }
 
     public function create(): View

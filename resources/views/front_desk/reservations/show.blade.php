@@ -3,7 +3,7 @@
 @section('title', 'Review Reservation')
 @section('theme', 'front_desk')
 @section('role_label', 'Front Desk')
-@section('page_title', 'Review '.$booking->booking_number)
+@section('page_title', 'Review '.$booking->short_number)
 @section('page_subtitle', 'Approve or reject after verifying details and availability')
 @section('sidebar')
     @include('partials.sidebar-front-desk')

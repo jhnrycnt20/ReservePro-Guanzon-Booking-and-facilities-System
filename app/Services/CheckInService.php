@@ -36,9 +36,10 @@ class CheckInService
 
         $booking = $this->paymentService->recalculateBalances($booking);
 
-        if ((float) $booking->remaining_balance > 0) {
+        if (! $this->paymentService->hasVerifiedDeposit($booking)) {
+            $deposit = number_format($this->paymentService->depositAmount($booking), 2);
             throw ValidationException::withMessages([
-                'payment' => 'Outstanding balance must be settled before check-in.',
+                'payment' => "At least a 50% verified deposit (₱{$deposit}) is required before check-in.",
             ]);
         }
 

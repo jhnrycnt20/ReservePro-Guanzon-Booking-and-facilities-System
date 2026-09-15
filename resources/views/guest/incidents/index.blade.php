@@ -4,6 +4,8 @@
 
 @section('content')
 <div class="container rp-public-page-top rp-public-page-top--tight pb-4">
+    <a href="{{ route('guest.dashboard') }}" class="rp-back-link"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+
     <div class="rp-page-intro d-flex align-items-end justify-content-between flex-wrap gap-3">
         <h1 class="rp-page-intro-title mb-0">My Reports</h1>
         <a href="{{ route('guest.incidents.create') }}" class="rp-avail-btn-primary rp-avail-btn-primary--inline">New Report</a>

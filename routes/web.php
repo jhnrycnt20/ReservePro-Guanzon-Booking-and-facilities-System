@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AccommodationTypeController;
 use App\Http\Controllers\Admin\AmenityController;
 use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Admin\PricingController;
 use App\Http\Controllers\Admin\ReportController;
@@ -94,6 +95,7 @@ Route::get('/guest/bookings/create', [GuestBookingController::class, 'create'])-
 
 Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/{id}/open', [NotificationController::class, 'open'])->name('notifications.open');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read_all');
 
@@ -140,6 +142,7 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::post('/check-outs/{booking}', [CheckOutController::class, 'store'])->name('checkouts.store');
 
         Route::get('/payments', [PaymentVerificationController::class, 'index'])->name('payments.index');
+        Route::get('/payments/{payment}', [PaymentVerificationController::class, 'show'])->name('payments.show');
         Route::post('/payments/{payment}/verify', [PaymentVerificationController::class, 'verify'])->name('payments.verify');
         Route::post('/payments/{payment}/reject', [PaymentVerificationController::class, 'reject'])->name('payments.reject');
         Route::get('/payments/{payment}/receipt', [PaymentVerificationController::class, 'receipt'])->name('payments.receipt');
@@ -172,6 +175,9 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
         Route::get('/reports/{incident}', [ReportController::class, 'show'])->name('reports.show');
         Route::get('/feedback', [AdminFeedbackController::class, 'index'])->name('feedback.index');
+        Route::get('/contact-messages', [ContactMessageController::class, 'index'])->name('contact-messages.index');
+        Route::get('/contact-messages/{contactMessage}', [ContactMessageController::class, 'show'])->name('contact-messages.show');
+        Route::delete('/contact-messages/{contactMessage}', [ContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
         Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
         Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
         Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');

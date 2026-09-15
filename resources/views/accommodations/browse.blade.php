@@ -10,6 +10,10 @@
     $checkOutDisplay = request('check_out') ? \Carbon\Carbon::parse(request('check_out'))->format('M j, Y') : '';
 @endphp
 
+<a href="{{ url('/') }}" class="rp-back-link" data-rp-history-back>
+    <i class="bi bi-arrow-left"></i> Back
+</a>
+
 <div class="rp-card mb-4">
     <form method="GET" action="{{ route('accommodations.browse') }}" class="row g-3 align-items-end" data-rp-availability-form>
         <div class="col-md-3">
@@ -52,7 +56,10 @@
                 <img src="{{ $item->image_url }}" alt="{{ $item->name }}">
                 <div class="rp-cottage-card-body">
                     <div class="rp-cottage-title">{{ $item->name }}</div>
-                    <div class="rp-cottage-subtitle">{{ $item->type->name ?? $item->accommodationType->name ?? 'Accommodation' }}</div>
+                    @php $typeName = $item->type->name ?? $item->accommodationType->name ?? null; @endphp
+                    @if($typeName && strcasecmp($typeName, $item->name) !== 0)
+                        <div class="rp-cottage-subtitle">{{ $typeName }}</div>
+                    @endif
                     <div class="rp-cottage-row">
                         <span>Rate</span>
                         <span>₱{{ number_format($item->rate, 0) }}</span>

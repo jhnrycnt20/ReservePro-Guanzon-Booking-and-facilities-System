@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Guanzon Resort') — Guanzon Resort</title>
     @include('partials.pwa-head')
@@ -25,9 +25,7 @@
                     </span>
                 </button>
                 @unless($rpNavMinimal)
-                    <a href="{{ route('accommodations.browse') }}">
-                        <img class="rp-nav-logo-img" src="{{ asset('images/guanzon_logoW.png') }}" alt="Guanzon Resort">
-                    </a>
+                    <img class="rp-nav-logo-img" src="{{ asset('images/guanzon_logoW.png') }}" alt="Guanzon Resort">
                 @endunless
             </div>
             @unless($rpNavMinimal)
@@ -36,16 +34,14 @@
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ route('gallery') }}">Gallery</a>
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ route('offers') }}">Offers</a>
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ route('contact') }}">Contact</a>
-                    <div class="rp-nav-actions">
-                        @unless (request()->routeIs('accommodations.*') || request()->routeIs('guest.bookings.create') || request()->routeIs('login') || request()->routeIs('register'))
-                            <a class="rp-nav-link rp-nav-link-booknow" href="{{ route('accommodations.browse') }}">Book Now</a>
-                        @endunless
-                        @guest
-                            <a class="rp-nav-auth-btn" href="{{ route('login') }}">Login</a>
-                        @else
-                            <a class="rp-nav-auth-btn" href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
-                        @endguest
-                    </div>
+                    @unless (request()->routeIs('accommodations.*') || request()->routeIs('guest.bookings.create') || request()->routeIs('login') || request()->routeIs('register'))
+                        <a class="rp-nav-link rp-nav-link-booknow" href="{{ route('accommodations.browse') }}">Book Now</a>
+                    @endunless
+                    @guest
+                        <a class="rp-nav-link" href="{{ route('login') }}">Login</a>
+                    @else
+                        <a class="rp-nav-link" href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
+                    @endguest
                 </div>
             @endunless
         </div>
@@ -57,8 +53,10 @@
             <a href="{{ route('gallery') }}">Gallery</a>
             <a href="{{ route('offers') }}">Offers</a>
             <a href="{{ route('contact') }}">Contact</a>
+            <a href="{{ route('accommodations.browse') }}">Book Now</a>
             @auth
                 @if(auth()->user()->hasRole('guest'))
+                    <a href="{{ route('guest.dashboard') }}">Dashboard</a>
                     <a href="{{ route('guest.bookings.index') }}">My Reservations</a>
                     <a href="{{ route('guest.payments.index') }}">Payments</a>
                 @endif
@@ -73,7 +71,7 @@
         </nav>
         <div class="rp-nav-overlay-social">
             <div class="rp-nav-overlay-social-label">Connect With Us</div>
-            <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+            <a href="https://www.facebook.com/profile.php?id=100057024897212" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
         </div>
     </div>
 
@@ -97,7 +95,7 @@
                     <p class="rp-footer-text mb-0">{{ $resortSettings['resort_subtitle'] ?? 'Bluepool Waterpark' }}</p>
                     <p class="rp-footer-text">{{ $resortSettings['resort_address'] ?? 'Philippines' }}</p>
                     <a href="mailto:{{ $resortSettings['resort_email'] ?? 'info@guanzonresort.com' }}" class="rp-footer-link-underline">{{ $resortSettings['resort_email'] ?? 'info@guanzonresort.com' }}</a>
-                    <p class="rp-footer-phone">{{ $resortSettings['resort_phone'] ?? '09190644054' }}@if(!empty($resortSettings['resort_phone_landline'])) · {{ $resortSettings['resort_phone_landline'] }}@endif</p>
+                    <p class="rp-footer-phone">{{ $resortSettings['resort_phone'] ?? '09190644054' }}</p>
                 </div>
                 <div class="col-12 col-md-3">
                     <div class="rp-footer-heading">Links</div>
@@ -111,7 +109,7 @@
                 <div class="col-12 col-md-3">
                     <div class="rp-footer-heading">Get in Touch</div>
                     <div class="rp-footer-social mb-3">
-                        <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="https://www.facebook.com/profile.php?id=100057024897212" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
                     </div>
                     <button type="button" id="pwaInstallBtn" class="rp-footer-install-btn">
                         <i class="bi bi-download me-1"></i> Install App

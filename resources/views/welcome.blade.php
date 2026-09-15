@@ -58,7 +58,7 @@
                             <div class="rp-plan-card-title">Dining</div>
                         </div>
                         <div class="rp-plan-card">
-                            <img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=700&q=80" alt="Guanzon Resort cabana" draggable="false">
+                            <img src="{{ asset('images/rooms/cabana/01-exterior-row.png') }}" alt="Guanzon Resort cabana" draggable="false">
                             <div class="rp-plan-card-title">Cabana</div>
                         </div>
                     </div>

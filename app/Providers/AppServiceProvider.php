@@ -50,6 +50,11 @@ class AppServiceProvider extends ServiceProvider
                         'resort_phone_landline' => \App\Models\SystemSetting::getValue('resort_phone_landline', '265-7942'),
                         'check_in_time' => \App\Models\SystemSetting::getValue('check_in_time', '14:00'),
                         'check_out_time' => \App\Models\SystemSetting::getValue('check_out_time', '12:00'),
+                        'gcash_number' => \App\Models\SystemSetting::getValue('gcash_number', '09505584607'),
+                        'gcash_name' => \App\Models\SystemSetting::getValue('gcash_name', 'Guanzon Beach'),
+                        'bank_name' => \App\Models\SystemSetting::getValue('bank_name', 'BDO'),
+                        'bank_account_name' => \App\Models\SystemSetting::getValue('bank_account_name', 'Guanzon Beach'),
+                        'bank_account_number' => \App\Models\SystemSetting::getValue('bank_account_number', '0000-0000-0000'),
                     ];
                 } catch (\Throwable $e) {
                     $resortSettings = [
@@ -61,6 +66,11 @@ class AppServiceProvider extends ServiceProvider
                         'resort_phone_landline' => '265-7942',
                         'check_in_time' => '14:00',
                         'check_out_time' => '12:00',
+                        'gcash_number' => '09505584607',
+                        'gcash_name' => 'Guanzon Beach',
+                        'bank_name' => 'BDO',
+                        'bank_account_name' => 'Guanzon Beach',
+                        'bank_account_number' => '0000-0000-0000',
                     ];
                 }
             }

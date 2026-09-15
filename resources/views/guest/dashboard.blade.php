@@ -42,7 +42,7 @@
             <tbody>
                 @forelse($recentBookings ?? [] as $booking)
                     <tr>
-                        <td>{{ $booking->booking_number }}</td>
+                        <td>{{ $booking->short_number }}</td>
                         <td>{{ $booking->accommodation->name ?? '—' }}</td>
                         <td>{{ $booking->check_in_date->format('M d') }} → {{ $booking->check_out_date->format('M d, Y') }}</td>
                         <td><x-status-badge :status="$booking->status" /></td>

@@ -39,7 +39,11 @@ class PaymentController extends Controller
     {
         $this->authorize('view', $booking);
 
-        return view('guest.payments.create', compact('booking'));
+        $deposit = $this->paymentService->depositAmount($booking);
+        $remaining = (float) $booking->remaining_balance;
+        $suggestedDeposit = min($deposit, $remaining);
+
+        return view('guest.payments.create', compact('booking', 'deposit', 'suggestedDeposit'));
     }
 
     public function store(StorePaymentRequest $request, Booking $booking): RedirectResponse
@@ -49,7 +53,8 @@ class PaymentController extends Controller
         $payment = $this->paymentService->recordPayment(
             $booking,
             array_merge($request->validated(), ['auto_verify' => false]),
-            $request->user()
+            $request->user(),
+            $request->file('proof')
         );
 
         User::query()
@@ -63,6 +68,6 @@ class PaymentController extends Controller
 
         return redirect()
             ->route('guest.bookings.show', $booking)
-            ->with('success', 'Payment recorded and awaiting front desk verification.');
+            ->with('success', 'Payment submitted. Front desk will verify it shortly.');
     }
 }

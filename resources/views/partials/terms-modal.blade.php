@@ -8,7 +8,7 @@
             <div class="modal-body rp-terms-modal-body" data-rp-terms-modal-body>
                 <div class="rp-legal-section" id="modal-booking-rules">
                     <h3>Booking rules</h3>
-                    <p>A reservation made through this website is a request. It's only guaranteed once our front desk team marks it as Approved. You must be at least 18 years old, or have a guardian booking for you, to make a reservation. Please make sure the details you submit are correct. We may decline or change a booking if it goes over the accommodation's maximum capacity.</p>
+                    <p>A reservation made through this website is confirmed automatically when you submit it, subject to availability. You must be at least 18 years old, or have a guardian booking for you, to make a reservation. Please make sure the details you submit are correct. We may decline or change a booking if it goes over the accommodation's maximum capacity.</p>
                 </div>
 
                 <div class="rp-legal-section" id="modal-payment">

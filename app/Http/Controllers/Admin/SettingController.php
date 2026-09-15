@@ -29,6 +29,11 @@ class SettingController extends Controller
             'currency' => ['required', 'string', 'max:10'],
             'check_in_time' => ['required', 'string', 'max:10'],
             'check_out_time' => ['required', 'string', 'max:10'],
+            'gcash_number' => ['nullable', 'string', 'max:50'],
+            'gcash_name' => ['nullable', 'string', 'max:255'],
+            'bank_name' => ['nullable', 'string', 'max:100'],
+            'bank_account_name' => ['nullable', 'string', 'max:255'],
+            'bank_account_number' => ['nullable', 'string', 'max:100'],
         ]);
 
         foreach ($data as $key => $value) {

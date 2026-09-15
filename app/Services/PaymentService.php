@@ -8,11 +8,14 @@ use App\Models\Payment;
 use App\Models\User;
 use App\Notifications\PaymentRecordedNotification;
 use App\Notifications\PaymentVerifiedNotification;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class PaymentService
 {
+    public const DEPOSIT_PERCENT = 50;
+
     public function __construct(
         protected AuditService $auditService,
         protected NotificationService $notificationService,
@@ -26,6 +29,18 @@ class PaymentService
         } while (Payment::withTrashed()->where('receipt_number', $number)->exists());
 
         return $number;
+    }
+
+    public function depositAmount(Booking $booking): float
+    {
+        return round(((float) $booking->total_amount) * (self::DEPOSIT_PERCENT / 100), 2);
+    }
+
+    public function hasVerifiedDeposit(Booking $booking): bool
+    {
+        $booking = $this->recalculateBalances($booking);
+
+        return (float) $booking->paid_amount + 0.009 >= $this->depositAmount($booking);
     }
 
     public function recalculateBalances(Booking $booking): Booking
@@ -45,7 +60,7 @@ class PaymentService
         return $booking->fresh();
     }
 
-    public function recordPayment(Booking $booking, array $data, User $processor): Payment
+    public function recordPayment(Booking $booking, array $data, User $processor, ?UploadedFile $proof = null): Payment
     {
         if (in_array($booking->status->value, ['rejected', 'cancelled'], true)) {
             throw ValidationException::withMessages([
@@ -54,6 +69,7 @@ class PaymentService
         }
 
         $amount = round((float) $data['amount'], 2);
+        $remaining = (float) $booking->remaining_balance;
 
         if ($amount <= 0) {
             throw ValidationException::withMessages([
@@ -61,15 +77,37 @@ class PaymentService
             ]);
         }
 
-        return DB::transaction(function () use ($booking, $data, $processor, $amount) {
-            $autoVerify = (bool) ($data['auto_verify'] ?? false)
-                || ($processor->isFrontDesk() || $processor->isAdmin());
+        if ($amount - $remaining > 0.009) {
+            throw ValidationException::withMessages([
+                'amount' => 'Payment amount cannot exceed the remaining balance.',
+            ]);
+        }
+
+        $method = is_object($data['payment_method'] ?? null)
+            ? $data['payment_method']->value
+            : (string) ($data['payment_method'] ?? 'cash');
+
+        if (in_array($method, ['gcash', 'bank_transfer'], true) && empty($data['reference_number'])) {
+            throw ValidationException::withMessages([
+                'reference_number' => 'Reference number is required for GCash and bank transfer.',
+            ]);
+        }
+
+        return DB::transaction(function () use ($booking, $data, $processor, $amount, $proof, $method) {
+            // Only auto-verify when explicitly requested (walk-in / front desk cash).
+            $autoVerify = (bool) ($data['auto_verify'] ?? false);
+
+            $proofPath = null;
+            if ($proof) {
+                $proofPath = $proof->store('payment-proofs', 'public');
+            }
 
             $payment = Payment::query()->create([
                 'booking_id' => $booking->id,
                 'amount' => $amount,
-                'payment_method' => $data['payment_method'],
+                'payment_method' => $method,
                 'reference_number' => $data['reference_number'] ?? null,
+                'proof_path' => $proofPath,
                 'payment_date' => $data['payment_date'] ?? now(),
                 'status' => $autoVerify ? PaymentStatus::Verified : PaymentStatus::Pending,
                 'notes' => $data['notes'] ?? null,

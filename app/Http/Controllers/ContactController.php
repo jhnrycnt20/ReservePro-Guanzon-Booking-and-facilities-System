@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ContactMessage;
 use App\Models\SystemSetting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,6 +23,15 @@ class ContactController extends Controller
         ]);
 
         $subject = $data['subject'] ?: ('New inquiry from '.$data['name']);
+
+        ContactMessage::query()->create([
+            'subject' => $subject,
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'phone' => $data['phone'] ?: null,
+            'message' => $data['message'],
+        ]);
+
         $to = SystemSetting::getValue('resort_email', 'info@guanzonresort.com');
 
         $body = implode("\n", [
@@ -39,6 +49,7 @@ class ContactController extends Controller
                     ->replyTo($data['email'], $data['name']);
             });
         } catch (Throwable $e) {
+            // Message is already saved; email is optional when SMTP is not configured.
             Log::warning('Contact form mail failed', [
                 'error' => $e->getMessage(),
                 'from' => $data['email'],

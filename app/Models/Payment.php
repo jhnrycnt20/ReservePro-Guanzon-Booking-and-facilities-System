@@ -18,6 +18,7 @@ class Payment extends Model
         'amount',
         'payment_method',
         'reference_number',
+        'proof_path',
         'payment_date',
         'status',
         'verified_by',
@@ -35,6 +36,14 @@ class Payment extends Model
         'verified_at' => 'datetime',
     ];
 
+    public function getProofUrlAttribute(): ?string
+    {
+        if (! $this->proof_path) {
+            return null;
+        }
+
+        return asset('storage/'.$this->proof_path);
+    }
     public function booking(): BelongsTo
     {
         return $this->belongsTo(Booking::class);

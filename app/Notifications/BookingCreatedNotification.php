@@ -24,8 +24,8 @@ class BookingCreatedNotification extends Notification
         $num = $this->booking->booking_number;
 
         return [
-            'title' => 'Reservation submitted',
-            'message' => sprintf('Your reservation %s has been submitted and is pending review.', $num),
+            'title' => 'Reservation confirmed',
+            'message' => sprintf('Your reservation %s is confirmed and reserved.', $num),
             'type' => 'booking',
             'id' => $this->booking->id,
             'number' => $num,

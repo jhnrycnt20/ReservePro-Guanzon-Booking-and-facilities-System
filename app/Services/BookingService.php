@@ -27,8 +27,15 @@ class BookingService
 
     public function generateBookingNumber(): string
     {
+        // Short, easy-to-read codes like BK-7K2M (no date clutter).
+        $alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
         do {
-            $number = 'BK-'.now()->format('Ymd').'-'.strtoupper(substr(uniqid(), -6));
+            $suffix = '';
+            for ($i = 0; $i < 4; $i++) {
+                $suffix .= $alphabet[random_int(0, strlen($alphabet) - 1)];
+            }
+            $number = 'BK-'.$suffix;
         } while (Booking::withTrashed()->where('booking_number', $number)->exists());
 
         return $number;
@@ -100,12 +107,18 @@ class BookingService
                 'children' => $children,
                 'number_of_guests' => $numberOfGuests,
                 'special_requests' => $data['special_requests'] ?? null,
-                'status' => BookingStatus::Pending,
+                'status' => BookingStatus::Approved,
+                'approved_by' => $createdBy?->id,
+                'approved_at' => now(),
                 'total_amount' => $totals['total'],
                 'paid_amount' => 0,
                 'remaining_balance' => $totals['total'],
                 'is_walk_in' => $isWalkIn,
                 'created_by' => $createdBy?->id,
+            ]);
+
+            $accommodation->update([
+                'status' => AccommodationStatus::Reserved,
             ]);
 
             $booking->items()->create([

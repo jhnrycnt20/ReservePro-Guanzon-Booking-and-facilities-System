@@ -8,15 +8,6 @@
 <a href="{{ route('admin.accommodations.index') }}" class="{{ request()->routeIs('admin.accommodations.*') ? 'active' : '' }}">
     <i class="bi bi-building"></i> Accommodations
 </a>
-<a href="{{ route('admin.types.index') }}" class="{{ request()->routeIs('admin.types.*') ? 'active' : '' }}">
-    <i class="bi bi-tags"></i> Types
-</a>
-<a href="{{ route('admin.amenities.index') }}" class="{{ request()->routeIs('admin.amenities.*') ? 'active' : '' }}">
-    <i class="bi bi-stars"></i> Amenities
-</a>
-<a href="{{ route('admin.pricing.index') }}" class="{{ request()->routeIs('admin.pricing.*') ? 'active' : '' }}">
-    <i class="bi bi-currency-dollar"></i> Pricing
-</a>
 <div class="nav-section">Insights</div>
 <a href="{{ route('admin.reports.index') }}" class="{{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
     <i class="bi bi-clipboard-data"></i> Incident Reports
@@ -26,6 +17,9 @@
 </a>
 <a href="{{ route('admin.feedback.index') }}" class="{{ request()->routeIs('admin.feedback.*') ? 'active' : '' }}">
     <i class="bi bi-chat-quote"></i> Feedback
+</a>
+<a href="{{ route('admin.contact-messages.index') }}" class="{{ request()->routeIs('admin.contact-messages.*') ? 'active' : '' }}">
+    <i class="bi bi-envelope"></i> Contact Messages
 </a>
 <a href="{{ route('admin.settings.index') }}" class="{{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
     <i class="bi bi-gear"></i> Settings

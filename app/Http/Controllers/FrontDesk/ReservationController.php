@@ -24,7 +24,22 @@ class ReservationController extends Controller
             $query->where('status', $request->input('status'));
         }
 
-        $bookings = $query->latest()->paginate(20);
+        if ($request->filled('q')) {
+            $q = trim((string) $request->input('q'));
+            $qCore = preg_replace('/^BK-/i', '', $q) ?: $q;
+            $query->where(function ($builder) use ($q, $qCore) {
+                $builder->where('booking_number', 'like', "%{$q}%")
+                    ->orWhere('booking_number', 'like', "%{$qCore}%")
+                    ->orWhere('guest_name', 'like', "%{$q}%")
+                    ->orWhere('email', 'like', "%{$q}%")
+                    ->orWhere('contact_number', 'like', "%{$q}%")
+                    ->orWhereHas('accommodation', function ($accommodationQuery) use ($q) {
+                        $accommodationQuery->where('name', 'like', "%{$q}%");
+                    });
+            });
+        }
+
+        $bookings = $query->latest()->paginate(20)->withQueryString();
 
         return view('front_desk.reservations.index', compact('bookings'));
     }

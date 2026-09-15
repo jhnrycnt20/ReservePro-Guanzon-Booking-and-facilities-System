@@ -12,15 +12,49 @@
 <div class="row g-4">
     <div class="col-lg-6">
         <div class="rp-cottage-card rp-cottage-card--static mb-4">
+            @php $galleryUrls = $accommodation->gallery_urls; @endphp
             <div class="rp-cottage-media">
-                <img src="{{ $accommodation->image_url }}" alt="{{ $accommodation->name }}">
-                <a href="{{ $accommodation->image_url }}" target="_blank" rel="noopener" class="rp-view-full-image-btn" aria-label="View full image">
+                <button
+                    type="button"
+                    class="rp-cottage-media-open border-0 bg-transparent p-0 w-100 text-start"
+                    data-rp-lightbox-open
+                    data-rp-lightbox-index="0"
+                    aria-label="Open photo gallery"
+                >
+                    <img src="{{ $accommodation->image_url }}" alt="{{ $accommodation->name }}" id="rpAccommodationMainImage">
+                </button>
+                <button
+                    type="button"
+                    class="rp-view-full-image-btn"
+                    data-rp-lightbox-open
+                    data-rp-lightbox-index="0"
+                    aria-label="View full image"
+                >
                     <i class="bi bi-arrows-fullscreen"></i>
-                </a>
+                </button>
             </div>
+            @if(count($galleryUrls) > 1)
+                <div class="rp-accommodation-gallery">
+                    @foreach($galleryUrls as $index => $url)
+                        <button
+                            type="button"
+                            class="rp-accommodation-gallery-thumb {{ $index === 0 ? 'is-active' : '' }}"
+                            data-rp-gallery-src="{{ $url }}"
+                            data-rp-lightbox-open
+                            data-rp-lightbox-index="{{ $index }}"
+                            aria-label="Show photo {{ $index + 1 }}"
+                        >
+                            <img src="{{ $url }}" alt="{{ $accommodation->name }} photo {{ $index + 1 }}">
+                        </button>
+                    @endforeach
+                </div>
+            @endif
             <div class="rp-cottage-card-body">
                 <div class="rp-cottage-title">{{ $accommodation->name }}</div>
-                <div class="rp-cottage-subtitle">{{ $accommodation->accommodationType->name ?? 'Accommodation' }}</div>
+                @php $typeName = $accommodation->accommodationType->name ?? $accommodation->type->name ?? null; @endphp
+                @if($typeName && strcasecmp($typeName, $accommodation->name) !== 0)
+                    <div class="rp-cottage-subtitle">{{ $typeName }}</div>
+                @endif
                 <div class="rp-cottage-row">
                     <span>Rate</span>
                     <span>₱{{ number_format($accommodation->rate, 0) }}</span>
@@ -92,4 +126,98 @@
 </div>
 
 @include('partials.availability-calendar')
+
+@if(count($accommodation->gallery_urls) > 0)
+<div class="modal fade" id="rpAccommodationLightbox" tabindex="-1" aria-labelledby="rpAccommodationLightboxLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content rp-lightbox-modal">
+            <div class="modal-header border-0 pb-0">
+                <h2 class="modal-title h6 text-white" id="rpAccommodationLightboxLabel">{{ $accommodation->name }}</h2>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-2">
+                <div class="rp-lightbox-stage">
+                    @if(count($accommodation->gallery_urls) > 1)
+                        <button type="button" class="rp-lightbox-nav rp-lightbox-prev" data-rp-lightbox-prev aria-label="Previous photo">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                    @endif
+                    <img src="{{ $accommodation->image_url }}" alt="{{ $accommodation->name }}" id="rpLightboxImage" class="rp-lightbox-image">
+                    @if(count($accommodation->gallery_urls) > 1)
+                        <button type="button" class="rp-lightbox-nav rp-lightbox-next" data-rp-lightbox-next aria-label="Next photo">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    @endif
+                </div>
+                <div class="rp-lightbox-meta">
+                    <span id="rpLightboxCounter">1 / {{ count($accommodation->gallery_urls) }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 @endsection
+
+@push('scripts')
+<script>
+(() => {
+    const images = @json($accommodation->gallery_urls);
+    if (!images.length) return;
+
+    const mainImage = document.getElementById('rpAccommodationMainImage');
+    const lightboxEl = document.getElementById('rpAccommodationLightbox');
+    const lightboxImage = document.getElementById('rpLightboxImage');
+    const counterEl = document.getElementById('rpLightboxCounter');
+    let index = 0;
+
+    const setActiveThumb = (activeIndex) => {
+        document.querySelectorAll('[data-rp-lightbox-index]').forEach((thumb) => {
+            const thumbIndex = Number(thumb.dataset.rpLightboxIndex);
+            thumb.classList.toggle('is-active', thumbIndex === activeIndex);
+        });
+    };
+
+    const showImage = (nextIndex, { syncMain = true } = {}) => {
+        index = (nextIndex + images.length) % images.length;
+        const src = images[index];
+
+        if (lightboxImage) {
+            lightboxImage.src = src;
+        }
+        if (counterEl) {
+            counterEl.textContent = `${index + 1} / ${images.length}`;
+        }
+        if (syncMain && mainImage) {
+            mainImage.src = src;
+        }
+        setActiveThumb(index);
+    };
+
+    document.querySelectorAll('[data-rp-lightbox-open]').forEach((button) => {
+        button.addEventListener('click', () => {
+            const startIndex = Number(button.dataset.rpLightboxIndex || 0);
+            showImage(Number.isFinite(startIndex) ? startIndex : 0);
+            if (lightboxEl && window.bootstrap?.Modal) {
+                window.bootstrap.Modal.getOrCreateInstance(lightboxEl).show();
+            }
+        });
+    });
+
+    document.querySelector('[data-rp-lightbox-prev]')?.addEventListener('click', () => showImage(index - 1));
+    document.querySelector('[data-rp-lightbox-next]')?.addEventListener('click', () => showImage(index + 1));
+
+    document.addEventListener('keydown', (event) => {
+        if (!lightboxEl?.classList.contains('show')) return;
+        if (event.key === 'ArrowLeft') {
+            event.preventDefault();
+            showImage(index - 1);
+        }
+        if (event.key === 'ArrowRight') {
+            event.preventDefault();
+            showImage(index + 1);
+        }
+    });
+})();
+</script>
+@endpush

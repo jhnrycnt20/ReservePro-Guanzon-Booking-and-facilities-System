@@ -26,24 +26,66 @@
             <div class="rp-offers-content" id="rpOffersContent">
                 @foreach ([
                     [
-                        'title' => 'Sun & Splash Day Pass',
-                        'description' => 'Full pool and beach access from 8:00 AM to 5:00 PM, with a shaded table reserved for your group. Available every day of the week.',
-                        'image' => 'https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=900&q=80',
+                        'title' => 'Cabana Promo Rate',
+                        'description' => 'Avail our Promo Rates ₱2,500 (good for 4 pax).',
+                        'perks' => [
+                            'Aircon',
+                            'Smart TV',
+                            'Hot and Cold shower',
+                            'Toiletries',
+                            'Complimentary coffee & water',
+                            'Electric kettle',
+                            'Pay Wifi',
+                            'Balcony',
+                            'No pets',
+                            'No Visitors',
+                        ],
+                        'image' => asset('images/offers/cabana-promo.png'),
+                        'cta' => route('accommodations.browse', [
+                            'type' => \App\Models\AccommodationType::query()->where('slug', 'cabana')->value('id'),
+                        ]),
+                        'cta_label' => 'View Cabana',
                     ],
                     [
-                        'title' => 'Cottage Getaway',
-                        'description' => 'Overnight stay in our private cottages surrounded by nature. Perfect for families, couples, or barkadas looking for a relaxing escape.',
-                        'image' => 'https://images.unsplash.com/photo-1602343168117-bb8ffe3e2e9f?auto=format&fit=crop&w=900&q=80',
+                        'title' => 'Suite Room at Guanzon Beach',
+                        'description' => 'Rate: ₱2,500. Bed good for 5 pax with sea view.',
+                        'perks' => [
+                            'Table and Chair',
+                            'Videoke Machine (optional)',
+                            'Mini Refrigerator',
+                            'Griller',
+                            'Toilet',
+                            'Bed good for 5 pax',
+                            'Aircondition Room',
+                            'Cable TV',
+                            'Hot Shower',
+                            'Shampoo and Soap',
+                            'Water and Coffee',
+                            'No Corkage on foods and drinks',
+                            'Sea View',
+                        ],
+                        'image' => asset('images/offers/suite-promo.png'),
+                        'cta' => route('accommodations.browse', [
+                            'type' => \App\Models\AccommodationType::query()->where('slug', 'suite')->value('id'),
+                        ]),
+                        'cta_label' => 'View Suite Room',
                     ],
                     [
-                        'title' => 'Family Reunion Villa',
-                        'description' => 'The Sunset Villa sleeps up to 10 guests, ideal for reunions and milestone celebrations by the shore.',
-                        'image' => 'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=900&q=80',
-                    ],
-                    [
-                        'title' => 'Midweek Room Rate',
-                        'description' => 'Book a garden room Monday through Thursday for a quieter stay at our standard overnight rate.',
-                        'image' => 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=900&q=80',
+                        'title' => 'Guanzon Beach Open Cottage',
+                        'description' => 'Open-air cottage for day or overnight barkada stays.',
+                        'perks' => [
+                            'Day use ₱1,700 (8:00 AM–5:00 PM)',
+                            'Night use ₱1,700 (6:00 PM–6:00 AM)',
+                            'Videoke ₱1,000 (optional)',
+                            'Covered pavilion seating',
+                            'Tables and chairs',
+                            'Outdoor resort setting',
+                        ],
+                        'image' => asset('images/offers/open-cottage-promo.png'),
+                        'cta' => route('accommodations.browse', [
+                            'type' => \App\Models\AccommodationType::query()->where('slug', 'cottage')->value('id'),
+                        ]),
+                        'cta_label' => 'View Open Cottage',
                     ],
                 ] as $offer)
                     <div class="rp-offer-row">
@@ -54,6 +96,16 @@
                             <h2 class="rp-offer-row-title">{{ $offer['title'] }}</h2>
                             <span class="rp-offer-row-title-line"></span>
                             <p class="rp-offer-row-desc">{{ $offer['description'] }}</p>
+                            @if(!empty($offer['perks']))
+                                <ul class="rp-offer-perks">
+                                    @foreach($offer['perks'] as $perk)
+                                        <li>{{ $perk }}</li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                            @if(!empty($offer['cta']))
+                                <a href="{{ $offer['cta'] }}" class="rp-offer-cta">{{ $offer['cta_label'] ?? 'Learn more' }}</a>
+                            @endif
                         </div>
                     </div>
                 @endforeach
@@ -66,7 +118,7 @@
 </section>
 
 <div class="rp-gallery-banner">
-    <div class="rp-gallery-banner-bg" style="background-image: url('https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=1800&q=80');"></div>
+    <div class="rp-gallery-banner-bg" style="background-image: url('{{ asset('images/offers/cabana-promo.png') }}');"></div>
     <img class="rp-gallery-banner-logo" src="{{ asset('images/guanzon_logoW.png') }}" alt="Guanzon Resort">
 </div>
 @endsection

@@ -4,10 +4,10 @@
 
 @section('content')
 <div class="container rp-public-page-top rp-public-page-top--tight pb-4">
-<a href="{{ route('guest.bookings.index') }}" class="rp-back-link"><i class="bi bi-arrow-left"></i> Back to My Reservations</a>
+<a href="{{ route('guest.dashboard') }}" class="rp-back-link" data-rp-history-back><i class="bi bi-arrow-left"></i> Back</a>
 
 <div class="rp-page-intro">
-    <h1 class="rp-page-intro-title">Reservation {{ $booking->booking_number }}</h1>
+    <h1 class="rp-page-intro-title">Reservation {{ $booking->short_number }}</h1>
 </div>
 
 @include('partials.booking-tracker', ['activeStep' => 'confirmation'])
@@ -66,20 +66,47 @@
         <div class="rp-flow-card mb-3">
             <h3 class="h6">Actions</h3>
             @if(in_array(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status), ['approved', 'checked_in']) && $booking->remaining_balance > 0)
-                <a href="{{ route('guest.payments.create', $booking) }}" class="rp-avail-btn-primary mb-2">Make Payment</a>
+                <div class="rp-pay-tip mb-3">
+                    <div class="rp-pay-tip-title">How to pay</div>
+                    <p class="mb-2">
+                        Pay via <strong>GCash</strong>
+                        (<strong>{{ $resortSettings['gcash_number'] ?? '09505584607' }}</strong>).
+                        Tap below to open GCash, then return here to upload your proof.
+                    </p>
+                    <div class="rp-gcash-qr-wrap rp-gcash-qr-wrap--compact mb-2">
+                        <img src="{{ asset('images/gcash-qr.jpg') }}" alt="GCash QR code" class="rp-gcash-qr">
+                    </div>
+                    <button
+                        type="button"
+                        class="rp-avail-btn-primary mb-2"
+                        data-rp-open-gcash
+                        data-gcash-number="{{ $resortSettings['gcash_number'] ?? '09505584607' }}"
+                        data-gcash-amount="{{ number_format(max(0, round(((float) $booking->total_amount) * 0.5, 2)), 2, '.', '') }}"
+                    >
+                        Open GCash to Pay
+                    </button>
+                    <p class="mb-0 small text-muted">
+                        A 50% deposit is enough to start. Front desk will verify before check-in.
+                    </p>
+                </div>
             @endif
-            @if(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status) === 'pending')
+            <div class="rp-booking-actions">
+            @if(in_array(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status), ['approved', 'checked_in']) && $booking->remaining_balance > 0)
+                <a href="{{ route('guest.payments.create', $booking) }}" class="rp-avail-btn-primary">Make Payment</a>
+            @endif
+            @if(in_array(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status), ['pending', 'approved']))
                 <form method="POST" action="{{ route('guest.bookings.cancel', $booking) }}">
                     @csrf
                     <button type="submit" class="rp-avail-btn-secondary rp-avail-btn-secondary--danger" data-rp-confirm-click="Cancel this reservation?">Cancel Reservation</button>
                 </form>
             @endif
             @if(in_array(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status), ['approved', 'checked_in', 'checked_out']))
-                <a href="{{ route('guest.incidents.create', ['booking_id' => $booking->id]) }}" class="rp-avail-btn-secondary rp-avail-btn-secondary--danger mt-2">Report Issue</a>
+                <a href="{{ route('guest.incidents.create', ['booking_id' => $booking->id]) }}" class="rp-avail-btn-secondary rp-avail-btn-secondary--danger">Report Issue</a>
             @endif
             @if(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status) === 'checked_out' && !$booking->feedback)
-                <a href="{{ route('guest.feedback.create', $booking) }}" class="rp-avail-btn-secondary mt-2">Leave Feedback</a>
+                <a href="{{ route('guest.feedback.create', $booking) }}" class="rp-avail-btn-secondary">Leave Feedback</a>
             @endif
+            </div>
         </div>
 
         <div class="rp-flow-card">
@@ -93,12 +120,15 @@
                     <div class="rp-payment-mini-meta">
                         {{ $payment->payment_date?->format('M d, Y') }} &middot; {{ str_replace('_', ' ', ucfirst($payment->payment_method instanceof \BackedEnum ? $payment->payment_method->value : $payment->payment_method)) }}
                     </div>
+                    @if($payment->reference_number)
+                        <div class="rp-payment-mini-receipt">Ref: {{ $payment->reference_number }}</div>
+                    @endif
                     @if($payment->receipt_number)
                         <div class="rp-payment-mini-receipt">Receipt: {{ $payment->receipt_number }}</div>
                     @endif
                 </div>
             @empty
-                <p class="text-muted small mb-0">No payments recorded.</p>
+                <p class="text-muted small mb-0">No payments recorded yet. Tap Make Payment after sending GCash.</p>
             @endforelse
         </div>
     </div>

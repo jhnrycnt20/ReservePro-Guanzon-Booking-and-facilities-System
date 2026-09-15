@@ -72,7 +72,7 @@ class WalkInController extends Controller
                 true
             );
 
-            if ($request->boolean('auto_approve', true)) {
+            if ($request->boolean('auto_approve', true) && $booking->status === \App\Enums\BookingStatus::Pending) {
                 $booking = $this->bookingService->approve($booking, $request->user());
             }
 
@@ -88,7 +88,7 @@ class WalkInController extends Controller
 
             if ($request->boolean('auto_check_in')) {
                 $booking = $booking->fresh();
-                if ((float) $booking->remaining_balance <= 0 && $booking->status->value === 'approved') {
+                if ($booking->status->value === 'approved' && $this->paymentService->hasVerifiedDeposit($booking)) {
                     $this->checkInService->checkIn($booking, $request->user(), 'Walk-in check-in');
                 }
             }
