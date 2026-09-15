@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Guanzon Resort - Coastal Retreat</title>
+    <title>@yield('title', 'Guanzon Resort') — Guanzon Resort</title>
     @include('partials.pwa-head')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -82,13 +82,17 @@
                     <div class="rp-footer-heading">Working Hours</div>
                     <div class="rp-footer-hours">
                         <p class="rp-footer-text">Front Desk: Open 24/7</p>
+                        <p class="rp-footer-text">Check-in: {{ $resortSettings['check_in_time'] ?? '14:00' }}</p>
+                        <p class="rp-footer-text">Check-out: {{ $resortSettings['check_out_time'] ?? '12:00' }}</p>
                     </div>
                 </div>
                 <div class="col-12 col-md-3">
                     <div class="rp-footer-heading">Location</div>
-                    <p class="rp-footer-text">Guanzon Beach · Bluepool Waterpark</p>
-                    <a href="mailto:info@guanzonresort.com" class="rp-footer-link-underline">info@guanzonresort.com</a>
-                    <p class="rp-footer-phone">09190644054 · 265-7942</p>
+                    <p class="rp-footer-text mb-0">{{ $resortSettings['resort_name'] ?? 'Guanzon Beach' }}</p>
+                    <p class="rp-footer-text mb-0">{{ $resortSettings['resort_subtitle'] ?? 'Bluepool Waterpark' }}</p>
+                    <p class="rp-footer-text">{{ $resortSettings['resort_address'] ?? 'Philippines' }}</p>
+                    <a href="mailto:{{ $resortSettings['resort_email'] ?? 'info@guanzonresort.com' }}" class="rp-footer-link-underline">{{ $resortSettings['resort_email'] ?? 'info@guanzonresort.com' }}</a>
+                    <p class="rp-footer-phone">{{ $resortSettings['resort_phone'] ?? '09190644054' }}@if(!empty($resortSettings['resort_phone_landline'])) · {{ $resortSettings['resort_phone_landline'] }}@endif</p>
                 </div>
                 <div class="col-12 col-md-3">
                     <div class="rp-footer-heading">Links</div>
@@ -101,8 +105,17 @@
                 </div>
                 <div class="col-12 col-md-3">
                     <div class="rp-footer-heading">Get in Touch</div>
-                    <div class="rp-footer-social">
+                    <div class="rp-footer-social mb-3">
                         <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                    </div>
+                    <button type="button" id="pwaInstallBtn" class="btn btn-sm btn-outline-light d-none">
+                        <i class="bi bi-download me-1"></i> Install App
+                    </button>
+                    <div id="iosInstallHelp" class="rp-ios-install d-none mt-2">
+                        <div class="small text-white-50">
+                            <strong>Install on iPhone:</strong>
+                            tap Share, then Add to Home Screen.
+                        </div>
                     </div>
                 </div>
             </div>
@@ -121,6 +134,7 @@
 
     @include('partials.cookie-consent')
     @include('partials.terms-modal')
+    @include('partials.confirm-modal')
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/reservepro.js') }}?v={{ file_exists(public_path('js/reservepro.js')) ? filemtime(public_path('js/reservepro.js')) : '1' }}"></script>

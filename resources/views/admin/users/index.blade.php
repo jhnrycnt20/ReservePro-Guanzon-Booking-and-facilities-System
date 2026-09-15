@@ -38,7 +38,7 @@
                         <td class="text-nowrap">
                             <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-sm btn-rp-soft">Edit</a>
                             @if($user->id !== auth()->id())
-                                <form method="POST" action="{{ route('admin.users.destroy', $user) }}" class="d-inline" onsubmit="return confirm('Delete this user?')">
+                                <form method="POST" action="{{ route('admin.users.destroy', $user) }}" class="d-inline" data-rp-confirm="Delete this user?">
                                     @csrf
                                     @method('DELETE')
                                     <button class="btn btn-sm btn-outline-danger">Delete</button>

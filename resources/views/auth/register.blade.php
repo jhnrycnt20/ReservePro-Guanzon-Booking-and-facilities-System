@@ -38,6 +38,7 @@
                     <div class="mb-3">
                         <label class="form-label" for="password">Password</label>
                         <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required>
+                        <div class="form-text">At least 8 characters, with uppercase, lowercase, and a number.</div>
                         @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="mb-3">

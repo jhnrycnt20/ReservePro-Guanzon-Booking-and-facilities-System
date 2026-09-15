@@ -8,6 +8,6 @@ class AnalyticsController extends DashboardController
 {
     public function index(): View
     {
-        return parent::index();
+        return view('admin.analytics', $this->dashboardData());
     }
 }

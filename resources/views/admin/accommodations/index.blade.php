@@ -39,7 +39,7 @@
                         <td><x-status-badge :status="$item->status" /></td>
                         <td class="text-nowrap">
                             <a href="{{ route('admin.accommodations.edit', $item) }}" class="btn btn-sm btn-rp-soft">Edit</a>
-                            <form method="POST" action="{{ route('admin.accommodations.destroy', $item) }}" class="d-inline" onsubmit="return confirm('Delete this accommodation?')">
+                            <form method="POST" action="{{ route('admin.accommodations.destroy', $item) }}" class="d-inline" data-rp-confirm="Delete this accommodation?">
                                 @csrf
                                 @method('DELETE')
                                 <button class="btn btn-sm btn-outline-danger">Delete</button>

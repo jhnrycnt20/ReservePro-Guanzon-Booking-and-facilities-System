@@ -30,12 +30,24 @@
                         <input type="text" name="resort_name" class="form-control" value="{{ $value('resort_name') }}" required>
                     </div>
                     <div class="col-md-6">
+                        <label class="form-label">Resort subtitle</label>
+                        <input type="text" name="resort_subtitle" class="form-control" value="{{ $value('resort_subtitle', 'Bluepool Waterpark') }}">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Address</label>
+                        <input type="text" name="resort_address" class="form-control" value="{{ $value('resort_address', 'Philippines') }}" placeholder="City / Province, Philippines">
+                    </div>
+                    <div class="col-md-6">
                         <label class="form-label">Resort email</label>
                         <input type="email" name="resort_email" class="form-control" value="{{ $value('resort_email') }}" required>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Resort phone</label>
+                        <label class="form-label">Mobile phone</label>
                         <input type="text" name="resort_phone" class="form-control" value="{{ $value('resort_phone') }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Landline</label>
+                        <input type="text" name="resort_phone_landline" class="form-control" value="{{ $value('resort_phone_landline') }}">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Currency</label>

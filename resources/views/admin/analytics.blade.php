@@ -1,10 +1,10 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Admin Dashboard')
+@section('title', 'Analytics')
 @section('theme', 'admin')
 @section('role_label', 'Admin / Owner')
-@section('page_title', 'Admin Dashboard')
-@section('page_subtitle', 'Monitor resort operations, revenue, and incidents')
+@section('page_title', 'Analytics')
+@section('page_subtitle', 'Charts and trends across reservations, revenue, and incidents')
 @section('sidebar')
     @include('partials.sidebar-admin')
 @endsection

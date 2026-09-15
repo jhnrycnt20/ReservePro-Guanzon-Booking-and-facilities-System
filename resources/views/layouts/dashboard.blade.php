@@ -16,9 +16,9 @@
     <div class="rp-shell">
         <aside class="rp-sidebar" id="rpSidebar">
             <div class="rp-brand">
-                <span class="rp-brand-mark"><i class="bi bi-palm"></i></span>
+                <img class="rp-brand-logo" src="{{ asset('images/guanzon_logoW.png') }}" alt="Guanzon Resort">
                 <div>
-                    <div class="rp-brand-name">ReservePro</div>
+                    <div class="rp-brand-name">Guanzon</div>
                     <div class="rp-brand-role">@yield('role_label', 'Dashboard')</div>
                 </div>
             </div>
@@ -72,6 +72,7 @@
     <div class="rp-sidebar-backdrop d-lg-none" id="sidebarBackdrop"></div>
 
     @include('partials.terms-modal')
+    @include('partials.confirm-modal')
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/reservepro.js') }}?v={{ file_exists(public_path('js/reservepro.js')) ? filemtime(public_path('js/reservepro.js')) : '1' }}"></script>

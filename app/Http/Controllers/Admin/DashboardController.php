@@ -19,6 +19,11 @@ class DashboardController extends Controller
 {
     public function index(): View
     {
+        return view('admin.dashboard', $this->dashboardData());
+    }
+
+    protected function dashboardData(): array
+    {
         $stats = [
             'total_reservations' => Booking::query()->count(),
             'today_reservations' => Booking::query()->whereDate('created_at', today())->count(),
@@ -66,7 +71,7 @@ class DashboardController extends Controller
             'occupancy_rate' => $this->occupancyRate(),
         ];
 
-        return view('admin.dashboard', compact('stats', 'charts'));
+        return compact('stats', 'charts');
     }
 
     protected function occupancyRate(): float

@@ -71,7 +71,7 @@
             @if(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status) === 'pending')
                 <form method="POST" action="{{ route('guest.bookings.cancel', $booking) }}">
                     @csrf
-                    <button type="submit" class="rp-avail-btn-secondary rp-avail-btn-secondary--danger" onclick="return confirm('Cancel this reservation?')">Cancel Reservation</button>
+                    <button type="submit" class="rp-avail-btn-secondary rp-avail-btn-secondary--danger" data-rp-confirm-click="Cancel this reservation?">Cancel Reservation</button>
                 </form>
             @endif
             @if(in_array(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status), ['approved', 'checked_in', 'checked_out']))

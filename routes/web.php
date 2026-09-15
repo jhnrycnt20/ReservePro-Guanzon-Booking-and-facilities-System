@@ -40,7 +40,15 @@ Route::get('/', function () {
         ->take(6)
         ->get();
 
-    return view('welcome', compact('featuredAccommodations'));
+    $publicFeedback = \App\Models\Feedback::query()
+        ->with(['guest.user'])
+        ->whereNotNull('comment')
+        ->where('comment', '!=', '')
+        ->latest()
+        ->take(6)
+        ->get();
+
+    return view('welcome', compact('featuredAccommodations', 'publicFeedback'));
 });
 
 Route::get('/blog', function () {

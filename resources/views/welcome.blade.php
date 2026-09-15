@@ -8,19 +8,6 @@
         <div class="rp-hero-inner">
             <h1><span>GUANZON</span></h1>
             <div class="rp-hero-subtext">Resort</div>
-            <div class="d-flex flex-wrap gap-3 mt-4">
-                <button type="button" id="pwaInstallBtn" class="rp-btn-hero-secondary d-none">
-                    <i class="bi bi-download me-1"></i> Install App
-                </button>
-            </div>
-            <div id="iosInstallHelp" class="rp-ios-install d-none mt-3">
-                <div class="small">
-                    <strong>Install on iPhone:</strong>
-                    tap <i class="bi bi-box-arrow-up"></i> <em>Share</em>, then
-                    <strong>Add to Home Screen</strong>.
-                    Use Safari for the best result.
-                </div>
-            </div>
         </div>
     </div>
     <div class="rp-hero-scroll">
@@ -85,10 +72,11 @@
     <div class="container">
         <div class="rp-cottages-kicker">VALUE FILLED STAY</div>
         <h2 class="rp-cottages-heading">Our Rooms</h2>
+        <p class="rp-cottages-lead text-muted mb-0">Explore the rooms and cottages Guanzon offers, then book your preferred stay.</p>
         <div class="row g-4 mt-2">
             @forelse($featuredAccommodations ?? [] as $item)
                 <div class="col-md-4">
-                    <a href="{{ route('accommodations.show', $item) }}" class="rp-cottage-card">
+                    <a href="{{ route('accommodations.browse', ['type' => $item->accommodation_type_id]) }}" class="rp-cottage-card">
                         <img src="{{ $item->image_url }}" alt="{{ $item->name }}">
                         <div class="rp-cottage-card-body">
                             <div class="rp-cottage-title">{{ $item->name }}</div>
@@ -124,5 +112,29 @@
     <div class="rp-gallery-banner-bg" style="background-image: url('https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=1800&q=80');"></div>
     <img class="rp-gallery-banner-logo" src="{{ asset('images/guanzon_logoW.png') }}" alt="Guanzon Resort">
 </div>
+
+@if(($publicFeedback ?? collect())->isNotEmpty())
+<section class="py-5 rp-feedback-section">
+    <div class="container">
+        <div class="rp-cottages-kicker">GUEST STORIES</div>
+        <h2 class="rp-cottages-heading">What guests say</h2>
+        <div class="row g-4 mt-2">
+            @foreach($publicFeedback as $item)
+                <div class="col-md-4">
+                    <div class="rp-feedback-card">
+                        <div class="rp-feedback-stars">
+                            @for($i = 1; $i <= 5; $i++)
+                                <i class="bi {{ $i <= (int) $item->rating ? 'bi-star-fill' : 'bi-star' }}"></i>
+                            @endfor
+                        </div>
+                        <p class="rp-feedback-comment">“{{ \Illuminate\Support\Str::limit($item->comment, 160) }}”</p>
+                        <div class="rp-feedback-author">{{ $item->guest?->user?->name ?? 'Guest' }}</div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
 
 @endsection

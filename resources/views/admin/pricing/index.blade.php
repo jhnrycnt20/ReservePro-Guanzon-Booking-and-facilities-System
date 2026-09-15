@@ -39,7 +39,7 @@
                         <td>{{ $item->is_active ? 'Yes' : 'No' }}</td>
                         <td class="text-nowrap">
                             <a href="{{ route('admin.pricing.edit', $item) }}" class="btn btn-sm btn-rp-soft">Edit</a>
-                            <form method="POST" action="{{ route('admin.pricing.destroy', $item) }}" class="d-inline" onsubmit="return confirm('Delete this pricing rule?')">
+                            <form method="POST" action="{{ route('admin.pricing.destroy', $item) }}" class="d-inline" data-rp-confirm="Delete this pricing rule?">
                                 @csrf
                                 @method('DELETE')
                                 <button class="btn btn-sm btn-outline-danger">Delete</button>

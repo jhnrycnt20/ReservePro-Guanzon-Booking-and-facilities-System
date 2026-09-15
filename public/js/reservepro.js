@@ -257,6 +257,67 @@ document.addEventListener('DOMContentLoaded', () => {
         new bootstrap.Toast(toastEl).show();
     }
 
+    document.querySelectorAll('[data-rp-auto-dismiss]').forEach((alertEl) => {
+        setTimeout(() => {
+            if (!window.bootstrap?.Alert) {
+                alertEl.remove();
+                return;
+            }
+            bootstrap.Alert.getOrCreateInstance(alertEl).close();
+        }, 4000);
+    });
+
+    const confirmModalEl = document.getElementById('rpConfirmModal');
+    let pendingConfirmAction = null;
+
+    const askConfirm = (message, onConfirm) => {
+        if (!confirmModalEl || !window.bootstrap) {
+            if (window.confirm(message)) onConfirm();
+            return;
+        }
+        const messageEl = confirmModalEl.querySelector('[data-rp-confirm-message]');
+        if (messageEl) messageEl.textContent = message;
+        pendingConfirmAction = onConfirm;
+        bootstrap.Modal.getOrCreateInstance(confirmModalEl).show();
+    };
+
+    confirmModalEl?.querySelector('[data-rp-confirm-accept]')?.addEventListener('click', () => {
+        const action = pendingConfirmAction;
+        pendingConfirmAction = null;
+        bootstrap.Modal.getOrCreateInstance(confirmModalEl).hide();
+        if (typeof action === 'function') action();
+    });
+
+    document.querySelectorAll('form[data-rp-confirm]').forEach((form) => {
+        form.addEventListener('submit', (event) => {
+            if (form.dataset.rpConfirmed === '1') {
+                delete form.dataset.rpConfirmed;
+                return;
+            }
+            event.preventDefault();
+            askConfirm(form.dataset.rpConfirm || 'Are you sure?', () => {
+                form.dataset.rpConfirmed = '1';
+                form.requestSubmit();
+            });
+        });
+    });
+
+    document.querySelectorAll('[data-rp-confirm-click]').forEach((button) => {
+        button.addEventListener('click', (event) => {
+            const form = button.closest('form');
+            if (!form) return;
+            if (form.dataset.rpConfirmed === '1') {
+                delete form.dataset.rpConfirmed;
+                return;
+            }
+            event.preventDefault();
+            askConfirm(button.dataset.rpConfirmClick || 'Are you sure?', () => {
+                form.dataset.rpConfirmed = '1';
+                form.requestSubmit();
+            });
+        });
+    });
+
     const checkIn = document.querySelector('[data-calc-check-in]');
     const checkOut = document.querySelector('[data-calc-check-out]');
     const rate = document.querySelector('[data-calc-rate]');

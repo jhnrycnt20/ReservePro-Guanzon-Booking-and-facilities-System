@@ -21,15 +21,18 @@ class SettingController extends Controller
     {
         $data = $request->validate([
             'resort_name' => ['required', 'string', 'max:255'],
+            'resort_subtitle' => ['nullable', 'string', 'max:255'],
+            'resort_address' => ['nullable', 'string', 'max:500'],
             'resort_email' => ['required', 'email'],
             'resort_phone' => ['required', 'string', 'max:50'],
+            'resort_phone_landline' => ['nullable', 'string', 'max:50'],
             'currency' => ['required', 'string', 'max:10'],
             'check_in_time' => ['required', 'string', 'max:10'],
             'check_out_time' => ['required', 'string', 'max:10'],
         ]);
 
         foreach ($data as $key => $value) {
-            SystemSetting::query()->updateOrCreate(['key' => $key], ['value' => $value]);
+            SystemSetting::setValue($key, $value);
         }
 
         return back()->with('success', 'Settings updated.');
