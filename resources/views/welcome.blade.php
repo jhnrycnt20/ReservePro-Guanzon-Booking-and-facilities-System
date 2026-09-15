@@ -24,7 +24,6 @@
         <h2 class="rp-story-heading">Unwind in the Heart of Guanzon</h2>
         <div class="rp-story-text">
             <p>Tucked along a quiet stretch of shoreline, Guanzon Resort was built for guests who want the pace of a getaway without giving up comfort. Rooms and cottages sit close enough to the water to catch the breeze, yet far enough from the road to stay peaceful, giving every stay a natural rhythm of rest.</p>
-            <p>From the moment a reservation is confirmed to the morning of check-out, our team keeps every detail in view — availability, payments, housekeeping, and support — so guests can spend their time on the things that matter: the shoreline, the quiet, and each other.</p>
         </div>
         <div class="rp-story-image">
             <img src="https://images.unsplash.com/photo-1552733407-5d5c46c3bb3b?auto=format&fit=crop&w=1800&q=80" alt="Guanzon Resort shoreline">
@@ -72,7 +71,6 @@
     <div class="container">
         <div class="rp-cottages-kicker">VALUE FILLED STAY</div>
         <h2 class="rp-cottages-heading">Our Rooms</h2>
-        <p class="rp-cottages-lead text-muted mb-0">Explore the rooms and cottages Guanzon offers, then book your preferred stay.</p>
         <div class="row g-4 mt-2">
             @forelse($featuredAccommodations ?? [] as $item)
                 <div class="col-md-4">
@@ -102,7 +100,7 @@
         </div>
         <div class="rp-view-rates-wrap">
             <a href="{{ route('accommodations.browse') }}" class="rp-view-rates-btn">
-                VIEW ALL MORE <span class="rp-view-rates-arrow">→</span>
+                VIEW MORE <span class="rp-view-rates-arrow">→</span>
             </a>
         </div>
     </div>

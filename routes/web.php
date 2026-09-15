@@ -21,7 +21,6 @@ use App\Http\Controllers\FrontDesk\ReservationController;
 use App\Http\Controllers\FrontDesk\WalkInController;
 use App\Http\Controllers\Guest\AccommodationBrowseController;
 use App\Http\Controllers\Guest\BookingController as GuestBookingController;
-use App\Http\Controllers\Guest\DashboardController as GuestDashboardController;
 use App\Http\Controllers\Guest\FeedbackController as GuestFeedbackController;
 use App\Http\Controllers\Guest\IncidentReportController as GuestIncidentReportController;
 use App\Http\Controllers\Guest\NotificationController;
@@ -100,8 +99,6 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read_all');
 
     Route::middleware(['role:guest'])->prefix('guest')->name('guest.')->group(function () {
-        Route::get('/dashboard', [GuestDashboardController::class, 'index'])->name('dashboard');
-
         Route::get('/bookings', [GuestBookingController::class, 'index'])->name('bookings.index');
         Route::post('/bookings', [GuestBookingController::class, 'store'])->name('bookings.store');
         Route::get('/bookings/{booking}', [GuestBookingController::class, 'show'])->name('bookings.show');

@@ -8,7 +8,6 @@
         <div class="rp-hero-inner">
             <h1><span>OFFERS</span></h1>
             <div class="rp-hero-subtext">Guanzon Resort</div>
-            <p class="rp-hero-lead">Seasonal packages and day-use deals made for families, friends, and quiet getaways.</p>
         </div>
     </div>
     <div class="rp-hero-scroll">

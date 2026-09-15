@@ -18,7 +18,7 @@ class RegisterController extends Controller
 {
     use RegistersUsers;
 
-    protected $redirectTo = '/guest/dashboard';
+    protected $redirectTo = '/guest/bookings';
 
     public function __construct()
     {

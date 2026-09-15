@@ -13,8 +13,7 @@
     @stack('styles')
 </head>
 <body class="rp-public">
-    @php $rpNavMinimal = request()->routeIs('guest.bookings.index', 'guest.bookings.show', 'guest.payments.index', 'guest.incidents.index', 'guest.incidents.show', 'guest.incidents.create'); @endphp
-    <nav class="rp-public-nav @if($rpNavMinimal) rp-public-nav--minimal @endif">
+    <nav class="rp-public-nav">
         <div class="rp-public-nav-inner">
             <div class="rp-nav-menu-btn">
                 <button type="button" class="rp-nav-hamburger-btn" id="rpNavMenuBtn" aria-label="Menu" aria-expanded="false" aria-controls="rpNavOverlay">
@@ -24,26 +23,26 @@
                         <span></span>
                     </span>
                 </button>
-                @unless($rpNavMinimal)
-                    <img class="rp-nav-logo-img" src="{{ asset('images/guanzon_logoW.png') }}" alt="Guanzon Resort">
-                @endunless
+                <img class="rp-nav-logo-img" src="{{ asset('images/guanzon_logoW.png') }}" alt="Guanzon Resort">
             </div>
-            @unless($rpNavMinimal)
-                <div class="rp-nav-links">
-                    <a class="rp-nav-link rp-nav-link-extra" href="{{ url('/') }}">The Resort</a>
-                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('gallery') }}">Gallery</a>
-                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('offers') }}">Offers</a>
-                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('contact') }}">Contact</a>
-                    @unless (request()->routeIs('accommodations.*') || request()->routeIs('guest.bookings.create') || request()->routeIs('login') || request()->routeIs('register'))
-                        <a class="rp-nav-link rp-nav-link-booknow" href="{{ route('accommodations.browse') }}">Book Now</a>
-                    @endunless
-                    @guest
-                        <a class="rp-nav-link" href="{{ route('login') }}">Login</a>
-                    @else
-                        <a class="rp-nav-link" href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
-                    @endguest
-                </div>
-            @endunless
+            <div class="rp-nav-links">
+                <a class="rp-nav-link rp-nav-link-extra" href="{{ url('/') }}">The Resort</a>
+                <a class="rp-nav-link rp-nav-link-extra" href="{{ route('gallery') }}">Gallery</a>
+                <a class="rp-nav-link rp-nav-link-extra" href="{{ route('offers') }}">Offers</a>
+                <a class="rp-nav-link rp-nav-link-extra" href="{{ route('contact') }}">Contact</a>
+                @unless (request()->routeIs('accommodations.*') || request()->routeIs('guest.bookings.create') || request()->routeIs('login') || request()->routeIs('register'))
+                    <a class="rp-nav-link rp-nav-link-booknow" href="{{ route('accommodations.browse') }}">Book Now</a>
+                @endunless
+                @guest
+                    <a class="rp-nav-link" href="{{ route('login') }}">Login</a>
+                @else
+                    <a class="rp-nav-link" href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
+                    <a class="rp-nav-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rpNavDesktopLogoutForm').submit();">Sign Out</a>
+                    <form id="rpNavDesktopLogoutForm" action="{{ route('logout') }}" method="POST" class="d-none">
+                        @csrf
+                    </form>
+                @endguest
+            </div>
         </div>
     </nav>
 
@@ -56,7 +55,6 @@
             <a href="{{ route('accommodations.browse') }}">Book Now</a>
             @auth
                 @if(auth()->user()->hasRole('guest'))
-                    <a href="{{ route('guest.dashboard') }}">Dashboard</a>
                     <a href="{{ route('guest.bookings.index') }}">My Reservations</a>
                     <a href="{{ route('guest.payments.index') }}">Payments</a>
                 @endif
@@ -85,8 +83,6 @@
                     <div class="rp-footer-heading">Working Hours</div>
                     <div class="rp-footer-hours">
                         <p class="rp-footer-text">Front Desk: Open 24/7</p>
-                        <p class="rp-footer-text">Check-in: {{ $resortSettings['check_in_time'] ?? '14:00' }}</p>
-                        <p class="rp-footer-text">Check-out: {{ $resortSettings['check_out_time'] ?? '12:00' }}</p>
                     </div>
                 </div>
                 <div class="col-12 col-md-3">

@@ -580,27 +580,6 @@ body.rp-public {
     animation: rp-nav-drop .35s ease;
 }
 
-.rp-public-nav--minimal {
-    background: none;
-    position: fixed;
-}
-
-.rp-public-nav--minimal.rp-nav-scrolled {
-    background: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    box-shadow: none;
-    animation: none;
-}
-
-.rp-public-nav--minimal .rp-nav-hamburger span {
-    background: #111827;
-}
-
-.rp-public-nav--minimal.rp-nav-scrolled .rp-nav-hamburger-btn {
-    display: flex;
-}
-
 @keyframes rp-nav-drop {
     from { transform: translateY(-100%); }
     to { transform: translateY(0); }
@@ -1564,7 +1543,7 @@ section .row > [class*="col-"] {
 }
 
 .rp-cottages-section {
-    background: var(--rp-band-light);
+    background: #FFFFFF;
 }
 
 .rp-cottages-kicker {
@@ -2637,16 +2616,6 @@ section .row > [class*="col-"] {
     }
 }
 
-.rp-public-page-top--tight {
-    padding-top: 4.25rem;
-}
-
-@media (max-width: 575px) {
-    .rp-public-page-top--tight {
-        padding-top: 3.5rem;
-    }
-}
-
 .rp-page-hero h1 {
     font-family: var(--rp-display);
     font-size: clamp(2rem, 4vw, 2.8rem);
@@ -2668,6 +2637,18 @@ section .row > [class*="col-"] {
     text-align: center;
     max-width: 40rem;
     margin: 0 auto;
+}
+
+.rp-gallery-intro-subtext {
+    max-width: 680px;
+    margin: .85rem auto 0;
+    font-family: "Montserrat", var(--rp-font);
+    font-weight: 400;
+    color: #555555;
+    font-size: 16px;
+    letter-spacing: .2px;
+    line-height: 1.75;
+    text-align: center;
 }
 
 .rp-gallery-grid {
@@ -2731,7 +2712,6 @@ section .row > [class*="col-"] {
     background-size: cover;
     background-position: center;
     filter: blur(8px);
-    transform: scale(1.15) translateY(0);
     will-change: transform;
 }
 

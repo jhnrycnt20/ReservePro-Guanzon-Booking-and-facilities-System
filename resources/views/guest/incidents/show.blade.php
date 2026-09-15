@@ -3,7 +3,7 @@
 @section('title', 'Report '.$report->report_number)
 
 @section('content')
-<div class="container rp-public-page-top rp-public-page-top--tight pb-4">
+<div class="container rp-public-page-top pb-4">
     <a href="{{ route('guest.incidents.index') }}" class="rp-back-link"><i class="bi bi-arrow-left"></i> Back to My Reports</a>
 
     <div class="rp-page-intro">

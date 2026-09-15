@@ -3,8 +3,8 @@
 @section('title', 'Payments')
 
 @section('content')
-<div class="container rp-public-page-top rp-public-page-top--tight pb-4">
-    <a href="{{ route('guest.dashboard') }}" class="rp-back-link"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+<div class="container rp-public-page-top pb-4">
+    <a href="{{ route('guest.bookings.index') }}" class="rp-back-link"><i class="bi bi-arrow-left"></i> Back to My Reservations</a>
 
     <div class="rp-page-intro">
         <h1 class="rp-page-intro-title">Payments</h1>

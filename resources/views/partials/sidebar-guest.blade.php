@@ -1,6 +1,3 @@
-<a href="{{ route('guest.dashboard') }}" class="{{ request()->routeIs('guest.dashboard') ? 'active' : '' }}">
-    <i class="bi bi-speedometer2"></i> Dashboard
-</a>
 <div class="nav-section">Resort</div>
 <a href="{{ route('accommodations.browse') }}" class="{{ request()->routeIs('accommodations.*') ? 'active' : '' }}">
     <i class="bi bi-buildings"></i> Browse Rooms

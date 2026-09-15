@@ -8,7 +8,6 @@
         <div class="rp-hero-inner">
             <h1><span>GALLERY</span></h1>
             <div class="rp-hero-subtext">Guanzon Resort</div>
-            <p class="rp-hero-lead">Browse rooms, pools, gardens, and shoreline moments from your next stay.</p>
         </div>
     </div>
     <div class="rp-hero-scroll">
@@ -23,6 +22,7 @@
 <section class="pt-5 pb-4">
     <div class="container">
         <h2 class="rp-gallery-intro-heading">A glimpse of what awaits you</h2>
+        <p class="rp-gallery-intro-subtext">Morning light on cabana porches, sea-view balconies, and long tables set for shared meals: small details that shape the rhythm of a stay here.</p>
     </div>
 </section>
 

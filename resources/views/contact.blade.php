@@ -8,7 +8,6 @@
         <div class="rp-hero-inner">
             <h1><span>CONTACT</span></h1>
             <div class="rp-hero-subtext">Guanzon Resort</div>
-            <p class="rp-hero-lead">Questions, group bookings, or special requests — send us a note and our team will reply soon.</p>
         </div>
     </div>
     <div class="rp-hero-scroll">

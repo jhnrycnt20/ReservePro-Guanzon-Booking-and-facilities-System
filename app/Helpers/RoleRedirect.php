@@ -19,7 +19,7 @@ class RoleRedirect
             UserRole::Admin->value => route('admin.dashboard'),
             UserRole::FrontDesk->value => route('front_desk.dashboard'),
             UserRole::Security->value => route('security.dashboard'),
-            UserRole::Guest->value => route('guest.dashboard'),
+            UserRole::Guest->value => route('guest.bookings.index'),
             default => route('home'),
         };
     }
@@ -36,7 +36,7 @@ class RoleRedirect
             UserRole::Admin->value => '/admin/dashboard',
             UserRole::FrontDesk->value => '/front-desk/dashboard',
             UserRole::Security->value => '/security/dashboard',
-            UserRole::Guest->value => '/guest/dashboard',
+            UserRole::Guest->value => '/guest/bookings',
             default => '/home',
         };
     }
