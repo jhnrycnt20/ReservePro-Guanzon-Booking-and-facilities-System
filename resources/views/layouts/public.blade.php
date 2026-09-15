@@ -37,7 +37,12 @@
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ route('offers') }}">Offers</a>
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ route('contact') }}">Contact</a>
                     <div class="rp-nav-actions">
-                        @unless (request()->routeIs('accommodations.*') || request()->routeIs('guest.bookings.create'))
+                        @guest
+                            <a class="rp-nav-auth-btn" href="{{ route('login') }}">Login</a>
+                        @else
+                            <a class="rp-nav-auth-btn" href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
+                        @endguest
+                        @unless (request()->routeIs('accommodations.*') || request()->routeIs('guest.bookings.create') || request()->routeIs('login') || request()->routeIs('register'))
                             <a class="rp-nav-link rp-nav-link-booknow" href="{{ route('accommodations.browse') }}">Book Now</a>
                         @endunless
                     </div>
