@@ -443,18 +443,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const togglePassword = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('password');
-    const togglePasswordIcon = document.getElementById('togglePasswordIcon');
+    const enhancePasswordFields = () => {
+        document.querySelectorAll('input[type="password"]').forEach((input) => {
+            if (input.dataset.rpPasswordToggle === '1') return;
+            input.dataset.rpPasswordToggle = '1';
 
-    togglePassword?.addEventListener('click', () => {
-        if (!passwordInput) return;
-        const show = passwordInput.type === 'password';
-        passwordInput.type = show ? 'text' : 'password';
-        togglePassword.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
-        togglePasswordIcon?.classList.toggle('bi-eye', !show);
-        togglePasswordIcon?.classList.toggle('bi-eye-slash', show);
-    });
+            let wrap = input.closest('.input-group');
+            let button = wrap?.querySelector('[data-rp-toggle-password], #togglePassword');
+
+            if (!wrap) {
+                wrap = document.createElement('div');
+                wrap.className = 'input-group';
+                input.parentNode.insertBefore(wrap, input);
+                wrap.appendChild(input);
+            }
+
+            if (!button) {
+                button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'btn btn-outline-secondary';
+                button.setAttribute('data-rp-toggle-password', '');
+                button.setAttribute('aria-label', 'Show password');
+                button.innerHTML = '<i class="bi bi-eye" aria-hidden="true"></i>';
+                wrap.appendChild(button);
+            } else {
+                button.setAttribute('data-rp-toggle-password', '');
+            }
+
+            const icon = button.querySelector('i') || button;
+
+            button.addEventListener('click', () => {
+                const show = input.type === 'password';
+                input.type = show ? 'text' : 'password';
+                button.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+                if (icon.classList) {
+                    icon.classList.toggle('bi-eye', !show);
+                    icon.classList.toggle('bi-eye-slash', show);
+                }
+            });
+        });
+    };
+
+    enhancePasswordFields();
 
     document.querySelectorAll('[data-demo-email]').forEach((button) => {
         button.addEventListener('click', () => {

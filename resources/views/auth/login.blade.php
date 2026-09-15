@@ -28,8 +28,8 @@
                             <label class="form-label" for="password">Password</label>
                             <div class="input-group">
                                 <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required>
-                                <button type="button" class="btn btn-outline-secondary" id="togglePassword" aria-label="Show password">
-                                    <i class="bi bi-eye" id="togglePasswordIcon"></i>
+                                <button type="button" class="btn btn-outline-secondary" data-rp-toggle-password aria-label="Show password">
+                                    <i class="bi bi-eye"></i>
                                 </button>
                             </div>
                             @error('password')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
