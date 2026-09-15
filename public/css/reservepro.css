@@ -292,7 +292,14 @@ body.rp-public {
     left: 0;
     right: 0;
     z-index: 1030;
+    pointer-events: none;
     transition: background .3s ease, box-shadow .3s ease, transform .35s ease;
+}
+
+.rp-public-nav .rp-public-nav-inner,
+.rp-public-nav a,
+.rp-public-nav button {
+    pointer-events: auto;
 }
 
 .rp-public-nav.rp-nav-scrolled {
@@ -508,10 +515,12 @@ body.rp-public {
     padding-bottom: 3rem;
     transform: translateX(-100%);
     transition: transform .4s ease;
+    pointer-events: none;
 }
 
 .rp-nav-overlay.is-open {
     transform: translateX(0);
+    pointer-events: auto;
 }
 
 .rp-nav-overlay-links {
@@ -946,6 +955,28 @@ body.rp-public {
 .rp-auth-brand p {
     margin: 0;
     color: var(--rp-muted);
+}
+
+.rp-auth-back {
+    display: inline-flex;
+    align-items: center;
+    gap: .25rem;
+    margin-bottom: 1rem;
+    padding: .35rem .65rem;
+    border-radius: .5rem;
+    background: var(--rp-accent-soft);
+    color: var(--rp-accent);
+    font-size: .88rem;
+    font-weight: 600;
+    text-decoration: none;
+    position: relative;
+    z-index: 2;
+    pointer-events: auto;
+}
+
+.rp-auth-back:hover {
+    color: var(--rp-accent);
+    filter: brightness(0.97);
 }
 
 .rp-feedback-card {
