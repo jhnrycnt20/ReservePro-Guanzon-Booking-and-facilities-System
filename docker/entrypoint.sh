@@ -38,6 +38,8 @@ else
     php artisan db:seed --force
 fi
 
-php artisan storage:link 2>/dev/null || true
+if [ ! -e public/storage ]; then
+    php artisan storage:link --force
+fi
 
 exec php artisan serve --host=0.0.0.0 --port="${PORT:-10000}"

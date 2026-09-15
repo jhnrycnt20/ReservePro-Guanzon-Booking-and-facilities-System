@@ -36,7 +36,7 @@ ENV APP_ENV=production \
 
 RUN cp .env.docker .env \
     && php artisan key:generate --force \
-    && php artisan storage:link
+    && if [ ! -e public/storage ]; then php artisan storage:link; fi
 
 EXPOSE 10000
 
