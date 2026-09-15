@@ -1,4 +1,4 @@
-@unless(request()->routeIs('contact'))
+@unless(request()->routeIs(['contact', 'login', 'register']))
 @if (session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert" data-rp-auto-dismiss>
         {{ session('success') }}
