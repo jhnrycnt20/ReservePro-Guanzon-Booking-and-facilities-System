@@ -30,6 +30,3 @@
 <a href="{{ route('admin.settings.index') }}" class="{{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
     <i class="bi bi-gear"></i> Settings
 </a>
-<a href="{{ route('notifications.index') }}">
-    <i class="bi bi-bell"></i> Notifications
-</a>

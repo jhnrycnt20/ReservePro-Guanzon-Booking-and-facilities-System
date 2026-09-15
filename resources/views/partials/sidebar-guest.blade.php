@@ -18,6 +18,3 @@
 <a href="{{ route('guest.feedback.index') }}" class="{{ request()->routeIs('guest.feedback.*') ? 'active' : '' }}">
     <i class="bi bi-star"></i> Feedback
 </a>
-<a href="{{ route('notifications.index') }}" class="{{ request()->routeIs('notifications.*') ? 'active' : '' }}">
-    <i class="bi bi-bell"></i> Notifications
-</a>

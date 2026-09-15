@@ -21,6 +21,3 @@
 <a href="{{ route('front_desk.incidents.index') }}" class="{{ request()->routeIs('front_desk.incidents.*') ? 'active' : '' }}">
     <i class="bi bi-clipboard2-pulse"></i> Incident Reports
 </a>
-<a href="{{ route('notifications.index') }}">
-    <i class="bi bi-bell"></i> Notifications
-</a>

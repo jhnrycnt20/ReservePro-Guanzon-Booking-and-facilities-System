@@ -8,6 +8,3 @@
 <a href="{{ route('security.incidents.index') }}" class="{{ request()->routeIs('security.incidents.*') && !request('status') ? 'active' : '' }}">
     <i class="bi bi-list-ul"></i> All Reports
 </a>
-<a href="{{ route('notifications.index') }}">
-    <i class="bi bi-bell"></i> Notifications
-</a>
