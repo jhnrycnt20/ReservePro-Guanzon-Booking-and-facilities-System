@@ -63,13 +63,20 @@ class BookingService
             ]);
         }
 
-        $adults = (int) ($data['adults'] ?? 1);
-        $children = (int) ($data['children'] ?? 0);
-        $numberOfGuests = (int) ($data['number_of_guests'] ?? ($adults + $children));
+        $adults = max(0, (int) ($data['adults'] ?? 1));
+        $children = max(0, (int) ($data['children'] ?? 0));
+        // Always derive from adults + children so the separate guests field cannot bypass capacity.
+        $numberOfGuests = $adults + $children;
+
+        if ($numberOfGuests < 1) {
+            throw ValidationException::withMessages([
+                'adults' => 'At least one guest is required.',
+            ]);
+        }
 
         if ($numberOfGuests > $accommodation->capacity) {
             throw ValidationException::withMessages([
-                'number_of_guests' => 'Number of guests exceeds accommodation capacity.',
+                'adults' => "Total guests ({$numberOfGuests}) exceeds this accommodation's capacity of {$accommodation->capacity}.",
             ]);
         }
 

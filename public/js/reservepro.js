@@ -339,6 +339,74 @@ document.addEventListener('DOMContentLoaded', () => {
     checkIn?.addEventListener('change', calcTotal);
     checkOut?.addEventListener('change', calcTotal);
 
+    const resolveCapacity = (form) => {
+        const totalEl = form.querySelector('[data-rp-guest-total]');
+        if (totalEl?.dataset.rpCapacity) {
+            return parseInt(totalEl.dataset.rpCapacity, 10) || 0;
+        }
+        const select = form.querySelector('[data-rp-capacity-select]');
+        const option = select?.selectedOptions?.[0];
+        return parseInt(option?.dataset.capacity || '0', 10) || 0;
+    };
+
+    const syncGuestCapacity = (form) => {
+        const adultsEl = form.querySelector('[data-rp-guest-adults]');
+        const childrenEl = form.querySelector('[data-rp-guest-children]');
+        const totalEl = form.querySelector('[data-rp-guest-total]');
+        const errorEl = form.querySelector('[data-rp-capacity-error]');
+        if (!adultsEl || !childrenEl || !totalEl) return true;
+
+        const capacity = resolveCapacity(form);
+        const adults = Math.max(1, parseInt(adultsEl.value || '1', 10) || 1);
+        const children = Math.max(0, parseInt(childrenEl.value || '0', 10) || 0);
+        const total = adults + children;
+
+        adultsEl.value = String(adults);
+        childrenEl.value = String(children);
+        totalEl.value = String(total);
+
+        if (capacity > 0) {
+            adultsEl.max = String(capacity);
+            childrenEl.max = String(capacity);
+            totalEl.max = String(capacity);
+        }
+
+        const over = capacity > 0 && total > capacity;
+        if (errorEl) {
+            errorEl.classList.toggle('d-none', !over);
+            errorEl.textContent = over
+                ? `Total guests (${total}) exceeds capacity of ${capacity}.`
+                : 'Total guests cannot exceed capacity.';
+        }
+        adultsEl.classList.toggle('is-invalid', over);
+        childrenEl.classList.toggle('is-invalid', over);
+        totalEl.classList.toggle('is-invalid', over);
+
+        const submitBtn = form.querySelector('[type="submit"], button:not([type]), .rp-avail-btn-secondary');
+        if (submitBtn) {
+            submitBtn.disabled = over;
+        }
+
+        return !over;
+    };
+
+    document.querySelectorAll('form').forEach((form) => {
+        if (!form.querySelector('[data-rp-guest-adults]')) return;
+
+        const sync = () => syncGuestCapacity(form);
+        form.querySelectorAll('[data-rp-guest-adults], [data-rp-guest-children], [data-rp-capacity-select]').forEach((el) => {
+            el.addEventListener('input', sync);
+            el.addEventListener('change', sync);
+        });
+        form.addEventListener('submit', (event) => {
+            if (!syncGuestCapacity(form)) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        });
+        sync();
+    });
+
     const pad = (n) => String(n).padStart(2, '0');
     const toYmd = (date) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
     const addDays = (ymd, days) => {

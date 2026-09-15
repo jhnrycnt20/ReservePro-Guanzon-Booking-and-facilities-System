@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\FrontDesk;
 
+use App\Models\Accommodation;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreWalkInRequest extends FormRequest
@@ -9,6 +10,18 @@ class StoreWalkInRequest extends FormRequest
     public function authorize(): bool
     {
         return $this->user()?->isFrontDesk() || $this->user()?->isAdmin();
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $adults = max(1, (int) $this->input('adults', 1));
+        $children = max(0, (int) $this->input('children', 0));
+
+        $this->merge([
+            'adults' => $adults,
+            'children' => $children,
+            'number_of_guests' => $adults + $children,
+        ]);
     }
 
     public function rules(): array
@@ -23,7 +36,7 @@ class StoreWalkInRequest extends FormRequest
             'check_out_date' => ['required', 'date', 'after:check_in_date'],
             'adults' => ['required', 'integer', 'min:1'],
             'children' => ['nullable', 'integer', 'min:0'],
-            'number_of_guests' => ['nullable', 'integer', 'min:1'],
+            'number_of_guests' => ['required', 'integer', 'min:1'],
             'special_requests' => ['nullable', 'string', 'max:2000'],
             'payment_amount' => ['nullable', 'numeric', 'min:0'],
             'payment_method' => ['nullable', 'in:cash,gcash,bank_transfer,other'],
@@ -31,5 +44,23 @@ class StoreWalkInRequest extends FormRequest
             'auto_approve' => ['nullable', 'boolean'],
             'auto_check_in' => ['nullable', 'boolean'],
         ];
+    }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            $accommodation = Accommodation::query()->find($this->input('accommodation_id'));
+            if (! $accommodation) {
+                return;
+            }
+
+            $total = (int) $this->input('adults', 0) + (int) $this->input('children', 0);
+            if ($total > $accommodation->capacity) {
+                $validator->errors()->add(
+                    'adults',
+                    "Total guests ({$total}) exceeds this accommodation's capacity of {$accommodation->capacity}."
+                );
+            }
+        });
     }
 }

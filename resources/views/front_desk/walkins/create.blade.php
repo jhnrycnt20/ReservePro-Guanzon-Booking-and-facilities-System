@@ -28,9 +28,9 @@
             </div>
             <div class="col-md-6">
                 <label class="form-label">Accommodation</label>
-                <select name="accommodation_id" class="form-select" required>
+                <select name="accommodation_id" class="form-select" data-rp-capacity-select required>
                     @foreach($accommodations as $item)
-                        <option value="{{ $item->id }}" @selected(old('accommodation_id') == $item->id)>
+                        <option value="{{ $item->id }}" data-capacity="{{ $item->capacity }}" @selected(old('accommodation_id') == $item->id)>
                             {{ $item->name }} — ₱{{ number_format($item->rate, 2) }} (cap {{ $item->capacity }})
                         </option>
                     @endforeach
@@ -46,15 +46,19 @@
             </div>
             <div class="col-md-2">
                 <label class="form-label">Adults</label>
-                <input type="number" min="1" name="adults" class="form-control" value="{{ old('adults', 1) }}" required>
+                <input type="number" min="1" name="adults" class="form-control @error('adults') is-invalid @enderror" value="{{ old('adults', 1) }}" data-rp-guest-adults required>
+                @error('adults')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
             <div class="col-md-2">
                 <label class="form-label">Children</label>
-                <input type="number" min="0" name="children" class="form-control" value="{{ old('children', 0) }}" required>
+                <input type="number" min="0" name="children" class="form-control" value="{{ old('children', 0) }}" data-rp-guest-children required>
             </div>
             <div class="col-md-2">
                 <label class="form-label">Guests</label>
-                <input type="number" min="1" name="number_of_guests" class="form-control" value="{{ old('number_of_guests', 1) }}" required>
+                <input type="number" min="1" name="number_of_guests" class="form-control" value="{{ old('number_of_guests', (int) old('adults', 1) + (int) old('children', 0)) }}" data-rp-guest-total readonly required>
+                <div class="text-danger small d-none" data-rp-capacity-error>Exceeds capacity.</div>
             </div>
             <div class="col-12">
                 <label class="form-label">Special requests</label>

@@ -57,16 +57,23 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Adults</label>
-                        <input type="number" min="1" name="adults" class="form-control" value="{{ old('adults', 1) }}" required>
+                        <input type="number" min="1" max="{{ $accommodation->capacity }}" name="adults" class="form-control @error('adults') is-invalid @enderror" value="{{ old('adults', 1) }}" data-rp-guest-adults required>
+                        @error('adults')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Children</label>
-                        <input type="number" min="0" name="children" class="form-control" value="{{ old('children', 0) }}" required>
+                        <input type="number" min="0" max="{{ $accommodation->capacity }}" name="children" class="form-control @error('children') is-invalid @enderror" value="{{ old('children', 0) }}" data-rp-guest-children required>
+                        @error('children')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Number of guests</label>
-                        <input type="number" min="1" max="{{ $accommodation->capacity }}" name="number_of_guests" class="form-control" value="{{ old('number_of_guests', 1) }}" required>
-                        <div class="form-text">Max capacity: {{ $accommodation->capacity }}</div>
+                        <input type="number" min="1" max="{{ $accommodation->capacity }}" name="number_of_guests" class="form-control" value="{{ old('number_of_guests', (int) old('adults', 1) + (int) old('children', 0)) }}" data-rp-guest-total data-rp-capacity="{{ $accommodation->capacity }}" readonly required>
+                        <div class="form-text">Max capacity: {{ $accommodation->capacity }} (adults + children)</div>
+                        <div class="text-danger small d-none" data-rp-capacity-error>Total guests cannot exceed capacity.</div>
                     </div>
                     <div class="col-12">
                         <label class="form-label">Special requests</label>
