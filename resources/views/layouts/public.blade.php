@@ -108,13 +108,19 @@
                     <div class="rp-footer-social mb-3">
                         <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
                     </div>
-                    <button type="button" id="pwaInstallBtn" class="btn btn-sm btn-outline-light d-none">
+                    <button type="button" id="pwaInstallBtn" class="rp-footer-install-btn">
                         <i class="bi bi-download me-1"></i> Install App
                     </button>
-                    <div id="iosInstallHelp" class="rp-ios-install d-none mt-2">
-                        <div class="small text-white-50">
+                    <div id="iosInstallHelp" class="rp-footer-install-help d-none mt-2">
+                        <div class="small">
                             <strong>Install on iPhone:</strong>
                             tap Share, then Add to Home Screen.
+                        </div>
+                    </div>
+                    <div id="androidInstallHelp" class="rp-footer-install-help d-none mt-2">
+                        <div class="small">
+                            <strong>Install tip:</strong>
+                            open the browser menu and choose <em>Install app</em> / <em>Add to Home screen</em>.
                         </div>
                     </div>
                 </div>

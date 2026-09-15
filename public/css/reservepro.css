@@ -2673,6 +2673,53 @@ body.rp-public {
     color: var(--rp-accent);
 }
 
+.rp-footer-install-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: .35rem;
+    margin-top: .15rem;
+    padding: .55rem .95rem;
+    border: 0;
+    border-radius: .55rem;
+    background: #7fe0a6;
+    color: #0a1a12 !important;
+    font-family: "Montserrat", var(--rp-font);
+    font-size: .78rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    line-height: 1.2;
+    cursor: pointer;
+    opacity: 1;
+    visibility: visible;
+    transition: background .2s ease, transform .2s ease;
+}
+
+.rp-footer-install-btn:hover,
+.rp-footer-install-btn:focus-visible {
+    background: #9aecc0;
+    color: #0a1a12 !important;
+    outline: none;
+}
+
+.rp-footer-install-btn.d-none {
+    display: none !important;
+}
+
+.rp-footer-install-help {
+    max-width: 16rem;
+    padding: .65rem .75rem;
+    border-radius: .55rem;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    color: #f3f4f6;
+}
+
+.rp-footer-install-help strong {
+    color: #fff;
+}
+
 .rp-footer-bottom {
     position: relative;
     display: flex;

@@ -408,34 +408,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let deferredInstallPrompt = null;
     const installBtn = document.getElementById('pwaInstallBtn');
+    const iosInstallHelp = document.getElementById('iosInstallHelp');
+    const androidInstallHelp = document.getElementById('androidInstallHelp');
+    const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+        || window.navigator.standalone === true;
+
+    if (isStandalone) {
+        installBtn?.classList.add('d-none');
+        iosInstallHelp?.classList.add('d-none');
+        androidInstallHelp?.classList.add('d-none');
+    } else if (isIos) {
+        iosInstallHelp?.classList.remove('d-none');
+    }
 
     window.addEventListener('beforeinstallprompt', (event) => {
         event.preventDefault();
         deferredInstallPrompt = event;
         installBtn?.classList.remove('d-none');
+        androidInstallHelp?.classList.add('d-none');
     });
 
     installBtn?.addEventListener('click', async () => {
-        if (!deferredInstallPrompt) return;
-        deferredInstallPrompt.prompt();
-        await deferredInstallPrompt.userChoice;
-        deferredInstallPrompt = null;
-        installBtn.classList.add('d-none');
+        if (deferredInstallPrompt) {
+            deferredInstallPrompt.prompt();
+            await deferredInstallPrompt.userChoice;
+            deferredInstallPrompt = null;
+            installBtn.classList.add('d-none');
+            return;
+        }
+
+        if (isIos) {
+            iosInstallHelp?.classList.remove('d-none');
+            iosInstallHelp?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            return;
+        }
+
+        androidInstallHelp?.classList.remove('d-none');
+        androidInstallHelp?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
 
     window.addEventListener('appinstalled', () => {
         deferredInstallPrompt = null;
         installBtn?.classList.add('d-none');
+        iosInstallHelp?.classList.add('d-none');
+        androidInstallHelp?.classList.add('d-none');
     });
-
-    const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-        || window.navigator.standalone === true;
-    const iosInstallHelp = document.getElementById('iosInstallHelp');
-
-    if (isIos && !isStandalone) {
-        iosInstallHelp?.classList.remove('d-none');
-    }
 
     initAvailabilityCalendar();
 });
