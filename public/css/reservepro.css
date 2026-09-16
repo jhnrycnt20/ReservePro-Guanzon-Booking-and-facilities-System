@@ -1487,7 +1487,21 @@ section .row > [class*="col-"] {
     min-width: 0;
 }
 
+/*
+ * Bootstrap .row negative side margins extend ~12px past the viewport on phones
+ * (body scrollWidth 402 on a 390px screen). That extra width is what lets the
+ * WebView pan sideways into blank space. Keep column gutters via padding only.
+ */
+body.rp-public .container > .row,
+body.rp-body .container > .row {
+    margin-left: 0;
+    margin-right: 0;
+    max-width: 100%;
+}
+
 .rp-plan-slider {
+    display: block;
+    width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
     cursor: grab;
