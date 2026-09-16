@@ -327,10 +327,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     amountInput.value = button.dataset.rpPayAmount || '';
                     amountInput.dispatchEvent(new Event('input', { bubbles: true }));
                 }
-                const gcashAmount = document.getElementById('gcashGatewayAmount');
-                if (gcashAmount) {
-                    gcashAmount.value = button.dataset.rpPayAmount || '';
-                }
             });
         });
 
@@ -347,16 +343,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         methodSelect?.addEventListener('change', syncProofFields);
         syncProofFields();
-    });
-
-    document.querySelectorAll('[data-rp-gcash-pay-amount]').forEach((button) => {
-        button.addEventListener('click', () => {
-            const gcashAmount = document.getElementById('gcashGatewayAmount');
-            const manualAmount = document.getElementById('paymentAmount');
-            const value = button.dataset.rpGcashPayAmount || '';
-            if (gcashAmount) gcashAmount.value = value;
-            if (manualAmount) manualAmount.value = value;
-        });
     });
 
     document.querySelectorAll('[data-rp-live-filter]').forEach((form) => {

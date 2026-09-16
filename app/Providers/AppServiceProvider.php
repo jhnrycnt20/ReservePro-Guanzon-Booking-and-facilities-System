@@ -76,7 +76,6 @@ class AppServiceProvider extends ServiceProvider
             }
 
             $view->with('resortSettings', $resortSettings);
-            $view->with('paymongoEnabled', app(\App\Services\PayMongoService::class)->isConfigured());
         });
     }
 }

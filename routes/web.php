@@ -26,7 +26,6 @@ use App\Http\Controllers\Guest\IncidentReportController as GuestIncidentReportCo
 use App\Http\Controllers\Guest\NotificationController;
 use App\Http\Controllers\Guest\PaymentController as GuestPaymentController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\PayMongoWebhookController;
 use App\Http\Controllers\Security\DashboardController as SecurityDashboardController;
 use App\Http\Controllers\Security\InvestigationController;
 use App\Models\Accommodation;
@@ -70,8 +69,6 @@ Route::get('/contact', function () {
 
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 
-Route::post('/webhooks/paymongo', [PayMongoWebhookController::class, 'handle'])->name('webhooks.paymongo');
-
 Route::get('/privacy-policy', function () {
     return view('legal.privacy-policy');
 })->name('legal.privacy');
@@ -110,8 +107,6 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('/payments', [GuestPaymentController::class, 'index'])->name('payments.index');
         Route::get('/payments/create/{booking}', [GuestPaymentController::class, 'create'])->name('payments.create');
         Route::post('/payments/{booking}', [GuestPaymentController::class, 'store'])->name('payments.store');
-        Route::post('/payments/{booking}/gcash', [GuestPaymentController::class, 'gcashCheckout'])->name('payments.gcash');
-        Route::get('/payments/gcash/return', [GuestPaymentController::class, 'gcashReturn'])->name('payments.gcash.return');
 
         Route::get('/incidents', [GuestIncidentReportController::class, 'index'])->name('incidents.index');
         Route::get('/incidents/create', [GuestIncidentReportController::class, 'create'])->name('incidents.create');
