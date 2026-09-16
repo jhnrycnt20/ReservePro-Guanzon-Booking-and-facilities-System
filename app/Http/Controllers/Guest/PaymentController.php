@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Guest;
 
 use App\Http\Controllers\Controller;
+use App\Enums\PaymentStatus;
+use App\Http\Requests\Guest\StoreGcashCheckoutRequest;
 use App\Http\Requests\Guest\StorePaymentRequest;
 use App\Models\Booking;
 use App\Models\Payment;
 use App\Models\User;
 use App\Notifications\StaffPaymentVerificationNotification;
 use App\Services\NotificationService;
+use App\Services\PayMongoService;
 use App\Services\PaymentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,6 +22,7 @@ class PaymentController extends Controller
     public function __construct(
         protected PaymentService $paymentService,
         protected NotificationService $notificationService,
+        protected PayMongoService $payMongo,
     ) {
     }
 
@@ -43,7 +47,9 @@ class PaymentController extends Controller
         $remaining = (float) $booking->remaining_balance;
         $suggestedDeposit = min($deposit, $remaining);
 
-        return view('guest.payments.create', compact('booking', 'deposit', 'suggestedDeposit'));
+        $paymongoEnabled = $this->payMongo->isConfigured();
+
+        return view('guest.payments.create', compact('booking', 'deposit', 'suggestedDeposit', 'paymongoEnabled'));
     }
 
     public function store(StorePaymentRequest $request, Booking $booking): RedirectResponse
@@ -69,5 +75,55 @@ class PaymentController extends Controller
         return redirect()
             ->route('guest.bookings.show', $booking)
             ->with('success', 'Payment submitted. Front desk will verify it shortly.');
+    }
+
+    public function gcashCheckout(StoreGcashCheckoutRequest $request, Booking $booking): RedirectResponse
+    {
+        $this->authorize('view', $booking);
+
+        if (! $this->payMongo->isConfigured()) {
+            return redirect()
+                ->route('guest.payments.create', $booking)
+                ->withErrors(['payment' => 'Online GCash is not available. Use manual payment instead.']);
+        }
+
+        $amount = round((float) $request->validated('amount'), 2);
+
+        $payment = $this->paymentService->createPayMongoPendingPayment(
+            $booking,
+            $amount,
+            $request->user()
+        );
+
+        $checkout = $this->payMongo->createGcashCheckout($payment, $booking, $request->user());
+
+        $payment->update([
+            'gateway_ref' => $checkout['payment_intent_id'],
+            'gateway_checkout_url' => $checkout['checkout_url'],
+        ]);
+
+        return redirect()->away($checkout['checkout_url']);
+    }
+
+    public function gcashReturn(Request $request): RedirectResponse
+    {
+        $payment = Payment::query()->with('booking')->findOrFail($request->query('payment'));
+        $this->authorize('view', $payment->booking);
+
+        if ($request->boolean('failed')) {
+            return redirect()
+                ->route('guest.bookings.show', $payment->booking)
+                ->with('error', 'GCash payment was not completed. You can try again.');
+        }
+
+        if ($payment->status === PaymentStatus::Verified) {
+            return redirect()
+                ->route('guest.bookings.show', $payment->booking)
+                ->with('success', 'Payment received and verified. Thank you!');
+        }
+
+        return redirect()
+            ->route('guest.bookings.show', $payment->booking)
+            ->with('success', 'If you completed payment in GCash, it will be verified automatically in a moment.');
     }
 }

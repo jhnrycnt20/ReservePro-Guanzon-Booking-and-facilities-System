@@ -66,25 +66,46 @@
         <div class="rp-flow-card mb-3">
             <h3 class="h6">Actions</h3>
             @if(in_array(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status), ['approved', 'checked_in']) && $booking->remaining_balance > 0)
+                @php
+                    $depositDue = min(
+                        max(0, round(((float) $booking->total_amount) * 0.5, 2)),
+                        (float) $booking->remaining_balance
+                    );
+                    $paymongoEnabled = $paymongoEnabled ?? false;
+                @endphp
                 <div class="rp-pay-tip mb-3">
                     <div class="rp-pay-tip-title">How to pay</div>
-                    <p class="mb-2">
-                        Pay via <strong>GCash</strong>
-                        (<strong>{{ $resortSettings['gcash_number'] ?? '09505584607' }}</strong>).
-                        Tap below to open GCash, then return here to upload your proof.
-                    </p>
-                    <div class="rp-gcash-qr-wrap rp-gcash-qr-wrap--compact mb-2">
-                        <img src="{{ asset('images/gcash-qr.jpg') }}" alt="GCash QR code" class="rp-gcash-qr">
-                    </div>
-                    <button
-                        type="button"
-                        class="rp-avail-btn-primary mb-2"
-                        data-rp-open-gcash
-                        data-gcash-number="{{ $resortSettings['gcash_number'] ?? '09505584607' }}"
-                        data-gcash-amount="{{ number_format(max(0, round(((float) $booking->total_amount) * 0.5, 2)), 2, '.', '') }}"
-                    >
-                        Open GCash to Pay
-                    </button>
+                    @if($paymongoEnabled)
+                        <p class="mb-2 small text-muted">
+                            Pay online with GCash — the exact deposit or balance is charged automatically.
+                        </p>
+                        <form method="POST" action="{{ route('guest.payments.gcash', $booking) }}" class="mb-2">
+                            @csrf
+                            <input type="hidden" name="amount" value="{{ number_format($depositDue, 2, '.', '') }}">
+                            <button type="submit" class="rp-avail-btn-primary w-100 mb-2">
+                                Pay ₱{{ number_format($depositDue, 2) }} with GCash
+                            </button>
+                        </form>
+                        <a href="{{ route('guest.payments.create', $booking) }}" class="rp-avail-btn-secondary d-block text-center mb-2">Pay a different amount</a>
+                    @else
+                        <p class="mb-2">
+                            Pay via <strong>GCash</strong>
+                            (<strong>{{ $resortSettings['gcash_number'] ?? '09505584607' }}</strong>).
+                            Tap below to open GCash, then return here to upload your proof.
+                        </p>
+                        <div class="rp-gcash-qr-wrap rp-gcash-qr-wrap--compact mb-2">
+                            <img src="{{ asset('images/gcash-qr.jpg') }}" alt="GCash QR code" class="rp-gcash-qr">
+                        </div>
+                        <button
+                            type="button"
+                            class="rp-avail-btn-primary mb-2"
+                            data-rp-open-gcash
+                            data-gcash-number="{{ $resortSettings['gcash_number'] ?? '09505584607' }}"
+                            data-gcash-amount="{{ number_format($depositDue, 2, '.', '') }}"
+                        >
+                            Open GCash to Pay
+                        </button>
+                    @endif
                     <p class="mb-0 small text-muted">
                         A 50% deposit is enough to start. Front desk will verify before check-in.
                     </p>

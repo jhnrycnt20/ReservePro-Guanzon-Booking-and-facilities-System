@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
 use App\Models\Booking;
 use App\Models\Payment;
@@ -58,6 +59,69 @@ class PaymentService
         ]);
 
         return $booking->fresh();
+    }
+
+    public function createPayMongoPendingPayment(Booking $booking, float $amount, User $processor): Payment
+    {
+        if (in_array($booking->status->value, ['rejected', 'cancelled'], true)) {
+            throw ValidationException::withMessages([
+                'booking_id' => 'Cannot record payment for a rejected or cancelled booking.',
+            ]);
+        }
+
+        $amount = round($amount, 2);
+        $remaining = (float) $booking->remaining_balance;
+
+        if ($amount <= 0) {
+            throw ValidationException::withMessages([
+                'amount' => 'Payment amount must be greater than zero.',
+            ]);
+        }
+
+        if ($amount - $remaining > 0.009) {
+            throw ValidationException::withMessages([
+                'amount' => 'Payment amount cannot exceed the remaining balance.',
+            ]);
+        }
+
+        return DB::transaction(function () use ($booking, $processor, $amount) {
+            $payment = Payment::query()->create([
+                'booking_id' => $booking->id,
+                'amount' => $amount,
+                'payment_method' => PaymentMethod::Gcash,
+                'gateway' => PayMongoService::GATEWAY,
+                'payment_date' => now(),
+                'status' => PaymentStatus::Pending,
+                'processed_by' => $processor->id,
+            ]);
+
+            $this->auditService->log('payment.gateway_started', $payment, null, $payment->toArray(), $processor);
+
+            return $payment->fresh();
+        });
+    }
+
+    public function completeGatewayPayment(Payment $payment, ?string $gatewayReference, User $verifier): Payment
+    {
+        if ($payment->status === PaymentStatus::Verified) {
+            return $payment;
+        }
+
+        if ($payment->status !== PaymentStatus::Pending) {
+            throw ValidationException::withMessages([
+                'status' => 'Only pending gateway payments can be completed.',
+            ]);
+        }
+
+        return DB::transaction(function () use ($payment, $gatewayReference, $verifier) {
+            if ($gatewayReference) {
+                $payment->update([
+                    'reference_number' => $payment->reference_number ?: $gatewayReference,
+                ]);
+            }
+
+            return $this->verifyPayment($payment->fresh(), $verifier);
+        });
     }
 
     public function recordPayment(Booking $booking, array $data, User $processor, ?UploadedFile $proof = null): Payment
