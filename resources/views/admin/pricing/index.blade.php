@@ -10,9 +10,27 @@
 @endsection
 
 @section('content')
-<div class="d-flex justify-content-between mb-3">
-    <div></div>
-    <a href="{{ route('admin.pricing.create') }}" class="btn btn-rp-primary">Add Pricing</a>
+<div class="rp-filter-with-action mb-3">
+    <div class="rp-filter-with-action__btn">
+        <a href="{{ route('admin.pricing.create') }}" class="btn btn-rp-primary">Add Pricing</a>
+    </div>
+    @include('partials.list-filters', [
+        'filters' => [
+            [
+                'name' => 'active',
+                'label' => 'Active',
+                'empty' => 'All',
+                'value' => request('active'),
+                'options' => [
+                    '1' => 'Active',
+                    '0' => 'Inactive',
+                ],
+            ],
+        ],
+        'searchPlaceholder' => 'Rate name or accommodation',
+        'clearUrl' => route('admin.pricing.index'),
+        'embedded' => true,
+    ])
 </div>
 <div class="rp-card">
     <div class="table-responsive">

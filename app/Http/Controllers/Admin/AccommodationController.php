@@ -12,15 +12,35 @@ use Illuminate\View\View;
 
 class AccommodationController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $accommodations = Accommodation::query()
+        $query = Accommodation::query()
             ->with(['type', 'amenities'])
-            ->latest()
-            ->paginate(20);
+            ->latest();
+
+        if ($request->filled('type')) {
+            $query->where('accommodation_type_id', $request->integer('type'));
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        if ($request->filled('active')) {
+            $query->where('is_active', $request->input('active') === '1');
+        }
+
+        if ($request->filled('q')) {
+            $q = trim((string) $request->input('q'));
+            $query->where(function ($builder) use ($q) {
+                $builder->where('name', 'like', "%{$q}%")
+                    ->orWhere('number', 'like', "%{$q}%")
+                    ->orWhere('description', 'like', "%{$q}%");
+            });
+        }
 
         return view('admin.accommodations.index', [
-            'accommodations' => $accommodations,
+            'accommodations' => $query->paginate(20)->withQueryString(),
             'types' => AccommodationType::query()->orderBy('name')->get(),
             'amenities' => Amenity::query()->orderBy('name')->get(),
         ]);

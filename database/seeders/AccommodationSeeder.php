@@ -27,8 +27,14 @@ class AccommodationSeeder extends Seeder
                 'type' => 'room',
                 'capacity' => 4,
                 'rate' => 1500,
-                'image' => 'images/rooms/ocean-view-room.png',
-                'description' => 'Overnight room at Guanzon Beach. Day use and night use: ₱1,500. Complimentary for 2 persons, maximum 4 persons.',
+                'image' => 'images/rooms/cabana/06-bedroom-ac.png',
+                'gallery' => [
+                    'images/rooms/cabana/05-bedroom.png',
+                    'images/rooms/cabana/07-bedroom-towels.png',
+                    'images/rooms/cabana/08-bathroom.png',
+                    'images/rooms/cabana/09-bathroom-vanity.png',
+                ],
+                'description' => 'Overnight AC room at Guanzon Beach without videoke. Day use and night use: ₱1,500. Complimentary for 2 persons, maximum 4 persons.',
                 'amenities' => ['Air Conditioning', 'Private Bathroom', 'Television', 'Wi-Fi'],
             ],
             [
@@ -37,8 +43,14 @@ class AccommodationSeeder extends Seeder
                 'type' => 'room',
                 'capacity' => 8,
                 'rate' => 2500,
-                'image' => 'images/rooms/ocean-view-room.png',
-                'description' => 'Overnight room with videoke at Guanzon Beach. Day use and night use: ₱2,500. Complimentary for 2 persons, maximum 8 persons.',
+                'image' => 'images/rooms/suite/06-karaoke-tv.png',
+                'gallery' => [
+                    'images/rooms/cabana/06-bedroom-ac.png',
+                    'images/rooms/suite/08-living-area.png',
+                    'images/rooms/cabana/08-bathroom.png',
+                    'images/rooms/suite/05-outdoor-dining.png',
+                ],
+                'description' => 'Overnight AC room with videoke at Guanzon Beach. Day use and night use: ₱2,500. Complimentary for 2 persons, maximum 8 persons.',
                 'amenities' => ['Air Conditioning', 'Private Bathroom', 'Television', 'Videoke', 'Wi-Fi'],
             ],
             [
@@ -70,7 +82,7 @@ class AccommodationSeeder extends Seeder
                     'images/rooms/suite/10-bathroom.png',
                 ],
                 'description' => 'Suite Room at Guanzon Beach. Rate ₱2,500. Bed good for 5 pax. Includes table and chair, optional videoke, mini refrigerator, griller, toilet, aircon, cable TV, hot shower, shampoo and soap, water and coffee, no corkage on foods and drinks, and sea view.',
-                'amenities' => ['Air Conditioning', 'Private Bathroom', 'Television', 'WiFi', 'Parking'],
+                'amenities' => ['Air Conditioning', 'Private Bathroom', 'Television', 'Wi-Fi', 'Parking'],
             ],
             [
                 'number' => 'VILLA-01',
@@ -166,20 +178,23 @@ class AccommodationSeeder extends Seeder
             ->update(['is_active' => false]);
 
         foreach ($listings as $item) {
-            $accommodation = Accommodation::query()->updateOrCreate(
-                ['number' => $item['number']],
-                [
-                    'accommodation_type_id' => $typeIds[$item['type']],
-                    'name' => $item['name'],
-                    'description' => $item['description'],
-                    'capacity' => $item['capacity'],
-                    'rate' => $item['rate'],
-                    'image' => $item['image'],
-                    'gallery' => $item['gallery'] ?? null,
-                    'status' => AccommodationStatus::Available,
-                    'is_active' => true,
-                ]
-            );
+            $accommodation = Accommodation::withTrashed()->firstOrNew(['number' => $item['number']]);
+            if ($accommodation->trashed()) {
+                $accommodation->restore();
+            }
+
+            $accommodation->fill([
+                'accommodation_type_id' => $typeIds[$item['type']],
+                'name' => $item['name'],
+                'description' => $item['description'],
+                'capacity' => $item['capacity'],
+                'rate' => $item['rate'],
+                'image' => $item['image'],
+                'gallery' => $item['gallery'] ?? null,
+                'status' => AccommodationStatus::Available,
+                'is_active' => true,
+            ]);
+            $accommodation->save();
 
             $amenityIds = collect($item['amenities'])
                 ->map(fn (string $name) => $amenities[$name] ?? null)

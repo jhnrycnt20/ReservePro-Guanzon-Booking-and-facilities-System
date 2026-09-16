@@ -24,11 +24,26 @@ class BookingController extends Controller
 
     public function index(Request $request): View
     {
-        $bookings = Booking::query()
+        $query = Booking::query()
             ->with(['accommodation', 'payments'])
             ->where('guest_id', $request->user()->guest?->id)
-            ->latest()
-            ->paginate(5);
+            ->latest();
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        if ($request->filled('q')) {
+            $q = trim((string) $request->input('q'));
+            $query->where(function ($builder) use ($q) {
+                $builder->where('booking_number', 'like', "%{$q}%")
+                    ->orWhereHas('accommodation', function ($accommodationQuery) use ($q) {
+                        $accommodationQuery->where('name', 'like', "%{$q}%");
+                    });
+            });
+        }
+
+        $bookings = $query->paginate(5)->withQueryString();
 
         return view('guest.bookings.index', compact('bookings'));
     }
@@ -74,9 +89,22 @@ class BookingController extends Controller
     public function show(Request $request, Booking $booking): View
     {
         $this->authorize('view', $booking);
-        $booking->load(['accommodation.type', 'items', 'payments', 'checkIn', 'checkOut', 'feedback']);
+        $booking->load(['accommodation.type', 'items', 'payments', 'checkIn', 'checkOut', 'feedback', 'promo']);
 
         return view('guest.bookings.show', compact('booking'));
+    }
+
+    public function applyPromo(Request $request, Booking $booking): RedirectResponse
+    {
+        $this->authorize('view', $booking);
+
+        $data = $request->validate([
+            'promo_code' => ['required', 'string', 'max:32'],
+        ]);
+
+        $this->bookingService->applyPromo($booking, $data['promo_code']);
+
+        return back()->with('success', 'Promo applied. Your balance has been updated.');
     }
 
     public function cancel(Request $request, Booking $booking): RedirectResponse

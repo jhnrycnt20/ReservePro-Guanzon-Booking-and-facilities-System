@@ -10,6 +10,24 @@
 @endsection
 
 @section('content')
+@include('partials.list-filters', [
+    'filters' => [
+        [
+            'name' => 'balance',
+            'label' => 'Balance',
+            'empty' => 'All',
+            'value' => request('balance'),
+            'options' => [
+                'unpaid' => 'Has balance',
+                'paid' => 'Fully paid',
+            ],
+        ],
+    ],
+    'dateName' => 'date',
+    'dateLabel' => 'Check-in date',
+    'searchPlaceholder' => 'Booking #, guest, or room',
+    'clearUrl' => route('front_desk.checkins.index'),
+])
 <div class="rp-card">
     <div class="table-responsive">
         <table class="table align-middle">

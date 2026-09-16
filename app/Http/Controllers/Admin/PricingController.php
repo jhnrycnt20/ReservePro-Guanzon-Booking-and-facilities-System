@@ -11,9 +11,26 @@ use Illuminate\View\View;
 
 class PricingController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $pricing = Pricing::query()->with('accommodation')->latest()->paginate(20);
+        $query = Pricing::query()->with('accommodation')->latest();
+
+        if ($request->filled('active')) {
+            $query->where('is_active', $request->input('active') === '1');
+        }
+
+        if ($request->filled('q')) {
+            $q = trim((string) $request->input('q'));
+            $query->where(function ($builder) use ($q) {
+                $builder->where('name', 'like', "%{$q}%")
+                    ->orWhereHas('accommodation', function ($accommodationQuery) use ($q) {
+                        $accommodationQuery->where('name', 'like', "%{$q}%")
+                            ->orWhere('number', 'like', "%{$q}%");
+                    });
+            });
+        }
+
+        $pricing = $query->paginate(20)->withQueryString();
 
         return view('admin.pricing.index', compact('pricing'));
     }

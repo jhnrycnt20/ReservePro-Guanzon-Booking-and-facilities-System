@@ -38,6 +38,21 @@
                     <span>Total</span>
                     <span>₱{{ number_format($booking->total_amount, 2) }}</span>
                 </div>
+                @if($booking->promo_code || ((float) $booking->discount_amount) > 0)
+                    <div class="rp-cottage-row">
+                        <span>Promo</span>
+                        <span>
+                            <code>{{ $booking->promo_code }}</code>
+                            @if($booking->discount_percent)
+                                ({{ rtrim(rtrim(number_format((float) $booking->discount_percent, 2), '0'), '.') }}% off)
+                            @endif
+                        </span>
+                    </div>
+                    <div class="rp-cottage-row">
+                        <span>You saved</span>
+                        <span>₱{{ number_format((float) $booking->discount_amount, 2) }}</span>
+                    </div>
+                @endif
                 <div class="rp-cottage-row">
                     <span>Remaining balance</span>
                     <span>₱{{ number_format($booking->remaining_balance, 2) }}</span>
@@ -91,6 +106,21 @@
                 </div>
             @endif
             <div class="rp-booking-actions">
+            @if(
+                ! $booking->promo_id
+                && ((float) $booking->paid_amount) <= 0
+                && in_array(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status), ['pending', 'approved'], true)
+            )
+                <form method="POST" action="{{ route('guest.bookings.apply_promo', $booking) }}" class="mb-2">
+                    @csrf
+                    <label class="form-label small mb-1">Have a promo code?</label>
+                    <div class="rp-promo-apply">
+                        <input type="text" name="promo_code" class="form-control text-uppercase @error('promo_code') is-invalid @enderror" placeholder="Enter code" maxlength="32" required>
+                        <button type="submit" class="btn btn-rp-soft">Apply</button>
+                    </div>
+                    @error('promo_code')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                </form>
+            @endif
             @if(in_array(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status), ['approved', 'checked_in']) && $booking->remaining_balance > 0)
                 <a href="{{ route('guest.payments.create', $booking) }}" class="rp-avail-btn-primary">Make Payment</a>
             @endif

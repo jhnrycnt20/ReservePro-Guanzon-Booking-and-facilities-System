@@ -10,6 +10,24 @@
         <h1 class="rp-page-intro-title">Payments</h1>
     </div>
 
+    @include('partials.list-filters', [
+        'filters' => [
+            [
+                'name' => 'status',
+                'label' => 'Status',
+                'empty' => 'All statuses',
+                'value' => request('status'),
+                'options' => [
+                    'pending' => 'Pending',
+                    'verified' => 'Verified',
+                    'rejected' => 'Rejected',
+                ],
+            ],
+        ],
+        'searchPlaceholder' => 'Booking #, room, or reference',
+        'clearUrl' => route('guest.payments.index'),
+    ])
+
     <div class="rp-booking-list">
         @forelse($payments as $payment)
             <a href="{{ $payment->booking ? route('guest.bookings.show', $payment->booking) : '#' }}" class="rp-booking-list-item">

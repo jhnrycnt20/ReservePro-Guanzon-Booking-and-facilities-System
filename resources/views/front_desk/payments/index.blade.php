@@ -25,8 +25,11 @@
             <label class="form-label">Search</label>
             <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="Booking #, guest, or reference" data-rp-live-filter-q autocomplete="off">
         </div>
-        <div class="col-md-3">
-            <button type="submit" class="btn btn-rp-primary w-100">Filter</button>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-rp-primary flex-grow-1">Filter</button>
+            @if(request()->filled('q') || (request()->filled('status') && request('status') !== 'pending'))
+                <a href="{{ route('front_desk.payments.index') }}" class="btn btn-rp-soft">Clear</a>
+            @endif
         </div>
     </form>
 </div>

@@ -60,6 +60,11 @@ class Accommodation extends Model
         return $this->hasMany(Booking::class);
     }
 
+    public function promos(): BelongsToMany
+    {
+        return $this->belongsToMany(Promo::class);
+    }
+
     public function getImageUrlAttribute(): string
     {
         if ($this->image) {

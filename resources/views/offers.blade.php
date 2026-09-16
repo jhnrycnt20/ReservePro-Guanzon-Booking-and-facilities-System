@@ -25,6 +25,24 @@
             <div class="rp-offers-content" id="rpOffersContent">
                 @foreach ([
                     [
+                        'title' => 'AC Room (with / without Videoke)',
+                        'description' => 'Air-conditioned overnight rooms for day or night use.',
+                        'perks' => [
+                            'Without videoke ₱1,500 (max 4 persons)',
+                            'With videoke ₱2,500 (max 8 persons)',
+                            'Complimentary for 2 persons',
+                            'Air conditioning',
+                            'Private bathroom',
+                            'Television',
+                            'Wi-Fi',
+                        ],
+                        'image' => asset('images/rooms/cabana/06-bedroom-ac.png'),
+                        'cta' => route('accommodations.browse', [
+                            'type' => \App\Models\AccommodationType::query()->where('slug', 'room')->value('id'),
+                        ]),
+                        'cta_label' => 'View AC Rooms',
+                    ],
+                    [
                         'title' => 'Cabana Promo Rate',
                         'description' => 'Avail our Promo Rates ₱2,500 (good for 4 pax).',
                         'perks' => [

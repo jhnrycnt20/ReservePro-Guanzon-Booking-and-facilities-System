@@ -19,6 +19,9 @@
 
                     <form method="POST" action="{{ route('login') }}">
                         @csrf
+                        @if (session('error'))
+                            <div class="alert alert-danger py-2" role="alert">{{ session('error') }}</div>
+                        @endif
                         <div class="mb-3">
                             <label class="form-label" for="email">Email</label>
                             <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autofocus>

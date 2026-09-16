@@ -73,8 +73,6 @@
                 <select name="payment_method" class="form-select">
                     <option value="cash">Cash</option>
                     <option value="gcash">GCash</option>
-                    <option value="bank_transfer">Bank Transfer</option>
-                    <option value="other">Other</option>
                 </select>
             </div>
             <div class="col-md-4">

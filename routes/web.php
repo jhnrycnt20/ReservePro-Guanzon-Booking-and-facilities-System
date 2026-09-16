@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Admin\PricingController;
+use App\Http\Controllers\Admin\PromoController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController;
@@ -25,6 +26,7 @@ use App\Http\Controllers\Guest\FeedbackController as GuestFeedbackController;
 use App\Http\Controllers\Guest\IncidentReportController as GuestIncidentReportController;
 use App\Http\Controllers\Guest\NotificationController;
 use App\Http\Controllers\Guest\PaymentController as GuestPaymentController;
+use App\Http\Controllers\Guest\PromoController as GuestPromoController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Security\DashboardController as SecurityDashboardController;
 use App\Http\Controllers\Security\InvestigationController;
@@ -103,6 +105,8 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::post('/bookings', [GuestBookingController::class, 'store'])->name('bookings.store');
         Route::get('/bookings/{booking}', [GuestBookingController::class, 'show'])->name('bookings.show');
         Route::post('/bookings/{booking}/cancel', [GuestBookingController::class, 'cancel'])->name('bookings.cancel');
+        Route::post('/bookings/{booking}/promo', [GuestBookingController::class, 'applyPromo'])->name('bookings.apply_promo');
+        Route::post('/promos/validate', [GuestPromoController::class, 'validateCode'])->name('promos.validate');
 
         Route::get('/payments', [GuestPaymentController::class, 'index'])->name('payments.index');
         Route::get('/payments/create/{booking}', [GuestPaymentController::class, 'create'])->name('payments.create');
@@ -168,6 +172,15 @@ Route::middleware(['auth', 'active'])->group(function () {
             ->except(['show']);
         Route::resource('amenities', AmenityController::class)->except(['show']);
         Route::resource('pricing', PricingController::class)->except(['show']);
+        Route::get('/promos', [PromoController::class, 'index'])->name('promos.index');
+        Route::get('/promos/create', [PromoController::class, 'create'])->name('promos.create');
+        Route::post('/promos/preview', [PromoController::class, 'preview'])->name('promos.preview');
+        Route::post('/promos', [PromoController::class, 'store'])->name('promos.store');
+        Route::get('/promos/{promo}', [PromoController::class, 'show'])->name('promos.show');
+        Route::get('/promos/{promo}/edit', [PromoController::class, 'edit'])->name('promos.edit');
+        Route::put('/promos/{promo}', [PromoController::class, 'update'])->name('promos.update');
+        Route::post('/promos/{promo}/toggle', [PromoController::class, 'toggle'])->name('promos.toggle');
+        Route::delete('/promos/{promo}', [PromoController::class, 'destroy'])->name('promos.destroy');
 
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
         Route::get('/reports/{incident}', [ReportController::class, 'show'])->name('reports.show');

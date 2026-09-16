@@ -332,7 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const syncProofFields = () => {
             const method = methodSelect?.value || '';
-            const needsProof = method === 'gcash' || method === 'bank_transfer';
+            const needsProof = method === 'gcash';
             if (refWrap) refWrap.classList.toggle('d-none', !needsProof && method === 'cash');
             if (proofWrap) proofWrap.classList.toggle('d-none', !needsProof);
             const refInput = refWrap?.querySelector('input');
@@ -350,7 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const applyFilter = () => {
             const action = form.getAttribute('action') || window.location.pathname;
             const params = new URLSearchParams(new FormData(form));
-            ['q', 'status'].forEach((key) => {
+            Array.from(params.keys()).forEach((key) => {
                 if (!(params.get(key) || '').trim()) {
                     params.delete(key);
                 }
@@ -709,6 +709,239 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     enhancePasswordFields();
+
+    document.querySelectorAll('[data-rp-promo-input]').forEach((input) => {
+        const wrap = input.closest('form') || document;
+        const button = wrap.querySelector('[data-rp-promo-check]');
+        const feedback = wrap.querySelector('[data-rp-promo-feedback]');
+        const estimate = wrap.querySelector('[data-rp-promo-estimate]');
+        const totalEl = wrap.querySelector('[data-calc-total]');
+        const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
+
+        const nightsFromForm = () => {
+            const checkIn = wrap.querySelector('[data-calc-check-in], [name="check_in_date"]')?.value;
+            const checkOut = wrap.querySelector('[data-calc-check-out], [name="check_out_date"]')?.value;
+            if (!checkIn || !checkOut) return 1;
+            const start = new Date(`${checkIn}T00:00:00`);
+            const end = new Date(`${checkOut}T00:00:00`);
+            const days = Math.round((end - start) / 86400000);
+            return Math.max(1, days);
+        };
+
+        const applyCheck = async () => {
+            const code = (input.value || '').trim();
+            if (!code) {
+                if (feedback) feedback.textContent = 'Leave blank if you don’t have a promo.';
+                if (estimate) estimate.textContent = '';
+                return;
+            }
+
+            try {
+                const response = await fetch(input.dataset.rpPromoValidateUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrf || '',
+                    },
+                    body: JSON.stringify({
+                        promo_code: code,
+                        accommodation_id: Number(input.dataset.rpPromoAccommodation || 0),
+                        rate: Number(input.dataset.rpPromoRate || totalEl?.dataset.calcRate || 0),
+                        nights: nightsFromForm(),
+                    }),
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    const message = data?.errors?.promo_code?.[0] || data?.message || 'Invalid promo code.';
+                    if (feedback) feedback.textContent = message;
+                    if (estimate) estimate.textContent = '';
+                    input.classList.add('is-invalid');
+                    return;
+                }
+
+                input.classList.remove('is-invalid');
+                input.classList.add('is-valid');
+                input.value = data.code;
+                if (feedback) feedback.textContent = data.message;
+                if (estimate) {
+                    estimate.textContent = `Promo total: ₱${Number(data.promo_total).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (save ₱${Number(data.discount_amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`;
+                }
+                if (totalEl && data.promo_total != null) {
+                    totalEl.textContent = `₱${Number(data.promo_total).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                }
+            } catch (e) {
+                if (feedback) feedback.textContent = 'Could not validate promo code right now.';
+            }
+        };
+
+        button?.addEventListener('click', (event) => {
+            event.preventDefault();
+            applyCheck();
+        });
+
+        input.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                applyCheck();
+            }
+        });
+    });
+
+    document.querySelectorAll('[data-rp-register-form]').forEach((form) => {
+        const field = (name) => form.querySelector(`[data-rp-register-field="${name}"]`);
+        const feedback = (name) => form.querySelector(`[data-rp-register-feedback="${name}"]`);
+        const hint = (name) => form.querySelector(`[data-rp-register-hint="${name}"]`);
+        const touched = new Set();
+
+        const normalizePhone = (value) => String(value || '').replace(/[\s\-()]/g, '');
+
+        const validators = {
+            name: (value) => {
+                const trimmed = value.trim();
+                if (!trimmed) return 'Please enter your full name.';
+                if (trimmed.length < 2) return 'Full name must be at least 2 characters.';
+                if (!/^[\p{L}]+(?:[ '\-.][\p{L}]+)*$/u.test(trimmed)) {
+                    return 'Full name may only include letters, spaces, hyphens, and apostrophes.';
+                }
+                return '';
+            },
+            email: (value) => {
+                const trimmed = value.trim();
+                if (!trimmed) return 'Please enter your email address.';
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+                    return 'Enter a valid email address (e.g. you@email.com).';
+                }
+                return '';
+            },
+            phone: (value) => {
+                const normalized = normalizePhone(value);
+                if (!normalized) return 'Please enter your contact number.';
+                if (!/^(?:\+?63|0)9\d{9}$/.test(normalized)) {
+                    return 'Enter a valid PH mobile number, e.g. 09171234567.';
+                }
+                return '';
+            },
+            address: (value) => {
+                if (value.trim().length > 1000) return 'Address must not exceed 1000 characters.';
+                return '';
+            },
+            password: (value) => {
+                if (!value) return 'Please create a password.';
+                if (value.length < 8) return 'Password must be at least 8 characters.';
+                if (!/[A-Z]/.test(value) || !/[a-z]/.test(value) || !/\d/.test(value)) {
+                    return 'Use uppercase, lowercase, and a number.';
+                }
+                return '';
+            },
+            password_confirmation: (value) => {
+                const password = field('password')?.value || '';
+                if (!value) return 'Please confirm your password.';
+                if (value !== password) return 'Passwords do not match.';
+                return '';
+            },
+        };
+
+        const updatePasswordChecks = () => {
+            const value = field('password')?.value || '';
+            const rules = {
+                length: value.length >= 8,
+                upper: /[A-Z]/.test(value),
+                lower: /[a-z]/.test(value),
+                number: /\d/.test(value),
+            };
+            Object.entries(rules).forEach(([rule, met]) => {
+                const item = form.querySelector(`[data-rp-pw-rule="${rule}"]`);
+                if (!item) return;
+                item.classList.toggle('is-met', met);
+                const icon = item.querySelector('i');
+                if (icon) {
+                    icon.className = met ? 'bi bi-check-circle-fill' : 'bi bi-circle';
+                }
+            });
+        };
+
+        const setFieldState = (name, message, { force = false } = {}) => {
+            const input = field(name);
+            const messageEl = feedback(name);
+            const hintEl = hint(name);
+            if (!input || !messageEl) return !message;
+
+            const showError = Boolean(message) && (force || touched.has(name) || input.classList.contains('is-invalid'));
+            const showValid = !message && name !== 'address' && (force || touched.has(name));
+
+            input.classList.toggle('is-invalid', showError);
+            input.classList.toggle('is-valid', showValid);
+
+            if (showError) {
+                messageEl.textContent = message;
+                messageEl.classList.add('d-block');
+                hintEl?.classList.add('d-none');
+            } else {
+                messageEl.classList.remove('d-block');
+                hintEl?.classList.remove('d-none');
+            }
+
+            return !message;
+        };
+
+        const validateField = (name, options = {}) => {
+            const input = field(name);
+            if (!input || !validators[name]) return true;
+            return setFieldState(name, validators[name](input.value), options);
+        };
+
+        const validateAll = (options = {}) => {
+            updatePasswordChecks();
+            return ['name', 'email', 'phone', 'address', 'password', 'password_confirmation']
+                .map((name) => validateField(name, options))
+                .every(Boolean);
+        };
+
+        ['name', 'email', 'phone', 'address', 'password', 'password_confirmation'].forEach((name) => {
+            const input = field(name);
+            if (!input) return;
+
+            input.addEventListener('input', () => {
+                if (name === 'password') {
+                    updatePasswordChecks();
+                    if (touched.has('password_confirmation') || field('password_confirmation')?.value) {
+                        validateField('password_confirmation');
+                    }
+                }
+                if (touched.has(name) || input.classList.contains('is-invalid')) {
+                    validateField(name);
+                } else if (name === 'password') {
+                    updatePasswordChecks();
+                }
+            });
+
+            input.addEventListener('blur', () => {
+                touched.add(name);
+                validateField(name, { force: true });
+            });
+        });
+
+        form.addEventListener('submit', (event) => {
+            ['name', 'email', 'phone', 'address', 'password', 'password_confirmation'].forEach((name) => touched.add(name));
+            if (!validateAll({ force: true })) {
+                event.preventDefault();
+                const firstInvalid = form.querySelector('.is-invalid');
+                firstInvalid?.focus();
+            }
+        });
+
+        updatePasswordChecks();
+        if (form.querySelector('.is-invalid')) {
+            ['name', 'email', 'phone', 'address', 'password', 'password_confirmation'].forEach((name) => {
+                const input = field(name);
+                if (input?.classList.contains('is-invalid')) {
+                    touched.add(name);
+                    validateField(name, { force: true });
+                }
+            });
+        }
+    });
 
     document.querySelectorAll('[data-demo-email]').forEach((button) => {
         button.addEventListener('click', () => {

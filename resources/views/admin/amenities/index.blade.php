@@ -10,9 +10,15 @@
 @endsection
 
 @section('content')
-<div class="d-flex justify-content-between mb-3">
-    <div></div>
-    <button type="button" class="btn btn-rp-primary" data-bs-toggle="modal" data-bs-target="#amenityCreateModal">Add Amenity</button>
+<div class="rp-filter-with-action mb-3">
+    <div class="rp-filter-with-action__btn">
+        <button type="button" class="btn btn-rp-primary" data-bs-toggle="modal" data-bs-target="#amenityCreateModal">Add Amenity</button>
+    </div>
+    @include('partials.list-filters', [
+        'searchPlaceholder' => 'Amenity name or description',
+        'clearUrl' => route('admin.amenities.index'),
+        'embedded' => true,
+    ])
 </div>
 <div class="rp-card">
     <div class="table-responsive">

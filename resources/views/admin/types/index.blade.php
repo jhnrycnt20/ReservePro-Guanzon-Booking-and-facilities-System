@@ -10,9 +10,15 @@
 @endsection
 
 @section('content')
-<div class="d-flex justify-content-between mb-3">
-    <div></div>
-    <button type="button" class="btn btn-rp-primary" data-bs-toggle="modal" data-bs-target="#typeCreateModal">Add Type</button>
+<div class="rp-filter-with-action mb-3">
+    <div class="rp-filter-with-action__btn">
+        <button type="button" class="btn btn-rp-primary" data-bs-toggle="modal" data-bs-target="#typeCreateModal">Add Type</button>
+    </div>
+    @include('partials.list-filters', [
+        'searchPlaceholder' => 'Type name or description',
+        'clearUrl' => route('admin.types.index'),
+        'embedded' => true,
+    ])
 </div>
 <div class="rp-card">
     <div class="table-responsive">

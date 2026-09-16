@@ -22,6 +22,7 @@ class BookingService
         protected AvailabilityService $availabilityService,
         protected AuditService $auditService,
         protected NotificationService $notificationService,
+        protected PromoService $promoService,
     ) {
     }
 
@@ -93,7 +94,16 @@ class BookingService
             $data['check_out_date']
         );
 
-        return DB::transaction(function () use ($data, $guest, $createdBy, $isWalkIn, $accommodation, $adults, $children, $numberOfGuests, $totals) {
+        $promo = null;
+        if (! empty($data['promo_code'])) {
+            $promo = $this->promoService->findValidForAccommodation(
+                (string) $data['promo_code'],
+                (int) $accommodation->id
+            );
+            $totals = $this->promoService->applyToTotals($totals, $promo);
+        }
+
+        return DB::transaction(function () use ($data, $guest, $createdBy, $isWalkIn, $accommodation, $adults, $children, $numberOfGuests, $totals, $promo) {
             $booking = Booking::query()->create([
                 'booking_number' => $this->generateBookingNumber(),
                 'guest_id' => $guest->id,
@@ -110,6 +120,11 @@ class BookingService
                 'status' => BookingStatus::Approved,
                 'approved_by' => $createdBy?->id,
                 'approved_at' => now(),
+                'original_amount' => $totals['original_total'] ?? $totals['total'],
+                'discount_amount' => $totals['discount_amount'] ?? 0,
+                'discount_percent' => $totals['discount_percent'] ?? null,
+                'promo_id' => $promo?->id,
+                'promo_code' => $promo?->code,
                 'total_amount' => $totals['total'],
                 'paid_amount' => 0,
                 'remaining_balance' => $totals['total'],
@@ -122,11 +137,16 @@ class BookingService
             ]);
 
             $booking->items()->create([
-                'description' => "{$accommodation->name} ({$totals['nights']} night(s))",
+                'description' => "{$accommodation->name} ({$totals['nights']} night(s))"
+                    .($promo ? " · Promo {$promo->code} ({$promo->discount_percent}% off)" : ''),
                 'quantity' => $totals['nights'],
                 'unit_price' => $totals['rate'],
                 'total' => $totals['total'],
             ]);
+
+            if ($promo) {
+                $this->promoService->markUsed($promo);
+            }
 
             $this->auditService->log('booking.created', $booking, null, $booking->toArray(), $createdBy);
 
@@ -134,7 +154,52 @@ class BookingService
                 $this->notificationService->notify($guest->user, new BookingCreatedNotification($booking));
             }
 
-            return $booking->fresh(['items', 'accommodation', 'guest.user']);
+            return $booking->fresh(['items', 'accommodation', 'guest.user', 'promo']);
+        });
+    }
+
+    public function applyPromo(Booking $booking, string $promoCode): Booking
+    {
+        if ($booking->promo_id || ((float) $booking->discount_amount) > 0) {
+            throw ValidationException::withMessages([
+                'promo_code' => 'A promo has already been applied to this booking.',
+            ]);
+        }
+
+        if ((float) $booking->paid_amount > 0) {
+            throw ValidationException::withMessages([
+                'promo_code' => 'Promo codes can only be applied before any payment is recorded.',
+            ]);
+        }
+
+        if (! in_array($booking->status, [BookingStatus::Pending, BookingStatus::Approved], true)) {
+            throw ValidationException::withMessages([
+                'promo_code' => 'Promo codes can only be applied to pending or approved bookings.',
+            ]);
+        }
+
+        $promo = $this->promoService->findValidForAccommodation($promoCode, (int) $booking->accommodation_id);
+        $original = (float) ($booking->original_amount ?? $booking->total_amount);
+        $discount = $promo->discountAmount($original);
+        $final = max(0, round($original - $discount, 2));
+
+        return DB::transaction(function () use ($booking, $promo, $original, $discount, $final) {
+            $old = $booking->toArray();
+
+            $booking->update([
+                'promo_id' => $promo->id,
+                'promo_code' => $promo->code,
+                'original_amount' => $original,
+                'discount_amount' => $discount,
+                'discount_percent' => $promo->discount_percent,
+                'total_amount' => $final,
+                'remaining_balance' => max(0, round($final - (float) $booking->paid_amount, 2)),
+            ]);
+
+            $this->promoService->markUsed($promo);
+            $this->auditService->log('booking.promo_applied', $booking, $old, $booking->fresh()->toArray());
+
+            return $booking->fresh(['promo', 'accommodation']);
         });
     }
 

@@ -10,9 +10,20 @@ use Illuminate\View\View;
 
 class AmenityController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $amenities = Amenity::query()->latest()->paginate(20);
+        $query = Amenity::query()->latest();
+
+        if ($request->filled('q')) {
+            $q = trim((string) $request->input('q'));
+            $query->where(function ($builder) use ($q) {
+                $builder->where('name', 'like', "%{$q}%")
+                    ->orWhere('description', 'like', "%{$q}%")
+                    ->orWhere('icon', 'like', "%{$q}%");
+            });
+        }
+
+        $amenities = $query->paginate(20)->withQueryString();
 
         return view('admin.amenities.index', compact('amenities'));
     }

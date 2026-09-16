@@ -26,11 +26,30 @@ class PaymentController extends Controller
     {
         $guestId = $request->user()->guest?->id;
 
-        $payments = Payment::query()
+        $query = Payment::query()
             ->whereHas('booking', fn ($q) => $q->where('guest_id', $guestId))
             ->with('booking.accommodation')
-            ->latest()
-            ->paginate(5);
+            ->latest();
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        if ($request->filled('q')) {
+            $q = trim((string) $request->input('q'));
+            $query->where(function ($builder) use ($q) {
+                $builder->where('reference_number', 'like', "%{$q}%")
+                    ->orWhere('receipt_number', 'like', "%{$q}%")
+                    ->orWhereHas('booking', function ($bookingQuery) use ($q) {
+                        $bookingQuery->where('booking_number', 'like', "%{$q}%")
+                            ->orWhereHas('accommodation', function ($accommodationQuery) use ($q) {
+                                $accommodationQuery->where('name', 'like', "%{$q}%");
+                            });
+                    });
+            });
+        }
+
+        $payments = $query->paginate(5)->withQueryString();
 
         return view('guest.payments.index', compact('payments'));
     }

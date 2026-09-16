@@ -8,6 +8,9 @@
 <a href="{{ route('admin.accommodations.index') }}" class="{{ request()->routeIs('admin.accommodations.*') ? 'active' : '' }}">
     <i class="bi bi-building"></i> Accommodations
 </a>
+<a href="{{ route('admin.promos.index') }}" class="{{ request()->routeIs('admin.promos.*') ? 'active' : '' }}">
+    <i class="bi bi-ticket-perforated"></i> Promo Codes
+</a>
 <div class="nav-section">Insights</div>
 <a href="{{ route('admin.reports.index') }}" class="{{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
     <i class="bi bi-clipboard-data"></i> Incident Reports

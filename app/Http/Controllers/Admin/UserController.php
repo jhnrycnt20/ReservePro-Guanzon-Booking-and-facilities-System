@@ -10,24 +10,43 @@ use App\Models\Guest;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 class UserController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $users = User::query()->with('role')->latest()->paginate(20);
+        $query = User::query()->with('role')->latest();
 
-        return view('admin.users.index', compact('users'));
-    }
+        if ($request->filled('role_id')) {
+            $query->where('role_id', $request->integer('role_id'));
+        }
 
-    public function create(): View
-    {
+        if ($request->filled('active')) {
+            $query->where('is_active', $request->input('active') === '1');
+        }
+
+        if ($request->filled('q')) {
+            $q = trim((string) $request->input('q'));
+            $query->where(function ($builder) use ($q) {
+                $builder->where('name', 'like', "%{$q}%")
+                    ->orWhere('email', 'like', "%{$q}%")
+                    ->orWhere('phone', 'like', "%{$q}%");
+            });
+        }
+
+        $users = $query->paginate(20)->withQueryString();
         $roles = Role::query()->orderBy('name')->get();
 
-        return view('admin.users.create', compact('roles'));
+        return view('admin.users.index', compact('users', 'roles'));
+    }
+
+    public function create(): RedirectResponse
+    {
+        return redirect()->route('admin.users.index', ['open' => 'create']);
     }
 
     public function store(StoreUserRequest $request): RedirectResponse

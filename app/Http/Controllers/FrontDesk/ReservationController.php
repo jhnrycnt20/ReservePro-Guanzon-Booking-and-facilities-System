@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\FrontDesk\RejectBookingRequest;
 use App\Models\Booking;
 use App\Services\BookingService;
+use App\Support\ListFilters;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -18,25 +19,14 @@ class ReservationController extends Controller
 
     public function index(Request $request): View
     {
-        $query = Booking::query()->with(['guest.user', 'accommodation']);
+        $query = Booking::query()->with(['guest.user', 'accommodation' => fn ($q) => $q->withTrashed()]);
 
         if ($request->filled('status')) {
             $query->where('status', $request->input('status'));
         }
 
         if ($request->filled('q')) {
-            $q = trim((string) $request->input('q'));
-            $qCore = preg_replace('/^BK-/i', '', $q) ?: $q;
-            $query->where(function ($builder) use ($q, $qCore) {
-                $builder->where('booking_number', 'like', "%{$q}%")
-                    ->orWhere('booking_number', 'like', "%{$qCore}%")
-                    ->orWhere('guest_name', 'like', "%{$q}%")
-                    ->orWhere('email', 'like', "%{$q}%")
-                    ->orWhere('contact_number', 'like', "%{$q}%")
-                    ->orWhereHas('accommodation', function ($accommodationQuery) use ($q) {
-                        $accommodationQuery->where('name', 'like', "%{$q}%");
-                    });
-            });
+            ListFilters::applyBookingSearch($query, $request->input('q'));
         }
 
         $bookings = $query->latest()->paginate(20)->withQueryString();
@@ -46,7 +36,7 @@ class ReservationController extends Controller
 
     public function show(Booking $booking): View
     {
-        $booking->load(['guest.user', 'accommodation', 'items', 'payments', 'checkIn', 'checkOut']);
+        $booking->load(['guest.user', 'accommodation' => fn ($q) => $q->withTrashed(), 'items', 'payments', 'checkIn', 'checkOut', 'promo']);
 
         return view('front_desk.reservations.show', compact('booking'));
     }

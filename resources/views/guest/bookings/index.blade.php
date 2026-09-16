@@ -8,6 +8,27 @@
         <h1 class="rp-page-intro-title">My Reservations</h1>
     </div>
 
+    @include('partials.list-filters', [
+        'filters' => [
+            [
+                'name' => 'status',
+                'label' => 'Status',
+                'empty' => 'All statuses',
+                'value' => request('status'),
+                'options' => [
+                    'pending' => 'Pending',
+                    'approved' => 'Approved',
+                    'rejected' => 'Rejected',
+                    'cancelled' => 'Cancelled',
+                    'checked_in' => 'Checked in',
+                    'checked_out' => 'Checked out',
+                ],
+            ],
+        ],
+        'searchPlaceholder' => 'Booking # or room name',
+        'clearUrl' => route('guest.bookings.index'),
+    ])
+
     <div class="rp-booking-list">
         @forelse($bookings as $booking)
             <a href="{{ route('guest.bookings.show', $booking) }}" class="rp-booking-list-item">

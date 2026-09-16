@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Security\InvestigateIncidentRequest;
 use App\Models\IncidentReport;
 use App\Services\IncidentReportService;
+use App\Support\ListFilters;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -29,15 +30,9 @@ class InvestigationController extends Controller
             $query->whereIn('status', [IncidentStatus::Pending, IncidentStatus::Verified]);
         }
 
-        if ($request->filled('q')) {
-            $q = $request->input('q');
-            $query->where(function ($builder) use ($q) {
-                $builder->where('report_number', 'like', "%{$q}%")
-                    ->orWhere('title', 'like', "%{$q}%");
-            });
-        }
+        ListFilters::applyIncidentSearch($query, $request->input('q'));
 
-        $reports = $query->paginate(20);
+        $reports = $query->paginate(20)->withQueryString();
 
         return view('security.incidents.index', compact('reports'));
     }

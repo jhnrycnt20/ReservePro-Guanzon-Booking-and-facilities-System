@@ -10,6 +10,24 @@
 @endsection
 
 @section('content')
+@include('partials.list-filters', [
+    'filters' => [
+        [
+            'name' => 'status',
+            'label' => 'Status',
+            'empty' => 'Open queue',
+            'value' => request('status'),
+            'options' => [
+                'verified' => 'Verified',
+                'in_progress' => 'In progress',
+                'resolved' => 'Resolved',
+                'closed' => 'Closed',
+            ],
+        ],
+    ],
+    'searchPlaceholder' => 'Report #, title, location, or guest',
+    'clearUrl' => route('front_desk.incidents.index'),
+])
 <div class="rp-card">
     <div class="table-responsive">
         <table class="table align-middle">

@@ -11,6 +11,27 @@
         <a href="{{ route('guest.incidents.create') }}" class="rp-avail-btn-primary rp-avail-btn-primary--inline">New Report</a>
     </div>
 
+    @include('partials.list-filters', [
+        'filters' => [
+            [
+                'name' => 'status',
+                'label' => 'Status',
+                'empty' => 'All statuses',
+                'value' => request('status'),
+                'options' => [
+                    'pending' => 'Pending',
+                    'verified' => 'Verified',
+                    'invalid' => 'Invalid',
+                    'in_progress' => 'In progress',
+                    'resolved' => 'Resolved',
+                    'closed' => 'Closed',
+                ],
+            ],
+        ],
+        'searchPlaceholder' => 'Report #, title, or location',
+        'clearUrl' => route('guest.incidents.index'),
+    ])
+
     <div class="rp-booking-list">
         @forelse($reports as $report)
             <a href="{{ route('guest.incidents.show', $report) }}" class="rp-booking-list-item">

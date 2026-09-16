@@ -37,6 +37,7 @@ class StoreBookingRequest extends FormRequest
             'guest_name' => ['nullable', 'string', 'max:255'],
             'contact_number' => ['nullable', 'string', 'max:50'],
             'email' => ['nullable', 'email', 'max:255'],
+            'promo_code' => ['nullable', 'string', 'max:32'],
         ];
     }
 

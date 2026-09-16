@@ -81,9 +81,32 @@
                     </div>
                 </div>
 
-                <div class="alert alert-info mt-3 mb-0">
+                <div class="alert alert-info mt-3 mb-3">
                     Estimated total (client preview only): <strong data-calc-total data-calc-rate="{{ $accommodation->rate }}">—</strong>
+                    <div class="small" data-rp-promo-estimate></div>
                     <div class="small">Final amount is calculated and stored by the server.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="promo_code">Promo code (optional)</label>
+                    <div class="rp-promo-apply">
+                        <input
+                            type="text"
+                            name="promo_code"
+                            id="promo_code"
+                            class="form-control text-uppercase @error('promo_code') is-invalid @enderror"
+                            value="{{ old('promo_code') }}"
+                            placeholder="Enter code"
+                            maxlength="32"
+                            data-rp-promo-input
+                            data-rp-promo-validate-url="{{ route('guest.promos.validate') }}"
+                            data-rp-promo-accommodation="{{ $accommodation->id }}"
+                            data-rp-promo-rate="{{ $accommodation->rate }}"
+                        >
+                        <button type="button" class="btn btn-rp-soft" data-rp-promo-check>Apply</button>
+                    </div>
+                    @error('promo_code')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                    <div class="form-text" data-rp-promo-feedback>Leave blank if you don’t have a promo.</div>
                 </div>
 
                 <div class="form-check mt-3">

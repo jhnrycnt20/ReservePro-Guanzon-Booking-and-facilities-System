@@ -10,6 +10,22 @@
 @endsection
 
 @section('content')
+@include('partials.list-filters', [
+    'filters' => [
+        [
+            'name' => 'read',
+            'label' => 'Read status',
+            'empty' => 'All',
+            'value' => request('read'),
+            'options' => [
+                'unread' => 'Unread',
+                'read' => 'Read',
+            ],
+        ],
+    ],
+    'searchPlaceholder' => 'Name, email, subject, or message',
+    'clearUrl' => route('admin.contact-messages.index'),
+])
 <div class="rp-card">
     <div class="table-responsive">
         <table class="table align-middle">
@@ -62,36 +78,38 @@
 </div>
 
 <div class="modal fade" id="contactMessageViewModal" tabindex="-1" aria-labelledby="contactMessageViewModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title h5" id="contactMessageViewModalLabel">Contact message</h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <div class="text-muted small">From</div>
-                        <div class="fw-semibold" id="contactViewName">—</div>
-                        <div><a href="#" id="contactViewEmail">—</a></div>
+                <dl class="rp-contact-view-meta">
+                    <div class="rp-contact-view-meta-item rp-contact-view-meta-item--wide">
+                        <dt>From</dt>
+                        <dd>
+                            <span class="rp-contact-view-name" id="contactViewName">—</span>
+                            <a href="#" id="contactViewEmail" class="rp-contact-view-email">—</a>
+                        </dd>
                     </div>
-                    <div class="col-md-3">
-                        <div class="text-muted small">Phone</div>
-                        <div id="contactViewPhone">—</div>
+                    <div class="rp-contact-view-meta-item">
+                        <dt>Phone</dt>
+                        <dd id="contactViewPhone">—</dd>
                     </div>
-                    <div class="col-md-3">
-                        <div class="text-muted small">Received</div>
-                        <div id="contactViewReceived">—</div>
+                    <div class="rp-contact-view-meta-item">
+                        <dt>Received</dt>
+                        <dd id="contactViewReceived">—</dd>
                     </div>
+                </dl>
+
+                <div class="rp-contact-view-section">
+                    <div class="rp-contact-view-label">Subject</div>
+                    <div class="rp-contact-view-subject" id="contactViewSubject">—</div>
                 </div>
 
-                <div class="mb-3">
-                    <div class="text-muted small">Subject</div>
-                    <div class="fw-semibold" id="contactViewSubject">—</div>
-                </div>
-
-                <div>
-                    <div class="text-muted small">Message</div>
+                <div class="rp-contact-view-section mb-0">
+                    <div class="rp-contact-view-label">Message</div>
                     <div id="contactViewMessage" class="rp-contact-message-body">—</div>
                 </div>
             </div>
@@ -137,7 +155,6 @@ document.getElementById('contactMessageViewModal')?.addEventListener('show.bs.mo
     document.getElementById('contactViewName').textContent = name;
     document.getElementById('contactViewPhone').textContent = phone || '—';
     document.getElementById('contactViewReceived').textContent = received;
-    document.getElementById('contactViewSubject').textContent = subject || '—';
     document.getElementById('contactViewMessage').textContent = message || '—';
 
     const emailLink = document.getElementById('contactViewEmail');
@@ -146,9 +163,15 @@ document.getElementById('contactMessageViewModal')?.addEventListener('show.bs.mo
         emailLink.href = `mailto:${email}`;
         emailLink.classList.remove('d-none');
     } else {
-        emailLink.textContent = '—';
+        emailLink.textContent = '';
         emailLink.removeAttribute('href');
         emailLink.classList.add('d-none');
+    }
+
+    const subjectEl = document.getElementById('contactViewSubject');
+    if (subjectEl) {
+        const cleanSubject = (payload.subject || '').trim();
+        subjectEl.textContent = cleanSubject !== '' ? cleanSubject : '(No subject)';
     }
 
     const replyLink = document.getElementById('contactViewReply');

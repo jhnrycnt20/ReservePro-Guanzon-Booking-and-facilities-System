@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\IncidentReport;
+use App\Support\ListFilters;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -17,7 +18,9 @@ class ReportController extends Controller
             $query->where('status', $request->input('status'));
         }
 
-        $reports = $query->paginate(20);
+        ListFilters::applyIncidentSearch($query, $request->input('q'));
+
+        $reports = $query->paginate(20)->withQueryString();
 
         return view('admin.reports.index', compact('reports'));
     }

@@ -10,9 +10,47 @@
 @endsection
 
 @section('content')
-<div class="d-flex justify-content-between mb-3">
-    <div></div>
-    <button type="button" class="btn btn-rp-primary" data-bs-toggle="modal" data-bs-target="#accommodationCreateModal">Add Accommodation</button>
+<div class="rp-filter-with-action mb-3">
+    <div class="rp-filter-with-action__btn">
+        <button type="button" class="btn btn-rp-primary" data-bs-toggle="modal" data-bs-target="#accommodationCreateModal">Add Accommodation</button>
+    </div>
+    @include('partials.list-filters', [
+        'filters' => [
+            [
+                'name' => 'type',
+                'label' => 'Type',
+                'empty' => 'All types',
+                'value' => request('type'),
+                'options' => $types->pluck('name', 'id')->all(),
+            ],
+            [
+                'name' => 'status',
+                'label' => 'Status',
+                'empty' => 'All statuses',
+                'value' => request('status'),
+                'options' => [
+                    'available' => 'Available',
+                    'reserved' => 'Reserved',
+                    'occupied' => 'Occupied',
+                    'maintenance' => 'Maintenance',
+                    'inactive' => 'Inactive',
+                ],
+            ],
+            [
+                'name' => 'active',
+                'label' => 'Listed',
+                'empty' => 'All',
+                'value' => request('active'),
+                'options' => [
+                    '1' => 'Active',
+                    '0' => 'Hidden',
+                ],
+            ],
+        ],
+        'searchPlaceholder' => 'Name, number, or description',
+        'clearUrl' => route('admin.accommodations.index'),
+        'embedded' => true,
+    ])
 </div>
 <div class="rp-card">
     <div class="table-responsive">

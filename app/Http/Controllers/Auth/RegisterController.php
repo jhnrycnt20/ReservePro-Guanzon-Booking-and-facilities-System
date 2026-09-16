@@ -33,32 +33,64 @@ class RegisterController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'phone' => ['required', 'string', 'max:50'],
+            'name' => [
+                'required',
+                'string',
+                'min:2',
+                'max:255',
+                'regex:/^[\p{L}]+(?:[ \'\-.][\p{L}]+)*$/u',
+            ],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'phone' => [
+                'required',
+                'string',
+                'max:20',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    $normalized = preg_replace('/[\s\-()]/', '', (string) $value) ?? '';
+                    if (! preg_match('/^(?:\+?63|0)9\d{9}$/', $normalized)) {
+                        $fail('Enter a valid PH mobile number, e.g. 09171234567.');
+                    }
+                },
+            ],
             'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()],
             'address' => ['nullable', 'string', 'max:1000'],
+        ], [
+            'name.required' => 'Please enter your full name.',
+            'name.min' => 'Full name must be at least 2 characters.',
+            'name.regex' => 'Full name may only include letters, spaces, hyphens, and apostrophes.',
+            'email.required' => 'Please enter your email address.',
+            'email.email' => 'Enter a valid email address (e.g. you@email.com).',
+            'email.unique' => 'This email is already registered. Try logging in instead.',
+            'phone.required' => 'Please enter your contact number.',
+            'password.required' => 'Please create a password.',
+            'password.confirmed' => 'Password confirmation does not match.',
+            'address.max' => 'Address must not exceed 1000 characters.',
         ]);
     }
 
     protected function create(array $data)
     {
-        return DB::transaction(function () use ($data) {
+        $phone = preg_replace('/[\s\-()]/', '', (string) ($data['phone'] ?? '')) ?? '';
+        if (preg_match('/^(?:\+?63)9(\d{9})$/', $phone, $matches)) {
+            $phone = '09'.$matches[1];
+        }
+
+        return DB::transaction(function () use ($data, $phone) {
             $guestRole = Role::query()->where('slug', UserRole::Guest->value)->firstOrFail();
 
             $user = User::query()->create([
                 'role_id' => $guestRole->id,
-                'name' => $data['name'],
-                'email' => $data['email'],
-                'phone' => $data['phone'],
+                'name' => trim((string) $data['name']),
+                'email' => strtolower(trim((string) $data['email'])),
+                'phone' => $phone,
                 'password' => Hash::make($data['password']),
                 'is_active' => true,
             ]);
 
             Guest::query()->create([
                 'user_id' => $user->id,
-                'contact_number' => $data['phone'],
-                'address' => $data['address'] ?? null,
+                'contact_number' => $phone,
+                'address' => filled($data['address'] ?? null) ? trim((string) $data['address']) : null,
             ]);
 
             return $user;

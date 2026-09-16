@@ -20,10 +20,24 @@ class IncidentReportController extends Controller
 
     public function index(Request $request): View
     {
-        $reports = IncidentReport::query()
+        $query = IncidentReport::query()
             ->where('guest_id', $request->user()->guest?->id)
-            ->latest()
-            ->paginate(5);
+            ->latest();
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        if ($request->filled('q')) {
+            $q = trim((string) $request->input('q'));
+            $query->where(function ($builder) use ($q) {
+                $builder->where('report_number', 'like', "%{$q}%")
+                    ->orWhere('title', 'like', "%{$q}%")
+                    ->orWhere('location', 'like', "%{$q}%");
+            });
+        }
+
+        $reports = $query->paginate(5)->withQueryString();
 
         return view('guest.incidents.index', compact('reports'));
     }

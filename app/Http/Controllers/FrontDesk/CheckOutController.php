@@ -6,6 +6,7 @@ use App\Enums\BookingStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Services\CheckOutService;
+use App\Support\ListFilters;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -16,13 +17,26 @@ class CheckOutController extends Controller
     {
     }
 
-    public function index(): View
+    public function index(Request $request): View
     {
-        $bookings = Booking::query()
-            ->with(['guest.user', 'accommodation'])
+        $query = Booking::query()
+            ->with(['guest.user', 'accommodation' => fn ($q) => $q->withTrashed()])
             ->where('status', BookingStatus::CheckedIn)
-            ->orderBy('check_out_date')
-            ->paginate(20);
+            ->orderBy('check_out_date');
+
+        ListFilters::applyBookingSearch($query, $request->input('q'));
+
+        if ($request->filled('date')) {
+            $query->whereDate('check_out_date', $request->input('date'));
+        }
+
+        if ($request->input('balance') === 'unpaid') {
+            $query->where('remaining_balance', '>', 0);
+        } elseif ($request->input('balance') === 'paid') {
+            $query->where('remaining_balance', '<=', 0);
+        }
+
+        $bookings = $query->paginate(20)->withQueryString();
 
         return view('front_desk.checkouts.index', compact('bookings'));
     }

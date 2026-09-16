@@ -10,22 +10,26 @@
 @endsection
 
 @section('content')
-<div class="rp-card mb-3">
-    <form method="GET" class="row g-2 align-items-end">
-        <div class="col-md-4">
-            <label class="form-label">Status</label>
-            <select name="status" class="form-select">
-                <option value="">All</option>
-                @foreach(['pending','verified','invalid','in_progress','resolved','closed'] as $status)
-                    <option value="{{ $status }}" @selected(request('status') === $status)>{{ ucfirst(str_replace('_', ' ', $status)) }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div class="col-md-4">
-            <button class="btn btn-rp-primary w-100">Filter</button>
-        </div>
-    </form>
-</div>
+@include('partials.list-filters', [
+    'filters' => [
+        [
+            'name' => 'status',
+            'label' => 'Status',
+            'empty' => 'All',
+            'value' => request('status'),
+            'options' => [
+                'pending' => 'Pending',
+                'verified' => 'Verified',
+                'invalid' => 'Invalid',
+                'in_progress' => 'In progress',
+                'resolved' => 'Resolved',
+                'closed' => 'Closed',
+            ],
+        ],
+    ],
+    'searchPlaceholder' => 'Report #, title, location, or guest',
+    'clearUrl' => route('admin.reports.index'),
+])
 <div class="rp-card">
     <div class="table-responsive">
         <table class="table align-middle">

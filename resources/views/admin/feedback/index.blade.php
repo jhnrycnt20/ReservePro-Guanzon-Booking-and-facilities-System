@@ -16,6 +16,25 @@
         <div class="text-muted">Average rating across all feedback</div>
     </div>
 </div>
+@include('partials.list-filters', [
+    'filters' => [
+        [
+            'name' => 'rating',
+            'label' => 'Rating',
+            'empty' => 'All ratings',
+            'value' => request('rating'),
+            'options' => [
+                '5' => '5 stars',
+                '4' => '4 stars',
+                '3' => '3 stars',
+                '2' => '2 stars',
+                '1' => '1 star',
+            ],
+        ],
+    ],
+    'searchPlaceholder' => 'Guest, booking #, or comment',
+    'clearUrl' => route('admin.feedback.index'),
+])
 <div class="rp-card">
     <div class="table-responsive">
         <table class="table align-middle">

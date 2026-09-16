@@ -38,6 +38,11 @@ class Booking extends Model
         'rejected_at',
         'is_walk_in',
         'created_by',
+        'promo_id',
+        'promo_code',
+        'original_amount',
+        'discount_amount',
+        'discount_percent',
     ];
 
     protected $casts = [
@@ -50,6 +55,9 @@ class Booking extends Model
         'total_amount' => 'decimal:2',
         'paid_amount' => 'decimal:2',
         'remaining_balance' => 'decimal:2',
+        'original_amount' => 'decimal:2',
+        'discount_amount' => 'decimal:2',
+        'discount_percent' => 'decimal:2',
         'approved_at' => 'datetime',
         'rejected_at' => 'datetime',
         'is_walk_in' => 'boolean',
@@ -108,6 +116,11 @@ class Booking extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function promo(): BelongsTo
+    {
+        return $this->belongsTo(Promo::class);
     }
 
     /**

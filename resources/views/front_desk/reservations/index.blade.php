@@ -36,16 +36,23 @@
 <div class="rp-card">
     <div class="table-responsive">
         <table class="table align-middle">
-            <thead><tr><th>Booking</th><th>Guest</th><th>Room</th><th>Dates</th><th>Status</th><th></th></tr></thead>
+            <thead><tr><th>Booking</th><th>Guest</th><th>Room</th><th>Dates</th><th>Status</th><th class="text-end">Action</th></tr></thead>
             <tbody>
                 @forelse($bookings as $booking)
                     <tr>
                         <td><span class="rp-booking-code" title="{{ $booking->booking_number }}">{{ $booking->short_number }}</span></td>
                         <td>{{ $booking->guest_name }}</td>
-                        <td>{{ $booking->accommodation->name }}</td>
+                        <td>{{ $booking->accommodation?->name ?? '—' }}</td>
                         <td>{{ $booking->check_in_date->format('M d') }} → {{ $booking->check_out_date->format('M d') }}</td>
                         <td><x-status-badge :status="$booking->status" /></td>
-                        <td><a href="{{ route('front_desk.reservations.show', $booking) }}" class="btn btn-sm btn-rp-primary">Open</a></td>
+                        <td class="text-end">
+                            <div class="d-inline-flex flex-wrap justify-content-end gap-1">
+                                <a href="{{ route('front_desk.reservations.show', $booking) }}" class="btn btn-sm btn-rp-soft">Review</a>
+                                @if(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status) === 'approved')
+                                    <a href="{{ route('front_desk.checkins.show', $booking) }}" class="btn btn-sm btn-rp-primary">Check in</a>
+                                @endif
+                            </div>
+                        </td>
                     </tr>
                 @empty
                     <tr><td colspan="6" class="text-muted">No reservations found.</td></tr>

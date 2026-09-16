@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\FrontDesk\ResolveIncidentRequest;
 use App\Models\IncidentReport;
 use App\Services\IncidentReportService;
+use App\Support\ListFilters;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -17,17 +18,25 @@ class IncidentResolutionController extends Controller
     {
     }
 
-    public function index(): View
+    public function index(Request $request): View
     {
-        $reports = IncidentReport::query()
+        $query = IncidentReport::query()
             ->with(['guest.user', 'booking'])
-            ->whereIn('status', [
+            ->latest();
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        } else {
+            $query->whereIn('status', [
                 IncidentStatus::Verified,
                 IncidentStatus::InProgress,
                 IncidentStatus::Resolved,
-            ])
-            ->latest()
-            ->paginate(20);
+            ]);
+        }
+
+        ListFilters::applyIncidentSearch($query, $request->input('q'));
+
+        $reports = $query->paginate(20)->withQueryString();
 
         return view('front_desk.incidents.index', compact('reports'));
     }

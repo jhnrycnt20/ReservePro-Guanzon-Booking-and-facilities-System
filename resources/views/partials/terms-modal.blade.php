@@ -13,7 +13,7 @@
 
                 <div class="rp-legal-section" id="modal-payment">
                     <h3>Payment</h3>
-                    <p>We accept Cash, GCash, Bank Transfer, and other methods you can arrange with front desk staff. We may ask for full or partial payment to confirm a booking, and any remaining balance is due on or before check-in unless we agree otherwise. Once our staff verifies a payment, it's recorded against your reservation and you get a receipt.</p>
+                    <p>We accept GCash and Cash (at front desk). We may ask for full or partial payment to confirm a booking, and any remaining balance is due on or before check-in unless we agree otherwise. Once our staff verifies a payment, it's recorded against your reservation and you get a receipt.</p>
                 </div>
 
                 <div class="rp-legal-section" id="modal-cancellation-refund">

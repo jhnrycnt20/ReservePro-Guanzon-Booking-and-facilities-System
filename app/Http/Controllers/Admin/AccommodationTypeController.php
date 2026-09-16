@@ -11,9 +11,20 @@ use Illuminate\View\View;
 
 class AccommodationTypeController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $types = AccommodationType::query()->latest()->paginate(20);
+        $query = AccommodationType::query()->latest();
+
+        if ($request->filled('q')) {
+            $q = trim((string) $request->input('q'));
+            $query->where(function ($builder) use ($q) {
+                $builder->where('name', 'like', "%{$q}%")
+                    ->orWhere('slug', 'like', "%{$q}%")
+                    ->orWhere('description', 'like', "%{$q}%");
+            });
+        }
+
+        $types = $query->paginate(20)->withQueryString();
 
         return view('admin.types.index', compact('types'));
     }

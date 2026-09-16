@@ -65,6 +65,24 @@
             <div class="mb-3">
                 <div class="text-muted small">Remaining balance</div>
                 <div class="fs-3" style="font-family: var(--rp-display);">₱{{ number_format($remaining, 2) }}</div>
+                @if($booking->promo_code)
+                    <div class="small text-success mt-1">
+                        Promo <code>{{ $booking->promo_code }}</code> applied
+                        @if($booking->discount_amount)
+                            · saved ₱{{ number_format((float) $booking->discount_amount, 2) }}
+                        @endif
+                    </div>
+                @elseif(((float) $booking->paid_amount) <= 0)
+                    <form method="POST" action="{{ route('guest.bookings.apply_promo', $booking) }}" class="mt-3">
+                        @csrf
+                        <label class="form-label">Promo code</label>
+                        <div class="rp-promo-apply">
+                            <input type="text" name="promo_code" class="form-control text-uppercase @error('promo_code') is-invalid @enderror" placeholder="Enter code" maxlength="32" required>
+                            <button type="submit" class="btn btn-rp-soft">Apply</button>
+                        </div>
+                        @error('promo_code')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                    </form>
+                @endif
             </div>
 
             <form method="POST" action="{{ route('guest.payments.store', $booking) }}" enctype="multipart/form-data" data-rp-payment-form>
@@ -85,7 +103,7 @@
                 <div class="mb-3">
                     <label class="form-label">Payment method</label>
                     <select name="payment_method" id="paymentMethod" class="form-select @error('payment_method') is-invalid @enderror" required>
-                        @foreach(['gcash' => 'GCash', 'bank_transfer' => 'Bank Transfer', 'cash' => 'Cash (at front desk)', 'other' => 'Other'] as $value => $label)
+                        @foreach(['gcash' => 'GCash', 'cash' => 'Cash (at front desk)'] as $value => $label)
                             <option value="{{ $value }}" @selected(old('payment_method', 'gcash') === $value)>{{ $label }}</option>
                         @endforeach
                     </select>
@@ -93,13 +111,13 @@
                 </div>
                 <div class="mb-3" data-rp-pay-ref-wrap>
                     <label class="form-label">Reference number</label>
-                    <input type="text" name="reference_number" class="form-control @error('reference_number') is-invalid @enderror" value="{{ old('reference_number') }}" placeholder="GCash / bank reference">
+                    <input type="text" name="reference_number" class="form-control @error('reference_number') is-invalid @enderror" value="{{ old('reference_number') }}" placeholder="GCash reference">
                     @error('reference_number')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
                 <div class="mb-3" data-rp-pay-proof-wrap>
                     <label class="form-label">Payment proof (screenshot)</label>
                     <input type="file" name="proof" accept="image/*" class="form-control @error('proof') is-invalid @enderror">
-                    <div class="form-text">JPG or PNG, max 5MB. Required for GCash and bank transfer.</div>
+                    <div class="form-text">JPG or PNG, max 5MB. Required for GCash.</div>
                     @error('proof')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                 </div>
                 <div class="mb-3">
