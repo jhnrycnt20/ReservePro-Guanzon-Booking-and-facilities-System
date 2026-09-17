@@ -34,7 +34,7 @@
                     @csrf
                     <div class="mb-3">
                         <label class="form-label">Amount</label>
-                        <input type="number" step="0.01" min="0.01" max="{{ $remaining }}" name="amount" id="paymentAmount" class="form-control @error('amount') is-invalid @enderror" value="{{ old('amount', number_format($depositAmount, 2, '.', '')) }}" required>
+                        <input type="text" inputmode="decimal" name="amount" id="paymentAmount" class="form-control @error('amount') is-invalid @enderror" value="{{ old('amount', number_format($depositAmount, 2, '.', '')) }}" autocomplete="off" required>
                         <div class="small mt-1">
                             <button type="button" class="rp-quiet-link" data-rp-pay-amount="{{ number_format($depositAmount, 2, '.', '') }}">Use 50% deposit (₱{{ number_format($depositAmount, 2) }})</button>
                             &middot;

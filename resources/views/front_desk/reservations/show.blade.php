@@ -24,7 +24,7 @@
                 <div class="col-md-4"><div class="text-muted small">Contact</div><div>{{ $booking->contact_number }}</div><div>{{ $booking->email }}</div></div>
                 <div class="col-md-4"><div class="text-muted small">Accommodation</div><div>{{ $booking->accommodation?->name ?? '—' }}</div></div>
                 <div class="col-md-4"><div class="text-muted small">Dates</div><div>{{ $booking->check_in_date->format('M d, Y') }} → {{ $booking->check_out_date->format('M d, Y') }}</div></div>
-                <div class="col-md-4"><div class="text-muted small">Guests</div><div>{{ $booking->number_of_guests }} / capacity {{ $booking->accommodation?->capacity ?? '—' }}</div></div>
+                <div class="col-md-4"><div class="text-muted small">Guests</div><div>{{ $booking->number_of_guests }} / {{ $booking->accommodation?->capacity ?? '—' }} max</div></div>
                 <div class="col-md-4">
                     <div class="text-muted small">Total</div>
                     <div>₱{{ number_format($booking->total_amount, 2) }}</div>
@@ -35,12 +35,13 @@
                     @endif
                 </div>
                 <div class="col-md-4">
-                    <div class="text-muted small">Paid / Balance</div>
-                    <div>₱{{ number_format($booking->paid_amount, 2) }} / ₱{{ number_format($booking->remaining_balance, 2) }}</div>
+                    <div class="text-muted small">Payment</div>
+                    <div><span class="text-muted">Paid</span> ₱{{ number_format($booking->paid_amount, 2) }}</div>
+                    <div><span class="text-muted">Due</span> ₱{{ number_format($booking->remaining_balance, 2) }}</div>
                     @if($isReserved)
-                        <div class="small text-muted mt-1">Needs ₱{{ number_format($booking->depositRequiredAmount(), 2) }} (50%) to become Booked; full payment required for check-in (from 2:00 PM).</div>
+                        <div class="small text-muted mt-1">₱{{ number_format($booking->depositRequiredAmount(), 2) }} deposit needed to confirm.</div>
                     @elseif($booking->hasMetDepositRequirement() && ! $booking->isFullyPaid())
-                        <div class="small text-muted mt-1">Booked — pay remaining balance for check-in (from 2:00 PM on arrival).</div>
+                        <div class="small text-muted mt-1">Due before check-in at 2:00 PM.</div>
                     @endif
                 </div>
                 @if($booking->promo_code || ((float) $booking->discount_amount) > 0)

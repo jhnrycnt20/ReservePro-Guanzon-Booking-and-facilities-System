@@ -54,6 +54,7 @@ class AvailabilityService
 
         $query = Booking::query()
             ->where('accommodation_id', $accommodationId)
+            ->where('paid_amount', '>', 0)
             ->whereIn('status', [
                 BookingStatus::Pending->value,
                 BookingStatus::Approved->value,
@@ -89,6 +90,7 @@ class AvailabilityService
 
         $bookings = Booking::query()
             ->where('accommodation_id', $accommodationId)
+            ->where('paid_amount', '>', 0)
             ->whereIn('status', [
                 BookingStatus::Pending->value,
                 BookingStatus::Approved->value,

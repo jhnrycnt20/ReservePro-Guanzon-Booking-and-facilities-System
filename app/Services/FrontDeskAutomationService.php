@@ -23,7 +23,6 @@ class FrontDeskAutomationService
 
         Booking::query()
             ->where('status', BookingStatus::Approved)
-            ->fullyPaid()
             ->whereDate('check_in_date', '<=', today())
             ->orderBy('id')
             ->each(fn (Booking $booking) => $this->tryAutoCheckIn($booking, $actor));

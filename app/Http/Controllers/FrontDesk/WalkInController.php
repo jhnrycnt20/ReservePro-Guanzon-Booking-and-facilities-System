@@ -10,7 +10,6 @@ use App\Models\Guest;
 use App\Models\Role;
 use App\Models\User;
 use App\Services\BookingService;
-use App\Services\CheckInService;
 use App\Services\PaymentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +22,6 @@ class WalkInController extends Controller
     public function __construct(
         protected BookingService $bookingService,
         protected PaymentService $paymentService,
-        protected CheckInService $checkInService,
     ) {
     }
 
@@ -47,9 +45,10 @@ class WalkInController extends Controller
                 $guest = Guest::query()->findOrFail($data['guest_id']);
             } else {
                 $guestRole = Role::query()->where('slug', UserRole::Guest->value)->firstOrFail();
+                $walkInEmail = 'walkin-'.Str::lower(Str::random(16)).'@reservepro.local';
 
                 $user = User::query()->firstOrCreate(
-                    ['email' => $data['email']],
+                    ['email' => $walkInEmail],
                     [
                         'role_id' => $guestRole->id,
                         'name' => $data['guest_name'],
@@ -72,10 +71,6 @@ class WalkInController extends Controller
                 true
             );
 
-            if ($request->boolean('auto_approve', true) && $booking->status === \App\Enums\BookingStatus::Pending) {
-                $booking = $this->bookingService->approve($booking, $request->user());
-            }
-
             if (! empty($data['payment_amount']) && (float) $data['payment_amount'] > 0) {
                 $this->paymentService->recordPayment($booking, [
                     'amount' => $data['payment_amount'],
@@ -86,18 +81,10 @@ class WalkInController extends Controller
                 ], $request->user());
             }
 
-            if ($request->boolean('auto_check_in')) {
-                $booking = $booking->fresh();
-                if ($booking->status->value === 'approved' && $this->paymentService->hasVerifiedDeposit($booking)) {
-                    $this->checkInService->checkIn($booking, $request->user(), 'Walk-in check-in');
-                }
-            }
-
             return $booking->fresh();
         });
 
         return redirect()
-            ->route('front_desk.reservations.show', $booking)
-            ->with('success', 'Walk-in booking processed successfully.');
+            ->route('front_desk.checkins.show', ['booking' => $booking, 'created' => 1]);
     }
 }

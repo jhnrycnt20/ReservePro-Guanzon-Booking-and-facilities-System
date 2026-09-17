@@ -52,6 +52,7 @@ class PaymentController extends Controller
     public function create(Request $request, Booking $booking): View
     {
         $this->authorize('view', $booking);
+        $booking = $this->paymentService->recalculateBalances($booking);
 
         $deposit = $this->paymentService->depositAmount($booking);
         $remaining = (float) $booking->remaining_balance;

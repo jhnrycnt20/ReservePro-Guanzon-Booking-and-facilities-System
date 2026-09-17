@@ -325,8 +325,12 @@ document.addEventListener('DOMContentLoaded', () => {
         form.querySelectorAll('[data-rp-pay-amount]').forEach((button) => {
             button.addEventListener('click', () => {
                 if (amountInput) {
-                    amountInput.value = button.dataset.rpPayAmount || '';
+                    const selectedAmount = Number(button.dataset.rpPayAmount);
+                    amountInput.value = Number.isFinite(selectedAmount)
+                        ? selectedAmount.toFixed(2)
+                        : (button.dataset.rpPayAmount || '');
                     amountInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    amountInput.dispatchEvent(new Event('change', { bubbles: true }));
                 }
             });
         });
@@ -379,17 +383,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const navMenuBtn = document.getElementById('rpNavMenuBtn');
     const navOverlay = document.getElementById('rpNavOverlay');
+    let navScrollY = 0;
 
     const closeNavOverlay = () => {
         navMenuBtn?.classList.remove('is-open');
         navOverlay?.classList.remove('is-open');
         navMenuBtn?.setAttribute('aria-expanded', 'false');
+        window.scrollTo(0, navScrollY);
     };
 
-    navMenuBtn?.addEventListener('click', () => {
+    navMenuBtn?.addEventListener('click', (event) => {
+        event.preventDefault();
+        navScrollY = window.scrollY;
         const isOpen = navMenuBtn.classList.toggle('is-open');
         navOverlay?.classList.toggle('is-open', isOpen);
         navMenuBtn.setAttribute('aria-expanded', String(isOpen));
+        window.scrollTo(0, navScrollY);
     });
 
     navOverlay?.querySelectorAll('a').forEach((link) => {
@@ -405,12 +414,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (navOverlay.contains(e.target) || navMenuBtn?.contains(e.target)) return;
         closeNavOverlay();
     });
-
-    window.addEventListener('scroll', () => {
-        if (navOverlay?.classList.contains('is-open') && publicNav?.classList.contains('rp-nav-scrolled')) {
-            closeNavOverlay();
-        }
-    }, { passive: true });
 
     const termsModalEl = document.getElementById('rpTermsModal');
     const termsModalBody = document.querySelector('[data-rp-terms-modal-body]');
@@ -617,8 +620,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const children = Math.max(0, parseInt(childrenEl.value || '0', 10) || 0);
         const total = adults + children;
 
-        adultsEl.value = String(adults);
-        childrenEl.value = String(children);
         totalEl.value = String(total);
 
         if (capacity > 0) {
@@ -1056,6 +1057,7 @@ function initAvailabilityCalendar() {
     }
 
     const occupiedUrl = form.dataset.occupiedUrl;
+    const accommodationSelect = form.querySelector('[data-rp-capacity-select]');
     const checkInInput = form.querySelector('[data-stay-check-in]');
     const checkOutInput = form.querySelector('[data-stay-check-out]');
     const checkInDisplay = form.querySelector('[data-rp-date-display="check_in"]');
@@ -1113,7 +1115,9 @@ function initAvailabilityCalendar() {
     };
 
     const fetchOccupied = async (year, month) => {
-        const url = new URL(occupiedUrl, window.location.origin);
+        const selectedAccommodation = accommodationSelect?.value || '';
+        const resolvedOccupiedUrl = occupiedUrl.replace('__ACCOMMODATION__', encodeURIComponent(selectedAccommodation));
+        const url = new URL(resolvedOccupiedUrl, window.location.origin);
         url.searchParams.set('year', String(year));
         url.searchParams.set('month', String(month));
         const response = await fetch(url.toString(), {
@@ -1249,6 +1253,10 @@ function initAvailabilityCalendar() {
         modal.show();
         loadMonth();
     };
+
+    accommodationSelect?.addEventListener('change', () => {
+        occupiedSet = new Set();
+    });
 
     prevBtn?.addEventListener('click', () => {
         viewMonth -= 1;
