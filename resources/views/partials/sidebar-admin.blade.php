@@ -3,7 +3,7 @@
 </a>
 <div class="nav-section">Management</div>
 <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-    <i class="bi bi-people"></i> Users & Staff
+    <i class="bi bi-people"></i> Users
 </a>
 <a href="{{ route('admin.accommodations.index') }}" class="{{ request()->routeIs('admin.accommodations.*') ? 'active' : '' }}">
     <i class="bi bi-building"></i> Accommodations

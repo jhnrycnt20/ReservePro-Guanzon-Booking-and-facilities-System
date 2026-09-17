@@ -113,7 +113,7 @@
                     @endif
                 </div>
             @empty
-                <p class="text-muted small mb-0">No payments recorded yet. Tap Proceed to Payment after sending GCash.</p>
+                <p class="text-muted small mb-0">No payments recorded yet.</p>
             @endforelse
         </div>
     </div>

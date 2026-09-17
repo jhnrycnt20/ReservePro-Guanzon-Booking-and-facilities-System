@@ -23,10 +23,6 @@
 
 <div class="d-flex flex-wrap gap-2 mb-4">
     <a href="{{ route('front_desk.walkins.create') }}" class="btn btn-rp-primary"><i class="bi bi-person-walking me-1"></i> New Walk-in</a>
-    <a href="{{ route('front_desk.reservations.index') }}" class="btn btn-rp-soft">View Reservations</a>
-    <a href="{{ route('front_desk.checkins.index') }}" class="btn btn-outline-secondary">Check-in</a>
-    <a href="{{ route('front_desk.checkouts.index') }}" class="btn btn-outline-secondary">Check-out</a>
-    <a href="{{ route('front_desk.incidents.index') }}" class="btn btn-outline-secondary">View Reports</a>
 </div>
 
 <div class="row g-3">

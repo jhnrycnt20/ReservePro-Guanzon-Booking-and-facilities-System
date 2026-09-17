@@ -38,7 +38,7 @@
                     @guest
                         <a class="rp-nav-link" href="{{ route('login') }}" data-bs-toggle="modal" data-bs-target="#rpLoginModal">Login</a>
                     @else
-                        <a class="rp-nav-link" href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
+                        <a class="rp-nav-link" href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">{{ auth()->user()->hasRole('guest') ? 'My Reservations' : 'Account' }}</a>
                         <a class="rp-nav-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rpNavDesktopLogoutForm').submit();">Sign Out</a>
                         <form id="rpNavDesktopLogoutForm" action="{{ route('logout') }}" method="POST" class="d-none">
                             @csrf
@@ -76,7 +76,6 @@
         </div>
     </div>
 
-    @include('partials.alerts')
     @yield('content')
 
     <footer class="rp-footer">

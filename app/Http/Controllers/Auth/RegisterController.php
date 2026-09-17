@@ -33,6 +33,11 @@ class RegisterController extends Controller
         return RoleRedirect::dashboardPath();
     }
 
+    public function showRegistrationForm()
+    {
+        return redirect('/?signup=1');
+    }
+
     public function register(Request $request)
     {
         $validator = $this->validator($request->all());

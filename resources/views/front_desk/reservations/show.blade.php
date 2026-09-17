@@ -13,6 +13,7 @@
 @php
     $bookingStatus = $booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status;
     $isReserved = in_array($bookingStatus, ['pending', 'approved'], true) && ! $booking->hasMetDepositRequirement();
+    $latestPayment = $booking->payments->sortByDesc('payment_date')->first();
 @endphp
 <div class="row g-4">
     <div class="col-lg-8">
@@ -41,6 +42,18 @@
                         <div class="small text-muted mt-1">Needs ₱{{ number_format($booking->depositRequiredAmount(), 2) }} (50%) to become Booked; full payment required for check-in (from 2:00 PM).</div>
                     @elseif($booking->hasMetDepositRequirement() && ! $booking->isFullyPaid())
                         <div class="small text-muted mt-1">Booked — pay remaining balance for check-in (from 2:00 PM on arrival).</div>
+                    @endif
+                </div>
+                <div class="col-md-4">
+                    <div class="text-muted small">GCash Reference #</div>
+                    <div>{{ $latestPayment?->reference_number ?: '—' }}</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-muted small">Receipt Screenshot</div>
+                    @if($latestPayment?->proof_url)
+                        <a href="{{ $latestPayment->proof_url }}" target="_blank" rel="noopener" class="btn btn-sm btn-rp-soft">View Receipt</a>
+                    @else
+                        <div>—</div>
                     @endif
                 </div>
                 @if($booking->promo_code || ((float) $booking->discount_amount) > 0)

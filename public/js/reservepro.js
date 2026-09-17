@@ -458,10 +458,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    if (loginModalEl?.getAttribute('data-rp-autoshow') === '1' && window.bootstrap) {
-        new bootstrap.Modal(loginModalEl).show();
+    const authQuery = new URLSearchParams(window.location.search);
+    const wantsLoginModal = loginModalEl?.getAttribute('data-rp-autoshow') === '1' || authQuery.get('login') === '1';
+    const wantsRegisterModal = registerModalEl?.getAttribute('data-rp-autoshow') === '1' || authQuery.get('signup') === '1';
+
+    if (authQuery.has('login') || authQuery.has('signup')) {
+        authQuery.delete('login');
+        authQuery.delete('signup');
+        const cleanQuery = authQuery.toString();
+        const cleanUrl = window.location.pathname + (cleanQuery ? `?${cleanQuery}` : '') + window.location.hash;
+        window.history.replaceState({}, document.title, cleanUrl);
     }
-    if (registerModalEl?.getAttribute('data-rp-autoshow') === '1' && window.bootstrap) {
+
+    if (wantsLoginModal && window.bootstrap) {
+        new bootstrap.Modal(loginModalEl).show();
+    } else if (wantsRegisterModal && window.bootstrap) {
         new bootstrap.Modal(registerModalEl).show();
     }
 

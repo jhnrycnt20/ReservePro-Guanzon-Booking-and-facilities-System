@@ -24,6 +24,11 @@ class LoginController extends Controller
         return RoleRedirect::dashboardPath();
     }
 
+    public function showLoginForm()
+    {
+        return redirect('/?login=1');
+    }
+
     protected function validateLogin(Request $request)
     {
         $this->validateWithBag('login', $request, [
@@ -41,6 +46,6 @@ class LoginController extends Controller
 
     protected function loggedOut(Request $request)
     {
-        return redirect()->route('login');
+        return redirect('/');
     }
 }
