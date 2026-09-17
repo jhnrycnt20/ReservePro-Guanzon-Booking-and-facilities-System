@@ -50,6 +50,7 @@
     </nav>
 
     <div class="rp-nav-overlay" id="rpNavOverlay">
+        <img class="rp-nav-overlay-logo" src="{{ asset('images/guanzon_logoW.png') }}" alt="Guanzon Resort">
         <nav class="rp-nav-overlay-links">
             <a href="{{ url('/') }}">The Resort</a>
             <a href="{{ route('gallery') }}">Gallery</a>
@@ -60,8 +61,9 @@
                 @if(auth()->user()->hasRole('guest'))
                     <a href="{{ route('guest.bookings.index') }}">My Reservations</a>
                     <a href="{{ route('guest.payments.index') }}">Payments</a>
+                @else
+                    <a href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
                 @endif
-                <a href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
                 <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rpNavOverlayLogoutForm').submit();">Sign Out</a>
                 <form id="rpNavOverlayLogoutForm" action="{{ route('logout') }}" method="POST" class="d-none">
                     @csrf

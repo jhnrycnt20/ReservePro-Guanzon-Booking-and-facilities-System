@@ -114,7 +114,7 @@
                         Available for selected dates.
                     </div>
                     {{-- TEMP: always shows Fill Reservation Form (login requirement bypassed for now, see routes/web.php) --}}
-                    <a href="{{ route('guest.bookings.create', ['accommodation_id' => $accommodation->id, 'check_in' => request('check_in'), 'check_out' => request('check_out')]) }}" class="rp-avail-btn-secondary">Fill Reservation Form</a>
+                    <a href="{{ route('guest.bookings.create', ['accommodation_id' => $accommodation->id, 'check_in' => request('check_in'), 'check_out' => request('check_out')]) }}" class="rp-avail-btn-secondary">Proceed to Guest Information</a>
                 @else
                     <div class="rp-avail-message rp-avail-message--warning">Not available. Choose another room or different dates.</div>
                 @endif
