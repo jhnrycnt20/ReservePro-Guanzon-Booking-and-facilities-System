@@ -57,10 +57,6 @@
                     <span>Remaining balance</span>
                     <span>₱{{ number_format($booking->remaining_balance, 2) }}</span>
                 </div>
-                <div class="rp-cottage-row">
-                    <span>Status</span>
-                    <x-status-badge :status="$booking->status" />
-                </div>
             </div>
         </div>
 
@@ -101,7 +97,7 @@
                         Open GCash to Pay
                     </button>
                     <p class="mb-0 small text-muted">
-                        A 50% deposit is enough to start. Front desk will verify before check-in.
+                        A 50% deposit is enough to start. Payments are applied automatically; check-in runs when your deposit and dates are met.
                     </p>
                 </div>
             @endif

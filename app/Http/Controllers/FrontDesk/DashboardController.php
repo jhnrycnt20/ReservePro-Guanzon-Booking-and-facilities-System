@@ -6,17 +6,23 @@ use App\Enums\AccommodationStatus;
 use App\Enums\BookingStatus;
 use App\Enums\IncidentStatus;
 use App\Http\Controllers\Controller;
+use App\Services\FrontDeskAutomationService;
 use App\Models\Accommodation;
 use App\Models\AuditLog;
 use App\Models\Booking;
 use App\Models\IncidentReport;
-use App\Models\Payment;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
+    public function __construct(protected FrontDeskAutomationService $automation)
+    {
+    }
+
     public function index(): View
     {
+        $this->automation->runDueActions(auth()->user());
+
         $stats = [
             'today_checkins' => Booking::query()
                 ->whereDate('check_in_date', today())
@@ -26,9 +32,12 @@ class DashboardController extends Controller
                 ->whereDate('check_out_date', today())
                 ->where('status', BookingStatus::CheckedIn)
                 ->count(),
-            'pending' => Booking::query()->where('status', BookingStatus::Pending)->count(),
-            'approved' => Booking::query()->where('status', BookingStatus::Approved)->count(),
-            'pending_payments' => Payment::query()->where('status', 'pending')->count(),
+            'reserved' => Booking::query()->awaitingDeposit()->count(),
+            'booked' => Booking::query()->onReservationQueue()->depositMet()->count(),
+            'ready_checkin' => Booking::query()
+                ->where('status', BookingStatus::Approved)
+                ->fullyPaid()
+                ->count(),
             'occupied' => Accommodation::query()->where('status', AccommodationStatus::Occupied)->count(),
             'available' => Accommodation::query()->where('status', AccommodationStatus::Available)->count(),
             'pending_incidents' => IncidentReport::query()
@@ -38,7 +47,7 @@ class DashboardController extends Controller
 
         $pendingReservations = Booking::query()
             ->with(['guest.user', 'accommodation'])
-            ->where('status', BookingStatus::Pending)
+            ->onReservationQueue()
             ->latest()
             ->take(10)
             ->get();

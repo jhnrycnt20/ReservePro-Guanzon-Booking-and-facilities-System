@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Guest\StoreBookingRequest;
 use App\Models\Accommodation;
 use App\Models\Booking;
-use App\Models\User;
 use App\Notifications\StaffNewReservationNotification;
 use App\Services\BookingService;
 use App\Services\NotificationService;
@@ -74,14 +73,7 @@ class BookingController extends Controller
             $request->user()
         );
 
-        User::query()
-            ->whereHas('role', fn ($q) => $q->where('slug', 'front_desk'))
-            ->where('is_active', true)
-            ->get()
-            ->each(fn (User $staff) => $this->notificationService->notify(
-                $staff,
-                new StaffNewReservationNotification($booking)
-            ));
+        $this->notificationService->notifyFrontDesk(new StaffNewReservationNotification($booking));
 
         return redirect()->route('guest.bookings.show', $booking);
     }

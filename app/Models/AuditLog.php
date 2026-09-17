@@ -36,4 +36,20 @@ class AuditLog extends Model
     {
         return $this->morphTo();
     }
+
+    public function getLabelAttribute(): string
+    {
+        return match ($this->action) {
+            'payment.recorded' => 'Payment received',
+            'payment.verified' => 'Payment verified',
+            'payment.rejected' => 'Payment rejected',
+            'booking.created' => 'New reservation',
+            'booking.checked_in' => 'Guest checked in',
+            'booking.checked_out' => 'Guest checked out',
+            'booking.approved' => 'Reservation approved',
+            'booking.rejected' => 'Reservation rejected',
+            'booking.cancelled' => 'Reservation cancelled',
+            default => str_replace(['.', '_'], ' ', ucwords((string) $this->action, '._')),
+        };
+    }
 }

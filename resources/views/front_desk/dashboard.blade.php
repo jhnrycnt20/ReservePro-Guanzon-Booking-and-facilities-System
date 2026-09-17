@@ -4,7 +4,7 @@
 @section('theme', 'front_desk')
 @section('role_label', 'Front Desk')
 @section('page_title', 'Front Desk Dashboard')
-@section('page_subtitle', 'Reservations, payments, check-in/out, and guest support')
+@section('page_subtitle', 'Reservations by payment progress — check-in 2:00 PM, check-out 12:00 PM')
 @section('sidebar')
     @include('partials.sidebar-front-desk')
 @endsection
@@ -13,9 +13,9 @@
 <div class="row g-3 mb-4">
     <div class="col-6 col-lg-3"><div class="rp-stat"><div class="label">Today's Check-ins</div><div class="value">{{ $stats['today_checkins'] ?? 0 }}</div></div></div>
     <div class="col-6 col-lg-3"><div class="rp-stat"><div class="label">Today's Check-outs</div><div class="value">{{ $stats['today_checkouts'] ?? 0 }}</div></div></div>
-    <div class="col-6 col-lg-3"><div class="rp-stat"><div class="label">Pending Reservations</div><div class="value">{{ $stats['pending'] ?? 0 }}</div></div></div>
-    <div class="col-6 col-lg-3"><div class="rp-stat"><div class="label">Pending Payments</div><div class="value">{{ $stats['pending_payments'] ?? 0 }}</div></div></div>
-    <div class="col-6 col-lg-3"><div class="rp-stat"><div class="label">Approved</div><div class="value">{{ $stats['approved'] ?? 0 }}</div></div></div>
+    <div class="col-6 col-lg-3"><div class="rp-stat"><div class="label">Reserved (awaiting pay)</div><div class="value">{{ $stats['reserved'] ?? 0 }}</div></div></div>
+    <div class="col-6 col-lg-3"><div class="rp-stat"><div class="label">Booked (50%+)</div><div class="value">{{ $stats['booked'] ?? 0 }}</div></div></div>
+    <div class="col-6 col-lg-3"><div class="rp-stat"><div class="label">Ready for check-in</div><div class="value">{{ $stats['ready_checkin'] ?? 0 }}</div></div></div>
     <div class="col-6 col-lg-3"><div class="rp-stat"><div class="label">Occupied</div><div class="value">{{ $stats['occupied'] ?? 0 }}</div></div></div>
     <div class="col-6 col-lg-3"><div class="rp-stat"><div class="label">Available</div><div class="value">{{ $stats['available'] ?? 0 }}</div></div></div>
     <div class="col-6 col-lg-3"><div class="rp-stat"><div class="label">Pending Incidents</div><div class="value">{{ $stats['pending_incidents'] ?? 0 }}</div></div></div>
@@ -32,7 +32,7 @@
 <div class="row g-3">
     <div class="col-lg-7">
         <div class="rp-card">
-            <h2 class="h5 mb-3">Pending Reservations Queue</h2>
+            <h2 class="h5 mb-3">Reservations (Reserved &amp; Booked)</h2>
             <div class="table-responsive">
                 <table class="table align-middle">
                     <thead><tr><th>Guest</th><th>Room</th><th>Dates</th><th></th></tr></thead>
@@ -42,10 +42,10 @@
                                 <td>{{ $booking->guest_name }}</td>
                                 <td>{{ $booking->accommodation->name ?? '—' }}</td>
                                 <td>{{ $booking->check_in_date->format('M d') }} → {{ $booking->check_out_date->format('M d') }}</td>
-                                <td><a href="{{ route('front_desk.reservations.show', $booking) }}" class="btn btn-sm btn-rp-primary">Review</a></td>
+                                <td><a href="{{ route('front_desk.reservations.show', $booking) }}" class="btn btn-sm btn-rp-primary">View details</a></td>
                             </tr>
                         @empty
-                            <tr><td colspan="4" class="text-muted">No pending reservations.</td></tr>
+                            <tr><td colspan="4" class="text-muted">No open reservations on the queue.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -58,7 +58,7 @@
             <ul class="list-group list-group-flush">
                 @forelse($recentActivities ?? [] as $activity)
                     <li class="list-group-item px-0">
-                        <div class="fw-semibold">{{ $activity->action }}</div>
+                        <div class="fw-semibold">{{ $activity->label }}</div>
                         <div class="small text-muted">{{ $activity->created_at->diffForHumans() }}</div>
                     </li>
                 @empty

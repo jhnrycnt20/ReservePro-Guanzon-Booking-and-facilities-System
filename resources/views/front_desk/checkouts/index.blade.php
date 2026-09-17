@@ -4,25 +4,13 @@
 @section('theme', 'front_desk')
 @section('role_label', 'Front Desk')
 @section('page_title', 'Check-out')
-@section('page_subtitle', 'Checked-in guests ready for departure')
+@section('page_subtitle', 'Shown from 12:00 noon on check-out day — auto check-out when balance is zero')
 @section('sidebar')
     @include('partials.sidebar-front-desk')
 @endsection
 
 @section('content')
 @include('partials.list-filters', [
-    'filters' => [
-        [
-            'name' => 'balance',
-            'label' => 'Balance',
-            'empty' => 'All',
-            'value' => request('balance'),
-            'options' => [
-                'unpaid' => 'Has balance',
-                'paid' => 'Fully paid',
-            ],
-        ],
-    ],
     'dateName' => 'date',
     'dateLabel' => 'Check-out date',
     'searchPlaceholder' => 'Booking #, guest, or room',
@@ -37,8 +25,6 @@
                     <th>Guest</th>
                     <th>Room</th>
                     <th>Check-out</th>
-                    <th>Balance</th>
-                    <th>Status</th>
                     <th></th>
                 </tr>
             </thead>
@@ -48,15 +34,13 @@
                         <td><span class="rp-booking-code" title="{{ $booking->booking_number }}">{{ $booking->short_number }}</span></td>
                         <td>{{ $booking->guest_name }}</td>
                         <td>{{ $booking->accommodation->name ?? '—' }}</td>
-                        <td>{{ $booking->check_out_date?->format('M d, Y') }}</td>
-                        <td>₱{{ number_format($booking->remaining_balance, 2) }}</td>
-                        <td><x-status-badge :status="$booking->status" /></td>
+                        <td>{{ $booking->check_out_date?->format('M d, Y') }} · 12:00 PM</td>
                         <td>
-                            <a href="{{ route('front_desk.checkouts.show', $booking) }}" class="btn btn-sm btn-rp-primary">Check out</a>
+                            <a href="{{ route('front_desk.reservations.show', $booking) }}" class="btn btn-sm btn-rp-primary">View details</a>
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="7" class="text-muted">No checked-in bookings awaiting check-out.</td></tr>
+                    <tr><td colspan="5" class="text-muted">No check-outs due yet (opens 12:00 noon on departure day).</td></tr>
                 @endforelse
             </tbody>
         </table>

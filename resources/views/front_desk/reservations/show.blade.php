@@ -1,10 +1,10 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Review Reservation')
+@section('title', 'Reservation Details')
 @section('theme', 'front_desk')
 @section('role_label', 'Front Desk')
-@section('page_title', 'Review '.$booking->short_number)
-@section('page_subtitle', 'Approve or reject after verifying details and availability')
+@section('page_title', 'Reservation '.$booking->short_number)
+@section('page_subtitle', 'Guest and payment details — no approval needed')
 @section('sidebar')
     @include('partials.sidebar-front-desk')
 @endsection
@@ -12,13 +12,13 @@
 @section('content')
 @php
     $bookingStatus = $booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status;
+    $isReserved = in_array($bookingStatus, ['pending', 'approved'], true) && ! $booking->hasMetDepositRequirement();
 @endphp
 <div class="row g-4">
     <div class="col-lg-8">
         <div class="rp-card">
-            <div class="d-flex justify-content-between mb-3">
+            <div class="mb-3">
                 <h2 class="h5 mb-0">{{ $booking->guest_name }}</h2>
-                <x-status-badge :status="$booking->status" />
             </div>
             <div class="row g-3">
                 <div class="col-md-4"><div class="text-muted small">Contact</div><div>{{ $booking->contact_number }}</div><div>{{ $booking->email }}</div></div>
@@ -34,7 +34,15 @@
                         @endif
                     @endif
                 </div>
-                <div class="col-md-4"><div class="text-muted small">Paid / Balance</div><div>₱{{ number_format($booking->paid_amount, 2) }} / ₱{{ number_format($booking->remaining_balance, 2) }}</div></div>
+                <div class="col-md-4">
+                    <div class="text-muted small">Paid / Balance</div>
+                    <div>₱{{ number_format($booking->paid_amount, 2) }} / ₱{{ number_format($booking->remaining_balance, 2) }}</div>
+                    @if($isReserved)
+                        <div class="small text-muted mt-1">Needs ₱{{ number_format($booking->depositRequiredAmount(), 2) }} (50%) to become Booked; full payment required for check-in (from 2:00 PM).</div>
+                    @elseif($booking->hasMetDepositRequirement() && ! $booking->isFullyPaid())
+                        <div class="small text-muted mt-1">Booked — pay remaining balance for check-in (from 2:00 PM on arrival).</div>
+                    @endif
+                </div>
                 @if($booking->promo_code || ((float) $booking->discount_amount) > 0)
                     <div class="col-md-4">
                         <div class="text-muted small">Promo code</div>
@@ -65,23 +73,7 @@
         <div class="rp-card">
             <h2 class="h5 mb-3">Actions</h2>
             <div class="d-grid gap-2">
-                @if($bookingStatus === 'pending')
-                    <form method="POST" action="{{ route('front_desk.reservations.approve', $booking) }}">
-                        @csrf
-                        <button class="btn btn-success w-100">Approve Reservation</button>
-                    </form>
-                    <form method="POST" action="{{ route('front_desk.reservations.reject', $booking) }}">
-                        @csrf
-                        <textarea name="rejection_reason" class="form-control mb-2" rows="3" placeholder="Rejection reason" required></textarea>
-                        <button class="btn btn-outline-danger w-100">Reject Reservation</button>
-                    </form>
-                @endif
-
-                @if($bookingStatus === 'approved')
-                    <a href="{{ route('front_desk.checkins.show', $booking) }}" class="btn btn-rp-primary w-100">Proceed to Check-in</a>
-                @endif
-
-                @if(in_array($bookingStatus, ['pending', 'approved'], true))
+                @if($isReserved)
                     @can('cancel', $booking)
                         <form method="POST" action="{{ route('front_desk.reservations.cancel', $booking) }}">
                             @csrf
@@ -90,7 +82,7 @@
                     @endcan
                 @endif
 
-                <a href="{{ route('front_desk.reservations.index') }}" class="btn btn-rp-soft w-100">Back to list</a>
+                <a href="{{ $isReserved ? route('front_desk.reservations.index') : route('front_desk.checkins.index') }}" class="btn btn-rp-soft w-100">Back to list</a>
             </div>
         </div>
     </div>

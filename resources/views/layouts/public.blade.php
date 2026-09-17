@@ -15,33 +15,39 @@
 <body class="rp-public">
     <nav class="rp-public-nav">
         <div class="rp-public-nav-inner">
-            <div class="rp-nav-menu-btn">
-                <button type="button" class="rp-nav-hamburger-btn" id="rpNavMenuBtn" aria-label="Menu" aria-expanded="false" aria-controls="rpNavOverlay">
-                    <span class="rp-nav-hamburger">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </span>
-                </button>
-                <img class="rp-nav-logo-img" src="{{ asset('images/guanzon_logoW.png') }}" alt="Guanzon Resort">
+            <div class="rp-nav-row rp-nav-row-top">
+                <div class="rp-nav-menu-btn">
+                    <button type="button" class="rp-nav-hamburger-btn" id="rpNavMenuBtn" aria-label="Menu" aria-expanded="false" aria-controls="rpNavOverlay">
+                        <span class="rp-nav-hamburger">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </span>
+                    </button>
+                    <img class="rp-nav-logo-img" src="{{ asset('images/guanzon_logoW.png') }}" alt="Guanzon Resort">
+                </div>
+                <div class="rp-nav-links rp-nav-links-util">
+                    @unless (request()->routeIs('accommodations.*') || request()->routeIs('guest.bookings.create') || request()->routeIs('login') || request()->routeIs('register'))
+                        <a class="rp-nav-link rp-nav-link-booknow" href="{{ route('accommodations.browse') }}">Book Now</a>
+                    @endunless
+                    @guest
+                        <a class="rp-nav-link" href="{{ route('login') }}">Login</a>
+                    @else
+                        <a class="rp-nav-link" href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
+                        <a class="rp-nav-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rpNavDesktopLogoutForm').submit();">Sign Out</a>
+                        <form id="rpNavDesktopLogoutForm" action="{{ route('logout') }}" method="POST" class="d-none">
+                            @csrf
+                        </form>
+                    @endguest
+                </div>
             </div>
-            <div class="rp-nav-links">
-                <a class="rp-nav-link rp-nav-link-extra" href="{{ url('/') }}">The Resort</a>
-                <a class="rp-nav-link rp-nav-link-extra" href="{{ route('gallery') }}">Gallery</a>
-                <a class="rp-nav-link rp-nav-link-extra" href="{{ route('offers') }}">Offers</a>
-                <a class="rp-nav-link rp-nav-link-extra" href="{{ route('contact') }}">Contact</a>
-                @unless (request()->routeIs('accommodations.*') || request()->routeIs('guest.bookings.create') || request()->routeIs('login') || request()->routeIs('register'))
-                    <a class="rp-nav-link rp-nav-link-booknow" href="{{ route('accommodations.browse') }}">Book Now</a>
-                @endunless
-                @guest
-                    <a class="rp-nav-link" href="{{ route('login') }}">Login</a>
-                @else
-                    <a class="rp-nav-link" href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
-                    <a class="rp-nav-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rpNavDesktopLogoutForm').submit();">Sign Out</a>
-                    <form id="rpNavDesktopLogoutForm" action="{{ route('logout') }}" method="POST" class="d-none">
-                        @csrf
-                    </form>
-                @endguest
+            <div class="rp-nav-row rp-nav-row-main">
+                <div class="rp-nav-links rp-nav-links-main">
+                    <a class="rp-nav-link rp-nav-link-extra" href="{{ url('/') }}">The Resort</a>
+                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('gallery') }}">Gallery</a>
+                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('offers') }}">Offers</a>
+                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('contact') }}">Contact</a>
+                </div>
             </div>
         </div>
     </nav>

@@ -6,7 +6,7 @@ use App\Models\Booking;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
-class StaffNewReservationNotification extends Notification
+class StaffGuestCheckedOutNotification extends Notification
 {
     use Queueable;
 
@@ -21,16 +21,20 @@ class StaffNewReservationNotification extends Notification
 
     public function toArray(object $notifiable): array
     {
-        $num = $this->booking->booking_number;
+        $num = $this->booking->short_number;
 
         return [
-            'title' => 'New reservation',
-            'message' => sprintf('New reservation %s from %s.', $num, $this->booking->guest_name),
-            'type' => 'booking',
+            'title' => 'Guest checked out',
+            'message' => sprintf(
+                '%s checked out from %s (%s).',
+                $this->booking->guest_name,
+                $this->booking->accommodation?->name ?? 'accommodation',
+                $num
+            ),
+            'type' => 'checked_out',
             'id' => $this->booking->id,
-            'number' => $num,
             'booking_id' => $this->booking->id,
-            'booking_number' => $num,
+            'booking_number' => $this->booking->booking_number,
         ];
     }
 }

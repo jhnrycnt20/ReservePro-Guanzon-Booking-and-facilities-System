@@ -704,9 +704,48 @@ body.rp-public {
 
 .rp-public-nav-inner {
     display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: .35rem;
+    padding: .85rem 3vw 1rem;
+}
+
+.rp-nav-row {
+    display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem 3vw;
+    gap: 1rem;
+    width: 100%;
+    min-width: 0;
+}
+
+.rp-nav-row-main {
+    justify-content: center;
+    padding-bottom: .15rem;
+}
+
+.rp-nav-links-util {
+    margin-top: 0;
+    margin-left: 0;
+    gap: 1.35rem;
+}
+
+.rp-nav-links-util .rp-nav-link {
+    font-size: 11px;
+    letter-spacing: 3px;
+}
+
+.rp-nav-links-main {
+    margin-top: 0;
+    margin-left: 0;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: clamp(1rem, 3vw, 2.4rem);
+}
+
+.rp-nav-links-main .rp-nav-link {
+    font-size: 15px;
+    letter-spacing: 6px;
 }
 
 .rp-nav-menu-btn {
@@ -781,8 +820,19 @@ body.rp-public {
 
 @media (max-width: 991.98px) {
     /* Mobile: never show the desktop text nav (The Resort / Gallery / … / Login). */
-    .rp-nav-links {
+    .rp-nav-links,
+    .rp-nav-row-main {
         display: none !important;
+    }
+
+    .rp-public-nav-inner {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .rp-nav-row-top {
+        width: 100%;
     }
 
     .rp-nav-link-extra {
@@ -823,6 +873,7 @@ body.rp-public {
     }
 
     .rp-public-nav.rp-nav-scrolled .rp-nav-links,
+    .rp-public-nav.rp-nav-scrolled .rp-nav-row-main,
     .rp-public-nav.rp-nav-scrolled .rp-nav-link-extra,
     .rp-public-nav.rp-nav-scrolled .rp-nav-logo-img {
         display: none !important;

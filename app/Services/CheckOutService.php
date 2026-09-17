@@ -8,6 +8,7 @@ use App\Models\Booking;
 use App\Models\CheckOut;
 use App\Models\User;
 use App\Notifications\CheckedOutNotification;
+use App\Notifications\StaffGuestCheckedOutNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -86,6 +87,9 @@ class CheckOutService
             if ($booking->guest?->user) {
                 $this->notificationService->notify($booking->guest->user, new CheckedOutNotification($booking));
             }
+
+            $booking->loadMissing('accommodation');
+            $this->notificationService->notifyFrontDesk(new StaffGuestCheckedOutNotification($booking->fresh()));
 
             return $checkOut->fresh(['booking', 'staff']);
         });

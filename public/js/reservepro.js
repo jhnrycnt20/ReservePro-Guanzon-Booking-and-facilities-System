@@ -1089,8 +1089,7 @@ function initAvailabilityCalendar() {
         if (!response.ok) {
             throw new Error('Could not load availability');
         }
-        const data = await response.json();
-        return data.occupied || [];
+        return response.json();
     };
 
     const renderCalendar = () => {
@@ -1192,8 +1191,10 @@ function initAvailabilityCalendar() {
         }
         daysEl.classList.add('is-loading');
         try {
-            const occupied = await fetchOccupied(viewYear, viewMonth);
-            occupied.forEach((date) => occupiedSet.add(date));
+            const data = await fetchOccupied(viewYear, viewMonth);
+            const occupied = data?.occupied || [];
+            const unpaid = data?.unpaid_deposit || [];
+            [...occupied, ...unpaid].forEach((date) => occupiedSet.add(date));
             renderCalendar();
         } catch {
             selectionEl.textContent = 'Unable to load availability. Please try again.';

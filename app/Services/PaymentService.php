@@ -8,6 +8,7 @@ use App\Models\Payment;
 use App\Models\User;
 use App\Notifications\PaymentRecordedNotification;
 use App\Notifications\PaymentVerifiedNotification;
+use App\Notifications\StaffPaymentRecordedNotification;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -119,6 +120,7 @@ class PaymentService
 
             if ($autoVerify) {
                 $this->recalculateBalances($booking);
+                app(FrontDeskAutomationService::class)->syncBooking($booking->fresh(), $processor);
             }
 
             $this->auditService->log('payment.recorded', $payment, null, $payment->toArray(), $processor);
@@ -127,6 +129,13 @@ class PaymentService
                 $this->notificationService->notify(
                     $booking->guest->user,
                     new PaymentRecordedNotification($booking)
+                );
+            }
+
+            if ($autoVerify) {
+                $booking->loadMissing('accommodation');
+                $this->notificationService->notifyFrontDesk(
+                    new StaffPaymentRecordedNotification($booking->fresh(), $amount)
                 );
             }
 
@@ -153,6 +162,7 @@ class PaymentService
             ]);
 
             $this->recalculateBalances($payment->booking);
+            app(FrontDeskAutomationService::class)->syncBooking($payment->booking->fresh(), $verifier);
 
             $this->auditService->log('payment.verified', $payment, $old, $payment->fresh()->toArray(), $verifier);
 
@@ -160,6 +170,13 @@ class PaymentService
                 $this->notificationService->notify(
                     $payment->booking->guest->user,
                     new PaymentVerifiedNotification($payment->booking)
+                );
+            }
+
+            $payment->booking?->loadMissing('accommodation');
+            if ($payment->booking) {
+                $this->notificationService->notifyFrontDesk(
+                    new StaffPaymentRecordedNotification($payment->booking, (float) $payment->amount)
                 );
             }
 

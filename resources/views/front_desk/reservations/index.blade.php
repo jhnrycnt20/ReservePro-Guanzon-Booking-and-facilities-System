@@ -4,7 +4,7 @@
 @section('theme', 'front_desk')
 @section('role_label', 'Front Desk')
 @section('page_title', 'Reservations')
-@section('page_subtitle', 'Review the reservation queue and manage bookings')
+@section('page_subtitle', 'Reserved until 50% paid (Booked) — fully paid stays move to Check-in at 2:00 PM')
 @section('sidebar')
     @include('partials.sidebar-front-desk')
 @endsection
@@ -12,22 +12,13 @@
 @section('content')
 <div class="rp-card mb-3">
     <form method="GET" class="row g-2 align-items-end" data-rp-live-filter>
-        <div class="col-md-4">
-            <label class="form-label">Status</label>
-            <select name="status" class="form-select" data-rp-live-filter-change>
-                <option value="">All</option>
-                @foreach(['pending','approved','rejected','cancelled','checked_in','checked_out'] as $status)
-                    <option value="{{ $status }}" @selected(request('status') === $status)>{{ ucfirst(str_replace('_',' ', $status)) }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div class="col-md-5">
+        <div class="col-md-9">
             <label class="form-label">Search</label>
             <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="e.g. BK-7K2M or guest name" data-rp-live-filter-q autocomplete="off">
         </div>
         <div class="col-md-3 d-flex gap-2">
             <button type="submit" class="btn btn-rp-primary flex-grow-1">Filter</button>
-            @if(request()->filled('q') || request()->filled('status'))
+            @if(request()->filled('q'))
                 <a href="{{ route('front_desk.reservations.index') }}" class="btn btn-rp-soft">Clear</a>
             @endif
         </div>
@@ -44,18 +35,13 @@
                         <td>{{ $booking->guest_name }}</td>
                         <td>{{ $booking->accommodation?->name ?? '—' }}</td>
                         <td>{{ $booking->check_in_date->format('M d') }} → {{ $booking->check_out_date->format('M d') }}</td>
-                        <td><x-status-badge :status="$booking->status" /></td>
+                        <td><x-booking-desk-status :booking="$booking" /></td>
                         <td class="text-end">
-                            <div class="d-inline-flex flex-wrap justify-content-end gap-1">
-                                <a href="{{ route('front_desk.reservations.show', $booking) }}" class="btn btn-sm btn-rp-soft">Review</a>
-                                @if(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status) === 'approved')
-                                    <a href="{{ route('front_desk.checkins.show', $booking) }}" class="btn btn-sm btn-rp-primary">Check in</a>
-                                @endif
-                            </div>
+                            <a href="{{ route('front_desk.reservations.show', $booking) }}" class="btn btn-sm btn-rp-primary">View details</a>
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="6" class="text-muted">No reservations found.</td></tr>
+                    <tr><td colspan="6" class="text-muted">No open reservations — all stays are fully paid or completed.</td></tr>
                 @endforelse
             </tbody>
         </table>

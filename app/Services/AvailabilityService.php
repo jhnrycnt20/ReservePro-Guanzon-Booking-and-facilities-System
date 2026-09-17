@@ -114,4 +114,55 @@ class AvailabilityService
 
         return array_values(array_unique($occupied));
     }
+
+    /**
+     * Dates held by a booking that has not yet met the 50% verified deposit.
+     *
+     * @return list<string>
+     */
+    public function getUnpaidDepositDates(
+        int $accommodationId,
+        CarbonInterface|string $from,
+        CarbonInterface|string $to,
+        PaymentService $paymentService
+    ): array {
+        $fromDate = Carbon::parse($from)->startOfDay();
+        $toDate = Carbon::parse($to)->startOfDay();
+
+        if ($toDate->lt($fromDate)) {
+            return [];
+        }
+
+        $bookings = Booking::query()
+            ->where('accommodation_id', $accommodationId)
+            ->whereIn('status', [
+                BookingStatus::Pending->value,
+                BookingStatus::Approved->value,
+                BookingStatus::CheckedIn->value,
+            ])
+            ->where('check_in_date', '<', $toDate->copy()->addDay()->toDateString())
+            ->where('check_out_date', '>', $fromDate->toDateString())
+            ->with('payments')
+            ->get();
+
+        $unpaid = [];
+
+        foreach ($bookings as $booking) {
+            if ($paymentService->hasVerifiedDeposit($booking)) {
+                continue;
+            }
+
+            $cursor = Carbon::parse($booking->check_in_date)->startOfDay();
+            $end = Carbon::parse($booking->check_out_date)->startOfDay();
+
+            while ($cursor->lt($end) && $cursor->lte($toDate)) {
+                if ($cursor->gte($fromDate)) {
+                    $unpaid[] = $cursor->toDateString();
+                }
+                $cursor->addDay();
+            }
+        }
+
+        return array_values(array_unique($unpaid));
+    }
 }

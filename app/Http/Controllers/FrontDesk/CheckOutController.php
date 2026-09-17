@@ -6,6 +6,7 @@ use App\Enums\BookingStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Services\CheckOutService;
+use App\Services\FrontDeskAutomationService;
 use App\Support\ListFilters;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,15 +14,20 @@ use Illuminate\View\View;
 
 class CheckOutController extends Controller
 {
-    public function __construct(protected CheckOutService $checkOutService)
-    {
+    public function __construct(
+        protected CheckOutService $checkOutService,
+        protected FrontDeskAutomationService $automation,
+    ) {
     }
 
     public function index(Request $request): View
     {
+        $this->automation->runDueActions($request->user());
+
         $query = Booking::query()
             ->with(['guest.user', 'accommodation' => fn ($q) => $q->withTrashed()])
             ->where('status', BookingStatus::CheckedIn)
+            ->checkOutDue()
             ->orderBy('check_out_date');
 
         ListFilters::applyBookingSearch($query, $request->input('q'));

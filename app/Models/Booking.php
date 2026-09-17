@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\BookingStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -126,6 +127,92 @@ class Booking extends Model
     /**
      * Short display code for lists (e.g. BK-7K2M or BK-88166D from older long IDs).
      */
+    public function depositRequiredAmount(): float
+    {
+        return round(((float) $this->total_amount) * 0.5, 2);
+    }
+
+    public function hasMetDepositRequirement(): bool
+    {
+        return ((float) $this->paid_amount) + 0.009 >= $this->depositRequiredAmount();
+    }
+
+    public function scopeAwaitingDeposit(Builder $query): Builder
+    {
+        return $query
+            ->whereIn('status', [BookingStatus::Pending, BookingStatus::Approved])
+            ->whereRaw('(paid_amount + 0.009) < (total_amount * 0.5)');
+    }
+
+    /** Reserved or Booked — not fully paid, not yet checked in. */
+    public function scopeOnReservationQueue(Builder $query): Builder
+    {
+        return $query
+            ->whereIn('status', [BookingStatus::Pending, BookingStatus::Approved])
+            ->where('remaining_balance', '>', 0);
+    }
+
+    public function scopeDepositMet(Builder $query): Builder
+    {
+        return $query->whereRaw('(paid_amount + 0.009) >= (total_amount * 0.5)');
+    }
+
+    public function isFullyPaid(): bool
+    {
+        return ((float) $this->remaining_balance) <= 0.009;
+    }
+
+    public function scopeFullyPaid(Builder $query): Builder
+    {
+        return $query->where('remaining_balance', '<=', 0);
+    }
+
+    public function checkInWindowOpen(): bool
+    {
+        $now = now();
+        $checkInDate = $this->check_in_date->toDateString();
+
+        if ($now->toDateString() < $checkInDate) {
+            return false;
+        }
+
+        if ($now->toDateString() > $checkInDate) {
+            return true;
+        }
+
+        return $now->format('H:i') >= (string) config('resort.check_in_time', '14:00');
+    }
+
+    public function checkOutDue(): bool
+    {
+        $now = now();
+        $checkOutDate = $this->check_out_date->toDateString();
+
+        if ($now->toDateString() < $checkOutDate) {
+            return false;
+        }
+
+        if ($now->toDateString() > $checkOutDate) {
+            return true;
+        }
+
+        return $now->format('H:i') >= (string) config('resort.check_out_time', '12:00');
+    }
+
+    public function scopeCheckOutDue(Builder $query): Builder
+    {
+        $today = today()->toDateString();
+        $checkoutFrom = (string) config('resort.check_out_time', '12:00');
+        $pastCutoffToday = now()->format('H:i') >= $checkoutFrom;
+
+        return $query->where(function (Builder $inner) use ($today, $pastCutoffToday) {
+            $inner->whereDate('check_out_date', '<', $today);
+            if ($pastCutoffToday) {
+                $inner->orWhereDate('check_out_date', $today);
+            }
+        });
+    }
+
     public function getShortNumberAttribute(): string
     {
         $number = (string) $this->booking_number;

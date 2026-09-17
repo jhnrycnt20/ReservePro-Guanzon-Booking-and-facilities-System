@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\FrontDesk;
 
+use App\Enums\BookingStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FrontDesk\RejectBookingRequest;
 use App\Models\Booking;
@@ -19,11 +20,9 @@ class ReservationController extends Controller
 
     public function index(Request $request): View
     {
-        $query = Booking::query()->with(['guest.user', 'accommodation' => fn ($q) => $q->withTrashed()]);
-
-        if ($request->filled('status')) {
-            $query->where('status', $request->input('status'));
-        }
+        $query = Booking::query()
+            ->with(['guest.user', 'accommodation' => fn ($q) => $q->withTrashed()])
+            ->onReservationQueue();
 
         if ($request->filled('q')) {
             ListFilters::applyBookingSearch($query, $request->input('q'));
@@ -34,8 +33,20 @@ class ReservationController extends Controller
         return view('front_desk.reservations.index', compact('bookings'));
     }
 
-    public function show(Booking $booking): View
+    public function show(Booking $booking): View|RedirectResponse
     {
+        if (in_array($booking->status, [BookingStatus::Rejected, BookingStatus::Cancelled], true)) {
+            return redirect()
+                ->route('front_desk.reservations.index')
+                ->with('success', 'This reservation is no longer available.');
+        }
+
+        if ($booking->status === BookingStatus::Approved && $booking->isFullyPaid()) {
+            return redirect()
+                ->route('front_desk.checkins.index')
+                ->with('success', 'This guest is fully paid — see Check-in (from 2:00 PM on arrival).');
+        }
+
         $booking->load(['guest.user', 'accommodation' => fn ($q) => $q->withTrashed(), 'items', 'payments', 'checkIn', 'checkOut', 'promo']);
 
         return view('front_desk.reservations.show', compact('booking'));
@@ -54,7 +65,9 @@ class ReservationController extends Controller
         $this->authorize('reject', $booking);
         $this->bookingService->reject($booking, $request->user(), $request->validated('rejection_reason'));
 
-        return back()->with('success', 'Reservation rejected.');
+        return redirect()
+            ->route('front_desk.reservations.index')
+            ->with('success', 'Reservation rejected and removed from the queue.');
     }
 
     public function cancel(Request $request, Booking $booking): RedirectResponse

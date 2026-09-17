@@ -8,6 +8,7 @@ use App\Models\Booking;
 use App\Models\CheckIn;
 use App\Models\User;
 use App\Notifications\CheckedInNotification;
+use App\Notifications\StaffGuestCheckedInNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -36,10 +37,16 @@ class CheckInService
 
         $booking = $this->paymentService->recalculateBalances($booking);
 
-        if (! $this->paymentService->hasVerifiedDeposit($booking)) {
-            $deposit = number_format($this->paymentService->depositAmount($booking), 2);
+        if (! $booking->isFullyPaid()) {
+            $balance = number_format((float) $booking->remaining_balance, 2);
             throw ValidationException::withMessages([
-                'payment' => "At least a 50% verified deposit (₱{$deposit}) is required before check-in.",
+                'payment' => "Full payment (remaining ₱{$balance}) is required before check-in.",
+            ]);
+        }
+
+        if (! $booking->checkInWindowOpen()) {
+            throw ValidationException::withMessages([
+                'check_in_date' => 'Check-in opens at '.config('resort.check_in_time', '14:00').' on the arrival date.',
             ]);
         }
 
@@ -66,6 +73,9 @@ class CheckInService
             if ($booking->guest?->user) {
                 $this->notificationService->notify($booking->guest->user, new CheckedInNotification($booking));
             }
+
+            $booking->loadMissing('accommodation');
+            $this->notificationService->notifyFrontDesk(new StaffGuestCheckedInNotification($booking->fresh()));
 
             return $checkIn->fresh(['booking', 'staff']);
         });

@@ -20,7 +20,7 @@
             <h2 class="h5 mb-3">How to pay</h2>
             <p class="text-muted small mb-3">
                 Pay a <strong>50% deposit</strong> (or the full balance) via GCash or bank transfer, then upload your proof.
-                Front desk will verify before check-in.
+                Your payment is recorded immediately and counts toward your deposit.
             </p>
             <div class="rp-pay-detail mb-3">
                 <div class="rp-pay-detail-label">GCash</div>

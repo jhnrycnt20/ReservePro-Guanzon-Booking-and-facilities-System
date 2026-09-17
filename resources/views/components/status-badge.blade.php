@@ -1,4 +1,4 @@
-@props(['status'])
+@props(['status', 'label' => null])
 
 @php
     $map = [
@@ -18,6 +18,7 @@
         'closed' => 'badge-status-closed',
         'available' => 'badge-status-approved',
         'reserved' => 'badge-status-pending',
+        'booked' => 'badge-status-approved',
         'occupied' => 'badge-status-checked-in',
         'maintenance' => 'badge-status-rejected',
         'inactive' => 'badge-status-cancelled',
@@ -28,7 +29,7 @@
     ];
     $value = is_object($status) && property_exists($status, 'value') ? $status->value : (string) $status;
     $class = $map[$value] ?? 'badge-status-cancelled';
-    $label = str_replace('_', ' ', ucwords($value, '_'));
+    $displayLabel = $label ?? str_replace('_', ' ', ucwords($value, '_'));
 @endphp
 
-<span {{ $attributes->merge(['class' => 'badge rp-status-badge '.$class]) }}>{{ $label }}</span>
+<span {{ $attributes->merge(['class' => 'badge rp-status-badge '.$class]) }}>{{ $displayLabel }}</span>

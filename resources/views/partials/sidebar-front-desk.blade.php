@@ -15,9 +15,6 @@
     <i class="bi bi-box-arrow-right"></i> Check-out
 </a>
 <div class="nav-section">Operations</div>
-<a href="{{ route('front_desk.payments.index') }}" class="{{ request()->routeIs('front_desk.payments.*') ? 'active' : '' }}">
-    <i class="bi bi-cash-coin"></i> Payments
-</a>
 <a href="{{ route('front_desk.incidents.index') }}" class="{{ request()->routeIs('front_desk.incidents.*') ? 'active' : '' }}">
     <i class="bi bi-clipboard2-pulse"></i> Incident Reports
 </a>
