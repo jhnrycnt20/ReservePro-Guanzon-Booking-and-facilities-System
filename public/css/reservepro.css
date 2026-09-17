@@ -719,26 +719,10 @@ body.rp-public {
     min-width: 0;
 }
 
-.rp-nav-row-main {
-    justify-content: center;
-    padding-bottom: .15rem;
-}
-
-.rp-nav-links-util {
-    margin-top: 0;
-    margin-left: 0;
-    gap: 1.35rem;
-}
-
-.rp-nav-links-util .rp-nav-link {
-    font-size: 11px;
-    letter-spacing: 3px;
-}
-
 .rp-nav-links-main {
     margin-top: 0;
     margin-left: 0;
-    justify-content: center;
+    justify-content: flex-end;
     flex-wrap: wrap;
     gap: clamp(1rem, 3vw, 2.4rem);
 }
@@ -820,8 +804,7 @@ body.rp-public {
 
 @media (max-width: 991.98px) {
     /* Mobile: never show the desktop text nav (The Resort / Gallery / … / Login). */
-    .rp-nav-links,
-    .rp-nav-row-main {
+    .rp-nav-links {
         display: none !important;
     }
 
@@ -831,7 +814,7 @@ body.rp-public {
         justify-content: space-between;
     }
 
-    .rp-nav-row-top {
+    .rp-nav-row-single {
         width: 100%;
     }
 
@@ -873,7 +856,6 @@ body.rp-public {
     }
 
     .rp-public-nav.rp-nav-scrolled .rp-nav-links,
-    .rp-public-nav.rp-nav-scrolled .rp-nav-row-main,
     .rp-public-nav.rp-nav-scrolled .rp-nav-link-extra,
     .rp-public-nav.rp-nav-scrolled .rp-nav-logo-img {
         display: none !important;
@@ -1406,6 +1388,32 @@ a.rp-brand {
     padding-bottom: 0;
 }
 
+#paymentAmount::-webkit-outer-spin-button,
+#paymentAmount::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#paymentAmount {
+    -moz-appearance: textfield;
+}
+
+.rp-quiet-link {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #147A4B;
+    font-family: "Montserrat", var(--rp-font);
+    font-size: .82rem;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.rp-quiet-link:hover {
+    color: #0F6B45;
+}
+
 .rp-promo-apply {
     display: flex;
     gap: 0.5rem;
@@ -1833,6 +1841,19 @@ body.rp-body .container > .row,
     display: block;
 }
 
+.rp-pay-qr-frame {
+    position: relative;
+    display: inline-block;
+}
+
+.rp-pay-qr-frame .rp-view-full-image-btn {
+    top: .5rem;
+    right: .5rem;
+    width: 32px;
+    height: 32px;
+    font-size: .78rem;
+}
+
 .rp-view-full-image-btn {
     position: absolute;
     top: 1rem;
@@ -2179,6 +2200,13 @@ body.rp-body .container > .row,
     color: #111827;
 }
 
+.rp-remaining-balance-amount {
+    font-family: "Inter", "Montserrat", var(--rp-font);
+    font-weight: 700;
+    font-size: 1.75rem;
+    color: #111827;
+}
+
 .rp-payment-mini-meta {
     font-family: "Montserrat", var(--rp-font);
     font-size: .78rem;
@@ -2516,6 +2544,322 @@ body.rp-body .container > .row,
     color: #fff;
 }
 
+.rp-login-modal.modal-content {
+    background: linear-gradient(165deg, rgba(8, 20, 15, .5), rgba(6, 15, 12, .65));
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border: 1px solid rgba(255, 255, 255, .15);
+    border-radius: 28px;
+    overflow: hidden;
+}
+
+body.rp-login-modal-open .modal-backdrop {
+    background: rgba(6, 15, 12, .25);
+}
+
+body.rp-login-modal-open {
+    overflow: hidden;
+}
+
+.rp-page-blur-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1045;
+    pointer-events: none;
+}
+
+body.rp-login-modal-open .rp-page-blur-overlay {
+    display: block;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+.rp-login-modal-close {
+    position: absolute;
+    top: 1.1rem;
+    right: 1.1rem;
+    z-index: 2;
+    filter: brightness(0) invert(1);
+    opacity: .8;
+}
+
+.rp-login-modal-close:hover {
+    opacity: 1;
+}
+
+.rp-login-modal-body {
+    padding: 2.5rem 2rem 2rem;
+}
+
+.rp-login-title {
+    font-family: "Inter", "Montserrat", var(--rp-font);
+    font-weight: 800;
+    font-size: 2rem;
+    color: #fff;
+    margin-bottom: .35rem;
+}
+
+.rp-login-subtitle {
+    font-family: "Montserrat", var(--rp-font);
+    font-size: .88rem;
+    color: rgba(255, 255, 255, .78);
+    margin-bottom: 1.85rem;
+}
+
+.rp-login-field {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.rp-login-field.input-group {
+    display: block;
+    flex-wrap: initial;
+}
+
+.rp-login-field input {
+    width: 100%;
+    background: rgba(255, 255, 255, .12);
+    border: 1px solid rgba(255, 255, 255, .3);
+    border-radius: 999px !important;
+    padding: .85rem 2.75rem .85rem 1.4rem;
+    color: #fff;
+    font-family: "Montserrat", var(--rp-font);
+    font-size: .92rem;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    transition: background .2s ease, border-color .2s ease;
+}
+
+.rp-login-field input::placeholder {
+    color: rgba(255, 255, 255, .6);
+}
+
+.rp-login-field input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, .65);
+    background: rgba(255, 255, 255, .18);
+    box-shadow: none;
+}
+
+.rp-login-field input.is-invalid,
+.rp-login-field textarea.is-invalid {
+    border-color: #ff9b9b;
+}
+
+.rp-login-field--textarea textarea {
+    width: 100%;
+    background: rgba(255, 255, 255, .12);
+    border: 1px solid rgba(255, 255, 255, .3);
+    border-radius: 18px;
+    padding: .85rem 1.4rem;
+    color: #fff;
+    font-family: "Montserrat", var(--rp-font);
+    font-size: .92rem;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    resize: none;
+}
+
+.rp-login-field--textarea textarea::placeholder {
+    color: rgba(255, 255, 255, .6);
+}
+
+.rp-login-field--textarea textarea:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, .65);
+    background: rgba(255, 255, 255, .18);
+    box-shadow: none;
+}
+
+.rp-login-modal .rp-register-pw-checks {
+    color: rgba(255, 255, 255, .6);
+    margin: -.4rem 0 1rem .35rem;
+}
+
+.rp-login-modal .rp-register-pw-checks li.is-met {
+    color: #7fe0a6;
+}
+
+.rp-login-field-icon,
+.rp-login-field-icon-btn {
+    position: absolute;
+    right: 1.15rem;
+    top: 26px;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, .7);
+    background: none;
+    border: none;
+    padding: 0;
+    line-height: 1;
+}
+
+.rp-login-error {
+    display: none;
+    margin-top: .4rem;
+    margin-left: .5rem;
+    font-family: "Montserrat", var(--rp-font);
+    font-size: .78rem;
+    color: #ffb3b3;
+}
+
+.rp-login-error:not(:empty) {
+    display: block;
+}
+
+.rp-login-alert {
+    margin-bottom: 1rem;
+    padding: .6rem 1rem;
+    border-radius: 12px;
+    background: rgba(255, 90, 90, .18);
+    border: 1px solid rgba(255, 120, 120, .4);
+    color: #ffd9d9;
+    font-family: "Montserrat", var(--rp-font);
+    font-size: .85rem;
+}
+
+.rp-login-remember {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    margin: .25rem 0 1.6rem .35rem;
+}
+
+.rp-login-remember input {
+    width: 17px;
+    height: 17px;
+    accent-color: #7fe0a6;
+    cursor: pointer;
+}
+
+.rp-login-remember label {
+    color: rgba(255, 255, 255, .88);
+    font-family: "Montserrat", var(--rp-font);
+    font-size: .85rem;
+    margin: 0;
+    cursor: pointer;
+}
+
+.rp-login-submit {
+    width: 100%;
+    border: none;
+    border-radius: 999px;
+    padding: .9rem;
+    background: linear-gradient(90deg, #7fe0a6, #147A4B);
+    color: #0d1f17;
+    font-family: "Inter", "Montserrat", var(--rp-font);
+    font-weight: 700;
+    font-size: 1rem;
+    box-shadow: 0 10px 26px rgba(20, 122, 75, .4);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.rp-login-submit:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 30px rgba(20, 122, 75, .5);
+}
+
+.rp-login-signup {
+    text-align: center;
+    margin-top: 1.35rem;
+    font-family: "Montserrat", var(--rp-font);
+    font-size: .85rem;
+    color: rgba(255, 255, 255, .82);
+}
+
+.rp-login-signup a {
+    color: #fff;
+    font-weight: 700;
+    text-decoration: underline;
+}
+
+.rp-login-demo {
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, .18);
+}
+
+.rp-login-demo-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 0 0 .6rem;
+    font-family: "Montserrat", var(--rp-font);
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: rgba(255, 255, 255, .7);
+    cursor: pointer;
+}
+
+.rp-login-demo-head-right {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+}
+
+.rp-login-demo-password {
+    background: rgba(255, 255, 255, .14);
+    border-radius: 999px;
+    padding: .15rem .65rem;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.rp-login-demo-chevron {
+    font-size: .85rem;
+    transition: transform .2s ease;
+}
+
+.rp-login-demo-head.collapsed .rp-login-demo-chevron {
+    transform: rotate(-90deg);
+}
+
+.rp-login-demo-list {
+    padding-top: .5rem;
+}
+
+.rp-login-demo-list {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+.rp-login-demo-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    width: 100%;
+    background: rgba(255, 255, 255, .1);
+    border: 1px solid rgba(255, 255, 255, .2);
+    border-radius: 12px;
+    padding: .55rem .85rem;
+    text-align: left;
+    color: #fff;
+    font-family: "Montserrat", var(--rp-font);
+    cursor: pointer;
+    transition: background .2s ease;
+}
+
+.rp-login-demo-btn:hover {
+    background: rgba(255, 255, 255, .18);
+}
+
+.rp-login-demo-role {
+    font-weight: 600;
+    font-size: .82rem;
+}
+
+.rp-login-demo-email {
+    font-size: .74rem;
+    color: rgba(255, 255, 255, .65);
+}
+
 .rp-terms-modal-body {
     max-height: 65vh;
     overflow-y: auto;
@@ -2622,6 +2966,12 @@ body.rp-body .container > .row,
     color: #0F6B45;
     cursor: pointer;
     transition: gap .2s ease, color .2s ease;
+}
+
+.rp-btn-check-availability--inline {
+    width: auto;
+    flex: 0 0 auto;
+    white-space: nowrap;
 }
 
 .rp-btn-check-availability:hover {

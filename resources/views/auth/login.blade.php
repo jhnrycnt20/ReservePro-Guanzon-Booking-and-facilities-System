@@ -24,18 +24,18 @@
                         @endif
                         <div class="mb-3">
                             <label class="form-label" for="email">Email</label>
-                            <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autofocus>
-                            @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            <input id="email" type="email" class="form-control @error('email', 'login') is-invalid @enderror" name="email" value="{{ old('email') }}" required autofocus>
+                            @error('email', 'login')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="password">Password</label>
                             <div class="input-group">
-                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required>
+                                <input id="password" type="password" class="form-control @error('password', 'login') is-invalid @enderror" name="password" required>
                                 <button type="button" class="btn btn-outline-secondary" data-rp-toggle-password aria-label="Show password">
                                     <i class="bi bi-eye"></i>
                                 </button>
                             </div>
-                            @error('password')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                            @error('password', 'login')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                         </div>
                         <div class="mb-3 form-check">
                             <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>

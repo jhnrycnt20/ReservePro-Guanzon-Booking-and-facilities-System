@@ -75,50 +75,9 @@
     </div>
     <div class="col-lg-4">
         <div class="rp-flow-card mb-3">
-            <h3 class="h6">Actions</h3>
-            @if(in_array(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status), ['approved', 'checked_in']) && $booking->remaining_balance > 0)
-                <div class="rp-pay-tip mb-3">
-                    <div class="rp-pay-tip-title">How to pay</div>
-                    <p class="mb-2">
-                        Pay via <strong>GCash</strong>
-                        (<strong>{{ $resortSettings['gcash_number'] ?? '09505584607' }}</strong>).
-                        Tap below to open GCash, then return here to upload your proof.
-                    </p>
-                    <div class="rp-gcash-qr-wrap rp-gcash-qr-wrap--compact mb-2">
-                        <img src="{{ asset('images/gcash-qr.jpg') }}" alt="GCash QR code" class="rp-gcash-qr">
-                    </div>
-                    <button
-                        type="button"
-                        class="rp-avail-btn-primary mb-2"
-                        data-rp-open-gcash
-                        data-gcash-number="{{ $resortSettings['gcash_number'] ?? '09505584607' }}"
-                        data-gcash-amount="{{ number_format(max(0, round(((float) $booking->total_amount) * 0.5, 2)), 2, '.', '') }}"
-                    >
-                        Open GCash to Pay
-                    </button>
-                    <p class="mb-0 small text-muted">
-                        A 50% deposit is enough to start. Payments are applied automatically; check-in runs when your deposit and dates are met.
-                    </p>
-                </div>
-            @endif
             <div class="rp-booking-actions">
-            @if(
-                ! $booking->promo_id
-                && ((float) $booking->paid_amount) <= 0
-                && in_array(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status), ['pending', 'approved'], true)
-            )
-                <form method="POST" action="{{ route('guest.bookings.apply_promo', $booking) }}" class="mb-2">
-                    @csrf
-                    <label class="form-label small mb-1">Have a promo code?</label>
-                    <div class="rp-promo-apply">
-                        <input type="text" name="promo_code" class="form-control text-uppercase @error('promo_code') is-invalid @enderror" placeholder="Enter code" maxlength="32" required>
-                        <button type="submit" class="btn btn-rp-soft">Apply</button>
-                    </div>
-                    @error('promo_code')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                </form>
-            @endif
             @if(in_array(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status), ['approved', 'checked_in']) && $booking->remaining_balance > 0)
-                <a href="{{ route('guest.payments.create', $booking) }}" class="rp-avail-btn-primary">Make Payment</a>
+                <a href="{{ route('guest.payments.create', $booking) }}" class="rp-avail-btn-primary">Proceed to Payment</a>
             @endif
             @if(in_array(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status), ['pending', 'approved']))
                 <form method="POST" action="{{ route('guest.bookings.cancel', $booking) }}">
@@ -154,7 +113,7 @@
                     @endif
                 </div>
             @empty
-                <p class="text-muted small mb-0">No payments recorded yet. Tap Make Payment after sending GCash.</p>
+                <p class="text-muted small mb-0">No payments recorded yet. Tap Proceed to Payment after sending GCash.</p>
             @endforelse
         </div>
     </div>

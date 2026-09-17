@@ -25,8 +25,6 @@
             <div class="rp-contact-lead">
                 <h1 class="rp-contact-heading">Let us know what your ideal Guanzon getaway is like.</h1>
                 <div class="rp-contact-details mt-4">
-                    <p class="mb-1">{{ $resortSettings['resort_name'] ?? 'Guanzon Beach' }}</p>
-                    <p class="mb-1">{{ $resortSettings['resort_subtitle'] ?? 'Bluepool Waterpark' }}</p>
                     <p class="mb-1">{{ $resortSettings['resort_address'] ?? 'Philippines' }}</p>
                     <p class="mb-1"><a href="mailto:{{ $resortSettings['resort_email'] ?? 'info@guanzonresort.com' }}">{{ $resortSettings['resort_email'] ?? 'info@guanzonresort.com' }}</a></p>
                     <p class="mb-0">{{ $resortSettings['resort_phone'] ?? '09190644054' }}</p>

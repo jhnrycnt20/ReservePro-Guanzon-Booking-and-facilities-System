@@ -13,9 +13,10 @@
     @stack('styles')
 </head>
 <body class="rp-public">
+    <div class="rp-page-blur-wrap">
     <nav class="rp-public-nav">
         <div class="rp-public-nav-inner">
-            <div class="rp-nav-row rp-nav-row-top">
+            <div class="rp-nav-row rp-nav-row-single">
                 <div class="rp-nav-menu-btn">
                     <button type="button" class="rp-nav-hamburger-btn" id="rpNavMenuBtn" aria-label="Menu" aria-expanded="false" aria-controls="rpNavOverlay">
                         <span class="rp-nav-hamburger">
@@ -26,12 +27,16 @@
                     </button>
                     <img class="rp-nav-logo-img" src="{{ asset('images/guanzon_logoW.png') }}" alt="Guanzon Resort">
                 </div>
-                <div class="rp-nav-links rp-nav-links-util">
+                <div class="rp-nav-links rp-nav-links-main">
+                    <a class="rp-nav-link rp-nav-link-extra" href="{{ url('/') }}">The Resort</a>
+                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('gallery') }}">Gallery</a>
+                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('offers') }}">Offers</a>
+                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('contact') }}">Contact</a>
                     @unless (request()->routeIs('accommodations.*') || request()->routeIs('guest.bookings.create') || request()->routeIs('login') || request()->routeIs('register'))
                         <a class="rp-nav-link rp-nav-link-booknow" href="{{ route('accommodations.browse') }}">Book Now</a>
                     @endunless
                     @guest
-                        <a class="rp-nav-link" href="{{ route('login') }}">Login</a>
+                        <a class="rp-nav-link" href="{{ route('login') }}" data-bs-toggle="modal" data-bs-target="#rpLoginModal">Login</a>
                     @else
                         <a class="rp-nav-link" href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
                         <a class="rp-nav-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rpNavDesktopLogoutForm').submit();">Sign Out</a>
@@ -39,14 +44,6 @@
                             @csrf
                         </form>
                     @endguest
-                </div>
-            </div>
-            <div class="rp-nav-row rp-nav-row-main">
-                <div class="rp-nav-links rp-nav-links-main">
-                    <a class="rp-nav-link rp-nav-link-extra" href="{{ url('/') }}">The Resort</a>
-                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('gallery') }}">Gallery</a>
-                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('offers') }}">Offers</a>
-                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('contact') }}">Contact</a>
                 </div>
             </div>
         </div>
@@ -70,7 +67,7 @@
                     @csrf
                 </form>
             @else
-                <a href="{{ route('login') }}">Log in</a>
+                <a href="{{ route('login') }}" data-bs-toggle="modal" data-bs-target="#rpLoginModal">Log in</a>
             @endauth
         </nav>
         <div class="rp-nav-overlay-social">
@@ -93,8 +90,6 @@
                 </div>
                 <div class="col-12 col-md-3">
                     <div class="rp-footer-heading">Location</div>
-                    <p class="rp-footer-text mb-0">{{ $resortSettings['resort_name'] ?? 'Guanzon Beach' }}</p>
-                    <p class="rp-footer-text mb-0">{{ $resortSettings['resort_subtitle'] ?? 'Bluepool Waterpark' }}</p>
                     <p class="rp-footer-text">{{ $resortSettings['resort_address'] ?? 'Philippines' }}</p>
                     <a href="mailto:{{ $resortSettings['resort_email'] ?? 'info@guanzonresort.com' }}" class="rp-footer-link-underline">{{ $resortSettings['resort_email'] ?? 'info@guanzonresort.com' }}</a>
                     <p class="rp-footer-phone">{{ $resortSettings['resort_phone'] ?? '09190644054' }}</p>
@@ -142,10 +137,17 @@
             <i class="bi bi-arrow-up"></i>
         </button>
     </footer>
+    </div>
+
+    <div class="rp-page-blur-overlay"></div>
 
     @include('partials.cookie-consent')
     @include('partials.terms-modal')
     @include('partials.confirm-modal')
+    @guest
+        @include('partials.login-modal')
+        @include('partials.register-modal')
+    @endguest
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/reservepro.js') }}?v={{ file_exists(public_path('js/reservepro.js')) ? filemtime(public_path('js/reservepro.js')) : '1' }}"></script>

@@ -24,6 +24,21 @@ class LoginController extends Controller
         return RoleRedirect::dashboardPath();
     }
 
+    protected function validateLogin(Request $request)
+    {
+        $this->validateWithBag('login', $request, [
+            $this->username() => 'required|string',
+            'password' => 'required|string',
+        ]);
+    }
+
+    protected function sendFailedLoginResponse(Request $request)
+    {
+        throw \Illuminate\Validation\ValidationException::withMessages([
+            $this->username() => [trans('auth.failed')],
+        ])->errorBag('login');
+    }
+
     protected function loggedOut(Request $request)
     {
         return redirect()->route('login');

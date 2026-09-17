@@ -31,7 +31,7 @@
                             <input
                                 id="name"
                                 type="text"
-                                class="form-control @error('name') is-invalid @enderror"
+                                class="form-control @error('name', 'register') is-invalid @enderror"
                                 name="name"
                                 value="{{ old('name') }}"
                                 autocomplete="name"
@@ -41,7 +41,7 @@
                                 placeholder="e.g. Juan Dela Cruz"
                             >
                             <div class="invalid-feedback" data-rp-register-feedback="name">
-                                @error('name'){{ $message }}@enderror
+                                @error('name', 'register'){{ $message }}@enderror
                             </div>
                             <div class="form-text" data-rp-register-hint="name">Use your real name (letters only).</div>
                         </div>
@@ -50,7 +50,7 @@
                             <input
                                 id="email"
                                 type="email"
-                                class="form-control @error('email') is-invalid @enderror"
+                                class="form-control @error('email', 'register') is-invalid @enderror"
                                 name="email"
                                 value="{{ old('email') }}"
                                 autocomplete="email"
@@ -59,7 +59,7 @@
                                 placeholder="you@email.com"
                             >
                             <div class="invalid-feedback" data-rp-register-feedback="email">
-                                @error('email'){{ $message }}@enderror
+                                @error('email', 'register'){{ $message }}@enderror
                             </div>
                             <div class="form-text" data-rp-register-hint="email">We’ll use this to sign you in.</div>
                         </div>
@@ -68,7 +68,7 @@
                             <input
                                 id="phone"
                                 type="tel"
-                                class="form-control @error('phone') is-invalid @enderror"
+                                class="form-control @error('phone', 'register') is-invalid @enderror"
                                 name="phone"
                                 value="{{ old('phone') }}"
                                 autocomplete="tel"
@@ -78,7 +78,7 @@
                                 placeholder="09171234567"
                             >
                             <div class="invalid-feedback" data-rp-register-feedback="phone">
-                                @error('phone'){{ $message }}@enderror
+                                @error('phone', 'register'){{ $message }}@enderror
                             </div>
                             <div class="form-text" data-rp-register-hint="phone">PH mobile: 09XXXXXXXXX or +639XXXXXXXXX.</div>
                         </div>
@@ -86,14 +86,14 @@
                             <label class="form-label" for="address">Address (optional)</label>
                             <textarea
                                 id="address"
-                                class="form-control @error('address') is-invalid @enderror"
+                                class="form-control @error('address', 'register') is-invalid @enderror"
                                 name="address"
                                 rows="2"
                                 data-rp-register-field="address"
                                 placeholder="City / province"
                             >{{ old('address') }}</textarea>
                             <div class="invalid-feedback" data-rp-register-feedback="address">
-                                @error('address'){{ $message }}@enderror
+                                @error('address', 'register'){{ $message }}@enderror
                             </div>
                         </div>
                         <div class="mb-3">
@@ -101,14 +101,14 @@
                             <input
                                 id="password"
                                 type="password"
-                                class="form-control @error('password') is-invalid @enderror"
+                                class="form-control @error('password', 'register') is-invalid @enderror"
                                 name="password"
                                 autocomplete="new-password"
                                 required
                                 data-rp-register-field="password"
                             >
                             <div class="invalid-feedback" data-rp-register-feedback="password">
-                                @error('password'){{ $message }}@enderror
+                                @error('password', 'register'){{ $message }}@enderror
                             </div>
                             <ul class="rp-register-pw-checks list-unstyled mb-0 mt-2" data-rp-register-pw-checks aria-live="polite">
                                 <li data-rp-pw-rule="length"><i class="bi bi-circle"></i> At least 8 characters</li>
@@ -122,7 +122,7 @@
                             <input
                                 id="password-confirm"
                                 type="password"
-                                class="form-control @error('password') is-invalid @enderror"
+                                class="form-control @error('password', 'register') is-invalid @enderror"
                                 name="password_confirmation"
                                 autocomplete="new-password"
                                 required

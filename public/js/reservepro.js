@@ -320,6 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const methodSelect = form.querySelector('#paymentMethod');
         const refWrap = form.querySelector('[data-rp-pay-ref-wrap]');
         const proofWrap = form.querySelector('[data-rp-pay-proof-wrap]');
+        const qrWrap = form.querySelector('[data-rp-pay-qr-wrap]');
 
         form.querySelectorAll('[data-rp-pay-amount]').forEach((button) => {
             button.addEventListener('click', () => {
@@ -335,6 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const needsProof = method === 'gcash';
             if (refWrap) refWrap.classList.toggle('d-none', !needsProof && method === 'cash');
             if (proofWrap) proofWrap.classList.toggle('d-none', !needsProof);
+            if (qrWrap) qrWrap.classList.toggle('d-none', !needsProof);
             const refInput = refWrap?.querySelector('input');
             const proofInput = proofWrap?.querySelector('input');
             if (refInput) refInput.required = needsProof;
@@ -432,6 +434,36 @@ document.addEventListener('DOMContentLoaded', () => {
     termsModalEl?.addEventListener('hidden.bs.modal', () => {
         if (termsModalBody) termsModalBody.scrollTop = 0;
     });
+
+    const loginModalEl = document.getElementById('rpLoginModal');
+    const registerModalEl = document.getElementById('rpRegisterModal');
+    const authModals = [loginModalEl, registerModalEl].filter(Boolean);
+    let openAuthModalCount = 0;
+
+    authModals.forEach((modalEl) => {
+        modalEl.addEventListener('show.bs.modal', () => {
+            openAuthModalCount += 1;
+            document.body.classList.add('rp-login-modal-open');
+            authModals.forEach((other) => {
+                if (other !== modalEl && other.classList.contains('show') && window.bootstrap) {
+                    bootstrap.Modal.getInstance(other)?.hide();
+                }
+            });
+        });
+        modalEl.addEventListener('hidden.bs.modal', () => {
+            openAuthModalCount = Math.max(0, openAuthModalCount - 1);
+            if (openAuthModalCount === 0) {
+                document.body.classList.remove('rp-login-modal-open');
+            }
+        });
+    });
+
+    if (loginModalEl?.getAttribute('data-rp-autoshow') === '1' && window.bootstrap) {
+        new bootstrap.Modal(loginModalEl).show();
+    }
+    if (registerModalEl?.getAttribute('data-rp-autoshow') === '1' && window.bootstrap) {
+        new bootstrap.Modal(registerModalEl).show();
+    }
 
     const toastEl = document.getElementById('rpToast');
     if (toastEl && window.bootstrap) {
@@ -945,8 +977,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('[data-demo-email]').forEach((button) => {
         button.addEventListener('click', () => {
-            const emailInput = document.getElementById('email');
-            const demoPasswordInput = document.getElementById('password');
+            const scope = button.closest('.rp-login-modal-body, .rp-auth-card') || document;
+            const emailInput = scope.querySelector('input[type="email"]') || document.getElementById('email');
+            const demoPasswordInput = scope.querySelector('input[type="password"]') || document.getElementById('password');
             if (!emailInput || !demoPasswordInput) return;
 
             emailInput.value = button.dataset.demoEmail || '';
