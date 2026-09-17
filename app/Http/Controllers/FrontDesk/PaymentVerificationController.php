@@ -2,27 +2,20 @@
 
 namespace App\Http\Controllers\FrontDesk;
 
-use App\Enums\PaymentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
-use App\Services\PaymentService;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class PaymentVerificationController extends Controller
 {
-    public function __construct(protected PaymentService $paymentService)
-    {
-    }
-
     public function index(Request $request): View
     {
         $query = Payment::query()
             ->with(['booking.guest.user', 'booking.accommodation', 'processor'])
             ->latest();
 
-        $status = $request->input('status', 'pending');
+        $status = $request->input('status', 'all');
         if ($status && $status !== 'all') {
             $query->where('status', $status);
         }
@@ -50,27 +43,6 @@ class PaymentVerificationController extends Controller
         $payment->load(['booking.guest.user', 'booking.accommodation', 'processor', 'verifier']);
 
         return view('front_desk.payments.show', compact('payment'));
-    }
-
-    public function verify(Request $request, Payment $payment): RedirectResponse
-    {
-        $this->authorize('verify', $payment);
-        $this->paymentService->verifyPayment($payment, $request->user());
-
-        return redirect()
-            ->route('front_desk.payments.show', $payment)
-            ->with('success', 'Payment verified.');
-    }
-
-    public function reject(Request $request, Payment $payment): RedirectResponse
-    {
-        $this->authorize('verify', $payment);
-        $request->validate(['notes' => ['nullable', 'string', 'max:1000']]);
-        $this->paymentService->rejectPayment($payment, $request->user(), $request->input('notes'));
-
-        return redirect()
-            ->route('front_desk.payments.show', $payment)
-            ->with('success', 'Payment rejected.');
     }
 
     public function receipt(Payment $payment): View

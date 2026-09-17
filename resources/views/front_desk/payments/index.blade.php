@@ -15,10 +15,10 @@
         <div class="col-md-3">
             <label class="form-label">Status</label>
             <select name="status" class="form-select" data-rp-live-filter-change>
-                <option value="pending" @selected(($status ?? 'pending') === 'pending')>Pending</option>
+                <option value="pending" @selected(($status ?? '') === 'pending')>Pending</option>
                 <option value="verified" @selected(($status ?? '') === 'verified')>Verified</option>
                 <option value="rejected" @selected(($status ?? '') === 'rejected')>Rejected</option>
-                <option value="all" @selected(($status ?? '') === 'all')>All</option>
+                <option value="all" @selected(($status ?? 'all') === 'all')>All</option>
             </select>
         </div>
         <div class="col-md-6">
@@ -27,7 +27,7 @@
         </div>
         <div class="col-md-3 d-flex gap-2">
             <button type="submit" class="btn btn-rp-primary flex-grow-1">Filter</button>
-            @if(request()->filled('q') || (request()->filled('status') && request('status') !== 'pending'))
+            @if(request()->filled('q') || (request()->filled('status') && request('status') !== 'all'))
                 <a href="{{ route('front_desk.payments.index') }}" class="btn btn-rp-soft">Clear</a>
             @endif
         </div>
@@ -39,19 +39,18 @@
         <table class="table align-middle">
             <thead>
                 <tr>
-                    <th>Ref</th>
-                    <th>Booking</th>
-                    <th>Guest</th>
-                    <th>Amount</th>
-                    <th>Method</th>
-                    <th>Proof</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th></th>
+                    <th>Ref</th><th>Booking</th><th>Guest</th><th>Amount</th><th>Method</th><th>Proof</th><th>Date</th><th>Status</th><th></th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($payments as $payment)
+                    @php
+                        $bookingTotal = (float) ($payment->booking?->total_amount ?? 0);
+                        $bookingPaid = (float) ($payment->booking?->paid_amount ?? 0);
+                        $paymentProgress = $bookingTotal > 0 && $bookingPaid + 0.009 >= $bookingTotal
+                            ? 'fully_paid'
+                            : ($bookingPaid > 0 ? 'partially_paid' : 'unpaid');
+                    @endphp
                     <tr>
                         <td>{{ $payment->reference_number ?? $payment->receipt_number ?? '—' }}</td>
                         <td>{{ $payment->booking->short_number ?? '—' }}</td>
@@ -59,17 +58,11 @@
                         <td>₱{{ number_format($payment->amount, 2) }}</td>
                         <td>{{ str_replace('_', ' ', ucfirst($payment->payment_method instanceof \BackedEnum ? $payment->payment_method->value : $payment->payment_method)) }}</td>
                         <td>
-                            @if($payment->proof_url)
-                                <span class="badge text-bg-success">Yes</span>
-                            @else
-                                <span class="text-muted">No</span>
-                            @endif
+                            @if($payment->proof_url)<span class="badge text-bg-success">Yes</span>@else<span class="text-muted">No</span>@endif
                         </td>
                         <td>{{ $payment->payment_date?->format('M d, Y g:i A') ?? '—' }}</td>
-                        <td><x-status-badge :status="$payment->status" /></td>
-                        <td class="text-nowrap">
-                            <a href="{{ route('front_desk.payments.show', $payment) }}" class="btn btn-sm btn-rp-primary">Details</a>
-                        </td>
+                        <td><x-status-badge :status="$paymentProgress" /></td>
+                        <td class="text-nowrap"><a href="{{ route('front_desk.payments.show', $payment) }}" class="btn btn-sm btn-rp-primary">Details</a></td>
                     </tr>
                 @empty
                     <tr><td colspan="9" class="text-muted">No payments found.</td></tr>

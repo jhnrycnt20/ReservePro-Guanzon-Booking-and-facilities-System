@@ -840,6 +840,7 @@ body.rp-public {
         min-width: 0;
         max-width: 100%;
         gap: .55rem;
+        transform: translateY(3px);
     }
 
     .rp-nav-logo-img {
@@ -847,7 +848,7 @@ body.rp-public {
         max-width: min(120px, 36vw);
         width: auto;
         object-fit: contain;
-        transform: translateY(-4px);
+        transform: translateY(0);
     }
 
     /* When scrolled: only the hamburger remains (no logo, no text links). */

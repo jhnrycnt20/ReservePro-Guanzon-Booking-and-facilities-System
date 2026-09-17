@@ -36,7 +36,7 @@
                         <td>{{ $booking->accommodation->name ?? '—' }}</td>
                         <td>{{ $booking->check_in_date?->format('M d, Y') }} · 2:00 PM</td>
                         <td>
-                            <a href="{{ route('front_desk.reservations.show', $booking) }}" class="btn btn-sm btn-rp-primary">View details</a>
+                            <a href="{{ route('front_desk.checkins.show', $booking) }}" class="btn btn-sm btn-rp-primary">View details</a>
                         </td>
                     </tr>
                 @empty

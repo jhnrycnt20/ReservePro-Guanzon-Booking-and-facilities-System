@@ -144,8 +144,6 @@ Route::middleware(['auth', 'active'])->group(function () {
 
         Route::get('/payments', [PaymentVerificationController::class, 'index'])->name('payments.index');
         Route::get('/payments/{payment}', [PaymentVerificationController::class, 'show'])->name('payments.show');
-        Route::post('/payments/{payment}/verify', [PaymentVerificationController::class, 'verify'])->name('payments.verify');
-        Route::post('/payments/{payment}/reject', [PaymentVerificationController::class, 'reject'])->name('payments.reject');
         Route::get('/payments/{payment}/receipt', [PaymentVerificationController::class, 'receipt'])->name('payments.receipt');
 
         Route::get('/incidents', [IncidentResolutionController::class, 'index'])->name('incidents.index');

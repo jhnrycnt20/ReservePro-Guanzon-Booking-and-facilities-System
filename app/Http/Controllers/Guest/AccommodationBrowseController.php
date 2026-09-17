@@ -88,18 +88,8 @@ class AccommodationBrowseController extends Controller
             $end
         );
 
-        $unpaidDeposit = $this->availabilityService->getUnpaidDepositDates(
-            $accommodation->id,
-            $start,
-            $end,
-            app(\App\Services\PaymentService::class)
-        );
-
-        $blocked = array_values(array_unique(array_merge($occupied, $unpaidDeposit)));
-
         return response()->json([
-            'occupied' => $blocked,
-            'unpaid_deposit' => $unpaidDeposit,
+            'occupied' => $occupied,
             'year' => $start->year,
             'month' => $start->month,
         ]);
