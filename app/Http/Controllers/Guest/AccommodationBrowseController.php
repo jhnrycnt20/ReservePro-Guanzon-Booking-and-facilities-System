@@ -33,7 +33,8 @@ class AccommodationBrowseController extends Controller
 
             $query->where(function ($q) use ($checkIn, $checkOut) {
                 $q->whereDoesntHave('bookings', function ($bookingQuery) use ($checkIn, $checkOut) {
-                    $bookingQuery->whereIn('status', ['pending', 'approved', 'checked_in'])
+                    $bookingQuery->where('paid_amount', '>', 0)
+                        ->whereIn('status', ['pending', 'approved', 'checked_in'])
                         ->where('check_in_date', '<', $checkOut)
                         ->where('check_out_date', '>', $checkIn);
                 });

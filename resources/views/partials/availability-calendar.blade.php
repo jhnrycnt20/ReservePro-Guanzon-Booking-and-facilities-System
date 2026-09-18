@@ -4,7 +4,7 @@
             <div class="modal-header border-0 pb-0">
                 <div>
                     <h2 class="modal-title h5 mb-1" id="rpAvailabilityModalLabel">Select your dates</h2>
-                    <p class="text-muted small mb-0">Red dates are booked or awaiting the 50% deposit. Choose available dates for check-in and check-out.</p>
+                    <p class="text-muted small mb-0">Red dates are already occupied. Choose available dates for check-in and check-out.</p>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>

@@ -218,13 +218,39 @@ html {
     align-items: center;
     gap: 1rem;
     padding: 1.25rem 1.5rem;
-    background: rgba(255,255,255,.72);
+    background: rgba(10, 12, 12, .55);
     backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--rp-border);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,.16);
     position: sticky;
     top: 0;
     z-index: 100;
     overflow: visible;
+}
+
+.rp-topbar .rp-page-title,
+.rp-topbar .rp-page-subtitle,
+.rp-topbar .text-muted,
+.rp-topbar .fw-semibold {
+    color: #fff !important;
+}
+
+.rp-topbar .rp-page-subtitle,
+.rp-topbar .text-muted {
+    opacity: .72;
+}
+
+.rp-topbar .btn-light,
+.rp-topbar .rp-icon-btn {
+    background: rgba(255,255,255,.1);
+    border-color: rgba(255,255,255,.3);
+    color: #fff;
+}
+
+.rp-topbar .btn-light:hover,
+.rp-topbar .rp-icon-btn:hover {
+    background: rgba(255,255,255,.2);
+    color: #fff;
 }
 
 .rp-page-title {
@@ -613,13 +639,16 @@ body.rp-public {
 }
 
 .rp-public-nav {
-    background: linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,0));
+    background: rgba(10, 12, 12, .55);
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     z-index: 1030;
     pointer-events: none;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 8px 24px rgba(0,0,0,.25);
     transition: background .3s ease, box-shadow .3s ease, transform .35s ease;
 }
 
@@ -4466,6 +4495,32 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     background: var(--rp-accent-soft);
     border-color: #86efac;
     color: var(--rp-text);
+}
+
+.rp-availability-day.is-occupied,
+.rp-availability-day.is-occupied.is-check-in,
+.rp-availability-day.is-occupied.is-check-out,
+.rp-availability-day.is-occupied.is-in-range {
+    background: #fecaca;
+    border-color: #ef4444;
+    color: #991b1b;
+    cursor: not-allowed;
+}
+
+.rp-availability-day.is-check-in:hover,
+.rp-availability-day.is-check-out:hover {
+    background: var(--rp-accent);
+    border-color: var(--rp-accent);
+    color: #fff;
+}
+
+.rp-availability-day.is-occupied:hover,
+.rp-availability-day.is-occupied.is-check-in:hover,
+.rp-availability-day.is-occupied.is-check-out:hover,
+.rp-availability-day.is-occupied.is-in-range:hover {
+    background: #fecaca;
+    border-color: #ef4444;
+    color: #991b1b;
 }
 
 @media (max-width: 575.98px) {
