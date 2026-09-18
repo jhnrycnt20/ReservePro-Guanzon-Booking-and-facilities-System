@@ -31,14 +31,28 @@
 
     <div class="rp-booking-list">
         @forelse($bookings as $booking)
-            <a href="{{ route('guest.bookings.show', $booking) }}" class="rp-booking-list-item">
+            @php
+                $paidAmount = (float) $booking->paid_amount;
+                $isUnpaid = $paidAmount <= 0.009;
+                $isPartial = ! $isUnpaid && ((float) $booking->remaining_balance) > 0.009;
+                $paymentLabel = $isUnpaid ? 'Unpaid' : ($isPartial ? 'Partially paid' : 'Paid');
+            @endphp
+            <a href="{{ route('guest.bookings.show', $booking) }}" class="rp-booking-list-item {{ $isUnpaid ? 'is-unpaid' : '' }}">
                 <div class="rp-booking-list-media">
-                    <img src="{{ $booking->accommodation->image_url }}" alt="{{ $booking->accommodation->name }}">
+                    @if($booking->accommodation)
+                        <img src="{{ $booking->accommodation->image_url }}" alt="{{ $booking->accommodation->name }}">
+                    @else
+                        <div class="rp-booking-list-media-icon"><i class="bi bi-house"></i></div>
+                    @endif
                 </div>
                 <div class="rp-booking-list-body">
                     <div class="rp-booking-list-top">
                         <div>
-                            <div class="rp-booking-list-title">{{ $booking->accommodation->name }}</div>
+                            <div class="rp-booking-list-title">{{ $booking->accommodation->name ?? 'Reservation' }}</div>
+                            <div class="rp-booking-list-meta">
+                                <span class="rp-booking-list-code">{{ $booking->short_number }}</span>
+                                <span class="rp-booking-pay-badge {{ $isUnpaid ? 'is-unpaid' : ($isPartial ? 'is-partial' : 'is-paid') }}">{{ $paymentLabel }}</span>
+                            </div>
                             <div class="rp-booking-list-dates">
                                 <div class="rp-booking-list-date-block">
                                     <span class="rp-booking-list-date-label">Check-in</span>

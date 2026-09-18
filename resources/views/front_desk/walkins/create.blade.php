@@ -69,7 +69,7 @@
             </div>
             <div class="col-md-2">
                 <label class="form-label">Children</label>
-                <input type="number" min="0" name="children" class="form-control" value="{{ old('children', 0) }}" data-rp-guest-children required>
+                <input type="number" min="0" name="children" class="form-control" value="{{ old('children', 0) }}" data-rp-guest-children>
             </div>
             <div class="col-md-2">
                 <label class="form-label">Guests</label>

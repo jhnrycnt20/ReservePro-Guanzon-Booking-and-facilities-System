@@ -88,8 +88,8 @@ class PromoController extends Controller
             'applies_to_all' => ['nullable', 'boolean'],
             'accommodation_ids' => ['nullable', 'array'],
             'accommodation_ids.*' => ['integer', 'exists:accommodations,id'],
-            'starts_at' => ['nullable', 'date'],
-            'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
+            'starts_at' => ['nullable', 'date', 'after_or_equal:now'],
+            'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at', 'after_or_equal:now'],
             'usage_limit' => ['nullable', 'integer', 'min:1'],
             'is_active' => ['nullable', 'boolean'],
         ]);
@@ -162,8 +162,25 @@ class PromoController extends Controller
             'applies_to_all' => ['nullable', 'boolean'],
             'accommodation_ids' => ['nullable', 'array'],
             'accommodation_ids.*' => ['integer', 'exists:accommodations,id'],
-            'starts_at' => ['nullable', 'date'],
-            'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
+            'starts_at' => [
+                'nullable',
+                'date',
+                // Allow keeping an existing past start; block setting a new past start.
+                function (string $attribute, mixed $value, \Closure $fail) use ($promo): void {
+                    if (! $value) {
+                        return;
+                    }
+                    $incoming = \Carbon\Carbon::parse($value)->startOfMinute();
+                    $existing = $promo->starts_at?->copy()->startOfMinute();
+                    if ($existing && $incoming->equalTo($existing)) {
+                        return;
+                    }
+                    if ($incoming->lt(now()->startOfMinute())) {
+                        $fail('The start date/time cannot be in the past.');
+                    }
+                },
+            ],
+            'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at', 'after_or_equal:now'],
             'usage_limit' => ['nullable', 'integer', 'min:1'],
             'is_active' => ['nullable', 'boolean'],
         ]);

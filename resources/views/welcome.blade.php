@@ -26,7 +26,7 @@
             <p>Tucked along a quiet stretch of shoreline, Guanzon Resort was built for guests who want the pace of a getaway without giving up comfort. Rooms and cottages sit close enough to the water to catch the breeze, yet far enough from the road to stay peaceful, giving every stay a natural rhythm of rest.</p>
         </div>
         <div class="rp-story-image">
-            <img src="https://images.unsplash.com/photo-1552733407-5d5c46c3bb3b?auto=format&fit=crop&w=1800&q=80" alt="Guanzon Resort shoreline">
+            <img src="{{ asset('images/story-entrance.png') }}" alt="Guanzon Beach entrance">
         </div>
     </div>
 </section>
@@ -41,19 +41,19 @@
                 <div class="rp-plan-slider" id="rpPlanSlider">
                     <div class="rp-plan-track">
                         <div class="rp-plan-card">
-                            <img src="https://images.unsplash.com/photo-1499696010180-025ef6e1a8f9?auto=format&fit=crop&w=700&q=80" alt="Guanzon Resort cottage" draggable="false">
+                            <img src="{{ asset('images/rooms/cottage/01-exterior-front.png') }}" alt="Guanzon Resort cottage" draggable="false">
                             <div class="rp-plan-card-title">Cottage</div>
                         </div>
                         <div class="rp-plan-card rp-plan-card-offset">
-                            <img src="https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=700&q=80" alt="Guanzon Resort pool" draggable="false">
-                            <div class="rp-plan-card-title">Pool</div>
+                            <img src="{{ asset('images/landing-hero.png') }}" alt="Guanzon Resort beach" draggable="false">
+                            <div class="rp-plan-card-title">Beach</div>
                         </div>
                         <div class="rp-plan-card">
-                            <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=700&q=80" alt="Guanzon Resort room" draggable="false">
+                            <img src="{{ asset('images/rooms/suite/07-bedroom-sea-view.png') }}" alt="Guanzon Resort room" draggable="false">
                             <div class="rp-plan-card-title">Room</div>
                         </div>
                         <div class="rp-plan-card rp-plan-card-offset">
-                            <img src="https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=700&q=80" alt="Guanzon Resort dining" draggable="false">
+                            <img src="{{ asset('images/rooms/suite/05-outdoor-dining.png') }}" alt="Guanzon Resort dining" draggable="false">
                             <div class="rp-plan-card-title">Dining</div>
                         </div>
                         <div class="rp-plan-card">
@@ -73,8 +73,22 @@
         <h2 class="rp-cottages-heading">Our Rooms</h2>
         <div class="row g-4 mt-2">
             @forelse($featuredAccommodations ?? [] as $item)
+                @php
+                    $statusValue = $item->status instanceof \BackedEnum ? $item->status->value : (string) $item->status;
+                    $isMaintenance = $statusValue === 'maintenance';
+                @endphp
                 <div class="col-md-4">
-                    <a href="{{ route('accommodations.browse', ['type' => $item->accommodation_type_id]) }}" class="rp-cottage-card">
+                    @if($isMaintenance)
+                        <a
+                            href="{{ route('accommodations.browse', ['type' => $item->accommodation_type_id]) }}"
+                            class="rp-cottage-card rp-cottage-card--blocked"
+                            data-rp-blocked-click="Sorry, this room is under maintenance."
+                            data-rp-blocked-title="Under maintenance"
+                            aria-disabled="true"
+                        >
+                    @else
+                        <a href="{{ route('accommodations.browse', ['type' => $item->accommodation_type_id]) }}" class="rp-cottage-card">
+                    @endif
                         <img src="{{ $item->image_url }}" alt="{{ $item->name }}">
                         <div class="rp-cottage-card-body">
                             <div class="rp-cottage-title">{{ $item->name }}</div>
@@ -89,7 +103,7 @@
                             </div>
                             <div class="rp-cottage-row">
                                 <span>Status</span>
-                                <span>{{ ucfirst($item->status->value ?? $item->status) }}</span>
+                                <span>{{ ucfirst($statusValue) }}</span>
                             </div>
                         </div>
                     </a>
@@ -107,7 +121,7 @@
 </section>
 
 <div class="rp-gallery-banner">
-    <div class="rp-gallery-banner-bg" style="background-image: url('https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=1800&q=80');"></div>
+    <div class="rp-gallery-banner-bg" style="background-image: url('{{ asset('images/landing-hero.png') }}');"></div>
     <img class="rp-gallery-banner-logo" src="{{ asset('images/guanzon_logoW.png') }}" alt="Guanzon Resort">
 </div>
 

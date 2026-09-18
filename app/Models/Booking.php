@@ -144,12 +144,20 @@ class Booking extends Model
             ->whereRaw('(paid_amount + 0.009) < (total_amount * 0.5)');
     }
 
-    /** Reserved or Booked — not fully paid, not yet checked in. */
+    /** Pending/approved reservations (including fully paid awaiting manual check-in). */
     public function scopeOnReservationQueue(Builder $query): Builder
     {
-        return $query
-            ->whereIn('status', [BookingStatus::Pending, BookingStatus::Approved])
-            ->where('remaining_balance', '>', 0);
+        return $query->whereIn('status', [BookingStatus::Pending, BookingStatus::Approved]);
+    }
+
+    /** Front desk Reservations list: open stays through checked-in. */
+    public function scopeFrontDeskReservations(Builder $query): Builder
+    {
+        return $query->whereIn('status', [
+            BookingStatus::Pending,
+            BookingStatus::Approved,
+            BookingStatus::CheckedIn,
+        ]);
     }
 
     public function scopeDepositMet(Builder $query): Builder

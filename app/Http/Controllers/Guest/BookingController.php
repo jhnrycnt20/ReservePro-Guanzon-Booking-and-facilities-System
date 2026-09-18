@@ -11,6 +11,7 @@ use App\Services\BookingService;
 use App\Services\NotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class BookingController extends Controller
@@ -23,9 +24,19 @@ class BookingController extends Controller
 
     public function index(Request $request): View
     {
+        $guestId = $request->user()->guest?->id;
+
+        // Include unpaid (paid_amount = 0) reservations so guests can still open and pay.
         $query = Booking::query()
-            ->with(['accommodation', 'payments'])
-            ->where('guest_id', $request->user()->guest?->id)
+            ->with([
+                'accommodation' => fn ($q) => $q->withTrashed(),
+                'payments',
+            ])
+            ->when(
+                $guestId,
+                fn ($builder) => $builder->where('guest_id', $guestId),
+                fn ($builder) => $builder->whereRaw('0 = 1')
+            )
             ->latest();
 
         if ($request->filled('status')) {
@@ -54,6 +65,16 @@ class BookingController extends Controller
         ]);
 
         $accommodation = Accommodation::query()->with('type')->findOrFail($request->integer('accommodation_id'));
+
+        $status = $accommodation->status instanceof \BackedEnum
+            ? $accommodation->status->value
+            : (string) $accommodation->status;
+
+        if ($status === 'maintenance') {
+            return redirect()
+                ->route('accommodations.browse')
+                ->with('error', 'Sorry, this room is under maintenance.');
+        }
 
         return view('guest.bookings.create', [
             'accommodation' => $accommodation,
@@ -90,13 +111,24 @@ class BookingController extends Controller
     {
         $this->authorize('view', $booking);
 
-        $data = $request->validate([
-            'promo_code' => ['required', 'string', 'max:32'],
-        ]);
+        $promoReturn = rtrim((string) url()->previous(), '#').'#rp-promo-section';
 
-        $this->bookingService->applyPromo($booking, $data['promo_code']);
+        try {
+            $data = $request->validate([
+                'promo_code' => ['required', 'string', 'max:32'],
+            ]);
 
-        return back()->with('success', 'Promo applied. Your balance has been updated.');
+            $this->bookingService->applyPromo($booking, $data['promo_code']);
+        } catch (ValidationException $exception) {
+            return redirect()
+                ->to($promoReturn)
+                ->withInput()
+                ->withErrors($exception->errors());
+        }
+
+        return redirect()
+            ->to($promoReturn)
+            ->with('success', 'Promo applied. Your balance has been updated.');
     }
 
     public function cancel(Request $request, Booking $booking): RedirectResponse

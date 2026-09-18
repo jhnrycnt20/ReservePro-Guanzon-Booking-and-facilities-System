@@ -4,7 +4,7 @@
 @section('theme', 'front_desk')
 @section('role_label', 'Front Desk')
 @section('page_title', 'Check-in')
-@section('page_subtitle', 'Fully paid guests — auto check-in from 2:00 PM on arrival day')
+@section('page_subtitle', 'Fully paid guests ready for manual check-in from 2:00 PM on arrival day')
 @section('sidebar')
     @include('partials.sidebar-front-desk')
 @endsection
@@ -36,7 +36,7 @@
                         <td>{{ $booking->accommodation->name ?? '—' }}</td>
                         <td>{{ $booking->check_in_date?->format('M d, Y') }} · 2:00 PM</td>
                         <td>
-                            <a href="{{ route('front_desk.checkins.show', $booking) }}" class="btn btn-sm btn-rp-primary">View details</a>
+                            <a href="{{ route('front_desk.checkins.show', $booking) }}" class="btn btn-sm btn-rp-primary">View full details</a>
                         </td>
                     </tr>
                 @empty

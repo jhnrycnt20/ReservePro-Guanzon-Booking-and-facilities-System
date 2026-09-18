@@ -85,6 +85,6 @@ class WalkInController extends Controller
         });
 
         return redirect()
-            ->route('front_desk.checkins.show', ['booking' => $booking, 'created' => 1]);
+            ->route('front_desk.reservations.show', ['booking' => $booking, 'created' => 1]);
     }
 }

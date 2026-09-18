@@ -9,4 +9,13 @@ enum AccommodationStatus: string
     case Occupied = 'occupied';
     case Maintenance = 'maintenance';
     case Inactive = 'inactive';
+
+    /** Statuses admins may set manually in forms. */
+    public static function manualValues(): array
+    {
+        return [
+            self::Available->value,
+            self::Maintenance->value,
+        ];
+    }
 }

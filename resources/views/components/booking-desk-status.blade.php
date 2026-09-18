@@ -4,7 +4,10 @@
     $value = $booking->status instanceof \BackedEnum ? $booking->status->value : (string) $booking->status;
     $awaitingStay = in_array($value, ['pending', 'approved'], true);
 
-    if ($awaitingStay && ! $booking->hasMetDepositRequirement()) {
+    if ($awaitingStay && $booking->isFullyPaid()) {
+        $label = 'Ready for check-in';
+        $badgeStatus = 'fully_paid';
+    } elseif ($awaitingStay && ! $booking->hasMetDepositRequirement()) {
         $label = 'Reserved';
         $badgeStatus = 'reserved';
     } elseif ($awaitingStay && $booking->hasMetDepositRequirement()) {

@@ -33,7 +33,11 @@ class DashboardController extends Controller
                 ->where('status', BookingStatus::CheckedIn)
                 ->count(),
             'reserved' => Booking::query()->awaitingDeposit()->count(),
-            'booked' => Booking::query()->onReservationQueue()->depositMet()->count(),
+            'booked' => Booking::query()
+                ->onReservationQueue()
+                ->depositMet()
+                ->where('remaining_balance', '>', 0)
+                ->count(),
             'ready_checkin' => Booking::query()
                 ->where('status', BookingStatus::Approved)
                 ->fullyPaid()
@@ -47,7 +51,7 @@ class DashboardController extends Controller
 
         $pendingReservations = Booking::query()
             ->with(['guest.user', 'accommodation'])
-            ->onReservationQueue()
+            ->frontDeskReservations()
             ->latest()
             ->take(10)
             ->get();

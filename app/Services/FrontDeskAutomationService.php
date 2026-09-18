@@ -11,7 +11,6 @@ use Illuminate\Validation\ValidationException;
 class FrontDeskAutomationService
 {
     public function __construct(
-        protected CheckInService $checkInService,
         protected CheckOutService $checkOutService,
         protected PaymentService $paymentService,
     ) {
@@ -21,12 +20,7 @@ class FrontDeskAutomationService
     {
         $actor = $actor ?? $this->resolveStaffActor();
 
-        Booking::query()
-            ->where('status', BookingStatus::Approved)
-            ->whereDate('check_in_date', '<=', today())
-            ->orderBy('id')
-            ->each(fn (Booking $booking) => $this->tryAutoCheckIn($booking, $actor));
-
+        // Check-in is manual at front desk — only auto check-out remains.
         Booking::query()
             ->where('status', BookingStatus::CheckedIn)
             ->checkOutDue()
@@ -39,41 +33,17 @@ class FrontDeskAutomationService
         $actor = $actor ?? $this->resolveStaffActor();
         $booking = $booking->fresh();
 
-        if ($booking->status === BookingStatus::Approved) {
-            $this->tryAutoCheckIn($booking, $actor);
-        }
-
-        $booking = $booking->fresh();
-
         if ($booking->status === BookingStatus::CheckedIn) {
             $this->tryAutoCheckOut($booking, $actor);
         }
     }
 
+    /**
+     * @deprecated Auto check-in is disabled; front desk checks guests in manually.
+     */
     public function tryAutoCheckIn(Booking $booking, User $staff): void
     {
-        if ($booking->status !== BookingStatus::Approved) {
-            return;
-        }
-
-        if ($booking->check_in_date->toDateString() > today()->toDateString()) {
-            return;
-        }
-
-        $booking = $this->paymentService->recalculateBalances($booking);
-
-        if (! $booking->isFullyPaid() || ! $booking->checkInWindowOpen()) {
-            return;
-        }
-
-        try {
-            $this->checkInService->checkIn($booking, $staff, 'Automatic check-in');
-        } catch (ValidationException $exception) {
-            Log::debug('Auto check-in skipped', [
-                'booking_id' => $booking->id,
-                'messages' => $exception->errors(),
-            ]);
-        }
+        // Intentionally no-op: check-in must be triggered by front desk staff.
     }
 
     public function tryAutoCheckOut(Booking $booking, User $staff): void

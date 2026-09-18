@@ -6,6 +6,8 @@
 @php
     $remaining = (float) $booking->remaining_balance;
     $depositAmount = (float) ($suggestedDeposit ?? min($deposit ?? 0, $remaining));
+    $depositNotMet = ! $booking->hasMetDepositRequirement();
+    $minPayable = $depositNotMet ? $depositAmount : 0.01;
 @endphp
 <div class="container rp-public-page-top pb-4">
     <a href="{{ route('guest.bookings.show', $booking) }}" class="rp-back-link"><i class="bi bi-arrow-left"></i> Back</a>
@@ -30,16 +32,32 @@
                     @endif
                 </div>
 
-                <form method="POST" action="{{ route('guest.payments.store', $booking) }}" enctype="multipart/form-data" data-rp-payment-form>
+                <form method="POST" action="{{ route('guest.payments.store', $booking) }}" enctype="multipart/form-data" data-rp-payment-form data-rp-min-amount="{{ number_format($minPayable, 2, '.', '') }}" data-rp-max-amount="{{ number_format($remaining, 2, '.', '') }}">
                     @csrf
                     <div class="mb-3">
-                        <label class="form-label">Amount</label>
-                        <input type="text" inputmode="decimal" name="amount" id="paymentAmount" class="form-control @error('amount') is-invalid @enderror" value="{{ old('amount', number_format($depositAmount, 2, '.', '')) }}" autocomplete="off" required>
+                        <label class="form-label" for="paymentAmount">Amount</label>
+                        <input
+                            type="text"
+                            inputmode="decimal"
+                            name="amount"
+                            id="paymentAmount"
+                            class="form-control @error('amount') is-invalid @enderror"
+                            value="{{ old('amount', number_format($depositAmount, 2, '.', '')) }}"
+                            autocomplete="off"
+                            required
+                        >
                         <div class="small mt-1">
-                            <button type="button" class="rp-quiet-link" data-rp-pay-amount="{{ number_format($depositAmount, 2, '.', '') }}">Use 50% deposit (₱{{ number_format($depositAmount, 2) }})</button>
-                            &middot;
+                            @if($depositNotMet)
+                                <button type="button" class="rp-quiet-link" data-rp-pay-amount="{{ number_format($depositAmount, 2, '.', '') }}">Use 50% deposit (₱{{ number_format($depositAmount, 2) }})</button>
+                                &middot;
+                            @endif
                             <button type="button" class="rp-quiet-link" data-rp-pay-amount="{{ number_format($remaining, 2, '.', '') }}">Use full amount</button>
                         </div>
+                        @if($depositNotMet)
+                            <div class="form-text">You can type any amount, but it must be at least ₱{{ number_format($depositAmount, 2) }} (50% deposit).</div>
+                        @else
+                            <div class="form-text">Deposit met. You can pay any amount up to the remaining balance.</div>
+                        @endif
                         @error('amount')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     </div>
                     <div class="mb-3">
@@ -73,13 +91,14 @@
                 </form>
 
                 @if(!$booking->promo_code && ((float) $booking->paid_amount) <= 0)
-                    <div class="mt-3 pt-3 border-top">
-                        <button type="button" class="rp-quiet-link" data-bs-toggle="collapse" data-bs-target="#rpPromoCollapse">Have a promo code?</button>
-                        <div class="collapse mt-2" id="rpPromoCollapse">
-                            <form method="POST" action="{{ route('guest.bookings.apply_promo', $booking) }}">
+                    @php $showPromoCollapse = $errors->has('promo_code') || old('promo_code'); @endphp
+                    <div class="mt-3 pt-3 border-top" id="rp-promo-section">
+                        <button type="button" class="rp-quiet-link" data-bs-toggle="collapse" data-bs-target="#rpPromoCollapse" aria-expanded="{{ $showPromoCollapse ? 'true' : 'false' }}">Have a promo code?</button>
+                        <div class="collapse mt-2 {{ $showPromoCollapse ? 'show' : '' }}" id="rpPromoCollapse">
+                            <form method="POST" action="{{ route('guest.bookings.apply_promo', $booking) }}#rp-promo-section">
                                 @csrf
                                 <div class="rp-promo-apply">
-                                    <input type="text" name="promo_code" class="form-control text-uppercase @error('promo_code') is-invalid @enderror" placeholder="Enter code" maxlength="32" required>
+                                    <input type="text" name="promo_code" class="form-control text-uppercase @error('promo_code') is-invalid @enderror" value="{{ old('promo_code') }}" placeholder="Enter code" maxlength="32" required>
                                     <button type="submit" class="rp-btn-check-availability rp-btn-check-availability--inline">Apply</button>
                                 </div>
                                 @error('promo_code')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
@@ -92,6 +111,20 @@
     </div>
 </div>
 
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.location.hash !== '#rp-promo-section') {
+        return;
+    }
+    const section = document.getElementById('rp-promo-section');
+    if (!section) {
+        return;
+    }
+    section.scrollIntoView({ block: 'center', behavior: 'auto' });
+});
+</script>
+@endpush
 <div class="modal fade" id="rpPayQrModal" tabindex="-1" aria-labelledby="rpPayQrModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content rp-pay-qr-modal">

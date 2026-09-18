@@ -64,7 +64,7 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Children</label>
-                        <input type="number" min="0" max="{{ $accommodation->capacity }}" name="children" class="form-control @error('children') is-invalid @enderror" value="{{ old('children', 0) }}" data-rp-guest-children required>
+                        <input type="number" min="0" max="{{ $accommodation->capacity }}" name="children" class="form-control @error('children') is-invalid @enderror" value="{{ old('children', 0) }}" data-rp-guest-children>
                         @error('children')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

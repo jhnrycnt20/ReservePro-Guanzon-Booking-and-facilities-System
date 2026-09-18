@@ -108,6 +108,8 @@
                                 data-capacity="{{ $item->capacity }}"
                                 data-rate="{{ $item->rate }}"
                                 data-status="{{ $statusValue }}"
+                                data-status-locked="{{ $item->isStatusLocked() ? '1' : '0' }}"
+                                data-status-lock-reason="{{ $item->statusLockReason() ?? '' }}"
                                 data-description="{{ $item->description }}"
                                 data-is-active="{{ $item->is_active ? '1' : '0' }}"
                                 data-amenities="{{ implode(',', $amenityIds) }}"
@@ -204,7 +206,7 @@
                         <div class="col-md-6">
                             <label class="form-label">Status</label>
                             <select name="status" class="form-select" required>
-                                @foreach(['available','reserved','occupied','maintenance','inactive'] as $status)
+                                @foreach(\App\Enums\AccommodationStatus::manualValues() as $status)
                                     <option value="{{ $status }}" @selected(old('status', 'available') === $status)>{{ ucfirst($status) }}</option>
                                 @endforeach
                             </select>
@@ -286,10 +288,12 @@
                         <div class="col-md-6">
                             <label class="form-label">Status</label>
                             <select name="status" id="editStatus" class="form-select" required>
-                                @foreach(['available','reserved','occupied','maintenance','inactive'] as $status)
+                                @foreach(\App\Enums\AccommodationStatus::manualValues() as $status)
                                     <option value="{{ $status }}">{{ ucfirst($status) }}</option>
                                 @endforeach
                             </select>
+                            <input type="hidden" name="status" id="editStatusLockedValue" value="" disabled>
+                            <div class="form-text text-warning d-none" id="editStatusLockHint"></div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Image</label>
@@ -365,7 +369,44 @@ document.getElementById('accommodationEditModal')?.addEventListener('show.bs.mod
     document.getElementById('editTypeId').value = button.dataset.typeId || '';
     document.getElementById('editCapacity').value = button.dataset.capacity || '';
     document.getElementById('editRate').value = button.dataset.rate || '';
-    document.getElementById('editStatus').value = button.dataset.status || 'available';
+    const statusSelect = document.getElementById('editStatus');
+    const statusLockedValue = document.getElementById('editStatusLockedValue');
+    const statusLockHint = document.getElementById('editStatusLockHint');
+    const statusLocked = button.dataset.statusLocked === '1';
+    const status = button.dataset.status || 'available';
+    const manualStatuses = new Set(['available', 'maintenance']);
+
+    if (statusLocked) {
+        // Show current operational status; do not allow changing it.
+        let lockedOption = Array.from(statusSelect.options).find((opt) => opt.value === status);
+        if (!lockedOption) {
+            lockedOption = new Option(status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()), status, true, true);
+            statusSelect.add(lockedOption);
+        }
+        statusSelect.value = status;
+        statusSelect.disabled = true;
+        statusSelect.removeAttribute('name');
+        statusSelect.removeAttribute('required');
+        statusLockedValue.disabled = false;
+        statusLockedValue.value = status;
+        statusLockHint.textContent = button.dataset.statusLockReason
+            || 'Status is locked while this room is booked or checked in.';
+        statusLockHint.classList.remove('d-none');
+    } else {
+        Array.from(statusSelect.options).forEach((opt) => {
+            if (!manualStatuses.has(opt.value)) {
+                opt.remove();
+            }
+        });
+        statusSelect.disabled = false;
+        statusSelect.setAttribute('name', 'status');
+        statusSelect.setAttribute('required', 'required');
+        statusSelect.value = manualStatuses.has(status) ? status : 'available';
+        statusLockedValue.disabled = true;
+        statusLockedValue.value = '';
+        statusLockHint.textContent = '';
+        statusLockHint.classList.add('d-none');
+    }
     document.getElementById('editDescription').value = button.dataset.description || '';
     document.getElementById('editIsActive').checked = button.dataset.isActive === '1';
 

@@ -92,6 +92,15 @@
                 <div class="col-12 col-md-3">
                     <div class="rp-footer-heading">Location</div>
                     <p class="rp-footer-text">{{ $resortSettings['resort_address'] ?? 'Philippines' }}</p>
+                    <a
+                        class="rp-directions-link rp-directions-link--footer"
+                        href="https://www.google.com/maps/dir/10.2039552,123.7581824/Guanzon+Beach+Resort,+6037+Langtad+Bridge,+Naga,+Cebu/@10.1789238,123.7298082,18.25z/data=!4m9!4m8!1m1!4e1!1m5!1m1!1s0x33a979114d9401e1:0x43fdbc208201cc90!2m2!1d123.729597!2d10.1789272?entry=ttu&g_ep=EgoyMDI2MDkxNS4wIKXMDSoASAFQAw%3D%3D"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <i class="bi bi-send" aria-hidden="true"></i>
+                        Directions
+                    </a>
                     <a href="mailto:{{ $resortSettings['resort_email'] ?? 'info@guanzonresort.com' }}" class="rp-footer-link-underline">{{ $resortSettings['resort_email'] ?? 'info@guanzonresort.com' }}</a>
                     <p class="rp-footer-phone">{{ $resortSettings['resort_phone'] ?? '09190644054' }}</p>
                 </div>
@@ -145,6 +154,7 @@
     @include('partials.cookie-consent')
     @include('partials.terms-modal')
     @include('partials.confirm-modal')
+    @include('partials.notice-modal')
     @guest
         @include('partials.login-modal')
         @include('partials.register-modal')

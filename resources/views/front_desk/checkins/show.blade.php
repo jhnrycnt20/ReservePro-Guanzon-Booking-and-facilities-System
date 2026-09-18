@@ -11,70 +11,104 @@
 
 @section('content')
 @php
-    $depositNeeded = round(((float) $booking->total_amount) * 0.5, 2);
-    $hasDeposit = ((float) $booking->paid_amount) + 0.009 >= $depositNeeded;
-    $latestPayment = $booking->payments->sortByDesc('created_at')->first();
+    $payment = $booking->payments->sortByDesc('payment_date')->first();
+    $bookingTotal = (float) $booking->total_amount;
+    $bookingPaid = (float) $booking->paid_amount;
+    $remainingBalance = (float) $booking->remaining_balance;
+    $paymentDisplayStatus = $bookingTotal > 0 && $bookingPaid + 0.009 >= $bookingTotal
+        ? 'fully_paid'
+        : ($bookingPaid > 0 ? 'partially_paid' : 'unpaid');
+    $paymentDisplayLabel = match ($paymentDisplayStatus) {
+        'fully_paid' => 'Fully Paid',
+        'partially_paid' => 'Partially Paid',
+        default => 'Unpaid',
+    };
+    $methodLabel = $payment
+        ? str_replace('_', ' ', ucfirst($payment->payment_method instanceof \BackedEnum ? $payment->payment_method->value : $payment->payment_method))
+        : '—';
+    $guestName = $booking->guest_name ?? $booking->guest?->user?->name ?? '—';
+    $bookingCode = $booking->short_number ?? $booking->booking_number;
 @endphp
-@if(request()->boolean('created'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        Thank you for booking with us!
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-@endif
-<a href="{{ route('front_desk.checkins.index') }}" class="rp-back-link mb-3 d-inline-flex"><i class="bi bi-arrow-left"></i> Back to check-ins</a>
+
+<a href="{{ route('front_desk.checkins.index') }}" class="rp-back-link mb-3 d-inline-flex"><i class="bi bi-arrow-left"></i> Back to Check-in</a>
+
 <div class="row g-4">
-    <div class="col-lg-7">
-        <div class="rp-card">
-            <div class="mb-3">
-                <h2 class="h5 mb-0">{{ $booking->guest_name }}</h2>
+    <div class="col-lg-6">
+        <div class="rp-card mb-4">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <h2 class="h5 mb-0">Payment info</h2>
+                <x-status-badge :status="$paymentDisplayStatus" :label="$paymentDisplayLabel" />
             </div>
+            @if($payment)
+                <div class="row g-3">
+                    <div class="col-md-6"><div class="text-muted small">Amount</div><div class="fs-4 fw-semibold">₱{{ number_format($payment->amount, 2) }}</div></div>
+                    <div class="col-md-6"><div class="text-muted small">Method</div><div>{{ $methodLabel }}</div></div>
+                    <div class="col-md-6"><div class="text-muted small">Reference</div><div>{{ $payment->reference_number ?: '—' }}</div></div>
+                    <div class="col-md-6"><div class="text-muted small">Date</div><div>{{ $payment->payment_date?->format('M d, Y g:i A') ?? '—' }}</div></div>
+                    <div class="col-md-6"><div class="text-muted small">Receipt</div><div>{{ $payment->receipt_number ?: '—' }}</div></div>
+                    <div class="col-md-6"><div class="text-muted small">Submitted by</div><div>{{ $payment->processor?->name ?? '—' }}</div></div>
+                    @if($payment->verified_at)
+                        <div class="col-md-6"><div class="text-muted small">Verified / reviewed by</div><div>{{ $payment->verifier?->name ?? '—' }}</div></div>
+                        <div class="col-md-6"><div class="text-muted small">Reviewed at</div><div>{{ $payment->verified_at?->format('M d, Y g:i A') }}</div></div>
+                    @endif
+                </div>
+            @else
+                <div class="text-muted">No payment recorded yet.</div>
+            @endif
+        </div>
+
+        <div class="rp-card mb-4">
+            <h2 class="h5 mb-3">Booking</h2>
             <div class="row g-3">
+                <div class="col-md-6"><div class="text-muted small">Booking ID</div><div>{{ $bookingCode }}</div></div>
+                <div class="col-md-6"><div class="text-muted small">Guest</div><div>{{ $guestName }}</div></div>
+                <div class="col-md-6"><div class="text-muted small">Room</div><div>{{ $booking->accommodation?->name ?? '—' }}</div></div>
+                <div class="col-md-6"><div class="text-muted small">Contact</div><div>{{ $booking->contact_number }} · {{ $booking->email }}</div></div>
+                <div class="col-md-6"><div class="text-muted small">Dates</div><div>{{ $booking->check_in_date?->format('M d, Y') }} → {{ $booking->check_out_date?->format('M d, Y') }}</div></div>
                 <div class="col-md-6">
-                    <div class="text-muted small">Room</div>
-                    <div>{{ $booking->accommodation->name ?? '—' }}</div>
+                    <div class="text-muted small">Booking</div>
+                    <div><span class="text-muted">Total</span> ₱{{ number_format($bookingTotal, 2) }}</div>
+                    <div><span class="text-muted">Paid</span> ₱{{ number_format($bookingPaid, 2) }}</div>
+                    <div><span class="text-muted">Remaining balance</span> ₱{{ number_format($remainingBalance, 2) }}</div>
                 </div>
-                <div class="col-md-6">
-                    <div class="text-muted small">Contact</div>
-                    <div>{{ $booking->contact_number }} · {{ $booking->email }}</div>
-                </div>
-                <div class="col-md-6">
-                    <div class="text-muted small">Stay</div>
-                    <div>{{ $booking->check_in_date?->format('M d, Y') }} → {{ $booking->check_out_date?->format('M d, Y') }}</div>
-                </div>
-                <div class="col-md-6">
-                    <div class="text-muted small">Guests</div>
-                    <div>{{ $booking->number_of_guests }} ({{ $booking->adults }} adults, {{ $booking->children }} children)</div>
-                </div>
-                <div class="col-md-6">
-                    <div class="text-muted small">Total / Paid</div>
-                    <div>₱{{ number_format($booking->total_amount, 2) }} / ₱{{ number_format($booking->paid_amount, 2) }}</div>
-                </div>
-                <div class="col-md-6">
-                    <div class="text-muted small">Payment method</div>
-                    <div>{{ $latestPayment?->payment_method ? str_replace('_', ' ', ucfirst($latestPayment->payment_method instanceof \BackedEnum ? $latestPayment->payment_method->value : $latestPayment->payment_method)) : '—' }}</div>
-                </div>
-                <div class="col-md-6">
-                    <div class="text-muted small">Remaining balance</div>
-                    <div class="fw-semibold">₱{{ number_format($booking->remaining_balance, 2) }}</div>
-                </div>
-                <div class="col-12">
-                    <div class="text-muted small">Deposit requirement (50%)</div>
-                    <div>
-                        ₱{{ number_format($depositNeeded, 2) }}
-                        @if($hasDeposit)
-                            <span class="badge text-bg-success ms-1">Met</span>
-                        @else
-                            <span class="badge text-bg-warning ms-1">Not yet verified</span>
-                        @endif
-                    </div>
-                </div>
+                <div class="col-md-6"><div class="text-muted small">Guests</div><div>{{ $booking->number_of_guests }} / {{ $booking->accommodation?->capacity ?? '—' }} max</div></div>
+                @if($booking->special_requests)
+                    <div class="col-12"><div class="text-muted small">Special requests</div><div>{{ $booking->special_requests }}</div></div>
+                @endif
             </div>
-            @if($booking->special_requests)
-                <hr>
-                <div class="text-muted small">Special requests</div>
-                <p class="mb-0">{{ $booking->special_requests }}</p>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="rp-card">
+            <h2 class="h5 mb-3">Payment screenshot / proof</h2>
+            @if($payment?->proof_url)
+                <button type="button" class="rp-payment-proof-link border-0 bg-transparent p-0 w-100 text-start" data-bs-toggle="modal" data-bs-target="#rpCheckInProofModal" aria-label="View payment proof">
+                    <img src="{{ $payment->proof_url }}" alt="Payment proof screenshot" class="rp-payment-proof-img">
+                </button>
+            @elseif($payment)
+                <div class="alert alert-warning mb-0">No screenshot was uploaded for this payment.</div>
+            @else
+                <div class="alert alert-secondary mb-0">No payment proof yet.</div>
             @endif
         </div>
     </div>
 </div>
+
+@if($payment?->proof_url)
+<div class="modal fade" id="rpCheckInProofModal" tabindex="-1" aria-labelledby="rpCheckInProofModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h2 class="modal-title h5" id="rpCheckInProofModalLabel">Payment screenshot</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-3">
+                <img src="{{ $payment->proof_url }}" alt="Payment proof screenshot" class="rp-payment-proof-modal-img">
+                <div class="small text-muted mt-3 mb-0">Ref: {{ $payment->reference_number ?: '—' }} · ₱{{ number_format($payment->amount, 2) }} · {{ $methodLabel }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 @endsection

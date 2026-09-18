@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Guest;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Guest\StorePaymentRequest;
+use App\Enums\PaymentStatus;
 use App\Models\Booking;
 use App\Models\Payment;
 use App\Services\PaymentService;
@@ -75,5 +76,20 @@ class PaymentController extends Controller
         return redirect()
             ->route('guest.bookings.show', $booking)
             ->with('success', 'Payment recorded. Your balance has been updated.');
+    }
+
+    public function receipt(Payment $payment): View
+    {
+        $this->authorize('view', $payment);
+
+        $status = $payment->status instanceof PaymentStatus
+            ? $payment->status
+            : PaymentStatus::tryFrom((string) $payment->status);
+
+        abort_unless($status === PaymentStatus::Verified, 404);
+
+        $payment->load(['booking.guest.user', 'booking.accommodation', 'verifier']);
+
+        return view('guest.payments.receipt', compact('payment'));
     }
 }

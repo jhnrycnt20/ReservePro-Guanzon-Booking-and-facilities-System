@@ -4,7 +4,7 @@
 @section('theme', 'front_desk')
 @section('role_label', 'Front Desk')
 @section('page_title', 'Reservations')
-@section('page_subtitle', 'Reserved until 50% paid (Booked) — fully paid stays move to Check-in at 2:00 PM')
+@section('page_subtitle', 'Reserved / Booked / Ready for check-in — check in fully paid guests manually')
 @section('sidebar')
     @include('partials.sidebar-front-desk')
 @endsection

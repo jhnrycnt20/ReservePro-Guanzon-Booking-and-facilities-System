@@ -111,6 +111,7 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('/payments', [GuestPaymentController::class, 'index'])->name('payments.index');
         Route::get('/payments/create/{booking}', [GuestPaymentController::class, 'create'])->name('payments.create');
         Route::post('/payments/{booking}', [GuestPaymentController::class, 'store'])->name('payments.store');
+        Route::get('/payments/{payment}/receipt', [GuestPaymentController::class, 'receipt'])->name('payments.receipt');
 
         Route::get('/incidents', [GuestIncidentReportController::class, 'index'])->name('incidents.index');
         Route::get('/incidents/create', [GuestIncidentReportController::class, 'create'])->name('incidents.create');

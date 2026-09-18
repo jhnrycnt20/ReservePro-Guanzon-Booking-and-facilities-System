@@ -22,7 +22,7 @@ class ReservationController extends Controller
     {
         $query = Booking::query()
             ->with(['guest.user', 'accommodation' => fn ($q) => $q->withTrashed()])
-            ->onReservationQueue();
+            ->frontDeskReservations();
 
         if ($request->filled('q')) {
             ListFilters::applyBookingSearch($query, $request->input('q'));
@@ -41,13 +41,22 @@ class ReservationController extends Controller
                 ->with('success', 'This reservation is no longer available.');
         }
 
-        if ($booking->status === BookingStatus::Approved && $booking->isFullyPaid()) {
+        if ($booking->status === BookingStatus::CheckedOut) {
             return redirect()
-                ->route('front_desk.checkins.index')
-                ->with('success', 'This guest is fully paid — see Check-in (from 2:00 PM on arrival).');
+                ->route('front_desk.reservations.index')
+                ->with('success', 'This stay is already checked out.');
         }
 
-        $booking->load(['guest.user', 'accommodation' => fn ($q) => $q->withTrashed(), 'items', 'payments', 'checkIn', 'checkOut', 'promo']);
+        $booking->load([
+            'guest.user',
+            'accommodation' => fn ($q) => $q->withTrashed(),
+            'items',
+            'payments.processor',
+            'payments.verifier',
+            'checkIn',
+            'checkOut',
+            'promo',
+        ]);
 
         return view('front_desk.reservations.show', compact('booking'));
     }

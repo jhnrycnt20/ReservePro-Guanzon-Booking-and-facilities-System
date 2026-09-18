@@ -81,16 +81,26 @@ class AccommodationController extends Controller
 
     public function update(Request $request, Accommodation $accommodation): RedirectResponse
     {
-        $data = $this->validated($request, $accommodation->id);
+        $statusLocked = $accommodation->isStatusLocked();
+        $data = $this->validated($request, $accommodation->id, $statusLocked);
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('accommodations', 'public');
         }
         $data['is_active'] = $request->boolean('is_active', true);
 
+        if ($statusLocked) {
+            // Keep system-managed status while booked or checked in.
+            unset($data['status']);
+        }
+
         $accommodation->update(collect($data)->except('amenities')->all());
         $accommodation->amenities()->sync($request->input('amenities', []));
 
-        return redirect()->route('admin.accommodations.index')->with('success', 'Accommodation updated.');
+        $message = $statusLocked
+            ? 'Accommodation updated. Status was not changed because this room is booked or checked in.'
+            : 'Accommodation updated.';
+
+        return redirect()->route('admin.accommodations.index')->with('success', $message);
     }
 
     public function destroy(Accommodation $accommodation): RedirectResponse
@@ -100,7 +110,7 @@ class AccommodationController extends Controller
         return back()->with('success', 'Accommodation deleted.');
     }
 
-    protected function validated(Request $request, ?int $id = null): array
+    protected function validated(Request $request, ?int $id = null, bool $statusLocked = false): array
     {
         return $request->validate([
             'accommodation_type_id' => ['required', 'exists:accommodation_types,id'],
@@ -109,7 +119,9 @@ class AccommodationController extends Controller
             'description' => ['nullable', 'string'],
             'capacity' => ['required', 'integer', 'min:1'],
             'rate' => ['required', 'numeric', 'min:0'],
-            'status' => ['required', 'in:available,reserved,occupied,maintenance,inactive'],
+            'status' => $statusLocked
+                ? ['nullable', 'string']
+                : ['required', 'in:'.implode(',', \App\Enums\AccommodationStatus::manualValues())],
             'image' => ['nullable', 'image', 'max:5120'],
             'amenities' => ['nullable', 'array'],
             'amenities.*' => ['exists:amenities,id'],

@@ -43,7 +43,7 @@
                     <div class="col-md-6">
                         <label class="form-label">Status</label>
                         <select name="status" class="form-select" required>
-                            @foreach(['available','reserved','occupied','maintenance','inactive'] as $status)
+                            @foreach(\App\Enums\AccommodationStatus::manualValues() as $status)
                                 <option value="{{ $status }}" @selected(old('status', 'available') === $status)>{{ ucfirst($status) }}</option>
                             @endforeach
                         </select>

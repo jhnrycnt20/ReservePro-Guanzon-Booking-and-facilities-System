@@ -58,12 +58,25 @@
                         <button type="button" class="btn btn-rp-soft w-100" id="rpGeneratePromoCode" data-generate-url="{{ route('admin.promos.create') }}">Regenerate</button>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label" for="startsAt">Starts (optional)</label>
-                        <input type="datetime-local" name="starts_at" id="startsAt" class="form-control" value="{{ old('starts_at') }}">
+                        <label class="form-label" for="startsAtDisplay">Starts (optional)</label>
+                        <div class="rp-promo-dt-field" data-rp-promo-dt-field data-rp-promo-dt-role="start">
+                            <input type="hidden" name="starts_at" id="startsAt" value="{{ old('starts_at') }}" data-rp-promo-dt-value>
+                            <button type="button" class="form-control text-start rp-promo-dt-trigger" id="startsAtDisplay" data-rp-promo-dt-open>
+                                <span data-rp-promo-dt-label>{{ old('starts_at') ? \Carbon\Carbon::parse(old('starts_at'))->format('m/d/Y g:i A') : 'Select start date & time' }}</span>
+                                <i class="bi bi-calendar3" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        <div class="form-text">Past dates and times cannot be selected.</div>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label" for="endsAt">Ends (optional)</label>
-                        <input type="datetime-local" name="ends_at" id="endsAt" class="form-control" value="{{ old('ends_at') }}">
+                        <label class="form-label" for="endsAtDisplay">Ends (optional)</label>
+                        <div class="rp-promo-dt-field" data-rp-promo-dt-field data-rp-promo-dt-role="end">
+                            <input type="hidden" name="ends_at" id="endsAt" value="{{ old('ends_at') }}" data-rp-promo-dt-value>
+                            <button type="button" class="form-control text-start rp-promo-dt-trigger" id="endsAtDisplay" data-rp-promo-dt-open>
+                                <span data-rp-promo-dt-label>{{ old('ends_at') ? \Carbon\Carbon::parse(old('ends_at'))->format('m/d/Y g:i A') : 'Select end date & time' }}</span>
+                                <i class="bi bi-calendar3" aria-hidden="true"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label" for="usageLimit">Usage limit (optional)</label>
@@ -80,7 +93,7 @@
         </div>
 
         <div class="col-lg-5">
-            <div class="rp-card sticky-top" style="top: 1rem;">
+            <div class="rp-card rp-sticky-under-topbar">
                 <h2 class="h5 mb-3">3. Promo percentage & price preview</h2>
                 <div class="mb-3">
                     <label class="form-label" for="discountPercent">Promo percentage</label>
@@ -100,6 +113,8 @@
         </div>
     </div>
 </form>
+
+@include('partials.promo-datetime-modal')
 @endsection
 
 @push('scripts')

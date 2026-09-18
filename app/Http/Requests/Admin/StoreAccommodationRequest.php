@@ -22,7 +22,7 @@ class StoreAccommodationRequest extends FormRequest
             'description' => ['nullable', 'string'],
             'capacity' => ['required', 'integer', 'min:1'],
             'rate' => ['required', 'numeric', 'min:0'],
-            'status' => ['nullable', Rule::enum(AccommodationStatus::class)],
+            'status' => ['nullable', Rule::in(AccommodationStatus::manualValues())],
             'image' => ['nullable', 'image', 'max:5120'],
             'is_active' => ['nullable', 'boolean'],
             'amenity_ids' => ['nullable', 'array'],

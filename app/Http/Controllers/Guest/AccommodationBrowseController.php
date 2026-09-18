@@ -8,6 +8,7 @@ use App\Models\AccommodationType;
 use App\Services\AvailabilityService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -47,8 +48,24 @@ class AccommodationBrowseController extends Controller
         return view('accommodations.browse', compact('accommodations', 'types'));
     }
 
-    public function show(Request $request, Accommodation $accommodation): View
+    public function show(Request $request, Accommodation $accommodation): View|RedirectResponse
     {
+        $status = $accommodation->status instanceof \BackedEnum
+            ? $accommodation->status->value
+            : (string) $accommodation->status;
+
+        if ($status === 'maintenance') {
+            return redirect()
+                ->route('accommodations.browse')
+                ->with('error', 'Sorry, this room is under maintenance.');
+        }
+
+        if ($status === 'inactive' || ! $accommodation->is_active) {
+            return redirect()
+                ->route('accommodations.browse')
+                ->with('error', 'Sorry, this room is currently unavailable.');
+        }
+
         $accommodation->load(['type', 'amenities', 'pricing']);
 
         $available = null;

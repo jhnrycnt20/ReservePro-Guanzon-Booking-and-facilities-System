@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\AccommodationStatus;
+use App\Enums\BookingStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -58,6 +59,47 @@ class Accommodation extends Model
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);
+    }
+
+    /**
+     * True when an active reservation or check-in owns this room.
+     * Admin must not override status while the room is in use.
+     */
+    public function isStatusLocked(): bool
+    {
+        $status = $this->status instanceof AccommodationStatus
+            ? $this->status
+            : AccommodationStatus::tryFrom((string) $this->status);
+
+        if (in_array($status, [AccommodationStatus::Reserved, AccommodationStatus::Occupied], true)) {
+            return true;
+        }
+
+        return $this->bookings()
+            ->whereIn('status', [
+                BookingStatus::Pending,
+                BookingStatus::Approved,
+                BookingStatus::CheckedIn,
+            ])
+            ->exists();
+    }
+
+    public function statusLockReason(): ?string
+    {
+        if (! $this->isStatusLocked()) {
+            return null;
+        }
+
+        $status = $this->status instanceof AccommodationStatus
+            ? $this->status
+            : AccommodationStatus::tryFrom((string) $this->status);
+
+        if ($status === AccommodationStatus::Occupied
+            || $this->bookings()->where('status', BookingStatus::CheckedIn)->exists()) {
+            return 'Status is locked while a guest is checked in.';
+        }
+
+        return 'Status is locked while this room has an active booking.';
     }
 
     public function promos(): BelongsToMany

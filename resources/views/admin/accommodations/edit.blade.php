@@ -43,12 +43,28 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Status</label>
-                        <select name="status" class="form-select" required>
-                            @foreach(['available','reserved','occupied','maintenance','inactive'] as $status)
-                                @php $current = $accommodation->status instanceof \BackedEnum ? $accommodation->status->value : $accommodation->status; @endphp
-                                <option value="{{ $status }}" @selected(old('status', $current) === $status)>{{ ucfirst($status) }}</option>
-                            @endforeach
-                        </select>
+                        @php
+                            $statusLocked = $accommodation->isStatusLocked();
+                            $current = $accommodation->status instanceof \BackedEnum
+                                ? $accommodation->status->value
+                                : (string) $accommodation->status;
+                        @endphp
+                        @if($statusLocked)
+                            <input type="text" class="form-control" value="{{ ucfirst(str_replace('_', ' ', $current)) }}" disabled>
+                            <div class="form-text text-warning">{{ $accommodation->statusLockReason() }}</div>
+                        @else
+                            <select name="status" class="form-select" required>
+                                @php
+                                    $selected = old('status', $current);
+                                    if (! in_array($selected, \App\Enums\AccommodationStatus::manualValues(), true)) {
+                                        $selected = \App\Enums\AccommodationStatus::Available->value;
+                                    }
+                                @endphp
+                                @foreach(\App\Enums\AccommodationStatus::manualValues() as $status)
+                                    <option value="{{ $status }}" @selected($selected === $status)>{{ ucfirst($status) }}</option>
+                                @endforeach
+                            </select>
+                        @endif
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Image</label>

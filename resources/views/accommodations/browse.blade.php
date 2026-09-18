@@ -14,6 +14,12 @@
     <i class="bi bi-arrow-left"></i> Back
 </a>
 
+@if(session('error'))
+    <div class="alert alert-warning border-0 shadow-sm mb-3" role="alert" data-rp-auto-dismiss>
+        {{ session('error') }}
+    </div>
+@endif
+
 <div class="rp-card mb-4">
     <form method="GET" action="{{ route('accommodations.browse') }}" class="row g-3 align-items-end" data-rp-availability-form>
         <div class="col-md-3">
@@ -51,8 +57,27 @@
 
 <div class="row g-4">
     @forelse($accommodations ?? [] as $item)
+        @php
+            $statusValue = $item->status instanceof \BackedEnum ? $item->status->value : (string) $item->status;
+            $isMaintenance = $statusValue === 'maintenance';
+            $showUrl = route('accommodations.show', array_filter([
+                'accommodation' => $item->id,
+                'check_in' => request('check_in'),
+                'check_out' => request('check_out'),
+            ]));
+        @endphp
         <div class="col-md-4">
-            <a href="{{ route('accommodations.show', array_filter(['accommodation' => $item->id, 'check_in' => request('check_in'), 'check_out' => request('check_out')])) }}" class="rp-cottage-card">
+            @if($isMaintenance)
+                <a
+                    href="{{ $showUrl }}"
+                    class="rp-cottage-card rp-cottage-card--blocked"
+                    data-rp-blocked-click="Sorry, this room is under maintenance."
+                    data-rp-blocked-title="Under maintenance"
+                    aria-disabled="true"
+                >
+            @else
+                <a href="{{ $showUrl }}" class="rp-cottage-card">
+            @endif
                 <img src="{{ $item->image_url }}" alt="{{ $item->name }}">
                 <div class="rp-cottage-card-body">
                     <div class="rp-cottage-title">{{ $item->name }}</div>
@@ -70,7 +95,7 @@
                     </div>
                     <div class="rp-cottage-row">
                         <span>Status</span>
-                        <span>{{ ucfirst($item->status->value ?? $item->status) }}</span>
+                        <span>{{ ucfirst($statusValue) }}</span>
                     </div>
                 </div>
             </a>

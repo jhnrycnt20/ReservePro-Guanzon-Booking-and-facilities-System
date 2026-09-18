@@ -321,6 +321,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const refWrap = form.querySelector('[data-rp-pay-ref-wrap]');
         const proofWrap = form.querySelector('[data-rp-pay-proof-wrap]');
         const qrWrap = form.querySelector('[data-rp-pay-qr-wrap]');
+        const minAmount = Number(form.dataset.rpMinAmount || 0);
+        const maxAmount = Number(form.dataset.rpMaxAmount || 0);
 
         form.querySelectorAll('[data-rp-pay-amount]').forEach((button) => {
             button.addEventListener('click', () => {
@@ -332,7 +334,46 @@ document.addEventListener('DOMContentLoaded', () => {
                     amountInput.dispatchEvent(new Event('input', { bubbles: true }));
                     amountInput.dispatchEvent(new Event('change', { bubbles: true }));
                 }
+
+                form.querySelectorAll('[data-rp-pay-amount]').forEach((choice) => {
+                    choice.classList.toggle('is-selected', choice === button);
+                });
+
+                document.querySelectorAll('[data-rp-open-gcash]').forEach((gcashButton) => {
+                    gcashButton.dataset.gcashAmount = button.dataset.rpPayAmount || '';
+                });
             });
+        });
+
+        form.addEventListener('submit', (event) => {
+            if (!amountInput) {
+                return;
+            }
+
+            const amount = Number(String(amountInput.value || '').replace(/,/g, ''));
+            if (!Number.isFinite(amount)) {
+                return;
+            }
+
+            if (minAmount > 0 && amount + 0.009 < minAmount) {
+                event.preventDefault();
+                amountInput.setCustomValidity(`Minimum payment is ₱${minAmount.toFixed(2)} (50% deposit).`);
+                amountInput.reportValidity();
+                return;
+            }
+
+            if (maxAmount > 0 && amount - 0.009 > maxAmount) {
+                event.preventDefault();
+                amountInput.setCustomValidity(`Amount cannot exceed ₱${maxAmount.toFixed(2)}.`);
+                amountInput.reportValidity();
+                return;
+            }
+
+            amountInput.setCustomValidity('');
+        });
+
+        amountInput?.addEventListener('input', () => {
+            amountInput.setCustomValidity('');
         });
 
         const syncProofFields = () => {
@@ -354,7 +395,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-rp-live-filter]').forEach((form) => {
         let timer = null;
         const applyFilter = () => {
-            const action = form.getAttribute('action') || window.location.pathname;
+            const rawAction = form.getAttribute('action') || window.location.pathname;
+            const hashFromAction = rawAction.includes('#') ? rawAction.slice(rawAction.indexOf('#')) : '';
+            const action = rawAction.replace(/#.*$/, '') || window.location.pathname;
+            const hash = form.dataset.rpLiveFilterHash
+                ? `#${form.dataset.rpLiveFilterHash.replace(/^#/, '')}`
+                : hashFromAction;
             const params = new URLSearchParams(new FormData(form));
             Array.from(params.keys()).forEach((key) => {
                 if (!(params.get(key) || '').trim()) {
@@ -362,7 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
             const query = params.toString();
-            window.location.assign(query ? `${action}?${query}` : action);
+            window.location.assign(`${action}${query ? `?${query}` : ''}${hash}`);
         };
 
         form.querySelectorAll('[data-rp-live-filter-q]').forEach((input) => {
@@ -558,6 +604,30 @@ document.addEventListener('DOMContentLoaded', () => {
         if (typeof action === 'function') action();
     });
 
+    const noticeModalEl = document.getElementById('rpNoticeModal');
+    const askNotice = (message, title = 'Unavailable') => {
+        if (!noticeModalEl || !window.bootstrap) {
+            window.alert(message);
+            return;
+        }
+        const titleEl = noticeModalEl.querySelector('#rpNoticeModalLabel');
+        const messageEl = noticeModalEl.querySelector('[data-rp-notice-message]');
+        if (titleEl) titleEl.textContent = title;
+        if (messageEl) messageEl.textContent = message;
+        bootstrap.Modal.getOrCreateInstance(noticeModalEl).show();
+    };
+
+    document.querySelectorAll('[data-rp-blocked-click]').forEach((el) => {
+        el.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            askNotice(
+                el.dataset.rpBlockedClick || 'This option is currently unavailable.',
+                el.dataset.rpBlockedTitle || 'Unavailable'
+            );
+        });
+    });
+
     document.querySelectorAll('form[data-rp-confirm]').forEach((form) => {
         form.addEventListener('submit', (event) => {
             if (form.dataset.rpConfirmed === '1') {
@@ -627,15 +697,27 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!adultsEl || !childrenEl || !totalEl) return true;
 
         const capacity = resolveCapacity(form);
-        const adults = Math.max(1, parseInt(adultsEl.value || '1', 10) || 1);
-        const children = Math.max(0, parseInt(childrenEl.value || '0', 10) || 0);
-        const total = adults + children;
+        let adults = Math.max(1, parseInt(adultsEl.value || '1', 10) || 1);
+        if (capacity > 0 && adults > capacity) {
+            adults = capacity;
+            adultsEl.value = String(adults);
+        }
 
+        // Children is optional — blank means 0 (e.g. adults already fill capacity).
+        childrenEl.required = false;
+        const remaining = capacity > 0 ? Math.max(0, capacity - adults) : null;
+        let children = Math.max(0, parseInt(childrenEl.value || '0', 10) || 0);
+        if (remaining !== null && children > remaining) {
+            children = remaining;
+            childrenEl.value = String(children);
+        }
+
+        const total = adults + children;
         totalEl.value = String(total);
 
         if (capacity > 0) {
             adultsEl.max = String(capacity);
-            childrenEl.max = String(capacity);
+            childrenEl.max = String(remaining);
             totalEl.max = String(capacity);
         }
 
@@ -1056,7 +1138,274 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     initAvailabilityCalendar();
+    initPromoDatetimePicker();
 });
+
+function initPromoDatetimePicker() {
+    const modalEl = document.getElementById('rpPromoDatetimeModal');
+    const fields = Array.from(document.querySelectorAll('[data-rp-promo-dt-field]'));
+    if (!modalEl || !fields.length || !window.bootstrap) return;
+
+    const titleEl = modalEl.querySelector('#rpPromoDatetimeModalLabel');
+    const monthTitleEl = modalEl.querySelector('[data-rp-promo-dt-title]');
+    const daysEl = modalEl.querySelector('[data-rp-promo-dt-days]');
+    const hourEl = modalEl.querySelector('[data-rp-promo-dt-hour]');
+    const minuteEl = modalEl.querySelector('[data-rp-promo-dt-minute]');
+    const ampmEl = modalEl.querySelector('[data-rp-promo-dt-ampm]');
+    const previewEl = modalEl.querySelector('[data-rp-promo-dt-preview]');
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+    let activeField = null;
+    let viewYear = new Date().getFullYear();
+    let viewMonth = new Date().getMonth() + 1;
+    let selectedDate = null;
+    let selectedHour12 = 12;
+    let selectedMinute = 0;
+    let selectedAmPm = 'AM';
+
+    const pad = (n) => String(n).padStart(2, '0');
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+    const toLocalValue = (date) => (
+        `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
+    );
+
+    const formatDisplay = (value) => {
+        if (!value) return 'Select date & time';
+        const date = new Date(`${value}:00`);
+        if (Number.isNaN(date.getTime())) return 'Select date & time';
+        const h24 = date.getHours();
+        const h12 = h24 % 12 || 12;
+        const ampm = h24 >= 12 ? 'PM' : 'AM';
+        return `${pad(date.getMonth() + 1)}/${pad(date.getDate())}/${date.getFullYear()} ${h12}:${pad(date.getMinutes())} ${ampm}`;
+    };
+
+    const parseValue = (value) => {
+        if (!value) return null;
+        const date = new Date(`${value}:00`);
+        return Number.isNaN(date.getTime()) ? null : date;
+    };
+
+    const getMinDate = () => {
+        const now = new Date();
+        now.setSeconds(0, 0);
+        if (activeField?.dataset.rpPromoDtRole === 'end') {
+            const startValue = document.querySelector('[data-rp-promo-dt-role="start"] [data-rp-promo-dt-value]')?.value;
+            const startDate = parseValue(startValue);
+            if (startDate && startDate > now) return startDate;
+        }
+        if (activeField?.dataset.rpPromoDtRole === 'start' && activeField.dataset.rpAllowPastStart === '1') {
+            const existing = parseValue(activeField.querySelector('[data-rp-promo-dt-value]')?.value);
+            if (existing && existing < now) return existing;
+        }
+        return now;
+    };
+
+    const buildSelectedDate = () => {
+        if (!selectedDate) return null;
+        let hour24 = selectedHour12 % 12;
+        if (selectedAmPm === 'PM') hour24 += 12;
+        const date = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate(), hour24, selectedMinute, 0, 0);
+        return date;
+    };
+
+    const isDisabledDate = (date) => {
+        const min = getMinDate();
+        const day = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const minDay = new Date(min.getFullYear(), min.getMonth(), min.getDate());
+        return day < minDay;
+    };
+
+    const isDisabledTime = (hour12, minute, ampm) => {
+        if (!selectedDate) return false;
+        let hour24 = hour12 % 12;
+        if (ampm === 'PM') hour24 += 12;
+        const candidate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate(), hour24, minute, 0, 0);
+        return candidate < getMinDate();
+    };
+
+    const syncPreview = () => {
+        const date = buildSelectedDate();
+        if (!previewEl) return;
+        previewEl.textContent = date ? formatDisplay(toLocalValue(date)) : '—';
+    };
+
+    const renderDays = () => {
+        if (!daysEl || !monthTitleEl) return;
+        monthTitleEl.textContent = `${monthNames[viewMonth - 1]} ${viewYear}`;
+        daysEl.innerHTML = '';
+
+        const first = new Date(viewYear, viewMonth - 1, 1);
+        const startPad = first.getDay();
+        const daysInMonth = new Date(viewYear, viewMonth, 0).getDate();
+
+        for (let i = 0; i < startPad; i += 1) {
+            const empty = document.createElement('span');
+            empty.className = 'rp-promo-dt-day is-empty';
+            daysEl.appendChild(empty);
+        }
+
+        for (let day = 1; day <= daysInMonth; day += 1) {
+            const date = new Date(viewYear, viewMonth - 1, day);
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'rp-promo-dt-day';
+            btn.textContent = String(day);
+            const disabled = isDisabledDate(date);
+            if (disabled) {
+                btn.classList.add('is-disabled');
+                btn.disabled = true;
+            }
+            if (
+                selectedDate
+                && selectedDate.getFullYear() === date.getFullYear()
+                && selectedDate.getMonth() === date.getMonth()
+                && selectedDate.getDate() === date.getDate()
+            ) {
+                btn.classList.add('is-selected');
+            }
+            btn.addEventListener('click', () => {
+                selectedDate = date;
+                // If current time is now in the past for this date, bump to min.
+                const built = buildSelectedDate();
+                const min = getMinDate();
+                if (!built || built < min) {
+                    selectedHour12 = min.getHours() % 12 || 12;
+                    selectedMinute = min.getMinutes();
+                    selectedAmPm = min.getHours() >= 12 ? 'PM' : 'AM';
+                }
+                renderDays();
+                renderTime();
+                syncPreview();
+            });
+            daysEl.appendChild(btn);
+        }
+    };
+
+    const renderTimeList = (container, items, selected, onPick, disabledCheck) => {
+        if (!container) return;
+        container.innerHTML = '';
+        items.forEach((item) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'rp-promo-dt-time-option';
+            btn.textContent = item.label;
+            if (item.value === selected) btn.classList.add('is-selected');
+            if (disabledCheck?.(item.value)) {
+                btn.classList.add('is-disabled');
+                btn.disabled = true;
+            }
+            btn.addEventListener('click', () => {
+                onPick(item.value);
+                renderTime();
+                syncPreview();
+            });
+            container.appendChild(btn);
+        });
+        const selectedBtn = container.querySelector('.is-selected');
+        selectedBtn?.scrollIntoView({ block: 'nearest' });
+    };
+
+    const renderTime = () => {
+        const hours = Array.from({ length: 12 }, (_, i) => {
+            const value = i + 1;
+            return { value, label: pad(value) };
+        });
+        const minutes = Array.from({ length: 60 }, (_, i) => ({ value: i, label: pad(i) }));
+        renderTimeList(hourEl, hours, selectedHour12, (v) => { selectedHour12 = v; }, (v) => isDisabledTime(v, selectedMinute, selectedAmPm));
+        renderTimeList(minuteEl, minutes, selectedMinute, (v) => { selectedMinute = v; }, (v) => isDisabledTime(selectedHour12, v, selectedAmPm));
+        renderTimeList(ampmEl, [{ value: 'AM', label: 'AM' }, { value: 'PM', label: 'PM' }], selectedAmPm, (v) => { selectedAmPm = v; }, (v) => isDisabledTime(selectedHour12, selectedMinute, v));
+    };
+
+    const openForField = (field) => {
+        activeField = field;
+        const valueInput = field.querySelector('[data-rp-promo-dt-value]');
+        const current = parseValue(valueInput?.value) || new Date();
+        const min = getMinDate();
+        const seed = current < min && field.dataset.rpAllowPastStart !== '1' ? min : current;
+
+        selectedDate = new Date(seed.getFullYear(), seed.getMonth(), seed.getDate());
+        viewYear = selectedDate.getFullYear();
+        viewMonth = selectedDate.getMonth() + 1;
+        selectedHour12 = seed.getHours() % 12 || 12;
+        selectedMinute = seed.getMinutes();
+        selectedAmPm = seed.getHours() >= 12 ? 'PM' : 'AM';
+
+        if (titleEl) {
+            titleEl.textContent = field.dataset.rpPromoDtRole === 'end'
+                ? 'Select end date & time'
+                : 'Select start date & time';
+        }
+
+        renderDays();
+        renderTime();
+        syncPreview();
+        modal.show();
+    };
+
+    fields.forEach((field) => {
+        field.querySelector('[data-rp-promo-dt-open]')?.addEventListener('click', () => openForField(field));
+    });
+
+    modalEl.querySelector('[data-rp-promo-dt-prev]')?.addEventListener('click', () => {
+        viewMonth -= 1;
+        if (viewMonth < 1) {
+            viewMonth = 12;
+            viewYear -= 1;
+        }
+        renderDays();
+    });
+
+    modalEl.querySelector('[data-rp-promo-dt-next]')?.addEventListener('click', () => {
+        viewMonth += 1;
+        if (viewMonth > 12) {
+            viewMonth = 1;
+            viewYear += 1;
+        }
+        renderDays();
+    });
+
+    modalEl.querySelector('[data-rp-promo-dt-clear]')?.addEventListener('click', () => {
+        if (!activeField) return;
+        const valueInput = activeField.querySelector('[data-rp-promo-dt-value]');
+        const label = activeField.querySelector('[data-rp-promo-dt-label]');
+        if (valueInput) valueInput.value = '';
+        if (label) {
+            label.textContent = activeField.dataset.rpPromoDtRole === 'end'
+                ? 'Select end date & time'
+                : 'Select start date & time';
+        }
+        modal.hide();
+    });
+
+    modalEl.querySelector('[data-rp-promo-dt-today]')?.addEventListener('click', () => {
+        const min = getMinDate();
+        selectedDate = new Date(min.getFullYear(), min.getMonth(), min.getDate());
+        viewYear = selectedDate.getFullYear();
+        viewMonth = selectedDate.getMonth() + 1;
+        selectedHour12 = min.getHours() % 12 || 12;
+        selectedMinute = min.getMinutes();
+        selectedAmPm = min.getHours() >= 12 ? 'PM' : 'AM';
+        renderDays();
+        renderTime();
+        syncPreview();
+    });
+
+    modalEl.querySelector('[data-rp-promo-dt-ok]')?.addEventListener('click', () => {
+        if (!activeField || !selectedDate) return;
+        let date = buildSelectedDate();
+        const min = getMinDate();
+        if (!date || date < min) {
+            date = min;
+        }
+        const value = toLocalValue(date);
+        const valueInput = activeField.querySelector('[data-rp-promo-dt-value]');
+        const label = activeField.querySelector('[data-rp-promo-dt-label]');
+        if (valueInput) valueInput.value = value;
+        if (label) label.textContent = formatDisplay(value);
+        modal.hide();
+    });
+}
 
 function initAvailabilityCalendar() {
     const modalEl = document.getElementById('rpAvailabilityModal');
