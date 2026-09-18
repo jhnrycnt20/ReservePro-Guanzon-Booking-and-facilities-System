@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Guest;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Guest\StorePaymentRequest;
+use App\Http\Requests\Guest\InitiateGcashPaymentRequest;
 use App\Enums\PaymentStatus;
 use App\Models\Booking;
 use App\Models\Payment;
@@ -62,20 +62,32 @@ class PaymentController extends Controller
         return view('guest.payments.create', compact('booking', 'deposit', 'suggestedDeposit'));
     }
 
-    public function store(StorePaymentRequest $request, Booking $booking): RedirectResponse
+    public function store(InitiateGcashPaymentRequest $request, Booking $booking): RedirectResponse
     {
         $this->authorize('view', $booking);
 
-        $payment = $this->paymentService->recordPayment(
+        $checkout = $this->paymentService->initiateGcashCheckout(
             $booking,
-            array_merge($request->validated(), ['auto_verify' => true]),
-            $request->user(),
-            $request->file('proof')
+            (float) $request->validated('amount'),
+            $request->user()
         );
 
-        return redirect()
-            ->route('guest.bookings.show', $booking)
-            ->with('success', 'Payment recorded. Your balance has been updated.');
+        if (! $checkout['checkout_url']) {
+            return redirect()
+                ->route('guest.payments.create', $booking)
+                ->withErrors(['amount' => 'Could not start the GCash checkout. Please try again.']);
+        }
+
+        return redirect()->away($checkout['checkout_url']);
+    }
+
+    public function checkoutReturn(Request $request, Booking $booking): View
+    {
+        $this->authorize('view', $booking);
+
+        $status = $request->query('status') === 'success' ? 'success' : 'failed';
+
+        return view('guest.payments.gcash-return', compact('booking', 'status'));
     }
 
     public function receipt(Payment $payment): View

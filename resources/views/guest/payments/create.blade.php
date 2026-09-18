@@ -32,7 +32,7 @@
                     @endif
                 </div>
 
-                <form method="POST" action="{{ route('guest.payments.store', $booking) }}" enctype="multipart/form-data" data-rp-payment-form data-rp-min-amount="{{ number_format($minPayable, 2, '.', '') }}" data-rp-max-amount="{{ number_format($remaining, 2, '.', '') }}">
+                <form method="POST" action="{{ route('guest.payments.store', $booking) }}" data-rp-payment-form data-rp-min-amount="{{ number_format($minPayable, 2, '.', '') }}" data-rp-max-amount="{{ number_format($remaining, 2, '.', '') }}">
                     @csrf
                     <div class="mb-3">
                         <label class="form-label" for="paymentAmount">Amount</label>
@@ -62,32 +62,10 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Mode of Payment</label>
-                        <select name="payment_method" id="paymentMethod" class="form-select @error('payment_method') is-invalid @enderror" required>
-                            @foreach(['gcash' => 'GCash', 'cash' => 'Cash (at front desk)'] as $value => $label)
-                                <option value="{{ $value }}" @selected(old('payment_method', 'gcash') === $value)>{{ $label }}</option>
-                            @endforeach
-                        </select>
-                        @error('payment_method')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        <input type="text" class="form-control" value="GCash" disabled readonly>
+                        <div class="form-text">You'll be redirected to GCash to complete your payment securely.</div>
                     </div>
-                    <div class="mb-3" data-rp-pay-qr-wrap>
-                        <button type="button" class="rp-quiet-link" data-bs-toggle="modal" data-bs-target="#rpPayQrModal">Show QR Code</button>
-                    </div>
-                    <div class="mb-3" data-rp-pay-ref-wrap>
-                        <label class="form-label">Reference number</label>
-                        <input type="text" name="reference_number" class="form-control @error('reference_number') is-invalid @enderror" value="{{ old('reference_number') }}" placeholder="GCash reference">
-                        @error('reference_number')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-                    <div class="mb-3" data-rp-pay-proof-wrap>
-                        <label class="form-label">Receipt Screenshot</label>
-                        <input type="file" name="proof" accept="image/*" class="form-control @error('proof') is-invalid @enderror">
-                        <div class="form-text">JPG or PNG, max 5MB.</div>
-                        @error('proof')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Payment date</label>
-                        <input type="datetime-local" name="payment_date" class="form-control" value="{{ old('payment_date', now()->format('Y-m-d\TH:i')) }}" required>
-                    </div>
-                    <button class="rp-avail-btn-primary">Submit Payment</button>
+                    <button class="rp-avail-btn-primary">Pay with GCash</button>
                 </form>
 
                 @if(!$booking->promo_code && ((float) $booking->paid_amount) <= 0)
@@ -125,54 +103,4 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 @endpush
-<div class="modal fade" id="rpPayQrModal" tabindex="-1" aria-labelledby="rpPayQrModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content rp-pay-qr-modal">
-            <div class="modal-header border-0 pb-0">
-                <h2 class="modal-title h6" id="rpPayQrModalLabel">Scan to Pay via GCash</h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center pt-2">
-                <div class="rp-pay-qr-frame mb-2">
-                    <button
-                        type="button"
-                        class="rp-gcash-qr-wrap rp-gcash-qr-wrap--compact border-0 bg-transparent p-0"
-                        data-rp-open-gcash
-                        data-gcash-number="{{ $resortSettings['gcash_number'] ?? '09505584607' }}"
-                        data-gcash-amount="{{ number_format($depositAmount, 2, '.', '') }}"
-                        aria-label="Open GCash to pay"
-                    >
-                        <img src="{{ asset('images/gcash-qr.jpg') }}" alt="GCash QR code for Guanzon Beach" class="rp-gcash-qr">
-                    </button>
-                    <button type="button" class="rp-view-full-image-btn" data-bs-toggle="modal" data-bs-target="#rpPayQrZoomModal" aria-label="View full QR code">
-                        <i class="bi bi-arrows-fullscreen"></i>
-                    </button>
-                </div>
-                <div class="small text-muted">
-                    {{ $resortSettings['gcash_number'] ?? '09505584607' }}
-                    &middot; {{ $resortSettings['gcash_name'] ?? ($resortSettings['resort_name'] ?? 'Guanzon Beach') }}
-                </div>
-                <div class="small text-muted mt-1">
-                    {{ $resortSettings['bank_name'] ?? 'BDO' }}
-                    &middot; {{ $resortSettings['bank_account_name'] ?? ($resortSettings['resort_name'] ?? 'Guanzon Beach') }}
-                    &middot; {{ $resortSettings['bank_account_number'] ?? '0000-0000-0000' }}
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="rpPayQrZoomModal" tabindex="-1" aria-labelledby="rpPayQrZoomModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rp-pay-qr-modal">
-            <div class="modal-header border-0 pb-0">
-                <h2 class="modal-title h6" id="rpPayQrZoomModalLabel">GCash QR Code</h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center pt-2">
-                <img src="{{ asset('images/gcash-qr.jpg') }}" alt="GCash QR code for Guanzon Beach" class="img-fluid">
-            </div>
-        </div>
-    </div>
-</div>
 @endsection

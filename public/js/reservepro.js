@@ -203,83 +203,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    const openGCashApp = ({ number, amount }) => {
-        const phone = String(number || '').replace(/\D/g, '');
-        const payAmount = String(amount || '').trim();
-
-        if (phone && navigator.clipboard?.writeText) {
-            navigator.clipboard.writeText(phone).catch(() => {});
-        }
-
-        const isAndroid = /Android/i.test(navigator.userAgent);
-        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-        // Best-effort deep links. Personal receive QR can't auto-charge without GCash merchant API,
-        // so we open the app and copy the number for Send Money.
-        const candidates = [];
-        if (phone) {
-            candidates.push(`gcash://send?phone=${encodeURIComponent(phone)}${payAmount ? `&amount=${encodeURIComponent(payAmount)}` : ''}`);
-            candidates.push(`gcash://express/send?phone=${encodeURIComponent(phone)}`);
-        }
-        candidates.push('gcash://');
-
-        if (isAndroid) {
-            candidates.push('intent://send#Intent;scheme=gcash;package=com.globe.gcash.android;end');
-            candidates.push('https://play.google.com/store/apps/details?id=com.globe.gcash.android');
-        } else if (isIOS) {
-            candidates.push('https://apps.apple.com/app/gcash/id520020791');
-        } else {
-            candidates.push('https://www.gcash.com/');
-        }
-
-        let opened = false;
-        const tryOpen = (url) => {
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = url;
-            document.body.appendChild(iframe);
-            setTimeout(() => iframe.remove(), 1500);
-            window.location.href = url;
-            opened = true;
-        };
-
-        tryOpen(candidates[0]);
-
-        // If the custom scheme fails on desktop/mobile webview, fall back shortly.
-        setTimeout(() => {
-            if (document.hidden || opened === false) return;
-            const fallback = candidates[candidates.length - 1];
-            if (fallback && fallback !== candidates[0]) {
-                window.location.href = fallback;
-            }
-        }, 1200);
-
-        const note = phone
-            ? `GCash number ${phone} copied. Open Send Money, paste the number${payAmount ? `, enter ₱${payAmount}` : ''}, then return here to upload proof.`
-            : 'Opening GCash. After paying, return here to upload your proof.';
-
-        if (window.bootstrap && document.getElementById('rpToast')) {
-            // optional toast container may not exist
-        }
-        window.alert(note);
-    };
-
-    document.querySelectorAll('[data-rp-open-gcash]').forEach((button) => {
-        button.addEventListener('click', (event) => {
-            event.preventDefault();
-            openGCashApp({
-                number: button.dataset.gcashNumber || '09505584607',
-                amount: button.dataset.gcashAmount || '',
-            });
-
-            const methodSelect = document.getElementById('paymentMethod');
-            if (methodSelect) {
-                methodSelect.value = 'gcash';
-                methodSelect.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-        });
-    });
-
     document.querySelectorAll('[data-rp-print-receipt]').forEach((button) => {
         button.addEventListener('click', () => {
             const target = document.querySelector(button.dataset.rpPrintReceipt || '#rpPaymentReceiptPrint');
@@ -317,10 +240,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('[data-rp-payment-form]').forEach((form) => {
         const amountInput = form.querySelector('#paymentAmount');
-        const methodSelect = form.querySelector('#paymentMethod');
-        const refWrap = form.querySelector('[data-rp-pay-ref-wrap]');
-        const proofWrap = form.querySelector('[data-rp-pay-proof-wrap]');
-        const qrWrap = form.querySelector('[data-rp-pay-qr-wrap]');
         const minAmount = Number(form.dataset.rpMinAmount || 0);
         const maxAmount = Number(form.dataset.rpMaxAmount || 0);
 
@@ -337,10 +256,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 form.querySelectorAll('[data-rp-pay-amount]').forEach((choice) => {
                     choice.classList.toggle('is-selected', choice === button);
-                });
-
-                document.querySelectorAll('[data-rp-open-gcash]').forEach((gcashButton) => {
-                    gcashButton.dataset.gcashAmount = button.dataset.rpPayAmount || '';
                 });
             });
         });
@@ -375,21 +290,6 @@ document.addEventListener('DOMContentLoaded', () => {
         amountInput?.addEventListener('input', () => {
             amountInput.setCustomValidity('');
         });
-
-        const syncProofFields = () => {
-            const method = methodSelect?.value || '';
-            const needsProof = method === 'gcash';
-            if (refWrap) refWrap.classList.toggle('d-none', !needsProof && method === 'cash');
-            if (proofWrap) proofWrap.classList.toggle('d-none', !needsProof);
-            if (qrWrap) qrWrap.classList.toggle('d-none', !needsProof);
-            const refInput = refWrap?.querySelector('input');
-            const proofInput = proofWrap?.querySelector('input');
-            if (refInput) refInput.required = needsProof;
-            if (proofInput) proofInput.required = needsProof;
-        };
-
-        methodSelect?.addEventListener('change', syncProofFields);
-        syncProofFields();
     });
 
     document.querySelectorAll('[data-rp-live-filter]').forEach((form) => {
