@@ -62,6 +62,26 @@ class PaymentController extends Controller
         return view('guest.payments.create', compact('booking', 'deposit', 'suggestedDeposit'));
     }
 
+    public function show(Payment $payment): RedirectResponse
+    {
+        $this->authorize('view', $payment);
+
+        $status = $payment->status instanceof PaymentStatus
+            ? $payment->status
+            : PaymentStatus::tryFrom((string) $payment->status);
+
+        if ($status === PaymentStatus::Verified) {
+            return redirect()->route('guest.payments.receipt', $payment);
+        }
+
+        $booking = $payment->booking;
+        abort_unless($booking, 404);
+
+        return redirect()
+            ->route('guest.bookings.show', $booking)
+            ->with('success', 'Open your booking to finish or review this payment.');
+    }
+
     public function store(InitiateGcashPaymentRequest $request, Booking $booking): RedirectResponse
     {
         $this->authorize('view', $booking);

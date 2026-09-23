@@ -113,6 +113,7 @@ Route::middleware(['auth', 'active'])->group(function () {
 
         Route::get('/payments', [GuestPaymentController::class, 'index'])->name('payments.index');
         Route::get('/payments/create/{booking}', [GuestPaymentController::class, 'create'])->name('payments.create');
+        Route::get('/payments/{payment}', [GuestPaymentController::class, 'show'])->name('payments.show');
         Route::post('/payments/{booking}', [GuestPaymentController::class, 'store'])->name('payments.store');
         Route::get('/payments/{booking}/gcash/return', [GuestPaymentController::class, 'checkoutReturn'])->name('payments.gcash.return');
         Route::get('/payments/{payment}/receipt', [GuestPaymentController::class, 'receipt'])->name('payments.receipt');

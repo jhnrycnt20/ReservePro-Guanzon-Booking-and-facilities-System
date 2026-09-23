@@ -30,7 +30,7 @@
 
     <div class="rp-booking-list">
         @forelse($payments as $payment)
-            <a href="{{ $payment->booking ? route('guest.bookings.show', $payment->booking) : '#' }}" class="rp-booking-list-item">
+            <a href="{{ route('guest.payments.show', $payment) }}" class="rp-booking-list-item">
                 <div class="rp-booking-list-media">
                     @if($payment->booking?->accommodation)
                         <img src="{{ $payment->booking->accommodation->image_url }}" alt="{{ $payment->booking->accommodation->name }}">
