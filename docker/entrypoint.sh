@@ -19,6 +19,18 @@ if [ -f .env ]; then
     if [ -n "$APP_URL" ]; then
         sed -i "s|^APP_URL=.*|APP_URL=${APP_URL}|" .env
     fi
+
+    # Keep PayMongo keys in .env when provided by the host (e.g. Render).
+    for key in PAYMONGO_SECRET_KEY PAYMONGO_PUBLIC_KEY PAYMONGO_WEBHOOK_SECRET; do
+        val=$(printenv "$key" || true)
+        if [ -n "$val" ]; then
+            if grep -q "^${key}=" .env; then
+                sed -i "s|^${key}=.*|${key}=${val}|" .env
+            else
+                printf '%s=%s\n' "$key" "$val" >> .env
+            fi
+        fi
+    done
 fi
 
 php artisan config:clear

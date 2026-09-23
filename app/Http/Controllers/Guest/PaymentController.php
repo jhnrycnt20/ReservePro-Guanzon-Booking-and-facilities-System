@@ -64,33 +64,55 @@ class PaymentController extends Controller
 
     public function show(Payment $payment): RedirectResponse
     {
-        $this->authorize('view', $payment);
+        try {
+            $this->authorize('view', $payment);
 
-        $status = $payment->status instanceof PaymentStatus
-            ? $payment->status
-            : PaymentStatus::tryFrom((string) $payment->status);
+            $status = $payment->status instanceof PaymentStatus
+                ? $payment->status
+                : PaymentStatus::tryFrom((string) $payment->status);
 
-        if ($status === PaymentStatus::Verified) {
-            return redirect()->route('guest.payments.receipt', $payment);
+            if ($status === PaymentStatus::Verified) {
+                return redirect()->route('guest.payments.receipt', $payment);
+            }
+
+            $booking = $payment->booking;
+            abort_unless($booking, 404);
+
+            return redirect()
+                ->route('guest.bookings.show', $booking)
+                ->with('success', 'Open your booking to finish or review this payment.');
+        } catch (\Illuminate\Auth\Access\AuthorizationException $exception) {
+            throw $exception;
+        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $exception) {
+            throw $exception;
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return redirect()
+                ->route('guest.payments.index')
+                ->with('error', 'Could not open that payment. Please try again from My Payments or your booking.');
         }
-
-        $booking = $payment->booking;
-        abort_unless($booking, 404);
-
-        return redirect()
-            ->route('guest.bookings.show', $booking)
-            ->with('success', 'Open your booking to finish or review this payment.');
     }
 
     public function store(InitiateGcashPaymentRequest $request, Booking $booking): RedirectResponse
     {
         $this->authorize('view', $booking);
 
-        $checkout = $this->paymentService->initiateGcashCheckout(
-            $booking,
-            (float) $request->validated('amount'),
-            $request->user()
-        );
+        try {
+            $checkout = $this->paymentService->initiateGcashCheckout(
+                $booking,
+                (float) $request->validated('amount'),
+                $request->user()
+            );
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return redirect()
+                ->route('guest.payments.create', $booking)
+                ->withErrors([
+                    'amount' => 'Online GCash checkout is unavailable right now. Please try again later or pay at the front desk.',
+                ]);
+        }
 
         if (! $checkout['checkout_url']) {
             return redirect()
@@ -110,18 +132,31 @@ class PaymentController extends Controller
         return view('guest.payments.gcash-return', compact('booking', 'status'));
     }
 
-    public function receipt(Payment $payment): View
+    public function receipt(Payment $payment): View|RedirectResponse
     {
-        $this->authorize('view', $payment);
+        try {
+            $this->authorize('view', $payment);
 
-        $status = $payment->status instanceof PaymentStatus
-            ? $payment->status
-            : PaymentStatus::tryFrom((string) $payment->status);
+            $status = $payment->status instanceof PaymentStatus
+                ? $payment->status
+                : PaymentStatus::tryFrom((string) $payment->status);
 
-        abort_unless($status === PaymentStatus::Verified, 404);
+            abort_unless($status === PaymentStatus::Verified, 404);
 
-        $payment->load(['booking.guest.user', 'booking.accommodation', 'verifier']);
+            $payment->load(['booking.guest.user', 'booking.accommodation', 'verifier']);
+            abort_unless($payment->booking, 404);
 
-        return view('guest.payments.receipt', compact('payment'));
+            return view('guest.payments.receipt', compact('payment'));
+        } catch (\Illuminate\Auth\Access\AuthorizationException $exception) {
+            throw $exception;
+        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $exception) {
+            throw $exception;
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return redirect()
+                ->route('guest.payments.index')
+                ->with('error', 'Could not open that receipt. Please try again from My Payments.');
+        }
     }
 }

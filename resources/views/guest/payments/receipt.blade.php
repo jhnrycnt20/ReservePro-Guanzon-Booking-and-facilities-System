@@ -114,16 +114,19 @@
 </head>
 <body>
 @php
-    $method = str_replace('_', ' ', ucfirst($payment->payment_method instanceof \BackedEnum ? $payment->payment_method->value : $payment->payment_method));
-    $guestName = $payment->booking->guest_name
+    $methodRaw = $payment->payment_method instanceof \BackedEnum
+        ? $payment->payment_method->value
+        : ($payment->payment_method ?: 'other');
+    $method = str_replace('_', ' ', ucfirst((string) $methodRaw));
+    $guestName = $payment->booking?->guest_name
         ?? $payment->booking?->guest?->user?->name
         ?? '—';
-    $bookingCode = $payment->booking->short_number
-        ?? $payment->booking->booking_number
+    $bookingCode = $payment->booking?->short_number
+        ?? $payment->booking?->booking_number
         ?? '—';
-    $bookingTotal = (float) ($payment->booking->total_amount ?? 0);
-    $remainingBalance = (float) ($payment->booking->remaining_balance ?? 0);
-    $totalPaid = (float) ($payment->booking->paid_amount ?? 0);
+    $bookingTotal = (float) ($payment->booking?->total_amount ?? 0);
+    $remainingBalance = (float) ($payment->booking?->remaining_balance ?? 0);
+    $totalPaid = (float) ($payment->booking?->paid_amount ?? 0);
     $isPartial = $remainingBalance > 0.009;
     $paymentShare = $bookingTotal > 0 ? round(((float) $payment->amount / $bookingTotal) * 100) : 0;
 @endphp
