@@ -21,10 +21,11 @@ class CheckInController extends Controller
     public function index(Request $request): View
     {
         $query = Booking::query()
-            ->with(['guest.user', 'accommodation' => fn ($q) => $q->withTrashed(), 'payments'])
-            ->where('status', BookingStatus::Approved)
-            ->fullyPaid()
-            ->orderBy('check_in_date');
+            ->with(['guest.user', 'accommodation' => fn ($q) => $q->withTrashed(), 'checkIn.staff'])
+            ->where('status', BookingStatus::CheckedIn)
+            ->whereHas('checkIn')
+            ->orderByDesc('check_in_date')
+            ->orderByDesc('id');
 
         ListFilters::applyBookingSearch($query, $request->input('q'));
 
@@ -44,20 +45,14 @@ class CheckInController extends Controller
             'accommodation' => fn ($q) => $q->withTrashed(),
             'payments.processor',
             'payments.verifier',
-            'checkIn',
+            'checkIn.staff',
             'promo',
         ]);
 
-        if ($booking->status === BookingStatus::CheckedIn) {
+        if ($booking->status !== BookingStatus::CheckedIn || ! $booking->checkIn) {
             return redirect()
                 ->route('front_desk.reservations.show', $booking)
-                ->with('success', 'This guest is already checked in.');
-        }
-
-        if ($booking->status !== BookingStatus::Approved || ! $booking->isFullyPaid()) {
-            return redirect()
-                ->route('front_desk.checkins.index')
-                ->with('success', 'Only fully paid approved stays appear in Check-in.');
+                ->with('success', 'Check guests in from Reservations. This page only lists guests who are already checked in.');
         }
 
         return view('front_desk.checkins.show', compact('booking'));
@@ -71,13 +66,13 @@ class CheckInController extends Controller
             $this->checkInService->checkIn($booking, $request->user(), $request->input('notes'));
         } catch (ValidationException $exception) {
             return redirect()
-                ->route('front_desk.checkins.show', $booking)
+                ->route('front_desk.reservations.show', $booking)
                 ->withErrors($exception->errors())
                 ->withInput();
         }
 
         return redirect()
-            ->route('front_desk.reservations.index')
-            ->with('success', 'Guest checked in. Status is now Checked in.');
+            ->route('front_desk.checkins.index')
+            ->with('success', 'Guest checked in. They now appear under Check-in.');
     }
 }

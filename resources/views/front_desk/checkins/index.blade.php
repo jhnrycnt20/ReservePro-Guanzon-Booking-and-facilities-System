@@ -4,7 +4,7 @@
 @section('theme', 'front_desk')
 @section('role_label', 'Front Desk')
 @section('page_title', 'Check-in')
-@section('page_subtitle', 'Fully paid guests ready for manual check-in from 2:00 PM on arrival day')
+@section('page_subtitle', 'Guests already checked in by front desk — use Reservations to check someone in')
 @section('sidebar')
     @include('partials.sidebar-front-desk')
 @endsection
@@ -24,7 +24,7 @@
                     <th>Booking</th>
                     <th>Guest</th>
                     <th>Room</th>
-                    <th>Check-in</th>
+                    <th>Checked in</th>
                     <th></th>
                 </tr>
             </thead>
@@ -34,13 +34,16 @@
                         <td><span class="rp-booking-code" title="{{ $booking->booking_number }}">{{ $booking->short_number }}</span></td>
                         <td>{{ $booking->guest_name }}</td>
                         <td>{{ $booking->accommodation->name ?? '—' }}</td>
-                        <td>{{ $booking->check_in_date?->format('M d, Y') }} · 2:00 PM</td>
+                        <td>
+                            {{ $booking->checkIn?->checked_in_at?->format('M d, Y g:i A')
+                                ?? ($booking->check_in_date?->format('M d, Y').' · 2:00 PM') }}
+                        </td>
                         <td>
                             <a href="{{ route('front_desk.checkins.show', $booking) }}" class="btn btn-sm btn-rp-primary">View full details</a>
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="5" class="text-muted">No fully paid stays ready for check-in.</td></tr>
+                    <tr><td colspan="5" class="text-muted">No checked-in guests yet. Check guests in from Reservations.</td></tr>
                 @endforelse
             </tbody>
         </table>

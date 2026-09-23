@@ -4,7 +4,7 @@
 @section('theme', 'front_desk')
 @section('role_label', 'Front Desk')
 @section('page_title', 'Check-in '.$booking->short_number)
-@section('page_subtitle', 'Confirm arrival and mark accommodation occupied')
+@section('page_subtitle', 'Guest stay details after manual check-in')
 @section('sidebar')
     @include('partials.sidebar-front-desk')
 @endsection
@@ -31,6 +31,15 @@
 @endphp
 
 <a href="{{ route('front_desk.checkins.index') }}" class="rp-back-link mb-3 d-inline-flex"><i class="bi bi-arrow-left"></i> Back to Check-in</a>
+
+@if($booking->checkIn)
+    <div class="alert alert-success">
+        Checked in {{ $booking->checkIn->checked_in_at?->format('M d, Y g:i A') ?? '' }}
+        @if($booking->checkIn->staff)
+            by {{ $booking->checkIn->staff->name }}
+        @endif
+    </div>
+@endif
 
 <div class="row g-4">
     <div class="col-lg-6">
