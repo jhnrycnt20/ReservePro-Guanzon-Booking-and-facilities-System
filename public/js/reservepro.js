@@ -904,6 +904,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 messageEl.classList.add('d-block');
                 hintEl?.classList.add('d-none');
             } else {
+                messageEl.textContent = '';
                 messageEl.classList.remove('d-block');
                 hintEl?.classList.remove('d-none');
             }
@@ -960,6 +961,119 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePasswordChecks();
         if (form.querySelector('.is-invalid')) {
             ['name', 'email', 'phone', 'address', 'password', 'password_confirmation'].forEach((name) => {
+                const input = field(name);
+                if (input?.classList.contains('is-invalid')) {
+                    touched.add(name);
+                    validateField(name, { force: true });
+                }
+            });
+        }
+    });
+
+    document.querySelectorAll('[data-rp-password-form]').forEach((form) => {
+        const field = (name) => form.querySelector(`[data-rp-password-field="${name}"]`);
+        const feedback = (name) => form.querySelector(`[data-rp-password-feedback="${name}"]`);
+        const touched = new Set();
+
+        const validators = {
+            current_password: (value) => {
+                if (!value) return 'Please enter your current password.';
+                return '';
+            },
+            password: (value) => {
+                if (!value) return 'Please create a new password.';
+                if (value.length < 8) return 'Password must be at least 8 characters.';
+                if (!/[A-Z]/.test(value) || !/[a-z]/.test(value) || !/\d/.test(value)) {
+                    return 'Use uppercase, lowercase, and a number.';
+                }
+                return '';
+            },
+            password_confirmation: (value) => {
+                const password = field('password')?.value || '';
+                if (!value) return 'Please confirm your new password.';
+                if (value !== password) return 'Passwords do not match.';
+                return '';
+            },
+        };
+
+        const updatePasswordChecks = () => {
+            const value = field('password')?.value || '';
+            const rules = {
+                length: value.length >= 8,
+                upper: /[A-Z]/.test(value),
+                lower: /[a-z]/.test(value),
+                number: /\d/.test(value),
+            };
+            Object.entries(rules).forEach(([rule, met]) => {
+                const item = form.querySelector(`[data-rp-pw-rule="${rule}"]`);
+                if (!item) return;
+                item.classList.toggle('is-met', met);
+                const icon = item.querySelector('i');
+                if (icon) icon.className = met ? 'bi bi-check-circle-fill' : 'bi bi-circle';
+            });
+        };
+
+        const setFieldState = (name, message, { force = false } = {}) => {
+            const input = field(name);
+            const messageEl = feedback(name);
+            if (!input) return !message;
+
+            const showError = Boolean(message) && (force || touched.has(name) || input.classList.contains('is-invalid'));
+
+            input.classList.toggle('is-invalid', showError);
+            if (messageEl) {
+                messageEl.textContent = showError ? message : '';
+                messageEl.classList.toggle('d-block', showError);
+            }
+
+            return !message;
+        };
+
+        const validateField = (name, options = {}) => {
+            const input = field(name);
+            if (!input || !validators[name]) return true;
+            return setFieldState(name, validators[name](input.value), options);
+        };
+
+        const validateAll = (options = {}) => {
+            updatePasswordChecks();
+            return ['current_password', 'password', 'password_confirmation']
+                .map((name) => validateField(name, options))
+                .every(Boolean);
+        };
+
+        ['current_password', 'password', 'password_confirmation'].forEach((name) => {
+            const input = field(name);
+            if (!input) return;
+
+            input.addEventListener('input', () => {
+                if (name === 'password') updatePasswordChecks();
+                if (touched.has(name) || input.classList.contains('is-invalid')) {
+                    validateField(name);
+                }
+                if (name === 'password' && touched.has('password_confirmation')) {
+                    validateField('password_confirmation');
+                }
+            });
+
+            input.addEventListener('blur', () => {
+                touched.add(name);
+                validateField(name, { force: true });
+            });
+        });
+
+        form.addEventListener('submit', (event) => {
+            ['current_password', 'password', 'password_confirmation'].forEach((name) => touched.add(name));
+            if (!validateAll({ force: true })) {
+                event.preventDefault();
+                const firstInvalid = form.querySelector('.is-invalid');
+                firstInvalid?.focus();
+            }
+        });
+
+        updatePasswordChecks();
+        if (form.querySelector('.is-invalid')) {
+            ['current_password', 'password', 'password_confirmation'].forEach((name) => {
                 const input = field(name);
                 if (input?.classList.contains('is-invalid')) {
                     touched.add(name);

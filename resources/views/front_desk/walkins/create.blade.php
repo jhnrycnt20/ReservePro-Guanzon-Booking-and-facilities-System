@@ -4,7 +4,6 @@
 @section('theme', 'front_desk')
 @section('role_label', 'Front Desk')
 @section('page_title', 'Handle Walk-in')
-@section('page_subtitle', 'Register guest, create reservation, take payment, then check in')
 @section('sidebar')
     @include('partials.sidebar-front-desk')
 @endsection

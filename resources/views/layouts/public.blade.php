@@ -32,13 +32,27 @@
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ route('gallery') }}">Gallery</a>
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ route('offers') }}">Offers</a>
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ route('contact') }}">Contact</a>
-                    @unless (request()->routeIs('accommodations.*') || request()->routeIs('guest.bookings.create') || request()->routeIs('login') || request()->routeIs('register'))
+                    @unless (request()->routeIs('guest.bookings.create') || request()->routeIs('login') || request()->routeIs('register'))
                         <a class="rp-nav-link rp-nav-link-booknow" href="{{ route('accommodations.browse') }}">Book Now</a>
                     @endunless
                     @guest
                         <a class="rp-nav-link" href="{{ route('login') }}" data-bs-toggle="modal" data-bs-target="#rpLoginModal">Login</a>
+                    @elseif(auth()->user()->hasRole('guest'))
+                        <div class="dropdown rp-nav-account-dropdown">
+                            <a class="rp-nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">Account</a>
+                            <ul class="dropdown-menu dropdown-menu-end rp-nav-account-menu">
+                                <li><a class="dropdown-item" href="{{ route('guest.bookings.index') }}">My Reservations</a></li>
+                                <li><a class="dropdown-item" href="{{ route('guest.payments.index') }}">Payments</a></li>
+                                <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Manage Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rpNavDesktopLogoutForm').submit();">Sign Out</a></li>
+                            </ul>
+                        </div>
+                        <form id="rpNavDesktopLogoutForm" action="{{ route('logout') }}" method="POST" class="d-none">
+                            @csrf
+                        </form>
                     @else
-                        <a class="rp-nav-link" href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">{{ auth()->user()->hasRole('guest') ? 'My Reservations' : 'Account' }}</a>
+                        <a class="rp-nav-link" href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
                         <a class="rp-nav-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rpNavDesktopLogoutForm').submit();">Sign Out</a>
                         <form id="rpNavDesktopLogoutForm" action="{{ route('logout') }}" method="POST" class="d-none">
                             @csrf
@@ -61,6 +75,7 @@
                 @if(auth()->user()->hasRole('guest'))
                     <a href="{{ route('guest.bookings.index') }}">My Reservations</a>
                     <a href="{{ route('guest.payments.index') }}">Payments</a>
+                    <a href="{{ route('profile.edit') }}">Manage Profile</a>
                 @else
                     <a href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
                 @endif

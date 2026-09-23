@@ -4,7 +4,6 @@
 @section('theme', 'admin')
 @section('role_label', 'Administrator')
 @section('page_title', 'Accommodation Types')
-@section('page_subtitle', 'Categories for rooms and facilities')
 @section('sidebar')
     @include('partials.sidebar-admin')
 @endsection
@@ -38,20 +37,22 @@
                         <td>{{ $type->slug }}</td>
                         <td>{{ \Illuminate\Support\Str::limit($type->description, 80) ?: '—' }}</td>
                         <td class="text-nowrap">
-                            <button
-                                type="button"
-                                class="btn btn-sm btn-rp-soft"
-                                data-bs-toggle="modal"
-                                data-bs-target="#typeEditModal"
-                                data-action="{{ route('admin.types.update', $type) }}"
-                                data-name="{{ $type->name }}"
-                                data-description="{{ $type->description }}"
-                            >Edit</button>
-                            <form method="POST" action="{{ route('admin.types.destroy', $type) }}" class="d-inline" data-rp-confirm="Delete this type?">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-sm btn-outline-danger">Delete</button>
-                            </form>
+                            <div class="d-flex justify-content-end gap-2">
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-rp-soft"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#typeEditModal"
+                                    data-action="{{ route('admin.types.update', $type) }}"
+                                    data-name="{{ $type->name }}"
+                                    data-description="{{ $type->description }}"
+                                >Edit</button>
+                                <form method="POST" action="{{ route('admin.types.destroy', $type) }}" data-rp-confirm="Delete this type?">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 @empty

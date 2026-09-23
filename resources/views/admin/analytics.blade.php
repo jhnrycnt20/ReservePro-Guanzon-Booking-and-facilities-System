@@ -4,7 +4,6 @@
 @section('theme', 'admin')
 @section('role_label', 'Admin')
 @section('page_title', 'Analytics')
-@section('page_subtitle', 'Charts and trends across reservations, revenue, and incidents')
 @section('sidebar')
     @include('partials.sidebar-admin')
 @endsection

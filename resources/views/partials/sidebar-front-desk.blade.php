@@ -18,3 +18,7 @@
 <a href="{{ route('front_desk.incidents.index') }}" class="{{ request()->routeIs('front_desk.incidents.*') ? 'active' : '' }}">
     <i class="bi bi-clipboard2-pulse"></i> Incident Reports
 </a>
+<div class="nav-section">My Account</div>
+<a href="{{ route('profile.edit') }}" class="{{ request()->routeIs('profile.*') ? 'active' : '' }}">
+    <i class="bi bi-person-circle"></i> Manage Profile
+</a>

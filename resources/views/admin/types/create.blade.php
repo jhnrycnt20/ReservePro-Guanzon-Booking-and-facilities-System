@@ -4,7 +4,6 @@
 @section('theme', 'admin')
 @section('role_label', 'Administrator')
 @section('page_title', 'Add Type')
-@section('page_subtitle', 'Create an accommodation category')
 @section('sidebar')
     @include('partials.sidebar-admin')
 @endsection

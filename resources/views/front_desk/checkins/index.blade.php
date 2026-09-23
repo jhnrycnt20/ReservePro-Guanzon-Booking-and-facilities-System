@@ -13,19 +13,19 @@
 @include('partials.list-filters', [
     'dateName' => 'date',
     'dateLabel' => 'Check-in date',
-    'searchPlaceholder' => 'Booking #, guest, or room',
+    'searchPlaceholder' => 'Booking Number, Guest, or Room',
     'clearUrl' => route('front_desk.checkins.index'),
 ])
 <div class="rp-card">
     <div class="table-responsive">
-        <table class="table align-middle">
+        <table class="table align-middle" style="table-layout: fixed;">
             <thead>
                 <tr>
-                    <th>Booking</th>
-                    <th>Guest</th>
-                    <th>Room</th>
-                    <th>Checked in</th>
-                    <th></th>
+                    <th style="width: 16%;">Booking</th>
+                    <th style="width: 22%;">Guest</th>
+                    <th style="width: 18%;">Room</th>
+                    <th style="width: 28%;">Check-in</th>
+                    <th style="width: 16%;"></th>
                 </tr>
             </thead>
             <tbody>
@@ -38,8 +38,8 @@
                             {{ $booking->checkIn?->checked_in_at?->format('M d, Y g:i A')
                                 ?? ($booking->check_in_date?->format('M d, Y').' · 2:00 PM') }}
                         </td>
-                        <td>
-                            <a href="{{ route('front_desk.checkins.show', $booking) }}" class="btn btn-sm btn-rp-primary">View full details</a>
+                        <td class="text-end">
+                            <a href="{{ route('front_desk.checkins.show', $booking) }}" class="btn btn-sm btn-rp-soft">View</a>
                         </td>
                     </tr>
                 @empty

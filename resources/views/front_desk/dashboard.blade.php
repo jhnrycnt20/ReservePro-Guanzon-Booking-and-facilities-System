@@ -4,7 +4,6 @@
 @section('theme', 'front_desk')
 @section('role_label', 'Front Desk')
 @section('page_title', 'Front Desk Dashboard')
-@section('page_subtitle', 'Reservations by payment progress — check-in 2:00 PM, check-out 12:00 PM')
 @section('sidebar')
     @include('partials.sidebar-front-desk')
 @endsection
@@ -21,24 +20,20 @@
     <div class="col-6 col-lg-3"><div class="rp-stat"><div class="label">Pending Incidents</div><div class="value">{{ $stats['pending_incidents'] ?? 0 }}</div></div></div>
 </div>
 
-<div class="d-flex flex-wrap gap-2 mb-4">
-    <a href="{{ route('front_desk.walkins.create') }}" class="btn btn-rp-primary"><i class="bi bi-person-walking me-1"></i> New Walk-in</a>
-</div>
-
 <div class="row g-3">
     <div class="col-lg-7">
         <div class="rp-card">
             <h2 class="h5 mb-3">Reservations (Reserved &amp; Booked)</h2>
             <div class="table-responsive">
-                <table class="table align-middle">
-                    <thead><tr><th>Guest</th><th>Room</th><th>Dates</th><th></th></tr></thead>
+                <table class="table align-middle" style="table-layout: fixed;">
+                    <thead><tr><th style="width: 28%;">Guest</th><th style="width: 24%;">Room</th><th style="width: 28%;">Dates</th><th style="width: 20%;"></th></tr></thead>
                     <tbody>
                         @forelse($pendingReservations ?? [] as $booking)
                             <tr>
                                 <td>{{ $booking->guest_name }}</td>
                                 <td>{{ $booking->accommodation->name ?? '—' }}</td>
                                 <td>{{ $booking->check_in_date->format('M d') }} → {{ $booking->check_out_date->format('M d') }}</td>
-                                <td><a href="{{ route('front_desk.reservations.show', $booking) }}" class="btn btn-sm btn-rp-primary">View details</a></td>
+                                <td class="text-end"><a href="{{ route('front_desk.reservations.show', $booking) }}" class="btn btn-sm btn-rp-soft">View</a></td>
                             </tr>
                         @empty
                             <tr><td colspan="4" class="text-muted">No open reservations on the queue.</td></tr>

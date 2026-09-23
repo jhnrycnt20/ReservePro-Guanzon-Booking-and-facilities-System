@@ -44,9 +44,11 @@ class UserController extends Controller
         return view('admin.users.index', compact('users', 'roles'));
     }
 
-    public function create(): RedirectResponse
+    public function create(): View
     {
-        return redirect()->route('admin.users.index', ['open' => 'create']);
+        $roles = Role::query()->orderBy('name')->get();
+
+        return view('admin.users.create', compact('roles'));
     }
 
     public function store(StoreUserRequest $request): RedirectResponse

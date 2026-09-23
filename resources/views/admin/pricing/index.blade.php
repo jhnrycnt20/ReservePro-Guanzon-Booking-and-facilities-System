@@ -4,7 +4,6 @@
 @section('theme', 'admin')
 @section('role_label', 'Administrator')
 @section('page_title', 'Pricing')
-@section('page_subtitle', 'Seasonal and special rates')
 @section('sidebar')
     @include('partials.sidebar-admin')
 @endsection
@@ -56,12 +55,14 @@
                         <td>{{ $item->end_date ? \Illuminate\Support\Carbon::parse($item->end_date)->format('M d, Y') : '—' }}</td>
                         <td>{{ $item->is_active ? 'Yes' : 'No' }}</td>
                         <td class="text-nowrap">
-                            <a href="{{ route('admin.pricing.edit', $item) }}" class="btn btn-sm btn-rp-soft">Edit</a>
-                            <form method="POST" action="{{ route('admin.pricing.destroy', $item) }}" class="d-inline" data-rp-confirm="Delete this pricing rule?">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-sm btn-outline-danger">Delete</button>
-                            </form>
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{{ route('admin.pricing.edit', $item) }}" class="btn btn-sm btn-rp-soft">Edit</a>
+                                <form method="POST" action="{{ route('admin.pricing.destroy', $item) }}" data-rp-confirm="Delete this pricing rule?">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 @empty

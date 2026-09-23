@@ -4,7 +4,6 @@
 @section('theme', 'admin')
 @section('role_label', 'Administrator')
 @section('page_title', 'Amenities')
-@section('page_subtitle', 'Features available across accommodations')
 @section('sidebar')
     @include('partials.sidebar-admin')
 @endsection
@@ -38,21 +37,23 @@
                         <td>{{ $amenity->icon ?? '—' }}</td>
                         <td>{{ \Illuminate\Support\Str::limit($amenity->description, 80) ?: '—' }}</td>
                         <td class="text-nowrap">
-                            <button
-                                type="button"
-                                class="btn btn-sm btn-rp-soft"
-                                data-bs-toggle="modal"
-                                data-bs-target="#amenityEditModal"
-                                data-action="{{ route('admin.amenities.update', $amenity) }}"
-                                data-name="{{ $amenity->name }}"
-                                data-icon="{{ $amenity->icon }}"
-                                data-description="{{ $amenity->description }}"
-                            >Edit</button>
-                            <form method="POST" action="{{ route('admin.amenities.destroy', $amenity) }}" class="d-inline" data-rp-confirm="Delete this amenity?">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-sm btn-outline-danger">Delete</button>
-                            </form>
+                            <div class="d-flex justify-content-end gap-2">
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-rp-soft"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#amenityEditModal"
+                                    data-action="{{ route('admin.amenities.update', $amenity) }}"
+                                    data-name="{{ $amenity->name }}"
+                                    data-icon="{{ $amenity->icon }}"
+                                    data-description="{{ $amenity->description }}"
+                                >Edit</button>
+                                <form method="POST" action="{{ route('admin.amenities.destroy', $amenity) }}" data-rp-confirm="Delete this amenity?">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 @empty

@@ -4,7 +4,6 @@
 @section('theme', 'admin')
 @section('role_label', 'Administrator')
 @section('page_title', 'Contact Message')
-@section('page_subtitle', $message->subject ?: 'Inquiry details')
 @section('sidebar')
     @include('partials.sidebar-admin')
 @endsection

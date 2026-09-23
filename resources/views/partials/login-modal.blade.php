@@ -14,7 +14,7 @@
                     <div class="rp-login-field">
                         <input id="rpLoginEmail" type="email" class="@error('email', 'login') is-invalid @enderror" name="email" value="{{ old('email') }}" placeholder="Email" required autofocus>
                         <i class="bi bi-envelope rp-login-field-icon"></i>
-                        @error('email', 'login')<div class="rp-login-error">{{ $message }}</div>@enderror
+                        <div class="rp-login-error">@error('email', 'login'){{ $message }}@enderror</div>
                     </div>
 
                     <div class="rp-login-field input-group">
@@ -22,7 +22,7 @@
                         <button type="button" class="rp-login-field-icon-btn" data-rp-toggle-password aria-label="Show password">
                             <i class="bi bi-eye"></i>
                         </button>
-                        @error('password', 'login')<div class="rp-login-error">{{ $message }}</div>@enderror
+                        <div class="rp-login-error">@error('password', 'login'){{ $message }}@enderror</div>
                     </div>
 
                     <div class="rp-login-remember">

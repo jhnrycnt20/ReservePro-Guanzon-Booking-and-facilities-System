@@ -4,7 +4,6 @@
 @section('theme', 'admin')
 @section('role_label', 'Administrator')
 @section('page_title', 'Guest Feedback')
-@section('page_subtitle', 'Ratings and comments from checked-out guests')
 @section('sidebar')
     @include('partials.sidebar-admin')
 @endsection
@@ -32,19 +31,19 @@
             ],
         ],
     ],
-    'searchPlaceholder' => 'Guest, booking #, or comment',
+    'searchPlaceholder' => 'Guest, Booking Number, or Comment',
     'clearUrl' => route('admin.feedback.index'),
 ])
 <div class="rp-card">
     <div class="table-responsive">
-        <table class="table align-middle">
+        <table class="table align-middle" style="table-layout: fixed;">
             <thead>
                 <tr>
-                    <th>Guest</th>
-                    <th>Booking</th>
-                    <th>Rating</th>
-                    <th>Comment</th>
-                    <th>Date</th>
+                    <th style="width: 14%;">Guest</th>
+                    <th style="width: 16%;">Booking</th>
+                    <th style="width: 12%;">Rating</th>
+                    <th style="width: 44%;">Comment</th>
+                    <th style="width: 14%;">Date</th>
                 </tr>
             </thead>
             <tbody>

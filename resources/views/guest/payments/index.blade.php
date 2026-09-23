@@ -24,7 +24,7 @@
                 ],
             ],
         ],
-        'searchPlaceholder' => 'Booking #, room, or reference',
+        'searchPlaceholder' => 'Booking Number, Room, or Reference',
         'clearUrl' => route('guest.payments.index'),
     ])
 

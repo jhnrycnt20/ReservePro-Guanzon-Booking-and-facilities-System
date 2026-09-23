@@ -4,7 +4,6 @@
 @section('theme', optional(auth()->user()->role)->slug ?? 'guest')
 @section('role_label', ucfirst(str_replace('_', ' ', optional(auth()->user()->role)->slug ?? 'User')))
 @section('page_title', 'Notifications')
-@section('page_subtitle', 'Workflow updates for your account')
 @section('sidebar')
     @php $slug = optional(auth()->user()->role)->slug; @endphp
     @if($slug === 'admin')

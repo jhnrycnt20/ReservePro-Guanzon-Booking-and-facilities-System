@@ -150,4 +150,25 @@ class Accommodation extends Model
             return asset('storage/'.$path);
         })->all();
     }
+
+    /**
+     * Raw gallery paths paired with their resolved URL, for admin gallery management.
+     *
+     * @return list<array{path: string, url: string}>
+     */
+    public function getGalleryItemsAttribute(): array
+    {
+        return collect($this->gallery ?? [])
+            ->filter(fn ($path) => is_string($path) && $path !== '')
+            ->values()
+            ->map(fn (string $path) => [
+                'path' => $path,
+                'url' => match (true) {
+                    str_starts_with($path, 'http://'), str_starts_with($path, 'https://') => $path,
+                    str_starts_with($path, 'images/') => asset($path),
+                    default => asset('storage/'.$path),
+                },
+            ])
+            ->all();
+    }
 }

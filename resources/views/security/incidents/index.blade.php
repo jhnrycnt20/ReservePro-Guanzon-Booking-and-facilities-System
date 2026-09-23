@@ -4,7 +4,6 @@
 @section('theme', 'security')
 @section('role_label', 'Security Guard')
 @section('page_title', 'Incident Reports')
-@section('page_subtitle', 'Review and investigate guest reports')
 @section('sidebar')
     @include('partials.sidebar-security')
 @endsection
@@ -27,21 +26,21 @@
             ],
         ],
     ],
-    'searchPlaceholder' => 'Report #, title, location, or guest',
+    'searchPlaceholder' => 'Report Number, Title, Location, or Guest',
     'clearUrl' => route('security.incidents.index'),
 ])
 <div class="rp-card">
     <div class="table-responsive">
-        <table class="table align-middle">
+        <table class="table align-middle" style="table-layout: fixed;">
             <thead>
                 <tr>
-                    <th>Report #</th>
-                    <th>Type</th>
-                    <th>Title</th>
-                    <th>Location</th>
-                    <th>Guest</th>
-                    <th>Status</th>
-                    <th></th>
+                    <th style="width: 16%;">Report #</th>
+                    <th style="width: 12%;">Type</th>
+                    <th style="width: 20%;">Title</th>
+                    <th style="width: 14%;">Location</th>
+                    <th style="width: 14%;">Guest</th>
+                    <th style="width: 10%;">Status</th>
+                    <th style="width: 14%;"></th>
                 </tr>
             </thead>
             <tbody>
@@ -52,9 +51,9 @@
                         <td>{{ $report->title }}</td>
                         <td>{{ $report->location }}</td>
                         <td>{{ $report->guest?->user?->name ?? '—' }}</td>
-                        <td><x-status-badge :status="$report->status" /></td>
-                        <td>
-                            <a href="{{ route('security.incidents.show', $report) }}" class="btn btn-sm btn-rp-primary">Investigate</a>
+                        <td><x-status-badge :status="$report->status" plain /></td>
+                        <td class="text-end">
+                            <a href="{{ route('security.incidents.show', $report) }}" class="btn btn-sm btn-rp-primary">View</a>
                         </td>
                     </tr>
                 @empty

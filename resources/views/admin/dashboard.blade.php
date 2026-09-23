@@ -4,7 +4,6 @@
 @section('theme', 'admin')
 @section('role_label', 'Admin')
 @section('page_title', 'Admin Dashboard')
-@section('page_subtitle', 'Monitor resort operations, revenue, and incidents')
 @section('sidebar')
     @include('partials.sidebar-admin')
 @endsection

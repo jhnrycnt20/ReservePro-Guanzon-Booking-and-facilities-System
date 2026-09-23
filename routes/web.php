@@ -28,6 +28,7 @@ use App\Http\Controllers\Guest\NotificationController;
 use App\Http\Controllers\Guest\PaymentController as GuestPaymentController;
 use App\Http\Controllers\Guest\PromoController as GuestPromoController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Security\DashboardController as SecurityDashboardController;
 use App\Http\Controllers\Security\InvestigationController;
 use App\Http\Controllers\Webhooks\PayMongoWebhookController;
@@ -98,6 +99,10 @@ Route::get('/accommodations/{accommodation}/occupied-dates', [AccommodationBrows
 Route::get('/guest/bookings/create', [GuestBookingController::class, 'create'])->name('guest.bookings.create');
 
 Route::middleware(['auth', 'active'])->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/notifications/{id}/open', [NotificationController::class, 'open'])->name('notifications.open');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
@@ -170,7 +175,7 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
         Route::resource('users', UserController::class)->except(['show']);
-        Route::resource('accommodations', AdminAccommodationController::class)->except(['show']);
+        Route::resource('accommodations', AdminAccommodationController::class);
         Route::resource('types', AccommodationTypeController::class)
             ->parameters(['types' => 'type'])
             ->except(['show']);
@@ -183,7 +188,6 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('/promos/{promo}', [PromoController::class, 'show'])->name('promos.show');
         Route::get('/promos/{promo}/edit', [PromoController::class, 'edit'])->name('promos.edit');
         Route::put('/promos/{promo}', [PromoController::class, 'update'])->name('promos.update');
-        Route::post('/promos/{promo}/toggle', [PromoController::class, 'toggle'])->name('promos.toggle');
         Route::delete('/promos/{promo}', [PromoController::class, 'destroy'])->name('promos.destroy');
 
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');

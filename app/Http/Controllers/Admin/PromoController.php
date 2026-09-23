@@ -224,11 +224,4 @@ class PromoController extends Controller
             ->route('admin.promos.index')
             ->with('success', 'Promo deleted.');
     }
-
-    public function toggle(Promo $promo): RedirectResponse
-    {
-        $promo->update(['is_active' => ! $promo->is_active]);
-
-        return back()->with('success', $promo->is_active ? 'Promo activated.' : 'Promo deactivated.');
-    }
 }

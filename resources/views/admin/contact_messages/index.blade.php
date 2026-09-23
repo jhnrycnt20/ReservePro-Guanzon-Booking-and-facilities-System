@@ -4,7 +4,6 @@
 @section('theme', 'admin')
 @section('role_label', 'Administrator')
 @section('page_title', 'Contact Messages')
-@section('page_subtitle', 'Inquiries from the public contact form')
 @section('sidebar')
     @include('partials.sidebar-admin')
 @endsection
@@ -23,24 +22,24 @@
             ],
         ],
     ],
-    'searchPlaceholder' => 'Name, email, subject, or message',
+    'searchPlaceholder' => 'Name, Email, Subject, or Message',
     'clearUrl' => route('admin.contact-messages.index'),
 ])
 <div class="rp-card">
     <div class="table-responsive">
-        <table class="table align-middle">
+        <table class="table align-middle" style="table-layout: fixed;">
             <thead>
                 <tr>
-                    <th>From</th>
-                    <th>Subject</th>
-                    <th>Phone</th>
-                    <th>Received</th>
-                    <th></th>
+                    <th style="width: 24%;">From</th>
+                    <th style="width: 30%;">Subject</th>
+                    <th style="width: 16%;">Phone</th>
+                    <th style="width: 18%;">Received</th>
+                    <th style="width: 12%;"></th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($messages as $item)
-                    <tr class="{{ $item->read_at ? '' : 'fw-semibold' }}" data-message-row="{{ $item->id }}">
+                    <tr>
                         <td>
                             <div>{{ $item->name }}</div>
                             <div class="small text-muted">{{ $item->email }}</div>
@@ -51,7 +50,7 @@
                         <td class="text-end">
                             <button
                                 type="button"
-                                class="btn btn-sm btn-outline-secondary"
+                                class="btn btn-sm btn-rp-soft"
                                 data-bs-toggle="modal"
                                 data-bs-target="#contactMessageViewModal"
                                 data-payload="{{ base64_encode(json_encode([
@@ -63,7 +62,6 @@
                                     'message' => $item->message,
                                     'received' => $item->created_at?->format('M d, Y g:i A'),
                                     'mark_read_url' => route('admin.contact-messages.show', $item),
-                                    'delete_url' => route('admin.contact-messages.destroy', $item),
                                 ], JSON_UNESCAPED_UNICODE)) }}"
                             >View</button>
                         </td>
@@ -113,15 +111,8 @@
                     <div id="contactViewMessage" class="rp-contact-message-body">—</div>
                 </div>
             </div>
-            <div class="modal-footer justify-content-between">
-                <form method="POST" id="contactMessageDeleteForm" data-rp-confirm="Delete this message?">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-outline-danger">Delete</button>
-                </form>
-                <div class="d-flex gap-2">
-                    <a href="#" id="contactViewReply" class="btn btn-rp-primary">Reply by email</a>
-                </div>
+            <div class="modal-footer">
+                <a href="#" id="contactViewReply" class="btn btn-rp-primary">Reply by email</a>
             </div>
         </div>
     </div>
@@ -148,9 +139,7 @@ document.getElementById('contactMessageViewModal')?.addEventListener('show.bs.mo
     const subject = payload.subject || '—';
     const message = payload.message || '—';
     const received = payload.received || '—';
-    const deleteUrl = payload.delete_url || '';
     const markReadUrl = payload.mark_read_url || '';
-    const messageId = payload.id || '';
 
     document.getElementById('contactViewName').textContent = name;
     document.getElementById('contactViewPhone').textContent = phone || '—';
@@ -184,11 +173,6 @@ document.getElementById('contactMessageViewModal')?.addEventListener('show.bs.mo
         replyLink.classList.add('disabled');
     }
 
-    const deleteForm = document.getElementById('contactMessageDeleteForm');
-    if (deleteForm) {
-        deleteForm.action = deleteUrl;
-    }
-
     if (markReadUrl) {
         fetch(markReadUrl, {
             headers: {
@@ -196,9 +180,6 @@ document.getElementById('contactMessageViewModal')?.addEventListener('show.bs.mo
                 'X-Requested-With': 'XMLHttpRequest',
             },
             credentials: 'same-origin',
-        }).then(() => {
-            const row = document.querySelector(`[data-message-row="${messageId}"]`);
-            row?.classList.remove('fw-semibold');
         }).catch(() => {});
     }
 });

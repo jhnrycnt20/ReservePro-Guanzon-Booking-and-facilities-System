@@ -27,3 +27,7 @@
 <a href="{{ route('admin.settings.index') }}" class="{{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
     <i class="bi bi-gear"></i> Settings
 </a>
+<div class="nav-section">My Account</div>
+<a href="{{ route('profile.edit') }}" class="{{ request()->routeIs('profile.*') ? 'active' : '' }}">
+    <i class="bi bi-person-circle"></i> Manage Profile
+</a>

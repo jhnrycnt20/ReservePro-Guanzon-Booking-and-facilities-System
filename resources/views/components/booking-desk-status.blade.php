@@ -1,4 +1,4 @@
-@props(['booking'])
+@props(['booking', 'plain' => false])
 
 @php
     $value = $booking->status instanceof \BackedEnum ? $booking->status->value : (string) $booking->status;
@@ -22,4 +22,4 @@
     }
 @endphp
 
-<x-status-badge :status="$badgeStatus" :label="$label" />
+<x-status-badge :status="$badgeStatus" :label="$label" :plain="$plain" />

@@ -8,3 +8,7 @@
 <a href="{{ route('security.incidents.index') }}" class="{{ request()->routeIs('security.incidents.*') && !request('status') ? 'active' : '' }}">
     <i class="bi bi-list-ul"></i> All Reports
 </a>
+<div class="nav-section">My Account</div>
+<a href="{{ route('profile.edit') }}" class="{{ request()->routeIs('profile.*') ? 'active' : '' }}">
+    <i class="bi bi-person-circle"></i> Manage Profile
+</a>

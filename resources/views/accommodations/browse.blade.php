@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', 'Browse Resort')
+@section('title', 'Accommodations')
 
 @section('content')
 <div class="container rp-public-page-top pb-4">
@@ -10,9 +10,9 @@
     $checkOutDisplay = request('check_out') ? \Carbon\Carbon::parse(request('check_out'))->format('M j, Y') : '';
 @endphp
 
-<a href="{{ url('/') }}" class="rp-back-link" data-rp-history-back>
-    <i class="bi bi-arrow-left"></i> Back
-</a>
+<div class="rp-page-intro">
+    <h1 class="rp-page-intro-title">Accommodations</h1>
+</div>
 
 @if(session('error'))
     <div class="alert alert-warning border-0 shadow-sm mb-3" role="alert" data-rp-auto-dismiss>
@@ -64,6 +64,7 @@
                 'accommodation' => $item->id,
                 'check_in' => request('check_in'),
                 'check_out' => request('check_out'),
+                'from' => request('from'),
             ]));
         @endphp
         <div class="col-md-4">

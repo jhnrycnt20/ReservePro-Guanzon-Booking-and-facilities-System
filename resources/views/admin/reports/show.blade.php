@@ -4,7 +4,6 @@
 @section('theme', 'admin')
 @section('role_label', 'Administrator')
 @section('page_title', 'Report '.$report->report_number)
-@section('page_subtitle', 'Read-only incident monitoring')
 @section('sidebar')
     @include('partials.sidebar-admin')
 @endsection
@@ -21,7 +20,6 @@
                         {{ str_replace('_', ' ', ucfirst($report->report_type instanceof \BackedEnum ? $report->report_type->value : $report->report_type)) }}
                     </div>
                 </div>
-                <x-status-badge :status="$report->status" />
             </div>
             <p>{{ $report->description }}</p>
             @if($report->photo)

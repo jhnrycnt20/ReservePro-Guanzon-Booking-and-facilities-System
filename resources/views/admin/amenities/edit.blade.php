@@ -4,7 +4,6 @@
 @section('theme', 'admin')
 @section('role_label', 'Administrator')
 @section('page_title', 'Edit Amenity')
-@section('page_subtitle', $amenity->name)
 @section('sidebar')
     @include('partials.sidebar-admin')
 @endsection

@@ -4,7 +4,6 @@
 @section('theme', 'front_desk')
 @section('role_label', 'Front Desk')
 @section('page_title', 'Incident Reports')
-@section('page_subtitle', 'Resolve verified reports and track progress')
 @section('sidebar')
     @include('partials.sidebar-front-desk')
 @endsection
@@ -25,21 +24,21 @@
             ],
         ],
     ],
-    'searchPlaceholder' => 'Report #, title, location, or guest',
+    'searchPlaceholder' => 'Report Number, Title, Location, or Guest',
     'clearUrl' => route('front_desk.incidents.index'),
 ])
 <div class="rp-card">
     <div class="table-responsive">
-        <table class="table align-middle">
+        <table class="table align-middle" style="table-layout: fixed;">
             <thead>
                 <tr>
-                    <th>Report #</th>
-                    <th>Type</th>
-                    <th>Title</th>
-                    <th>Location</th>
-                    <th>Guest</th>
-                    <th>Status</th>
-                    <th></th>
+                    <th style="width: 14%;">Report #</th>
+                    <th style="width: 10%;">Type</th>
+                    <th style="width: 22%;">Title</th>
+                    <th style="width: 14%;">Location</th>
+                    <th style="width: 14%;">Guest</th>
+                    <th style="width: 10%;">Status</th>
+                    <th style="width: 16%;"></th>
                 </tr>
             </thead>
             <tbody>
@@ -50,9 +49,9 @@
                         <td>{{ $report->title }}</td>
                         <td>{{ $report->location }}</td>
                         <td>{{ $report->guest?->user?->name ?? '—' }}</td>
-                        <td><x-status-badge :status="$report->status" /></td>
-                        <td>
-                            <a href="{{ route('front_desk.incidents.show', $report) }}" class="btn btn-sm btn-rp-primary">Open</a>
+                        <td><x-status-badge :status="$report->status" plain /></td>
+                        <td class="text-end">
+                            <a href="{{ route('front_desk.incidents.show', $report) }}" class="btn btn-sm btn-rp-soft">View</a>
                         </td>
                     </tr>
                 @empty

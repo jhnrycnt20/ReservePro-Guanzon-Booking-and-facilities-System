@@ -4,7 +4,6 @@
 @section('theme', 'front_desk')
 @section('role_label', 'Front Desk')
 @section('page_title', 'Payments')
-@section('page_subtitle', 'Review payment details and screenshots')
 @section('sidebar')
     @include('partials.sidebar-front-desk')
 @endsection
@@ -25,21 +24,26 @@
             <label class="form-label">Search</label>
             <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="Booking #, guest, or reference" data-rp-live-filter-q autocomplete="off">
         </div>
-        <div class="col-md-3 d-flex gap-2">
-            <button type="submit" class="btn btn-rp-primary flex-grow-1">Filter</button>
-            @if(request()->filled('q') || (request()->filled('status') && request('status') !== 'all'))
-                <a href="{{ route('front_desk.payments.index') }}" class="btn btn-rp-soft">Clear</a>
-            @endif
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-rp-primary w-100">Filter</button>
         </div>
     </form>
 </div>
 
 <div class="rp-card">
     <div class="table-responsive">
-        <table class="table align-middle">
+        <table class="table align-middle" style="table-layout: fixed;">
             <thead>
                 <tr>
-                    <th>Ref</th><th>Booking</th><th>Guest</th><th>Amount</th><th>Method</th><th>Proof</th><th>Date</th><th>Status</th><th></th>
+                    <th style="width: 10%;">Ref</th>
+                    <th style="width: 10%;">Booking</th>
+                    <th style="width: 14%;">Guest</th>
+                    <th style="width: 10%;">Amount</th>
+                    <th style="width: 10%;">Method</th>
+                    <th style="width: 8%;">Proof</th>
+                    <th style="width: 14%;">Date</th>
+                    <th style="width: 10%;">Status</th>
+                    <th style="width: 14%;"></th>
                 </tr>
             </thead>
             <tbody>
@@ -61,8 +65,8 @@
                             @if($payment->proof_url)<span class="badge text-bg-success">Yes</span>@else<span class="text-muted">No</span>@endif
                         </td>
                         <td>{{ $payment->payment_date?->format('M d, Y g:i A') ?? '—' }}</td>
-                        <td><x-status-badge :status="$paymentProgress" /></td>
-                        <td class="text-nowrap"><a href="{{ route('front_desk.payments.show', $payment) }}" class="btn btn-sm btn-rp-primary">Details</a></td>
+                        <td><x-status-badge :status="$paymentProgress" plain /></td>
+                        <td class="text-nowrap text-end"><a href="{{ route('front_desk.payments.show', $payment) }}" class="btn btn-sm btn-rp-soft">View</a></td>
                     </tr>
                 @empty
                     <tr><td colspan="9" class="text-muted">No payments found.</td></tr>

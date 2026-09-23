@@ -4,7 +4,6 @@
 @section('theme', 'admin')
 @section('role_label', 'Administrator')
 @section('page_title', 'Incident Reports')
-@section('page_subtitle', 'Read-only monitoring of all reports')
 @section('sidebar')
     @include('partials.sidebar-admin')
 @endsection
@@ -27,21 +26,21 @@
             ],
         ],
     ],
-    'searchPlaceholder' => 'Report #, title, location, or guest',
+    'searchPlaceholder' => 'Report Number, Title, Location, or Guest',
     'clearUrl' => route('admin.reports.index'),
 ])
 <div class="rp-card">
     <div class="table-responsive">
-        <table class="table align-middle">
+        <table class="table align-middle" style="table-layout: fixed;">
             <thead>
                 <tr>
-                    <th>Report #</th>
-                    <th>Type</th>
-                    <th>Title</th>
-                    <th>Guest</th>
-                    <th>Status</th>
-                    <th>Submitted</th>
-                    <th></th>
+                    <th style="width: 16%;">Report ID</th>
+                    <th style="width: 12%;">Type</th>
+                    <th style="width: 24%;">Title</th>
+                    <th style="width: 14%;">Guest</th>
+                    <th style="width: 10%;">Status</th>
+                    <th style="width: 12%;">Submitted</th>
+                    <th style="width: 12%;"></th>
                 </tr>
             </thead>
             <tbody>
@@ -51,9 +50,9 @@
                         <td>{{ str_replace('_', ' ', ucfirst($report->report_type instanceof \BackedEnum ? $report->report_type->value : $report->report_type)) }}</td>
                         <td>{{ $report->title }}</td>
                         <td>{{ $report->guest?->user?->name ?? '—' }}</td>
-                        <td><x-status-badge :status="$report->status" /></td>
+                        <td><x-status-badge :status="$report->status" plain /></td>
                         <td>{{ $report->created_at?->format('M d, Y') }}</td>
-                        <td>
+                        <td class="text-end">
                             <a href="{{ route('admin.reports.show', $report) }}" class="btn btn-sm btn-rp-soft">View</a>
                         </td>
                     </tr>

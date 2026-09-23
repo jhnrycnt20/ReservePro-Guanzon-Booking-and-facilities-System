@@ -15,3 +15,7 @@
 <a href="{{ route('guest.feedback.index') }}" class="{{ request()->routeIs('guest.feedback.*') ? 'active' : '' }}">
     <i class="bi bi-star"></i> Feedback
 </a>
+<div class="nav-section">My Account</div>
+<a href="{{ route('profile.edit') }}" class="{{ request()->routeIs('profile.*') ? 'active' : '' }}">
+    <i class="bi bi-person-circle"></i> Manage Profile
+</a>

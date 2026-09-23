@@ -5,7 +5,8 @@
 @section('content')
 <div class="container rp-public-page-top pb-4">
 
-<a href="{{ route('accommodations.browse') }}" class="rp-back-link"><i class="bi bi-arrow-left"></i> Back to Accommodations</a>
+@php $rpBackNav = \App\Helpers\BackNav::resolve(request('from')); @endphp
+<a href="{{ $rpBackNav['url'] }}" class="rp-back-link"><i class="bi bi-arrow-left"></i> {{ $rpBackNav['label'] }}</a>
 
 @include('partials.booking-tracker', ['activeStep' => 'dates'])
 

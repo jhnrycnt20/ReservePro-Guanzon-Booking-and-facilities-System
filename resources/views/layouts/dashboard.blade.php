@@ -26,6 +26,10 @@
                 @yield('sidebar')
             </nav>
             <div class="rp-sidebar-footer">
+                <a href="{{ route('profile.edit') }}" class="rp-sidebar-user">
+                    <div class="rp-sidebar-user-name">{{ auth()->user()->name }}</div>
+                    <div class="rp-sidebar-user-email">{{ auth()->user()->email }}</div>
+                </a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="btn btn-outline-light btn-sm w-100">
@@ -94,15 +98,10 @@
                             <a href="{{ route('notifications.index') }}" class="rp-notif-panel-foot">View all</a>
                         </div>
                     </div>
-                    <div class="text-end d-none d-md-block">
-                        <div class="fw-semibold">{{ auth()->user()->name }}</div>
-                        <div class="small text-muted">{{ auth()->user()->email }}</div>
-                    </div>
                 </div>
             </header>
 
             <main class="rp-content">
-                @include('partials.alerts')
                 @yield('content')
             </main>
         </div>

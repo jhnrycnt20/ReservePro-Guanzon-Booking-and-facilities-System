@@ -4,7 +4,6 @@
 @section('theme', 'admin')
 @section('role_label', 'Administrator')
 @section('page_title', 'Edit Pricing')
-@section('page_subtitle', $pricing->name)
 @section('sidebar')
     @include('partials.sidebar-admin')
 @endsection
@@ -41,9 +40,12 @@
                         <label class="form-label">End date</label>
                         <input type="date" name="end_date" class="form-control" value="{{ old('end_date', optional($pricing->end_date)->format('Y-m-d') ?? $pricing->end_date) }}">
                     </div>
-                    <div class="col-12 form-check ms-1">
-                        <input class="form-check-input" type="checkbox" name="is_active" value="1" id="is_active" @checked(old('is_active', $pricing->is_active))>
-                        <label class="form-check-label" for="is_active">Active</label>
+                    <div class="col-12">
+                        <label class="form-label">Active</label>
+                        <select name="is_active" class="form-select">
+                            <option value="1" @selected(old('is_active', $pricing->is_active))>Active</option>
+                            <option value="0" @selected(! old('is_active', $pricing->is_active))>Inactive</option>
+                        </select>
                     </div>
                 </div>
                 <div class="d-flex gap-2 mt-4">

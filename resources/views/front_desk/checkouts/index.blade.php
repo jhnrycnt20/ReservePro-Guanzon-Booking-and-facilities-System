@@ -4,7 +4,6 @@
 @section('theme', 'front_desk')
 @section('role_label', 'Front Desk')
 @section('page_title', 'Check-out')
-@section('page_subtitle', 'Shown from 12:00 noon on check-out day — auto check-out when balance is zero')
 @section('sidebar')
     @include('partials.sidebar-front-desk')
 @endsection
@@ -13,19 +12,19 @@
 @include('partials.list-filters', [
     'dateName' => 'date',
     'dateLabel' => 'Check-out date',
-    'searchPlaceholder' => 'Booking #, guest, or room',
+    'searchPlaceholder' => 'Booking Number, Guest, or Room',
     'clearUrl' => route('front_desk.checkouts.index'),
 ])
 <div class="rp-card">
     <div class="table-responsive">
-        <table class="table align-middle">
+        <table class="table align-middle" style="table-layout: fixed;">
             <thead>
                 <tr>
-                    <th>Booking</th>
-                    <th>Guest</th>
-                    <th>Room</th>
-                    <th>Check-out</th>
-                    <th></th>
+                    <th style="width: 16%;">Booking</th>
+                    <th style="width: 22%;">Guest</th>
+                    <th style="width: 18%;">Room</th>
+                    <th style="width: 28%;">Check-out</th>
+                    <th style="width: 16%;"></th>
                 </tr>
             </thead>
             <tbody>
@@ -35,8 +34,8 @@
                         <td>{{ $booking->guest_name }}</td>
                         <td>{{ $booking->accommodation->name ?? '—' }}</td>
                         <td>{{ $booking->check_out_date?->format('M d, Y') }} · 12:00 PM</td>
-                        <td>
-                            <a href="{{ route('front_desk.reservations.show', $booking) }}" class="btn btn-sm btn-rp-primary">View details</a>
+                        <td class="text-end">
+                            <a href="{{ route('front_desk.reservations.show', $booking) }}" class="btn btn-sm btn-rp-soft">View</a>
                         </td>
                     </tr>
                 @empty

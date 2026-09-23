@@ -80,14 +80,14 @@
                 <div class="col-md-4">
                     @if($isMaintenance)
                         <a
-                            href="{{ route('accommodations.browse', ['type' => $item->accommodation_type_id]) }}"
+                            href="{{ route('accommodations.browse', ['type' => $item->accommodation_type_id, 'from' => 'home']) }}"
                             class="rp-cottage-card rp-cottage-card--blocked"
                             data-rp-blocked-click="Sorry, this room is under maintenance."
                             data-rp-blocked-title="Under maintenance"
                             aria-disabled="true"
                         >
                     @else
-                        <a href="{{ route('accommodations.browse', ['type' => $item->accommodation_type_id]) }}" class="rp-cottage-card">
+                        <a href="{{ route('accommodations.browse', ['type' => $item->accommodation_type_id, 'from' => 'home']) }}" class="rp-cottage-card">
                     @endif
                         <img src="{{ $item->image_url }}" alt="{{ $item->name }}">
                         <div class="rp-cottage-card-body">
@@ -113,7 +113,7 @@
             @endforelse
         </div>
         <div class="rp-view-rates-wrap">
-            <a href="{{ route('accommodations.browse') }}" class="rp-view-rates-btn">
+            <a href="{{ route('accommodations.browse', ['from' => 'home']) }}" class="rp-view-rates-btn">
                 VIEW MORE <span class="rp-view-rates-arrow">→</span>
             </a>
         </div>

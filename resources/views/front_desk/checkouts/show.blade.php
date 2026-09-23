@@ -4,7 +4,6 @@
 @section('theme', 'front_desk')
 @section('role_label', 'Front Desk')
 @section('page_title', 'Check-out '.$booking->booking_number)
-@section('page_subtitle', 'Settle charges and release the accommodation')
 @section('sidebar')
     @include('partials.sidebar-front-desk')
 @endsection

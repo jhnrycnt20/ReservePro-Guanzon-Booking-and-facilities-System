@@ -4,7 +4,6 @@
 @section('theme', 'admin')
 @section('role_label', 'Administrator')
 @section('page_title', 'Edit Type')
-@section('page_subtitle', $type->name)
 @section('sidebar')
     @include('partials.sidebar-admin')
 @endsection

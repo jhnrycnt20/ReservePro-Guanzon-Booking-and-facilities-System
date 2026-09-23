@@ -4,7 +4,6 @@
 @section('theme', 'guest')
 @section('role_label', 'Guest')
 @section('page_title', 'My Feedback')
-@section('page_subtitle', 'Ratings you have shared after check-out')
 @section('sidebar')
     @include('partials.sidebar-guest')
 @endsection

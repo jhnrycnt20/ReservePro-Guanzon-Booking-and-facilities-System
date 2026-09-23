@@ -4,7 +4,6 @@
 @section('theme', 'front_desk')
 @section('role_label', 'Front Desk')
 @section('page_title', 'Payment Details')
-@section('page_subtitle', ($payment->booking->short_number ?? 'Booking').' · ₱'.number_format($payment->amount, 2))
 @section('sidebar')
     @include('partials.sidebar-front-desk')
 @endsection
@@ -29,8 +28,6 @@
 @endphp
 
 @section('content')
-<a href="{{ route('front_desk.reservations.index') }}#payments" class="rp-back-link mb-3 d-inline-flex"><i class="bi bi-arrow-left"></i> Back to Reservations</a>
-
 <div class="row g-4">
     <div class="col-lg-6">
         <div class="rp-card mb-4">

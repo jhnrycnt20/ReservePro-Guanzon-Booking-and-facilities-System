@@ -39,6 +39,7 @@
                         'image' => asset('images/rooms/cabana/06-bedroom-ac.png'),
                         'cta' => route('accommodations.browse', [
                             'type' => \App\Models\AccommodationType::query()->where('slug', 'room')->value('id'),
+                            'from' => 'offers',
                         ]),
                         'cta_label' => 'View AC Rooms',
                     ],
@@ -60,6 +61,7 @@
                         'image' => asset('images/offers/cabana-promo.png'),
                         'cta' => route('accommodations.browse', [
                             'type' => \App\Models\AccommodationType::query()->where('slug', 'cabana')->value('id'),
+                            'from' => 'offers',
                         ]),
                         'cta_label' => 'View Cabana',
                     ],
@@ -84,6 +86,7 @@
                         'image' => asset('images/offers/suite-promo.png'),
                         'cta' => route('accommodations.browse', [
                             'type' => \App\Models\AccommodationType::query()->where('slug', 'suite')->value('id'),
+                            'from' => 'offers',
                         ]),
                         'cta_label' => 'View Suite Room',
                     ],
@@ -101,6 +104,7 @@
                         'image' => asset('images/offers/open-cottage-promo.png'),
                         'cta' => route('accommodations.browse', [
                             'type' => \App\Models\AccommodationType::query()->where('slug', 'cottage')->value('id'),
+                            'from' => 'offers',
                         ]),
                         'cta_label' => 'View Open Cottage',
                     ],

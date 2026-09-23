@@ -4,7 +4,6 @@
 @section('theme', 'admin')
 @section('role_label', 'Administrator')
 @section('page_title', 'Promo Codes')
-@section('page_subtitle', 'Create discount codes for accommodations')
 @section('sidebar')
     @include('partials.sidebar-admin')
 @endsection
@@ -35,22 +34,22 @@
 
 <div class="rp-card">
     <div class="table-responsive">
-        <table class="table align-middle">
+        <table class="table align-middle" style="table-layout: fixed;">
             <thead>
                 <tr>
-                    <th>Code</th>
-                    <th>Name</th>
-                    <th>Discount</th>
-                    <th>Scope</th>
-                    <th>Used</th>
-                    <th>Status</th>
-                    <th></th>
+                    <th style="width: 12%;">Code</th>
+                    <th style="width: 26%;">Name</th>
+                    <th style="width: 10%;">Discount</th>
+                    <th style="width: 20%;">Scope</th>
+                    <th style="width: 8%;">Used</th>
+                    <th style="width: 10%;">Status</th>
+                    <th style="width: 14%;"></th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($promos as $promo)
                     <tr>
-                        <td><code class="fw-semibold">{{ $promo->code }}</code></td>
+                        <td><code class="fw-semibold text-body">{{ $promo->code }}</code></td>
                         <td>{{ $promo->name ?: '—' }}</td>
                         <td>{{ rtrim(rtrim(number_format((float) $promo->discount_percent, 2), '0'), '.') }}%</td>
                         <td>
@@ -68,25 +67,17 @@
                                 / {{ $promo->usage_limit }}
                             @endif
                         </td>
-                        <td>
-                            @if($promo->is_active)
-                                <span class="badge text-bg-success">Active</span>
-                            @else
-                                <span class="badge text-bg-secondary">Inactive</span>
-                            @endif
-                        </td>
-                        <td class="text-end text-nowrap">
-                            <a href="{{ route('admin.promos.show', $promo) }}" class="btn btn-sm btn-rp-soft">View</a>
-                            <a href="{{ route('admin.promos.edit', $promo) }}" class="btn btn-sm btn-rp-primary">Edit</a>
-                            <form method="POST" action="{{ route('admin.promos.toggle', $promo) }}" class="d-inline">
-                                @csrf
-                                <button class="btn btn-sm btn-outline-secondary">{{ $promo->is_active ? 'Disable' : 'Enable' }}</button>
-                            </form>
-                            <form method="POST" action="{{ route('admin.promos.destroy', $promo) }}" class="d-inline" data-rp-confirm="Delete this promo?">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-sm btn-outline-danger">Delete</button>
-                            </form>
+                        <td>{{ $promo->is_active ? 'Active' : 'Inactive' }}</td>
+                        <td class="text-nowrap">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{{ route('admin.promos.show', $promo) }}" class="btn btn-sm btn-rp-soft">View</a>
+                                <a href="{{ route('admin.promos.edit', $promo) }}" class="btn btn-sm btn-rp-primary">Edit</a>
+                                <form method="POST" action="{{ route('admin.promos.destroy', $promo) }}" data-rp-confirm="Delete this promo?">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 @empty

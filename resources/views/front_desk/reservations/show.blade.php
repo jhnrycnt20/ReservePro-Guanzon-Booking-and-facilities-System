@@ -4,7 +4,6 @@
 @section('theme', 'front_desk')
 @section('role_label', 'Front Desk')
 @section('page_title', 'Reservation '.$booking->short_number)
-@section('page_subtitle', 'Guest and payment details — no approval needed')
 @section('sidebar')
     @include('partials.sidebar-front-desk')
 @endsection
@@ -47,51 +46,33 @@
     </div>
 @endif
 
-<a href="{{ route('front_desk.reservations.index') }}" class="rp-back-link mb-3 d-inline-flex"><i class="bi bi-arrow-left"></i> Back to Reservations</a>
-
-@if($bookingStatus === 'checked_in')
-    <div class="alert alert-success">This guest is checked in.</div>
-@elseif($canManualCheckIn)
-    <div class="rp-card mb-4">
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-            <div>
-                <div class="fw-semibold">Ready for check-in</div>
-                @if($checkInWindowOpen)
-                    <div class="small text-muted mb-0">Fully paid. You can check this guest in now.</div>
-                @else
-                    <div class="small text-muted mb-0">
-                        Fully paid. Check-in opens on {{ $booking->check_in_date->format('M d, Y') }} at {{ $checkInTime }}.
-                    </div>
-                @endif
-            </div>
-            @if($checkInWindowOpen)
-                <form method="POST" action="{{ route('front_desk.checkins.store', $booking) }}" class="m-0">
-                    @csrf
-                    <button type="submit" class="btn btn-rp-primary" data-rp-confirm-click="Check in this guest now?">
-                        <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>
-                        Check in
-                    </button>
-                </form>
-            @else
-                <button type="button" class="btn btn-rp-soft" disabled>Check in</button>
-            @endif
-        </div>
-        @error('check_in_date')<div class="text-danger small mt-2 mb-0">{{ $message }}</div>@enderror
-        @error('payment')<div class="text-danger small mt-2 mb-0">{{ $message }}</div>@enderror
-        @error('status')<div class="text-danger small mt-2 mb-0">{{ $message }}</div>@enderror
-    </div>
-@endif
-
 <div class="row g-4">
     <div class="col-lg-6">
-        <div class="rp-card mb-4">
+        <div class="rp-card">
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <h2 class="h5 mb-0">Payment info</h2>
-                <x-status-badge :status="$paymentDisplayStatus" :label="$paymentDisplayLabel" />
+                <div class="d-flex align-items-center gap-2">
+                    @if($payment)
+                        <button type="button" class="btn btn-sm btn-rp-soft" data-bs-toggle="modal" data-bs-target="#rpReservationReceiptModal">
+                            Show Receipt
+                        </button>
+                        @if($payment->proof_url)
+                            <button type="button" class="btn btn-sm btn-rp-soft" data-bs-toggle="modal" data-bs-target="#rpReservationProofModal">
+                                Show Payment
+                            </button>
+                        @endif
+                    @endif
+                </div>
             </div>
             @if($payment)
                 <div class="row g-3">
-                    <div class="col-md-6"><div class="text-muted small">Amount</div><div class="fs-4 fw-semibold">₱{{ number_format($payment->amount, 2) }}</div></div>
+                    <div class="col-md-6">
+                        <div class="text-muted small">Amount</div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="fs-4 fw-semibold">₱{{ number_format($payment->amount, 2) }}</span>
+                            <x-status-badge :status="$paymentDisplayStatus" :label="$paymentDisplayLabel" plain />
+                        </div>
+                    </div>
                     <div class="col-md-6"><div class="text-muted small">Method</div><div>{{ $methodLabel }}</div></div>
                     <div class="col-md-6"><div class="text-muted small">Reference</div><div>{{ $payment->reference_number ?: '—' }}</div></div>
                     <div class="col-md-6"><div class="text-muted small">Date</div><div>{{ $payment->payment_date?->format('M d, Y g:i A') ?? '—' }}</div></div>
@@ -109,10 +90,42 @@
                     <div class="small text-muted mt-2">₱{{ number_format($booking->depositRequiredAmount(), 2) }} deposit needed to confirm.</div>
                 @endif
             @endif
+            <a href="{{ route('front_desk.reservations.index') }}" class="btn btn-rp-soft mt-3">Back</a>
         </div>
+    </div>
 
-        <div class="rp-card mb-4">
-            <h2 class="h5 mb-3">Booking</h2>
+    <div class="col-lg-6">
+        <div class="rp-card">
+            @if($canManualCheckIn)
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h2 class="h5 mb-0">Ready for check-in</h2>
+                        @if($checkInWindowOpen)
+                            <div class="small text-muted mb-0">Fully paid. You can check this guest in now.</div>
+                        @else
+                            <div class="small text-muted mb-0">
+                                Fully paid. Check-in opens on {{ $booking->check_in_date->format('M d, Y') }} at {{ $checkInTime }}.
+                            </div>
+                        @endif
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        @if($checkInWindowOpen)
+                            <form method="POST" action="{{ route('front_desk.checkins.store', $booking) }}" class="m-0">
+                                @csrf
+                                <button type="submit" class="btn btn-sm btn-rp-primary" data-rp-confirm-click="Check in this guest now?">
+                                    <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>
+                                    Check in
+                                </button>
+                            </form>
+                        @else
+                            <button type="button" class="btn btn-sm btn-rp-soft" disabled>Check in</button>
+                        @endif
+                    </div>
+                </div>
+                @error('check_in_date')<div class="text-danger small mb-3">{{ $message }}</div>@enderror
+                @error('payment')<div class="text-danger small mb-3">{{ $message }}</div>@enderror
+                @error('status')<div class="text-danger small mb-3">{{ $message }}</div>@enderror
+            @endif
             <div class="row g-3">
                 <div class="col-md-6"><div class="text-muted small">Booking ID</div><div>{{ $bookingCode }}</div></div>
                 <div class="col-md-6"><div class="text-muted small">Guest</div><div>{{ $guestName }}</div></div>
@@ -120,7 +133,6 @@
                 <div class="col-md-6"><div class="text-muted small">Contact</div><div>{{ $booking->contact_number }} · {{ $booking->email }}</div></div>
                 <div class="col-md-6"><div class="text-muted small">Dates</div><div>{{ $booking->check_in_date?->format('M d, Y') }} → {{ $booking->check_out_date?->format('M d, Y') }}</div></div>
                 <div class="col-md-6">
-                    <div class="text-muted small">Booking</div>
                     <div><span class="text-muted">Total</span> ₱{{ number_format($bookingTotal, 2) }}</div>
                     <div><span class="text-muted">Paid</span> ₱{{ number_format($bookingPaid, 2) }}</div>
                     <div><span class="text-muted">Remaining balance</span> ₱{{ number_format($remainingBalance, 2) }}</div>
@@ -128,7 +140,7 @@
                         <div class="small text-muted mt-1">Due before check-in at 2:00 PM.</div>
                     @endif
                 </div>
-                <div class="col-md-6"><div class="text-muted small">Guests</div><div>{{ $booking->number_of_guests }} / {{ $booking->accommodation?->capacity ?? '—' }} max</div></div>
+                <div class="col-12 mt-n2"><div class="text-muted small">Guests</div><div>{{ $booking->number_of_guests }} / {{ $booking->accommodation?->capacity ?? '—' }} max</div></div>
                 @if($booking->promo_code || ((float) $booking->discount_amount) > 0)
                     <div class="col-md-6">
                         <div class="text-muted small">Promo</div>
@@ -145,30 +157,6 @@
                     <div class="col-12"><div class="text-muted small">Special requests</div><div>{{ $booking->special_requests }}</div></div>
                 @endif
             </div>
-        </div>
-
-        @if($payment)
-            <div class="rp-card">
-                <button type="button" class="btn btn-rp-primary" data-bs-toggle="modal" data-bs-target="#rpReservationReceiptModal">
-                    <i class="bi bi-receipt me-1" aria-hidden="true"></i>
-                    View Receipt
-                </button>
-            </div>
-        @endif
-    </div>
-
-    <div class="col-lg-6">
-        <div class="rp-card">
-            <h2 class="h5 mb-3">Payment screenshot / proof</h2>
-            @if($payment?->proof_url)
-                <button type="button" class="rp-payment-proof-link border-0 bg-transparent p-0 w-100 text-start" data-bs-toggle="modal" data-bs-target="#rpReservationProofModal" aria-label="View payment proof">
-                    <img src="{{ $payment->proof_url }}" alt="Payment proof screenshot" class="rp-payment-proof-img">
-                </button>
-            @elseif($payment)
-                <div class="alert alert-warning mb-0">No screenshot was uploaded for this payment.</div>
-            @else
-                <div class="alert alert-secondary mb-0">No payment proof yet.</div>
-            @endif
         </div>
     </div>
 </div>

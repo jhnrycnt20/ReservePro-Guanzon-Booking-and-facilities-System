@@ -61,11 +61,21 @@ class AccommodationController extends Controller
             $data['image'] = $request->file('image')->store('accommodations', 'public');
         }
         $data['is_active'] = $request->boolean('is_active', true);
+        $data['gallery'] = $this->storeGalleryUploads($request);
 
         $accommodation = Accommodation::query()->create(collect($data)->except('amenities')->all());
         $accommodation->amenities()->sync($request->input('amenities', []));
 
         return redirect()->route('admin.accommodations.index')->with('success', 'Accommodation created.');
+    }
+
+    public function show(Accommodation $accommodation): View
+    {
+        $accommodation->load(['type', 'amenities']);
+
+        return view('admin.accommodations.show', [
+            'accommodation' => $accommodation,
+        ]);
     }
 
     public function edit(Accommodation $accommodation): View
@@ -93,7 +103,11 @@ class AccommodationController extends Controller
             unset($data['status']);
         }
 
-        $accommodation->update(collect($data)->except('amenities')->all());
+        $remove = collect($request->input('remove_gallery', []));
+        $remaining = collect($accommodation->gallery ?? [])->reject(fn ($path) => $remove->contains($path));
+        $data['gallery'] = $remaining->merge($this->storeGalleryUploads($request))->values()->all();
+
+        $accommodation->update(collect($data)->except(['amenities', 'remove_gallery'])->all());
         $accommodation->amenities()->sync($request->input('amenities', []));
 
         $message = $statusLocked
@@ -123,8 +137,26 @@ class AccommodationController extends Controller
                 ? ['nullable', 'string']
                 : ['required', 'in:'.implode(',', \App\Enums\AccommodationStatus::manualValues())],
             'image' => ['nullable', 'image', 'max:5120'],
+            'gallery' => ['nullable', 'array'],
+            'gallery.*' => ['image', 'max:5120'],
+            'remove_gallery' => ['nullable', 'array'],
+            'remove_gallery.*' => ['string'],
             'amenities' => ['nullable', 'array'],
             'amenities.*' => ['exists:amenities,id'],
         ]);
+    }
+
+    /**
+     * @return list<string>
+     */
+    protected function storeGalleryUploads(Request $request): array
+    {
+        if (! $request->hasFile('gallery')) {
+            return [];
+        }
+
+        return collect($request->file('gallery'))
+            ->map(fn ($file) => $file->store('accommodations', 'public'))
+            ->all();
     }
 }

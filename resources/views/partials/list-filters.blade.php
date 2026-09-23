@@ -11,8 +11,6 @@
 @php
     $filters = $filters ?? [];
     $searchPlaceholder = $searchPlaceholder ?? 'Search…';
-    $clearUrl = $clearUrl ?? url()->current();
-    $hasActive = collect(request()->except('page'))->filter(fn ($v) => $v !== null && $v !== '')->isNotEmpty();
     $colSearch = max(3, 12 - (count($filters) * 2) - (!empty($dateName) ? 2 : 0) - 3);
     $embedded = !empty($embedded);
 @endphp
@@ -39,7 +37,7 @@
             </div>
         @endisset
 
-        <div class="col-md-{{ min(6, $colSearch) }}">
+        <div class="col-md-{{ $colSearch }}">
             <label class="form-label">Search</label>
             <input
                 type="text"
@@ -51,11 +49,8 @@
                 autocomplete="off"
             >
         </div>
-        <div class="col-md-3 d-flex gap-2">
-            <button type="submit" class="btn btn-rp-primary flex-grow-1">Filter</button>
-            @if($hasActive)
-                <a href="{{ $clearUrl }}" class="btn btn-rp-soft">Clear</a>
-            @endif
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-rp-primary w-100">Filter</button>
         </div>
     </form>
 </div>

@@ -3,8 +3,7 @@
 @section('title', 'Edit Promo')
 @section('theme', 'admin')
 @section('role_label', 'Administrator')
-@section('page_title', 'Edit Promo '.$promo->code)
-@section('page_subtitle', 'Update discount percentage, rooms, and promo details')
+@section('page_title', 'Edit Promo Code')
 @section('sidebar')
     @include('partials.sidebar-admin')
 @endsection
@@ -16,12 +15,14 @@
     $endsAt = old('ends_at', optional($promo->ends_at)->format('Y-m-d\\TH:i'));
     $nowLocal = now()->format('Y-m-d\\TH:i');
 @endphp
-<form method="POST" action="{{ route('admin.promos.update', $promo) }}" id="rpPromoForm" data-preview-url="{{ route('admin.promos.preview') }}">
-    @csrf
-    @method('PUT')
-    <div class="row g-4">
-        <div class="col-lg-7">
-            <div class="rp-card mb-3">
+<div class="row">
+    <div class="col-12">
+
+        <form method="POST" action="{{ route('admin.promos.update', $promo) }}" id="rpPromoForm" data-preview-url="{{ route('admin.promos.preview') }}">
+            @csrf
+            @method('PUT')
+
+            <div class="rp-card" data-rp-promo-step="1">
                 <h2 class="h5 mb-3">1. Choose accommodations</h2>
                 <div class="form-check mb-3">
                     <input class="form-check-input" type="checkbox" name="applies_to_all" value="1" id="appliesToAll" @checked(old('applies_to_all', $promo->applies_to_all))>
@@ -47,13 +48,18 @@
                     @endforeach
                 </div>
                 @error('accommodation_ids')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{{ route('admin.promos.show', $promo) }}" class="btn btn-rp-soft">Back</a>
+                    <button type="button" class="btn btn-rp-primary" data-rp-promo-next="2">Next</button>
+                </div>
             </div>
 
-            <div class="rp-card">
+            <div class="rp-card d-none" data-rp-promo-step="2">
                 <h2 class="h5 mb-3">2. Promo code details</h2>
                 <div class="row g-3">
                     <div class="col-md-12">
-                        <label class="form-label" for="promoName">Promo name (optional)</label>
+                        <label class="form-label" for="promoName">Promo name</label>
                         <input type="text" name="name" id="promoName" class="form-control" value="{{ old('name', $promo->name) }}" placeholder="Summer stay discount">
                     </div>
                     <div class="col-md-8">
@@ -65,7 +71,7 @@
                         <button type="button" class="btn btn-rp-soft w-100" id="rpGeneratePromoCode">Regenerate</button>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label" for="startsAtDisplay">Starts (optional)</label>
+                        <label class="form-label" for="startsAtDisplay">Starts</label>
                         <div class="rp-promo-dt-field" data-rp-promo-dt-field data-rp-promo-dt-role="start" data-rp-allow-past-start="{{ ($startsAt && $startsAt < $nowLocal) ? '1' : '0' }}">
                             <input type="hidden" name="starts_at" id="startsAt" value="{{ $startsAt }}" data-rp-promo-dt-value>
                             <button type="button" class="form-control text-start rp-promo-dt-trigger" id="startsAtDisplay" data-rp-promo-dt-open>
@@ -76,7 +82,7 @@
                         <div class="form-text">Past dates and times cannot be selected for new start times.</div>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label" for="endsAtDisplay">Ends (optional)</label>
+                        <label class="form-label" for="endsAtDisplay">Ends</label>
                         <div class="rp-promo-dt-field" data-rp-promo-dt-field data-rp-promo-dt-role="end">
                             <input type="hidden" name="ends_at" id="endsAt" value="{{ $endsAt }}" data-rp-promo-dt-value>
                             <button type="button" class="form-control text-start rp-promo-dt-trigger" id="endsAtDisplay" data-rp-promo-dt-open>
@@ -86,22 +92,26 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label" for="usageLimit">Usage limit (optional)</label>
+                        <label class="form-label" for="usageLimit">Usage limit</label>
                         <input type="number" min="1" name="usage_limit" id="usageLimit" class="form-control" value="{{ old('usage_limit', $promo->usage_limit) }}" placeholder="Unlimited">
                     </div>
-                    <div class="col-md-6 d-flex align-items-end">
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" name="is_active" value="1" id="isActive" @checked(old('is_active', $promo->is_active))>
-                            <label class="form-check-label" for="isActive">Active</label>
-                        </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Active</label>
+                        <select name="is_active" class="form-select">
+                            <option value="1" @selected(old('is_active', $promo->is_active))>Active</option>
+                            <option value="0" @selected(! old('is_active', $promo->is_active))>Inactive</option>
+                        </select>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="col-lg-5">
-            <div class="rp-card rp-sticky-under-topbar">
-                <h2 class="h5 mb-3">3. Promo percentage & price preview</h2>
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="button" class="btn btn-rp-soft" data-rp-promo-back="1">Back</button>
+                    <button type="button" class="btn btn-rp-primary" data-rp-promo-next="3">Next</button>
+                </div>
+            </div>
+
+            <div class="rp-card d-none" data-rp-promo-step="3">
+                <h2 class="h5 mb-3">3. Promo percentage &amp; price preview</h2>
                 <div class="mb-3">
                     <label class="form-label" for="discountPercent">Promo percentage</label>
                     <div class="input-group">
@@ -114,12 +124,19 @@
                 <div id="rpPromoPreview" class="rp-promo-preview">
                     <div class="text-muted small">Updating preview…</div>
                 </div>
-                <button type="submit" class="btn btn-rp-primary w-100 mt-3">Save changes</button>
-                <a href="{{ route('admin.promos.show', $promo) }}" class="btn btn-rp-soft w-100 mt-2">Cancel</a>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="button" class="btn btn-rp-soft" data-rp-promo-back="2">Back</button>
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('admin.promos.show', $promo) }}" class="btn btn-rp-soft">Cancel</a>
+                        <button type="submit" class="btn btn-rp-primary">Save changes</button>
+                    </div>
+                </div>
             </div>
-        </div>
+        </form>
+
     </div>
-</form>
+</div>
 
 @include('partials.promo-datetime-modal')
 @endsection
@@ -222,6 +239,22 @@
 
     syncAllToggle();
     schedulePreview();
+
+    const stepCards = document.querySelectorAll('[data-rp-promo-step]');
+
+    const goToStep = (step) => {
+        stepCards.forEach((card) => {
+            card.classList.toggle('d-none', card.dataset.rpPromoStep !== String(step));
+        });
+        form.closest('.col-12')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    form.querySelectorAll('[data-rp-promo-next]').forEach((btn) => {
+        btn.addEventListener('click', () => goToStep(btn.dataset.rpPromoNext));
+    });
+    form.querySelectorAll('[data-rp-promo-back]').forEach((btn) => {
+        btn.addEventListener('click', () => goToStep(btn.dataset.rpPromoBack));
+    });
 })();
 </script>
 @endpush

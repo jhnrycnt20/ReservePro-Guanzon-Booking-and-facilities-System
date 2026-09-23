@@ -1,4 +1,4 @@
-@props(['status', 'label' => null])
+@props(['status', 'label' => null, 'plain' => false])
 
 @php
     $map = [
@@ -32,4 +32,4 @@
     $displayLabel = $label ?? str_replace('_', ' ', ucwords($value, '_'));
 @endphp
 
-<span {{ $attributes->merge(['class' => 'badge rp-status-badge '.$class]) }}>{{ $displayLabel }}</span>
+<span {{ $attributes->merge(['class' => 'badge rp-status-badge '.$class.($plain ? ' rp-status-badge--plain' : '')]) }}>{{ $displayLabel }}</span>

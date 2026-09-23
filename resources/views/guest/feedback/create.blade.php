@@ -4,7 +4,6 @@
 @section('theme', 'guest')
 @section('role_label', 'Guest')
 @section('page_title', 'Leave Feedback')
-@section('page_subtitle', 'Share your stay experience')
 @section('sidebar')
     @include('partials.sidebar-guest')
 @endsection
