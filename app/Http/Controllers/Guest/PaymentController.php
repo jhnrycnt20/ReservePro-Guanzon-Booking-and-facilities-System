@@ -127,9 +127,24 @@ class PaymentController extends Controller
     {
         $this->authorize('view', $booking);
 
-        $status = $request->query('status') === 'success' ? 'success' : 'failed';
+        $queryStatus = $request->query('status') === 'success' ? 'success' : 'failed';
+        $payment = null;
 
-        return view('guest.payments.gcash-return', compact('booking', 'status'));
+        if ($queryStatus === 'success') {
+            $payment = $this->paymentService->syncPendingGcashCheckout($booking);
+        }
+
+        if ($payment?->status === PaymentStatus::Verified) {
+            $status = 'confirmed';
+        } elseif ($payment?->status === PaymentStatus::Rejected || $queryStatus === 'failed') {
+            $status = 'failed';
+        } else {
+            $status = 'success';
+        }
+
+        $booking = $booking->fresh() ?? $booking;
+
+        return view('guest.payments.gcash-return', compact('booking', 'status', 'payment'));
     }
 
     public function receipt(Payment $payment): View|RedirectResponse

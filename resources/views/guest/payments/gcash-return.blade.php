@@ -7,12 +7,23 @@
     <div class="row g-4">
         <div class="col-lg-7 mx-auto">
             <div class="rp-flow-card text-center">
-                @if($status === 'success')
+                @if($status === 'confirmed')
+                    <i class="bi bi-check-circle display-4 text-success"></i>
+                    <h1 class="h4 mt-3">Payment confirmed</h1>
+                    <p class="text-muted">
+                        Your GCash payment
+                        @if(!empty($payment))
+                            of ₱{{ number_format((float) $payment->amount, 2) }}
+                        @endif
+                        was received. Your booking balance has been updated.
+                    </p>
+                @elseif($status === 'success')
                     <i class="bi bi-hourglass-split display-4 text-success"></i>
                     <h1 class="h4 mt-3">Confirming your payment&hellip;</h1>
                     <p class="text-muted">
                         GCash says your payment went through. We're confirming it with GCash now —
                         your balance will update automatically once that's done, usually within a minute.
+                        You can refresh this page or open your booking to check.
                     </p>
                 @else
                     <i class="bi bi-x-circle display-4 text-danger"></i>

@@ -196,6 +196,110 @@ class PaymentService
         ];
     }
 
+    /**
+     * Confirm a pending GCash checkout when the guest returns from PayMongo.
+     * Used as a fallback when webhooks are delayed or not configured yet.
+     */
+    public function syncPendingGcashCheckout(Booking $booking): ?Payment
+    {
+        $payment = Payment::query()
+            ->where('booking_id', $booking->id)
+            ->where('gateway', 'paymongo')
+            ->where('status', PaymentStatus::Pending)
+            ->whereNotNull('gateway_source_id')
+            ->latest('id')
+            ->first();
+
+        if (! $payment) {
+            return Payment::query()
+                ->where('booking_id', $booking->id)
+                ->where('gateway', 'paymongo')
+                ->where('status', PaymentStatus::Verified)
+                ->latest('id')
+                ->first();
+        }
+
+        try {
+            $source = $this->payMongoService->retrieveSource((string) $payment->gateway_source_id);
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return $payment;
+        }
+
+        $sourceStatus = (string) ($source['attributes']['status'] ?? '');
+        $payment->update(['gateway_status' => $sourceStatus ?: $payment->gateway_status]);
+
+        if (in_array($sourceStatus, ['expired', 'cancelled', 'failed'], true)) {
+            return $this->failGatewayPayment(
+                $payment,
+                'GCash checkout was '.$sourceStatus.'.'
+            );
+        }
+
+        if ($sourceStatus !== 'chargeable' && $sourceStatus !== 'consumed') {
+            return $payment->fresh();
+        }
+
+        if (! $payment->gateway_payment_id) {
+            try {
+                $gatewayPayment = $this->payMongoService->createPayment(
+                    (string) $payment->gateway_source_id,
+                    (float) $payment->amount,
+                    "Booking #{$booking->booking_number} GCash payment"
+                );
+            } catch (\Throwable $exception) {
+                report($exception);
+
+                return $payment->fresh();
+            }
+
+            $gatewayStatus = (string) ($gatewayPayment['attributes']['status'] ?? '');
+            if ($gatewayStatus === 'paid' || $gatewayStatus === 'succeeded') {
+                return $this->finalizeGatewayPayment(
+                    $payment,
+                    (string) ($gatewayPayment['id'] ?? ''),
+                    $gatewayStatus
+                );
+            }
+
+            $payment->update([
+                'gateway_payment_id' => $gatewayPayment['id'] ?? null,
+                'gateway_status' => $gatewayStatus ?: $payment->gateway_status,
+            ]);
+
+            return $payment->fresh();
+        }
+
+        try {
+            $gatewayPayment = $this->payMongoService->retrievePayment((string) $payment->gateway_payment_id);
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return $payment->fresh();
+        }
+
+        $gatewayStatus = (string) ($gatewayPayment['attributes']['status'] ?? '');
+        if ($gatewayStatus === 'paid' || $gatewayStatus === 'succeeded') {
+            return $this->finalizeGatewayPayment(
+                $payment,
+                (string) ($gatewayPayment['id'] ?? $payment->gateway_payment_id),
+                $gatewayStatus
+            );
+        }
+
+        if (in_array($gatewayStatus, ['failed', 'cancelled'], true)) {
+            return $this->failGatewayPayment(
+                $payment,
+                'GCash payment was '.$gatewayStatus.'.'
+            );
+        }
+
+        $payment->update(['gateway_status' => $gatewayStatus ?: $payment->gateway_status]);
+
+        return $payment->fresh();
+    }
+
     public function finalizeGatewayPayment(Payment $payment, string $gatewayPaymentId, ?string $gatewayStatus = null): Payment
     {
         if ($payment->status === PaymentStatus::Verified) {
