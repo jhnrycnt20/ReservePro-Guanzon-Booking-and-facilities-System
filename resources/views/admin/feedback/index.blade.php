@@ -40,7 +40,7 @@
             <thead>
                 <tr>
                     <th style="width: 14%;">Guest</th>
-                    <th style="width: 16%;">Booking</th>
+                    <th style="width: 16%;">About</th>
                     <th style="width: 12%;">Rating</th>
                     <th style="width: 44%;">Comment</th>
                     <th style="width: 14%;">Date</th>
@@ -50,7 +50,15 @@
                 @forelse($feedback as $item)
                     <tr>
                         <td>{{ $item->guest?->user?->name ?? '—' }}</td>
-                        <td>{{ $item->booking->booking_number ?? '—' }}</td>
+                        <td>
+                            @if($item->booking)
+                                {{ $item->booking->booking_number }}
+                            @elseif(($item->scope ?? 'stay') === 'room')
+                                Room: {{ $item->accommodation->name ?? '—' }}
+                            @else
+                                Resort
+                            @endif
+                        </td>
                         <td>
                             @for($i = 1; $i <= 5; $i++)
                                 <i class="bi bi-star{{ $i <= $item->rating ? '-fill text-warning' : '' }}"></i>

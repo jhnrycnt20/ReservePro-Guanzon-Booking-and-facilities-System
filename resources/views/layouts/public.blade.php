@@ -25,16 +25,14 @@
                             <span></span>
                         </span>
                     </button>
-                    <img class="rp-nav-logo-img" src="{{ asset('images/guanzon_logoW.png') }}" alt="Guanzon Resort">
+                    <img class="rp-nav-logo-img" src="{{ asset('images/guanzon_logo_green.png') }}" alt="Guanzon Resort">
                 </div>
                 <div class="rp-nav-links rp-nav-links-main">
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ url('/') }}">The Resort</a>
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ route('gallery') }}">Gallery</a>
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ route('offers') }}">Offers</a>
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ route('contact') }}">Contact</a>
-                    @unless (request()->routeIs('guest.bookings.create') || request()->routeIs('login') || request()->routeIs('register'))
-                        <a class="rp-nav-link rp-nav-link-booknow" href="{{ route('accommodations.browse') }}">Book Now</a>
-                    @endunless
+                    <a class="rp-nav-link rp-nav-link-booknow" href="{{ route('accommodations.browse') }}">Book Now</a>
                     @guest
                         <a class="rp-nav-link" href="{{ route('login') }}" data-bs-toggle="modal" data-bs-target="#rpLoginModal">Login</a>
                     @elseif(auth()->user()->hasRole('guest'))
@@ -43,6 +41,7 @@
                             <ul class="dropdown-menu dropdown-menu-end rp-nav-account-menu">
                                 <li><a class="dropdown-item" href="{{ route('guest.bookings.index') }}">My Reservations</a></li>
                                 <li><a class="dropdown-item" href="{{ route('guest.payments.index') }}">Payments</a></li>
+                                <li><a class="dropdown-item" href="{{ route('guest.feedback.create') }}">Write Feedback</a></li>
                                 <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Manage Profile</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rpNavDesktopLogoutForm').submit();">Sign Out</a></li>
@@ -64,7 +63,7 @@
     </nav>
 
     <div class="rp-nav-overlay" id="rpNavOverlay">
-        <img class="rp-nav-overlay-logo" src="{{ asset('images/guanzon_logoW.png') }}" alt="Guanzon Resort">
+        <img class="rp-nav-overlay-logo" src="{{ asset('images/guanzon_logo_green.png') }}" alt="Guanzon Resort">
         <nav class="rp-nav-overlay-links">
             <a href="{{ url('/') }}">The Resort</a>
             <a href="{{ route('gallery') }}">Gallery</a>
@@ -75,6 +74,7 @@
                 @if(auth()->user()->hasRole('guest'))
                     <a href="{{ route('guest.bookings.index') }}">My Reservations</a>
                     <a href="{{ route('guest.payments.index') }}">Payments</a>
+                    <a href="{{ route('guest.feedback.create') }}">Write Feedback</a>
                     <a href="{{ route('profile.edit') }}">Manage Profile</a>
                 @else
                     <a href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
@@ -106,16 +106,7 @@
                 </div>
                 <div class="col-12 col-md-3">
                     <div class="rp-footer-heading">Location</div>
-                    <p class="rp-footer-text">{{ $resortSettings['resort_address'] ?? 'Philippines' }}</p>
-                    <a
-                        class="rp-directions-link rp-directions-link--footer"
-                        href="https://www.google.com/maps/dir/10.2039552,123.7581824/Guanzon+Beach+Resort,+6037+Langtad+Bridge,+Naga,+Cebu/@10.1789238,123.7298082,18.25z/data=!4m9!4m8!1m1!4e1!1m5!1m1!1s0x33a979114d9401e1:0x43fdbc208201cc90!2m2!1d123.729597!2d10.1789272?entry=ttu&g_ep=EgoyMDI2MDkxNS4wIKXMDSoASAFQAw%3D%3D"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        <i class="bi bi-send" aria-hidden="true"></i>
-                        Directions
-                    </a>
+                    <p class="rp-footer-text">{{ $resortSettings['resort_address'] ?? 'Guanzon Beach Resort, Purok Lawis, Brgy. Langtad, City of Naga, Cebu' }}</p>
                     <a href="mailto:{{ $resortSettings['resort_email'] ?? 'info@guanzonresort.com' }}" class="rp-footer-link-underline">{{ $resortSettings['resort_email'] ?? 'info@guanzonresort.com' }}</a>
                     <p class="rp-footer-phone">{{ $resortSettings['resort_phone'] ?? '09190644054' }}</p>
                 </div>
@@ -125,6 +116,7 @@
                         <a href="{{ url('/') }}">The Resort</a>
                         <a href="{{ route('gallery') }}">Gallery</a>
                         <a href="{{ route('offers') }}">Offers</a>
+                        <a href="{{ route('downloads') }}">Download App</a>
                         <a href="{{ route('contact') }}">Contact us</a>
                     </div>
                 </div>
@@ -133,21 +125,7 @@
                     <div class="rp-footer-social mb-3">
                         <a href="https://www.facebook.com/profile.php?id=100057024897212" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
                     </div>
-                    <button type="button" id="pwaInstallBtn" class="rp-footer-install-btn">
-                        <i class="bi bi-download me-1"></i> Install App
-                    </button>
-                    <div id="iosInstallHelp" class="rp-footer-install-help d-none mt-2">
-                        <div class="small">
-                            <strong>Install on iPhone:</strong>
-                            tap Share, then Add to Home Screen.
-                        </div>
-                    </div>
-                    <div id="androidInstallHelp" class="rp-footer-install-help d-none mt-2">
-                        <div class="small">
-                            <strong>Install tip:</strong>
-                            open the browser menu and choose <em>Install app</em> / <em>Add to Home screen</em>.
-                        </div>
-                    </div>
+                    <a href="{{ route('downloads') }}" class="rp-footer-install-btn">Install App</a>
                 </div>
             </div>
             <div class="rp-footer-bottom">

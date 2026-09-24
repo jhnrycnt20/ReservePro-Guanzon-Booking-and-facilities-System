@@ -69,38 +69,21 @@
                 </form>
 
                 @if(!$booking->promo_code && ((float) $booking->paid_amount) <= 0)
-                    @php $showPromoCollapse = $errors->has('promo_code') || old('promo_code'); @endphp
                     <div class="mt-3 pt-3 border-top" id="rp-promo-section">
-                        <button type="button" class="rp-quiet-link" data-bs-toggle="collapse" data-bs-target="#rpPromoCollapse" aria-expanded="{{ $showPromoCollapse ? 'true' : 'false' }}">Have a promo code?</button>
-                        <div class="collapse mt-2 {{ $showPromoCollapse ? 'show' : '' }}" id="rpPromoCollapse">
-                            <form method="POST" action="{{ route('guest.bookings.apply_promo', $booking) }}#rp-promo-section">
-                                @csrf
-                                <div class="rp-promo-apply">
-                                    <input type="text" name="promo_code" class="form-control text-uppercase @error('promo_code') is-invalid @enderror" value="{{ old('promo_code') }}" placeholder="Enter code" maxlength="32" required>
-                                    <button type="submit" class="rp-btn-check-availability rp-btn-check-availability--inline">Apply</button>
-                                </div>
-                                @error('promo_code')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                            </form>
-                        </div>
+                        <label class="form-label" for="promo_code">Promo code</label>
+                        <form method="POST" action="{{ route('guest.bookings.apply_promo', $booking) }}#rp-promo-section">
+                            @csrf
+                            <div class="rp-promo-apply">
+                                <input type="text" id="promo_code" name="promo_code" class="form-control text-uppercase @error('promo_code') is-invalid @enderror" value="{{ old('promo_code') }}" placeholder="Enter code" maxlength="32">
+                                <button type="submit" class="rp-btn-check-availability rp-btn-check-availability--inline">Apply</button>
+                            </div>
+                            @error('promo_code')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                            <div class="form-text">Optional. Enter a code to lower your remaining balance before paying.</div>
+                        </form>
                     </div>
                 @endif
             </div>
         </div>
     </div>
 </div>
-
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    if (window.location.hash !== '#rp-promo-section') {
-        return;
-    }
-    const section = document.getElementById('rp-promo-section');
-    if (!section) {
-        return;
-    }
-    section.scrollIntoView({ block: 'center', behavior: 'auto' });
-});
-</script>
-@endpush
 @endsection

@@ -39,6 +39,30 @@
                 <label class="form-label">Rate</label>
                 <input type="number" step="0.01" min="0" name="rate" class="form-control rp-no-spinner" value="{{ old('rate', $accommodation->rate) }}" required>
             </div>
+            <div class="col-md-4">
+                <label class="form-label">Availability</label>
+                @php
+                    $statusLocked = $accommodation->isStatusLocked();
+                    $current = $accommodation->status instanceof \BackedEnum
+                        ? $accommodation->status->value
+                        : (string) $accommodation->status;
+                    $selected = old('status', $current);
+                    if (! in_array($selected, \App\Enums\AccommodationStatus::manualValues(), true)) {
+                        $selected = \App\Enums\AccommodationStatus::Available->value;
+                    }
+                @endphp
+                @if($statusLocked)
+                    <input type="hidden" name="status" value="{{ $current }}">
+                    <input type="text" class="form-control" value="{{ ucfirst(str_replace('_', ' ', $current)) }}" disabled>
+                    <div class="form-text text-warning">{{ $accommodation->statusLockReason() }}</div>
+                @else
+                    <select name="status" class="form-select" required>
+                        @foreach(\App\Enums\AccommodationStatus::manualLabels() as $value => $label)
+                            <option value="{{ $value }}" @selected($selected === $value)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                @endif
+            </div>
         </div>
 
         <div class="mb-3">
@@ -81,31 +105,7 @@
                 <label class="form-label">Description</label>
                 <textarea name="description" class="form-control mb-3" rows="3">{{ old('description', $accommodation->description) }}</textarea>
 
-                <label class="form-label">Status</label>
-                @php
-                    $statusLocked = $accommodation->isStatusLocked();
-                    $current = $accommodation->status instanceof \BackedEnum
-                        ? $accommodation->status->value
-                        : (string) $accommodation->status;
-                @endphp
-                @if($statusLocked)
-                    <input type="text" class="form-control" value="{{ ucfirst(str_replace('_', ' ', $current)) }}" disabled>
-                    <div class="form-text text-warning">{{ $accommodation->statusLockReason() }}</div>
-                @else
-                    <select name="status" class="form-select" required>
-                        @php
-                            $selected = old('status', $current);
-                            if (! in_array($selected, \App\Enums\AccommodationStatus::manualValues(), true)) {
-                                $selected = \App\Enums\AccommodationStatus::Available->value;
-                            }
-                        @endphp
-                        @foreach(\App\Enums\AccommodationStatus::manualValues() as $status)
-                            <option value="{{ $status }}" @selected($selected === $status)>{{ ucfirst($status) }}</option>
-                        @endforeach
-                    </select>
-                @endif
-
-                <div class="mt-3">
+                <div class="mt-0">
                     <label class="form-label">Active listing</label>
                     <select name="is_active" class="form-select">
                         <option value="1" @selected(old('is_active', $accommodation->is_active))>Active</option>

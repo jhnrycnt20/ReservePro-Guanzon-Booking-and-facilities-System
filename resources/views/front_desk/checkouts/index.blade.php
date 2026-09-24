@@ -15,16 +15,17 @@
     'searchPlaceholder' => 'Booking Number, Guest, or Room',
     'clearUrl' => route('front_desk.checkouts.index'),
 ])
-<div class="rp-card">
+
+<div class="rp-card d-none d-md-block">
     <div class="table-responsive">
-        <table class="table align-middle" style="table-layout: fixed;">
+        <table class="table align-middle rp-desk-table">
             <thead>
                 <tr>
-                    <th style="width: 16%;">Booking</th>
-                    <th style="width: 22%;">Guest</th>
-                    <th style="width: 18%;">Room</th>
-                    <th style="width: 28%;">Check-out</th>
-                    <th style="width: 16%;"></th>
+                    <th>Booking</th>
+                    <th>Guest</th>
+                    <th>Room</th>
+                    <th>Check-out</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -45,5 +46,24 @@
         </table>
     </div>
     @if(method_exists($bookings, 'links')) {{ $bookings->withQueryString()->links() }} @endif
+</div>
+
+<div class="d-md-none">
+    @forelse($bookings as $booking)
+        <div class="rp-mobile-list-card">
+            <div class="rp-mobile-list-card__top">
+                <span class="rp-booking-code">{{ $booking->short_number }}</span>
+            </div>
+            <div class="rp-mobile-list-card__title">{{ $booking->guest_name }}</div>
+            <div class="rp-mobile-list-card__meta">{{ $booking->accommodation->name ?? '—' }}</div>
+            <div class="rp-mobile-list-card__meta">{{ $booking->check_out_date?->format('M d, Y') }} · 12:00 PM</div>
+            <a href="{{ route('front_desk.reservations.show', $booking) }}" class="btn btn-sm btn-rp-soft w-100 mt-2">View</a>
+        </div>
+    @empty
+        <div class="rp-card text-muted">No check-outs due yet (opens 12:00 noon on departure day).</div>
+    @endforelse
+    @if(method_exists($bookings, 'links'))
+        <div class="mt-3">{{ $bookings->withQueryString()->links() }}</div>
+    @endif
 </div>
 @endsection

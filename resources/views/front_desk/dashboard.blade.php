@@ -23,7 +23,7 @@
 <div class="row g-3">
     <div class="col-lg-7">
         <div class="rp-card">
-            <h2 class="h5 mb-3">Reservations (Reserved &amp; Booked)</h2>
+            <h2 class="h5 mb-3">Reservations (Booked &amp; Ready)</h2>
             <div class="table-responsive">
                 <table class="table align-middle" style="table-layout: fixed;">
                     <thead><tr><th style="width: 28%;">Guest</th><th style="width: 24%;">Room</th><th style="width: 28%;">Dates</th><th style="width: 20%;"></th></tr></thead>

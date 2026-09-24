@@ -34,7 +34,7 @@
             </div>
             <div class="col-12">
                 <label class="form-label">Address</label>
-                <input type="text" name="resort_address" class="form-control" value="{{ $value('resort_address', 'Philippines') }}" placeholder="City / Province, Philippines">
+                <input type="text" name="resort_address" class="form-control" value="{{ $value('resort_address', 'Guanzon Beach Resort, Purok Lawis, Brgy. Langtad, City of Naga, Cebu') }}" placeholder="Guanzon Beach Resort, Purok Lawis, Brgy. Langtad, City of Naga, Cebu">
             </div>
             <div class="col-md-4">
                 <label class="form-label">Resort email</label>

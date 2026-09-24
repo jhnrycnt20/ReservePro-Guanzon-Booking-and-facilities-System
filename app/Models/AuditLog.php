@@ -41,8 +41,9 @@ class AuditLog extends Model
     {
         return match ($this->action) {
             'payment.recorded' => 'Payment received',
-            'payment.verified' => 'Payment verified',
-            'payment.rejected' => 'Payment rejected',
+            'payment.verified', 'payment.gateway_verified' => 'Payment verified',
+            'payment.rejected', 'payment.gateway_failed' => 'Payment rejected',
+            'payment.gcash_checkout_initiated' => 'GCash checkout started',
             'booking.created' => 'New reservation',
             'booking.checked_in' => 'Guest checked in',
             'booking.checked_out' => 'Guest checked out',

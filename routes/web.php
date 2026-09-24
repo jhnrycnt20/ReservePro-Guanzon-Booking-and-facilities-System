@@ -67,6 +67,10 @@ Route::get('/offers', function () {
     return view('offers');
 })->name('offers');
 
+Route::get('/downloads', function () {
+    return view('downloads');
+})->name('downloads');
+
 Route::get('/contact', function () {
     return view('contact');
 })->name('contact');
@@ -129,8 +133,10 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('/incidents/{incident}', [GuestIncidentReportController::class, 'show'])->name('incidents.show');
 
         Route::get('/feedback', [GuestFeedbackController::class, 'index'])->name('feedback.index');
-        Route::get('/bookings/{booking}/feedback/create', [GuestFeedbackController::class, 'create'])->name('feedback.create');
-        Route::post('/bookings/{booking}/feedback', [GuestFeedbackController::class, 'store'])->name('feedback.store');
+        Route::get('/feedback/create', [GuestFeedbackController::class, 'create'])->name('feedback.create');
+        Route::post('/feedback', [GuestFeedbackController::class, 'store'])->name('feedback.store');
+        Route::get('/bookings/{booking}/feedback/create', [GuestFeedbackController::class, 'create'])->name('feedback.create_booking');
+        Route::post('/bookings/{booking}/feedback', [GuestFeedbackController::class, 'store'])->name('feedback.store_booking');
     });
 
     Route::middleware(['role:front_desk'])->prefix('front-desk')->name('front_desk.')->group(function () {

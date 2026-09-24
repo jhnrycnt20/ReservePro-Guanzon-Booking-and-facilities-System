@@ -150,14 +150,20 @@ class Booking extends Model
         return $query->whereIn('status', [BookingStatus::Pending, BookingStatus::Approved]);
     }
 
-    /** Front desk Reservations list: open stays through checked-in. */
+    /**
+     * Front desk Reservations list: deposit met (Booked / Ready) and checked-in.
+     * Hidden: Reserved stays that have not paid at least 50%.
+     */
     public function scopeFrontDeskReservations(Builder $query): Builder
     {
-        return $query->whereIn('status', [
-            BookingStatus::Pending,
-            BookingStatus::Approved,
-            BookingStatus::CheckedIn,
-        ]);
+        return $query->where(function (Builder $builder) {
+            $builder
+                ->where('status', BookingStatus::CheckedIn)
+                ->orWhere(function (Builder $open) {
+                    $open->whereIn('status', [BookingStatus::Pending, BookingStatus::Approved])
+                        ->depositMet();
+                });
+        });
     }
 
     public function scopeDepositMet(Builder $query): Builder

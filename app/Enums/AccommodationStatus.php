@@ -16,6 +16,16 @@ enum AccommodationStatus: string
         return [
             self::Available->value,
             self::Maintenance->value,
+            self::Reserved->value,
+        ];
+    }
+
+    public static function manualLabels(): array
+    {
+        return [
+            self::Available->value => 'Available',
+            self::Maintenance->value => 'Maintenance',
+            self::Reserved->value => 'Reserved',
         ];
     }
 }

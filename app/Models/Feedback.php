@@ -15,6 +15,8 @@ class Feedback extends Model
     protected $fillable = [
         'booking_id',
         'guest_id',
+        'scope',
+        'accommodation_id',
         'rating',
         'comment',
     ];
@@ -26,6 +28,11 @@ class Feedback extends Model
     public function booking(): BelongsTo
     {
         return $this->belongsTo(Booking::class);
+    }
+
+    public function accommodation(): BelongsTo
+    {
+        return $this->belongsTo(Accommodation::class);
     }
 
     public function guest(): BelongsTo

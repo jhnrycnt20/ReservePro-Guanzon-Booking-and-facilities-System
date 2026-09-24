@@ -12,7 +12,7 @@ class SystemSettingSeeder extends Seeder
         foreach ([
             'resort_name' => 'Guanzon Beach',
             'resort_subtitle' => 'Bluepool Waterpark',
-            'resort_address' => 'Philippines',
+            'resort_address' => 'Guanzon Beach Resort, Purok Lawis, Brgy. Langtad, City of Naga, Cebu',
             'resort_email' => 'info@guanzonresort.com',
             'resort_phone' => '09190644054',
             'resort_phone_landline' => '265-7942',

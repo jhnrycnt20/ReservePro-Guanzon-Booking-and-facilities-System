@@ -28,9 +28,16 @@ class ProfileController extends Controller
     public function update(Request $request): RedirectResponse
     {
         $user = $request->user();
-        $isGuest = $user->hasRole('guest');
 
-        $rules = [
+        $data = $request->validateWithBag('profile', [
+            'name' => [
+                'required',
+                'string',
+                'min:2',
+                'max:255',
+                'regex:/^[\p{L}]+(?:[ \'\-.][\p{L}]+)*$/u',
+            ],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'phone' => [
                 'required',
                 'string',
@@ -42,20 +49,7 @@ class ProfileController extends Controller
                     }
                 },
             ],
-        ];
-
-        if (! $isGuest) {
-            $rules['name'] = [
-                'required',
-                'string',
-                'min:2',
-                'max:255',
-                'regex:/^[\p{L}]+(?:[ \'\-.][\p{L}]+)*$/u',
-            ];
-            $rules['email'] = ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)];
-        }
-
-        $data = $request->validateWithBag('profile', $rules, [
+        ], [
             'name.required' => 'Please enter your full name.',
             'name.regex' => 'Full name may only include letters, spaces, hyphens, and apostrophes.',
             'email.unique' => 'This email is already in use.',
@@ -67,14 +61,13 @@ class ProfileController extends Controller
             $phone = '09'.$matches[1];
         }
 
-        $userUpdate = ['phone' => $phone];
-        if (! $isGuest) {
-            $userUpdate['name'] = trim($data['name']);
-            $userUpdate['email'] = strtolower(trim($data['email']));
-        }
-        $user->update($userUpdate);
+        $user->update([
+            'name' => trim($data['name']),
+            'email' => strtolower(trim($data['email'])),
+            'phone' => $phone,
+        ]);
 
-        if ($isGuest && $user->guest) {
+        if ($user->guest) {
             $user->guest->update(['contact_number' => $phone]);
         }
 

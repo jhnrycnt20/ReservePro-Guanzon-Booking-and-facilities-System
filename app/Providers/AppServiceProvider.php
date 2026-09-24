@@ -44,7 +44,7 @@ class AppServiceProvider extends ServiceProvider
                     $resortSettings = [
                         'resort_name' => \App\Models\SystemSetting::getValue('resort_name', 'Guanzon Beach'),
                         'resort_subtitle' => \App\Models\SystemSetting::getValue('resort_subtitle', 'Bluepool Waterpark'),
-                        'resort_address' => \App\Models\SystemSetting::getValue('resort_address', 'Philippines'),
+                        'resort_address' => \App\Models\SystemSetting::getValue('resort_address', 'Guanzon Beach Resort, Purok Lawis, Brgy. Langtad, City of Naga, Cebu'),
                         'resort_email' => \App\Models\SystemSetting::getValue('resort_email', 'info@guanzonresort.com'),
                         'resort_phone' => \App\Models\SystemSetting::getValue('resort_phone', '09190644054'),
                         'resort_phone_landline' => \App\Models\SystemSetting::getValue('resort_phone_landline', '265-7942'),
@@ -60,7 +60,7 @@ class AppServiceProvider extends ServiceProvider
                     $resortSettings = [
                         'resort_name' => 'Guanzon Beach',
                         'resort_subtitle' => 'Bluepool Waterpark',
-                        'resort_address' => 'Philippines',
+                        'resort_address' => 'Guanzon Beach Resort, Purok Lawis, Brgy. Langtad, City of Naga, Cebu',
                         'resort_email' => 'info@guanzonresort.com',
                         'resort_phone' => '09190644054',
                         'resort_phone_landline' => '265-7942',

@@ -71,7 +71,7 @@ class Accommodation extends Model
             ? $this->status
             : AccommodationStatus::tryFrom((string) $this->status);
 
-        if (in_array($status, [AccommodationStatus::Reserved, AccommodationStatus::Occupied], true)) {
+        if ($status === AccommodationStatus::Occupied) {
             return true;
         }
 

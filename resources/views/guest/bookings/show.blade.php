@@ -103,7 +103,7 @@
                 <a href="{{ route('guest.incidents.create', ['booking_id' => $booking->id]) }}" class="rp-avail-btn-secondary rp-avail-btn-secondary--danger">Report Issue</a>
             @endif
             @if(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status) === 'checked_out' && !$booking->feedback)
-                <a href="{{ route('guest.feedback.create', $booking) }}" class="rp-avail-btn-secondary">Leave Feedback</a>
+                <a href="{{ route('guest.feedback.create_booking', $booking) }}" class="rp-avail-btn-secondary">Leave Feedback</a>
             @endif
             </div>
         </div>

@@ -16,7 +16,7 @@
     <div class="rp-shell">
         <aside class="rp-sidebar" id="rpSidebar">
             <div class="rp-brand">
-                <img class="rp-brand-logo" src="{{ asset('images/guanzon_logoW.png') }}" alt="Guanzon Resort">
+                <img class="rp-brand-logo" src="{{ asset('images/guanzon_logo_green.png') }}" alt="Guanzon Resort">
                 <div>
                     <div class="rp-brand-name">Guanzon</div>
                     <div class="rp-brand-role">@yield('role_label', 'Dashboard')</div>

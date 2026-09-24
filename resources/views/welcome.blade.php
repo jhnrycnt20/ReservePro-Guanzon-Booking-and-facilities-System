@@ -122,7 +122,7 @@
 
 <div class="rp-gallery-banner">
     <div class="rp-gallery-banner-bg" style="background-image: url('{{ asset('images/landing-hero.png') }}');"></div>
-    <img class="rp-gallery-banner-logo" src="{{ asset('images/guanzon_logoW.png') }}" alt="Guanzon Resort">
+    <img class="rp-gallery-banner-logo" src="{{ asset('images/guanzon_logo_green.png') }}" alt="Guanzon Resort">
 </div>
 
 @if(($publicFeedback ?? collect())->isNotEmpty())

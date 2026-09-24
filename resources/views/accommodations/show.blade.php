@@ -5,8 +5,14 @@
 @section('content')
 <div class="container rp-public-page-top pb-4">
 
-@php $rpBackNav = \App\Helpers\BackNav::resolve(request('from')); @endphp
-<a href="{{ $rpBackNav['url'] }}" class="rp-back-link"><i class="bi bi-arrow-left"></i> {{ $rpBackNav['label'] }}</a>
+@php
+    $backQuery = array_filter([
+        'type' => request('type'),
+        'check_in' => request('check_in'),
+        'check_out' => request('check_out'),
+    ], fn ($value) => $value !== null && $value !== '');
+@endphp
+<a href="{{ route('accommodations.browse', $backQuery) }}" class="rp-back-link"><i class="bi bi-arrow-left"></i> Back to Accommodations</a>
 
 @include('partials.booking-tracker', ['activeStep' => 'dates'])
 

@@ -11,7 +11,7 @@ class FeedbackController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = Feedback::query()->with(['guest.user', 'booking'])->latest();
+        $query = Feedback::query()->with(['guest.user', 'booking', 'accommodation'])->latest();
 
         if ($request->filled('rating')) {
             $query->where('rating', (int) $request->input('rating'));

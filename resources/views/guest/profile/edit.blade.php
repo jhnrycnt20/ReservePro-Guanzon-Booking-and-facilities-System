@@ -19,11 +19,13 @@
                     @method('PUT')
                     <div class="mb-3">
                         <label class="form-label">Full name</label>
-                        <input type="text" name="name" class="form-control rp-field-locked" value="{{ $user->name }}" readonly>
+                        <input type="text" name="name" class="form-control @error('name', 'profile') is-invalid @enderror" value="{{ old('name', $user->name) }}" required>
+                        @error('name', 'profile')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-control rp-field-locked" value="{{ $user->email }}" readonly>
+                        <input type="email" name="email" class="form-control @error('email', 'profile') is-invalid @enderror" value="{{ old('email', $user->email) }}" required>
+                        @error('email', 'profile')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Contact number</label>

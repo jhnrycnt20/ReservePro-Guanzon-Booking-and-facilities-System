@@ -61,6 +61,6 @@
 
 <div class="rp-gallery-banner">
     <div class="rp-gallery-banner-bg" style="background-image: url('https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=1800&q=80');"></div>
-    <img class="rp-gallery-banner-logo" src="{{ asset('images/guanzon_logoW.png') }}" alt="Guanzon Resort">
+    <img class="rp-gallery-banner-logo" src="{{ asset('images/guanzon_logo_green.png') }}" alt="Guanzon Resort">
 </div>
 @endsection
