@@ -216,7 +216,7 @@
                 <button type="button" class="btn btn-rp-soft" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-rp-primary" data-rp-print-receipt="#rpGuestReceiptPrint">
                     <i class="bi bi-download me-1" aria-hidden="true"></i>
-                    Download
+                    Save to Photos
                 </button>
             </div>
         </div>

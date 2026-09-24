@@ -203,38 +203,190 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    const loadHtml2Canvas = (() => {
+        let loading = null;
+
+        return () => {
+            if (window.html2canvas) {
+                return Promise.resolve(window.html2canvas);
+            }
+
+            if (loading) {
+                return loading;
+            }
+
+            loading = new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+                script.async = true;
+                script.onload = () => {
+                    if (window.html2canvas) {
+                        resolve(window.html2canvas);
+                        return;
+                    }
+                    reject(new Error('html2canvas failed to load'));
+                };
+                script.onerror = () => reject(new Error('Could not load receipt saver'));
+                document.head.appendChild(script);
+            }).catch((error) => {
+                loading = null;
+                throw error;
+            });
+
+            return loading;
+        };
+    })();
+
+    const receiptFileName = (target) => {
+        const receiptText = target.querySelector('[data-receipt-field="receipt-number"]')?.textContent
+            || Array.from(target.querySelectorAll('.rp-receipt-row strong'))
+                .map((el) => el.textContent.trim())
+                .find((text) => /^RCP-|^PAY-/i.test(text))
+            || `receipt-${Date.now()}`;
+
+        return `${String(receiptText).replace(/[^\w.-]+/g, '_')}.png`;
+    };
+
+    const showReceiptSavePreview = (dataUrl, filename) => {
+        let overlay = document.getElementById('rpReceiptSaveOverlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'rpReceiptSaveOverlay';
+            overlay.className = 'rp-receipt-save-overlay';
+            overlay.innerHTML = `
+                <div class="rp-receipt-save-sheet" role="dialog" aria-modal="true" aria-labelledby="rpReceiptSaveTitle">
+                    <div class="rp-receipt-save-header">
+                        <h2 id="rpReceiptSaveTitle" class="rp-receipt-save-title">Save receipt</h2>
+                        <button type="button" class="btn-close" data-rp-receipt-save-close aria-label="Close"></button>
+                    </div>
+                    <p class="rp-receipt-save-hint">Long-press the image, then choose <strong>Save Image</strong> / <strong>Add to Photos</strong>.</p>
+                    <img class="rp-receipt-save-image" alt="Payment receipt">
+                    <div class="rp-receipt-save-actions">
+                        <a class="btn btn-rp-primary" data-rp-receipt-save-link download>Download PNG</a>
+                        <button type="button" class="btn btn-rp-soft" data-rp-receipt-save-close>Close</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            overlay.addEventListener('click', (event) => {
+                if (event.target === overlay || event.target.closest('[data-rp-receipt-save-close]')) {
+                    overlay.classList.remove('is-open');
+                    document.body.classList.remove('rp-receipt-save-open');
+                }
+            });
+        }
+
+        const image = overlay.querySelector('.rp-receipt-save-image');
+        const link = overlay.querySelector('[data-rp-receipt-save-link]');
+        image.src = dataUrl;
+        link.href = dataUrl;
+        link.download = filename;
+        overlay.classList.add('is-open');
+        document.body.classList.add('rp-receipt-save-open');
+    };
+
+    const saveReceiptImage = async (blob, filename) => {
+        const file = new File([blob], filename, { type: 'image/png' });
+        const canShareFiles = typeof navigator.canShare === 'function'
+            && navigator.canShare({ files: [file] });
+
+        if (canShareFiles) {
+            try {
+                await navigator.share({
+                    files: [file],
+                    title: 'Payment receipt',
+                    text: 'Guanzon Beach payment receipt',
+                });
+                return 'shared';
+            } catch (error) {
+                if (error && error.name === 'AbortError') {
+                    return 'cancelled';
+                }
+            }
+        }
+
+        const dataUrl = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+            || (navigator.maxTouchPoints > 1 && /Macintosh/i.test(navigator.userAgent));
+
+        if (isMobile) {
+            showReceiptSavePreview(dataUrl, filename);
+            return 'preview';
+        }
+
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        return 'downloaded';
+    };
+
     document.querySelectorAll('[data-rp-print-receipt]').forEach((button) => {
-        button.addEventListener('click', () => {
+        button.addEventListener('click', async () => {
             const target = document.querySelector(button.dataset.rpPrintReceipt || '#rpPaymentReceiptPrint');
             if (!target) return;
 
-            const clone = target.cloneNode(true);
-            clone.querySelectorAll('.no-print').forEach((el) => el.remove());
+            const originalLabel = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Saving…';
 
-            // Do not use noopener here — it makes window.open() return null.
-            const printWindow = window.open('', '_blank', 'width=720,height=900');
-            if (!printWindow) {
-                window.alert('Please allow pop-ups to print the receipt.');
-                return;
+            try {
+                const html2canvas = await loadHtml2Canvas();
+
+                // Capture a detached clone so Bootstrap modal transforms do not blank the image.
+                const host = document.createElement('div');
+                host.setAttribute('aria-hidden', 'true');
+                host.style.cssText = 'position:fixed;left:-10000px;top:0;width:360px;padding:0;margin:0;background:#fff;z-index:-1;pointer-events:none;';
+                const clone = target.cloneNode(true);
+                clone.id = '';
+                clone.style.width = '360px';
+                clone.style.maxWidth = '360px';
+                clone.style.margin = '0';
+                clone.style.boxShadow = 'none';
+                host.appendChild(clone);
+                document.body.appendChild(host);
+
+                let canvas;
+                try {
+                    canvas = await html2canvas(clone, {
+                        backgroundColor: '#ffffff',
+                        scale: Math.min(3, window.devicePixelRatio || 2),
+                        useCORS: true,
+                        logging: false,
+                        width: clone.offsetWidth,
+                        windowWidth: clone.offsetWidth,
+                    });
+                } finally {
+                    host.remove();
+                }
+
+                const blob = await new Promise((resolve, reject) => {
+                    canvas.toBlob((result) => {
+                        if (result) {
+                            resolve(result);
+                            return;
+                        }
+                        reject(new Error('Could not create receipt image'));
+                    }, 'image/png');
+                });
+
+                await saveReceiptImage(blob, receiptFileName(target));
+            } catch (error) {
+                console.error(error);
+                window.alert('Could not save the receipt. Please try again.');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = originalLabel;
             }
-
-            printWindow.document.write(`<!DOCTYPE html><html><head><title>Payment Receipt</title>
-                <style>
-                    @page { size: A4; margin: 16mm; }
-                    html, body { margin: 0; padding: 0; height: auto; overflow: visible; }
-                    body { font-family: Georgia, "Times New Roman", serif; color: #111; }
-                    .rp-receipt-card { max-width: 480px; margin: 0 auto; border: 1px solid #ddd; padding: 24px; }
-                    .rp-receipt-brand { font-size: 22px; font-weight: 700; }
-                    .rp-receipt-meta { color: #666; font-size: 14px; }
-                    .rp-receipt-row { display: flex; justify-content: space-between; gap: 16px; margin: 8px 0; }
-                    hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
-                </style></head><body>${clone.outerHTML}</body></html>`);
-            printWindow.document.close();
-            printWindow.focus();
-            setTimeout(() => {
-                printWindow.print();
-                printWindow.close();
-            }, 250);
         });
     });
 
