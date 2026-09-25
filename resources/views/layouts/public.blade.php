@@ -25,12 +25,12 @@
                             <span></span>
                         </span>
                     </button>
-                    <img class="rp-nav-logo-img" src="{{ asset('images/guanzon_logo_green.png') }}" alt="Guanzon Resort">
+                    <img class="rp-nav-logo-img" src="{{ asset('images/guanzon_navbar_transparent.png') }}" alt="Guanzon Resort">
                 </div>
                 <div class="rp-nav-links rp-nav-links-main">
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ url('/') }}">The Resort</a>
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ route('gallery') }}">Gallery</a>
-                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('offers') }}">Offers</a>
+                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('downloads') }}">Download</a>
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ route('contact') }}">Contact</a>
                     <a class="rp-nav-link rp-nav-link-booknow" href="{{ route('accommodations.browse') }}">Book Now</a>
                     @guest
@@ -63,11 +63,11 @@
     </nav>
 
     <div class="rp-nav-overlay" id="rpNavOverlay">
-        <img class="rp-nav-overlay-logo" src="{{ asset('images/guanzon_logo_green.png') }}" alt="Guanzon Resort">
+        <img class="rp-nav-overlay-logo" src="{{ asset('images/guanzon_navbar_transparent.png') }}" alt="Guanzon Resort">
         <nav class="rp-nav-overlay-links">
             <a href="{{ url('/') }}">The Resort</a>
             <a href="{{ route('gallery') }}">Gallery</a>
-            <a href="{{ route('offers') }}">Offers</a>
+            <a href="{{ route('downloads') }}">Download</a>
             <a href="{{ route('contact') }}">Contact</a>
             <a href="{{ route('accommodations.browse') }}">Book Now</a>
             @auth
@@ -115,7 +115,6 @@
                     <div class="rp-footer-links">
                         <a href="{{ url('/') }}">The Resort</a>
                         <a href="{{ route('gallery') }}">Gallery</a>
-                        <a href="{{ route('offers') }}">Offers</a>
                         <a href="{{ route('downloads') }}">Download App</a>
                         <a href="{{ route('contact') }}">Contact us</a>
                     </div>
@@ -125,7 +124,6 @@
                     <div class="rp-footer-social mb-3">
                         <a href="https://www.facebook.com/profile.php?id=100057024897212" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
                     </div>
-                    <a href="{{ route('downloads') }}" class="rp-footer-install-btn">Install App</a>
                 </div>
             </div>
             <div class="rp-footer-bottom">

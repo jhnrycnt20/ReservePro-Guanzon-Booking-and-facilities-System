@@ -3,11 +3,36 @@
 @section('title', 'Download App')
 
 @section('content')
+@php
+    $platforms = [
+        'android' => [
+            'label' => 'Android',
+            'icon' => 'bi-android2',
+            'steps' => [
+                ['Open in Chrome', 'Visit this page in Chrome on your phone.'],
+                ['Tap Install', 'Tap Install Guanzon App at the top of this page, or open the ⋮ menu in Chrome.'],
+                ['Choose Install app', 'Tap Install app (or Add to Home screen), then confirm.'],
+                ['Open ReservePro', 'Tap the new icon on your home screen to start booking.'],
+            ],
+        ],
+        'ios' => [
+            'label' => 'iPhone',
+            'icon' => 'bi-apple',
+            'steps' => [
+                ['Open in Safari', 'Visit this page in Safari. Browsers inside other apps can\'t add to the home screen.'],
+                ['Tap Share', 'Tap the Share button, the square with an arrow, at the bottom of the screen.'],
+                ['Add to Home Screen', 'Scroll down the share sheet and tap Add to Home Screen.'],
+                ['Tap Add', 'Confirm the name and tap Add. ReservePro appears on your home screen.'],
+            ],
+        ],
+    ];
+@endphp
+
 <section class="rp-hero">
     <div class="rp-hero-full">
         <div class="rp-hero-inner">
             <h1><span>DOWNLOAD</span></h1>
-            <div class="rp-hero-subtext">Guanzon Beach on your phone</div>
+            <div class="rp-hero-subtext">Guanzon Resort</div>
         </div>
     </div>
     <div class="rp-hero-scroll">
@@ -19,61 +44,108 @@
     </div>
 </section>
 
-<section class="py-5">
+<section class="rp-dl-install">
     <div class="container">
-        <div class="rp-page-intro text-center mb-4">
-            <h2 class="rp-page-intro-title">Get the Guanzon Beach app</h2>
-            <p class="rp-page-intro-text mx-auto" style="max-width: 36rem;">
-                Browse rooms, book stays, pay with GCash, and manage your reservation from your phone.
-            </p>
+        <div class="rp-dl-install-grid">
+            <div class="rp-dl-copy">
+                <h2 class="rp-dl-headline">Guanzon Resort, one tap from your home screen</h2>
+                <div class="rp-dl-cta">
+                    <button type="button" id="pwaInstallBtn" class="rp-dl-btn">
+                        <i class="bi bi-download" aria-hidden="true"></i>
+                        Install Guanzon App
+                    </button>
+                    <a href="{{ route('accommodations.browse') }}" class="rp-dl-link">Or keep booking in your browser</a>
+                </div>
+
+                <div id="rpInstalledNote" class="rp-dl-installed d-none" role="status">
+                    <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+                    You're already using the ReservePro app.
+                </div>
+            </div>
+
+            <div class="rp-dl-phone-wrap" aria-hidden="true">
+                <div class="rp-dl-phone">
+                    <div class="rp-dl-screen">
+                        <div class="rp-dl-status">
+                            <span>9:41</span>
+                            <span class="rp-dl-island"></span>
+                            <span class="rp-dl-status-icons"><i class="bi bi-wifi"></i><i class="bi bi-battery-full"></i></span>
+                        </div>
+                        <div class="rp-dl-home">
+                            <div class="rp-dl-toast"><i class="bi bi-check-circle-fill"></i> Added to Home Screen</div>
+                            <div class="rp-dl-grid">
+                                @for ($i = 0; $i < 7; $i++)
+                                    <span class="rp-dl-cell"><span class="rp-dl-icon"></span><span class="rp-dl-label"></span></span>
+                                @endfor
+                                <span class="rp-dl-cell rp-dl-app">
+                                    <span class="rp-dl-app-tile"><img src="{{ asset('images/guanzon_logoW.png') }}" alt=""></span>
+                                    <small>Guanzon</small>
+                                </span>
+                            </div>
+                        </div>
+                        <span class="rp-dl-bar"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="rp-dl-steps" id="rpInstallSteps">
+    <div class="container">
+        <div class="rp-dl-steps-head">
+            <h2 class="rp-dl-title">How to install</h2>
         </div>
 
-        <div class="row g-4 align-items-stretch mb-5">
-            <div class="col-md-4">
-                <div class="rp-flow-card h-100 text-center">
-                    <img src="{{ asset('images/rooms/cabana/01-exterior-row.png') }}" alt="Cabanas at Guanzon Beach" class="img-fluid rounded mb-3" style="height: 160px; width: 100%; object-fit: cover;">
-                    <h3 class="h6">Stay by the shore</h3>
-                    <p class="text-muted small mb-0">Cabanas, suites, rooms, and cottages for day trips or overnight rest.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="rp-flow-card h-100 text-center">
-                    <img src="{{ asset('images/landing-hero.png') }}" alt="Guanzon Beach waterpark" class="img-fluid rounded mb-3" style="height: 160px; width: 100%; object-fit: cover;">
-                    <h3 class="h6">Bluepool Waterpark</h3>
-                    <p class="text-muted small mb-0">Swim, unwind, and enjoy family-friendly amenities at Guanzon Beach.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="rp-flow-card h-100 text-center">
-                    <img src="{{ asset('images/offers/suite-promo.png') }}" alt="Suite sea view" class="img-fluid rounded mb-3" style="height: 160px; width: 100%; object-fit: cover;">
-                    <h3 class="h6">Book and pay easily</h3>
-                    <p class="text-muted small mb-0">Check dates, reserve online, and complete GCash payments in a few taps.</p>
-                </div>
+        <div class="rp-dl-tabs">
+            <div class="nav" role="tablist" aria-label="Choose your device">
+                @foreach ($platforms as $key => $platform)
+                    <button
+                        type="button"
+                        class="nav-link {{ $loop->first ? 'active' : '' }}"
+                        id="rp-install-tab-{{ $key }}"
+                        data-bs-toggle="tab"
+                        data-bs-target="#rp-install-pane-{{ $key }}"
+                        data-rp-install-tab="{{ $key }}"
+                        role="tab"
+                        aria-controls="rp-install-pane-{{ $key }}"
+                        aria-selected="{{ $loop->first ? 'true' : 'false' }}"
+                    >
+                        <i class="bi {{ $platform['icon'] }}" aria-hidden="true"></i>
+                        {{ $platform['label'] }}
+                    </button>
+                @endforeach
             </div>
         </div>
 
-        <div class="rp-flow-card text-center mx-auto" style="max-width: 28rem;">
-            <div class="rp-download-icon-wrap mb-3 mx-auto">
-                <img
-                    src="{{ asset('images/guanzon_logo_green.png') }}?v={{ filemtime(public_path('images/guanzon_logo_green.png')) }}"
-                    alt="Guanzon Resort"
-                    class="rp-download-app-icon"
+        <div class="tab-content">
+            @foreach ($platforms as $key => $platform)
+                <div
+                    class="tab-pane fade {{ $loop->first ? 'show active' : '' }}"
+                    id="rp-install-pane-{{ $key }}"
+                    role="tabpanel"
+                    aria-labelledby="rp-install-tab-{{ $key }}"
+                    tabindex="0"
                 >
-            </div>
-            <h3 class="h5 mb-2">Install ReservePro</h3>
-            <p class="text-muted small mb-4">Add the app to your home screen for faster booking next time.</p>
-            <button type="button" id="pwaInstallBtn" class="rp-avail-btn-primary d-inline-flex align-items-center justify-content-center gap-2">
-                <i class="bi bi-download" aria-hidden="true"></i>
-                Download / Install App
-            </button>
-            <div id="iosInstallHelp" class="rp-footer-install-help d-none mt-3 text-start">
-                On iPhone: tap Share, then <strong>Add to Home Screen</strong>.
-            </div>
-            <div id="androidInstallHelp" class="rp-footer-install-help d-none mt-3 text-start">
-                On Android: open the browser menu, then tap <strong>Install app</strong> or <strong>Add to Home screen</strong>.
-            </div>
-            <a href="{{ route('accommodations.browse') }}" class="rp-quiet-link d-inline-block mt-3">Or continue booking in the browser</a>
+                    <ol class="rp-dl-steplist">
+                        @foreach ($platform['steps'] as [$stepTitle, $stepText])
+                            <li class="rp-dl-step">
+                                <div class="rp-dl-step-top">
+                                    <span class="rp-dl-step-num">{{ $loop->iteration }}</span>
+                                </div>
+                                <h3>{{ $stepTitle }}</h3>
+                                <p>{{ $stepText }}</p>
+                            </li>
+                        @endforeach
+                    </ol>
+                </div>
+            @endforeach
         </div>
+
+        <p class="rp-dl-note">
+            <i class="bi bi-info-circle" aria-hidden="true"></i>
+            <span>Can't find the option? Use Safari on iPhone or Chrome on Android, and open this page directly rather than from inside Facebook or Messenger.</span>
+        </p>
     </div>
 </section>
 @endsection

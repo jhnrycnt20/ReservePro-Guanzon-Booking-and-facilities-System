@@ -700,7 +700,7 @@ body.rp-public {
 
 .rp-public-nav {
     background: rgba(10, 12, 12, .55);
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
@@ -718,18 +718,15 @@ body.rp-public {
     pointer-events: auto;
 }
 
-.rp-public-nav.rp-nav-scrolled {
-    position: fixed;
-    background: rgba(10, 12, 12, .55);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0 8px 24px rgba(0,0,0,.25);
-    animation: rp-nav-drop .35s ease;
+.rp-public-nav.rp-nav-hidden {
+    transform: translateY(-100%);
+    box-shadow: none;
 }
 
-@keyframes rp-nav-drop {
-    from { transform: translateY(-100%); }
-    to { transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+    .rp-public-nav {
+        transition: none;
+    }
 }
 
 .rp-public-nav .rp-brand,
@@ -924,7 +921,7 @@ body.rp-public {
 .rp-nav-logo-img {
     height: 64px;
     width: auto;
-    transform: translateY(-8px);
+    transform: translateY(-3px);
     display: block;
     pointer-events: none;
     user-select: none;
@@ -968,10 +965,6 @@ body.rp-public {
 
 @media (min-width: 992px) {
     .rp-nav-hamburger-btn {
-        display: none;
-    }
-
-    .rp-public-nav.rp-nav-scrolled .rp-nav-hamburger-btn {
         display: none;
     }
 }
@@ -1021,17 +1014,6 @@ body.rp-public {
     .rp-nav-logo-img {
         display: none;
     }
-
-    /* When scrolled: only the hamburger remains (no logo, no text links). */
-    .rp-public-nav.rp-nav-scrolled .rp-nav-hamburger-btn {
-        display: flex;
-    }
-
-    .rp-public-nav.rp-nav-scrolled .rp-nav-links,
-    .rp-public-nav.rp-nav-scrolled .rp-nav-link-extra,
-    .rp-public-nav.rp-nav-scrolled .rp-nav-logo-img {
-        display: none !important;
-    }
 }
 
 .rp-nav-overlay {
@@ -1062,7 +1044,7 @@ body.rp-public {
 }
 
 .rp-nav-overlay-logo {
-    height: 56px;
+    height: 58px;
     width: auto;
     margin-bottom: 2rem;
 }
@@ -1645,30 +1627,6 @@ a.rp-brand {
     margin-top: 0 !important;
 }
 
-.rp-feedback-card {
-    height: 100%;
-    padding: 1.25rem;
-    border: 1px solid var(--rp-border);
-    border-radius: 1rem;
-    background: #fff;
-}
-
-.rp-feedback-stars {
-    color: #ca8a04;
-    margin-bottom: .75rem;
-}
-
-.rp-feedback-comment {
-    color: var(--rp-text);
-    min-height: 4.5rem;
-}
-
-.rp-feedback-author {
-    font-weight: 600;
-    color: var(--rp-muted);
-    font-size: .9rem;
-}
-
 .rp-contact-details {
     color: var(--rp-muted);
     font-size: .95rem;
@@ -2235,11 +2193,32 @@ body.rp-body .container > .row,
     color: #fff;
 }
 
+.rp-lightbox-dialog {
+    max-width: 920px;
+}
+
 .rp-lightbox-modal {
-    background: #0b1210;
+    background: #fff;
     border: 0;
-    border-radius: 1rem;
+    border-radius: 1.1rem;
     overflow: hidden;
+    box-shadow: 0 30px 70px rgba(15, 30, 25, .3);
+}
+
+.rp-lightbox-modal .modal-header {
+    padding: 1.1rem 1.4rem .9rem;
+}
+
+.rp-lightbox-modal .modal-body {
+    padding: 0 1.4rem 1.4rem;
+}
+
+.rp-lightbox-title {
+    margin: 0;
+    font-family: "Cormorant Garamond", var(--rp-display);
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #2B4A3E;
 }
 
 .rp-lightbox-stage {
@@ -2247,17 +2226,28 @@ body.rp-body .container > .row,
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: min(70vh, 640px);
-    background: #000;
+    height: min(64vh, 560px);
+    overflow: hidden;
+    border-radius: .8rem;
+    background: #eef1f0;
+    isolation: isolate;
+}
+
+.rp-lightbox-stage::before {
+    content: '';
+    position: absolute;
+    inset: -30px;
+    background: var(--rp-lightbox-bg, none) center / cover no-repeat;
+    filter: blur(26px);
+    opacity: .5;
+    z-index: -1;
 }
 
 .rp-lightbox-image {
-    max-width: 100%;
-    max-height: min(70vh, 640px);
-    width: auto;
-    height: auto;
-    object-fit: contain;
     display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .rp-lightbox-nav {
@@ -2268,33 +2258,57 @@ body.rp-body .container > .row,
     height: 44px;
     border: 0;
     border-radius: 999px;
-    background: rgba(255, 255, 255, .16);
-    color: #fff;
+    background: #fff;
+    color: #1f2937;
+    box-shadow: 0 4px 14px rgba(15, 30, 25, .22);
     display: grid;
     place-items: center;
-    font-size: 1.35rem;
+    font-size: 1.2rem;
     cursor: pointer;
     z-index: 2;
-    transition: background .2s ease;
+    transition: box-shadow .2s ease;
 }
 
 .rp-lightbox-nav:hover {
-    background: rgba(255, 255, 255, .28);
+    box-shadow: 0 6px 18px rgba(15, 30, 25, .32);
 }
 
 .rp-lightbox-prev {
-    left: .75rem;
+    left: .9rem;
 }
 
 .rp-lightbox-next {
-    right: .75rem;
+    right: .9rem;
 }
 
-.rp-lightbox-meta {
-    color: rgba(255, 255, 255, .8);
-    text-align: center;
-    padding: .75rem 1rem 1rem;
-    font-size: .9rem;
+.rp-lightbox-counter {
+    position: absolute;
+    left: 50%;
+    bottom: .9rem;
+    transform: translateX(-50%);
+    padding: .3rem .85rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .92);
+    box-shadow: 0 2px 8px rgba(15, 30, 25, .18);
+    color: #1f2937;
+    font-family: "Montserrat", var(--rp-font);
+    font-size: .78rem;
+    font-weight: 500;
+    z-index: 2;
+}
+
+@media (max-width: 575.98px) {
+    .rp-lightbox-modal .modal-header {
+        padding: .9rem 1rem .7rem;
+    }
+
+    .rp-lightbox-modal .modal-body {
+        padding: 0 1rem 1rem;
+    }
+
+    .rp-lightbox-title {
+        font-size: 1.35rem;
+    }
 }
 
 .rp-accommodation-gallery {
@@ -3664,6 +3678,43 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     font-weight: 400;
 }
 
+.rp-cottage-desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0;
+    padding-top: .9rem;
+    border-top: 1px solid var(--rp-border);
+    font-family: "Montserrat", sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--rp-muted);
+}
+
+.rp-cottage-book {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    margin-top: 1.1rem;
+    border: 1px solid #2B4A3E;
+    border-radius: 6px;
+    background: transparent;
+    color: #2B4A3E;
+    font-family: "Montserrat", var(--rp-font);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: border-color .25s ease, color .25s ease;
+}
+
+.rp-cottage-card:hover .rp-cottage-book {
+    color: #1a3b34;
+    border-color: #1a3b34;
+}
+
 .rp-checkin-ready-note {
     background: #e8f7ef;
     color: #0f6b45;
@@ -4019,7 +4070,8 @@ body.rp-login-modal-open .rp-page-blur-overlay {
 
 .rp-gallery-banner-logo {
     position: relative;
-    width: 140px;
+    width: 260px;
+    max-width: 70vw;
     height: auto;
     filter: drop-shadow(0 4px 14px rgba(0,0,0,.4));
 }
@@ -4469,76 +4521,6 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     color: var(--rp-accent);
 }
 
-.rp-footer-install-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: auto;
-    max-width: max-content;
-    align-self: start;
-    gap: .25rem;
-    margin-top: .15rem;
-    padding: .35rem .7rem;
-    border: 0;
-    border-radius: .4rem;
-    background: #7fe0a6;
-    color: #0a1a12 !important;
-    font-family: "Montserrat", var(--rp-font);
-    font-size: .68rem;
-    font-weight: 700;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-    text-decoration: none;
-    line-height: 1.2;
-    white-space: nowrap;
-    cursor: pointer;
-    opacity: 1;
-    visibility: visible;
-    transition: background .2s ease, transform .2s ease;
-}
-
-.rp-footer-install-btn:hover,
-.rp-footer-install-btn:focus-visible {
-    background: #9aecc0;
-    color: #0a1a12 !important;
-    outline: none;
-}
-
-.rp-footer-install-btn.d-none {
-    display: none !important;
-}
-
-.rp-download-icon-wrap {
-    width: 88px;
-    height: 88px;
-    border-radius: 1.1rem;
-    background: #0b0b0b;
-    display: grid;
-    place-items: center;
-    overflow: hidden;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.rp-download-app-icon {
-    width: 70px;
-    height: 70px;
-    object-fit: contain;
-    display: block;
-}
-
-.rp-footer-install-help {
-    max-width: 16rem;
-    padding: .65rem .75rem;
-    border-radius: .55rem;
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.28);
-    color: #f3f4f6;
-}
-
-.rp-footer-install-help strong {
-    color: #fff;
-}
-
 .rp-footer-bottom {
     position: relative;
     display: flex;
@@ -4780,14 +4762,6 @@ body.rp-login-modal-open .rp-page-blur-overlay {
 
     .rp-footer [class*="col-md-3"] > :not(.rp-footer-heading) {
         grid-column: 2;
-    }
-
-    .rp-footer-install-btn {
-        width: auto;
-        max-width: max-content;
-        justify-self: start;
-        padding: .3rem .65rem;
-        font-size: .65rem;
     }
 
     .rp-footer-text,
@@ -5304,5 +5278,446 @@ body.rp-login-modal-open .rp-page-blur-overlay {
 
     .rp-availability-legend {
         gap: .65rem;
+    }
+}
+
+/* ---------- Download page ---------- */
+.rp-dl-install,
+.rp-dl-steps {
+    --rp-dl-ink: #1f2937;
+}
+
+.rp-dl-install {
+    padding: clamp(3rem, 7vw, 5.5rem) 0;
+}
+
+.rp-dl-install-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: center;
+}
+
+.rp-dl-headline {
+    font-family: "Cormorant Garamond", var(--rp-display);
+    font-weight: 600;
+    font-size: clamp(2.3rem, 5.2vw, 3.7rem);
+    line-height: 1.05;
+    letter-spacing: .01em;
+    color: var(--rp-dl-ink);
+    margin: 0 0 1.75rem;
+    max-width: 30rem;
+}
+
+.rp-dl-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .9rem 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.rp-dl-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .65rem;
+    height: 52px;
+    padding: 0 1.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #fff;
+    color: var(--rp-dl-ink);
+    box-shadow: 0 6px 18px rgba(17, 24, 39, .14);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+.rp-dl-btn i {
+    color: var(--rp-dl-ink);
+    font-size: 1.1rem;
+}
+
+.rp-dl-btn:hover,
+.rp-dl-btn:focus-visible {
+    border-color: #9ca3af;
+    box-shadow: 0 10px 24px rgba(17, 24, 39, .22);
+    transform: translateY(-1px);
+}
+
+.rp-dl-btn:focus-visible {
+    outline: 2px solid var(--rp-dl-ink);
+    outline-offset: 3px;
+}
+
+.rp-dl-link {
+    font-family: "Montserrat", var(--rp-font);
+    font-size: .9rem;
+    font-weight: 500;
+    color: #374151;
+    text-decoration: underline;
+    text-underline-offset: .25em;
+}
+
+.rp-dl-link:hover {
+    color: var(--rp-dl-ink);
+}
+
+.rp-dl-installed {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin-bottom: 2rem;
+    font-family: "Montserrat", var(--rp-font);
+    font-size: .95rem;
+    font-weight: 500;
+    color: var(--rp-dl-ink);
+}
+
+.rp-dl-installed.d-none {
+    display: none !important;
+}
+
+.rp-dl-installed i {
+    color: var(--rp-dl-ink);
+}
+
+/* Phone showing the app icon landing on a home screen */
+.rp-dl-phone-wrap {
+    display: flex;
+    justify-content: center;
+}
+
+.rp-dl-phone {
+    position: relative;
+    width: min(260px, 66vw);
+    aspect-ratio: 9 / 18.5;
+    padding: 9px;
+    border-radius: 2.4rem;
+    background: #0a0a0a;
+    box-shadow:
+        0 32px 60px rgba(17, 24, 39, .28),
+        inset 0 0 0 1px rgba(255, 255, 255, .12);
+}
+
+.rp-dl-screen {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
+    padding: .8rem 1rem 1.6rem;
+    border-radius: 1.9rem;
+    overflow: hidden;
+    color: #fff;
+    background:
+        linear-gradient(180deg, rgba(0, 0, 0, .4) 0%, rgba(0, 0, 0, 0) 28%, rgba(0, 0, 0, .6) 100%),
+        url('../images/rooms/cabana/04-exterior-evening.png') center / cover no-repeat;
+}
+
+.rp-dl-status {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 .35rem;
+    font-family: "Inter", sans-serif;
+    font-size: .68rem;
+    font-weight: 600;
+}
+
+.rp-dl-status-icons {
+    display: inline-flex;
+    gap: .3rem;
+}
+
+.rp-dl-island {
+    position: absolute;
+    left: 50%;
+    top: -.05rem;
+    width: 4.2rem;
+    height: 1.15rem;
+    transform: translateX(-50%);
+    border-radius: 999px;
+    background: #0a0a0a;
+}
+
+.rp-dl-home {
+    display: grid;
+    gap: 1rem;
+}
+
+.rp-dl-toast {
+    justify-self: center;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .4rem .8rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .9);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    color: var(--rp-dl-ink);
+    font-family: "Inter", sans-serif;
+    font-size: .68rem;
+    font-weight: 500;
+    animation: rp-fade-up .8s ease 1s both;
+}
+
+.rp-dl-toast i {
+    color: var(--rp-dl-ink);
+}
+
+.rp-dl-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: .95rem .7rem;
+}
+
+.rp-dl-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .35rem;
+}
+
+.rp-dl-icon {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 22%;
+    background: rgba(255, 255, 255, .2);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+}
+
+.rp-dl-label {
+    display: block;
+    width: 58%;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, .35);
+}
+
+.rp-dl-app-tile {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    aspect-ratio: 1;
+    padding: 14%;
+    border-radius: 22%;
+    background: #0a0a0a;
+    box-shadow:
+        0 0 0 2px rgba(255, 255, 255, .95),
+        0 8px 22px rgba(255, 255, 255, .3);
+}
+
+.rp-dl-app-tile img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.rp-dl-app {
+    animation: rp-dl-pop .7s cubic-bezier(.2, .9, .3, 1.3) .5s both;
+}
+
+.rp-dl-app small {
+    font-family: "Inter", sans-serif;
+    font-size: .58rem;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6);
+}
+
+.rp-dl-bar {
+    position: absolute;
+    left: 50%;
+    bottom: .5rem;
+    width: 38%;
+    height: 4px;
+    transform: translateX(-50%);
+    border-radius: 2px;
+    background: rgba(255, 255, 255, .8);
+}
+
+@keyframes rp-dl-pop {
+    from {
+        opacity: 0;
+        transform: scale(.6);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rp-dl-app,
+    .rp-dl-toast {
+        animation: none;
+    }
+}
+
+/* Install steps */
+.rp-dl-steps {
+    padding: clamp(3rem, 6vw, 4.5rem) 0;
+    background: #fff;
+    border-top: 1px solid #e5e7eb;
+}
+
+.rp-dl-steps-head {
+    text-align: center;
+    margin-bottom: 1.75rem;
+}
+
+.rp-dl-title {
+    font-family: "Cormorant Garamond", var(--rp-display);
+    font-weight: 600;
+    font-size: clamp(1.9rem, 4vw, 2.6rem);
+    color: var(--rp-dl-ink);
+    margin: 0 0 .35rem;
+}
+
+.rp-dl-tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.rp-dl-tabs .nav {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    gap: .25rem;
+    padding: .3rem;
+    border-radius: 999px;
+    background: #e5e7eb;
+}
+
+.rp-dl-tabs .nav-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .45rem;
+    padding: .55rem 1.2rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #4b5563;
+    font-family: "Montserrat", var(--rp-font);
+    font-size: .85rem;
+    font-weight: 600;
+}
+
+.rp-dl-tabs .nav-link:hover {
+    color: var(--rp-dl-ink);
+}
+
+.rp-dl-tabs .nav-link.active {
+    background: #fff;
+    color: var(--rp-dl-ink);
+    box-shadow: 0 1px 4px rgba(17, 24, 39, .28);
+}
+
+.rp-dl-tabs .nav-link:focus-visible {
+    outline: 2px solid var(--rp-dl-ink);
+    outline-offset: 2px;
+}
+
+.rp-dl-steplist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.rp-dl-step {
+    padding: 1.25rem 1.2rem 1.35rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    background: #f3f4f6;
+}
+
+.rp-dl-step-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.rp-dl-step-num {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    color: var(--rp-dl-ink);
+    font-family: "Montserrat", var(--rp-font);
+    font-size: .85rem;
+    font-weight: 600;
+}
+
+.rp-dl-step h3 {
+    font-family: "Montserrat", var(--rp-font);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--rp-dl-ink);
+    margin: 0 0 .35rem;
+}
+
+.rp-dl-step p {
+    font-family: "Montserrat", var(--rp-font);
+    font-size: .9rem;
+    line-height: 1.55;
+    color: #6b7280;
+    margin: 0;
+}
+
+.rp-dl-note {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: .5rem;
+    max-width: 40rem;
+    margin: 1.75rem auto 0;
+    font-family: "Montserrat", var(--rp-font);
+    font-size: .85rem;
+    line-height: 1.55;
+    color: #6b7280;
+    text-align: left;
+}
+
+.rp-dl-note i {
+    margin-top: .15rem;
+}
+
+@media (max-width: 900px) {
+    .rp-dl-install-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 520px) {
+    .rp-dl-btn {
+        width: 100%;
+    }
+
+    .rp-dl-tabs .nav {
+        width: 100%;
+    }
+
+    .rp-dl-tabs .nav-link {
+        flex: 1 1 0;
+        padding: .55rem .5rem;
     }
 }

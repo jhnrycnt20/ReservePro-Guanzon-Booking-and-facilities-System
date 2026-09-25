@@ -87,24 +87,18 @@
                             aria-disabled="true"
                         >
                     @else
-                        <a href="{{ route('accommodations.browse', ['type' => $item->accommodation_type_id, 'from' => 'home']) }}" class="rp-cottage-card">
+                        <a href="{{ route('accommodations.show', ['accommodation' => $item->id, 'from' => 'home']) }}" class="rp-cottage-card">
                     @endif
                         <img src="{{ $item->image_url }}" alt="{{ $item->name }}">
                         <div class="rp-cottage-card-body">
                             <div class="rp-cottage-title">{{ $item->name }}</div>
                             <div class="rp-cottage-subtitle">{{ $item->type->name ?? 'Accommodation' }}</div>
-                            <div class="rp-cottage-row">
-                                <span>Rate</span>
-                                <span>₱{{ number_format($item->rate, 0) }}</span>
-                            </div>
-                            <div class="rp-cottage-row">
-                                <span>Max guests</span>
-                                <span>{{ $item->capacity }}</span>
-                            </div>
-                            <div class="rp-cottage-row">
-                                <span>Status</span>
-                                <span>{{ ucfirst($statusValue) }}</span>
-                            </div>
+                            @if($item->description)
+                                <p class="rp-cottage-desc">{{ $item->description }}</p>
+                            @endif
+                            @unless($isMaintenance)
+                                <span class="rp-cottage-book">Book Now</span>
+                            @endunless
                         </div>
                     </a>
                 </div>
@@ -122,31 +116,7 @@
 
 <div class="rp-gallery-banner">
     <div class="rp-gallery-banner-bg" style="background-image: url('{{ asset('images/landing-hero.png') }}');"></div>
-    <img class="rp-gallery-banner-logo" src="{{ asset('images/guanzon_logo_green.png') }}" alt="Guanzon Resort">
+    <img class="rp-gallery-banner-logo" src="{{ asset('images/guanzon_navbar_transparent.png') }}" alt="Guanzon Resort">
 </div>
-
-@if(($publicFeedback ?? collect())->isNotEmpty())
-<section class="py-5 rp-feedback-section">
-    <div class="container">
-        <div class="rp-cottages-kicker">GUEST STORIES</div>
-        <h2 class="rp-cottages-heading">What guests say</h2>
-        <div class="row g-4 mt-2">
-            @foreach($publicFeedback as $item)
-                <div class="col-md-4">
-                    <div class="rp-feedback-card">
-                        <div class="rp-feedback-stars">
-                            @for($i = 1; $i <= 5; $i++)
-                                <i class="bi {{ $i <= (int) $item->rating ? 'bi-star-fill' : 'bi-star' }}"></i>
-                            @endfor
-                        </div>
-                        <p class="rp-feedback-comment">“{{ \Illuminate\Support\Str::limit($item->comment, 160) }}”</p>
-                        <div class="rp-feedback-author">{{ $item->guest?->user?->name ?? 'Guest' }}</div>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    </div>
-</section>
-@endif
 
 @endsection

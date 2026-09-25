@@ -12,7 +12,6 @@
 
 <div class="rp-page-intro">
     <h1 class="rp-page-intro-title">Accommodations</h1>
-    <p class="rp-page-intro-text mb-0">Browse rooms, cabanas, suites, and cottages at Guanzon Beach.</p>
 </div>
 
 @if(session('error'))

@@ -136,14 +136,14 @@
 
 @if(count($accommodation->gallery_urls) > 0)
 <div class="modal fade" id="rpAccommodationLightbox" tabindex="-1" aria-labelledby="rpAccommodationLightboxLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-dialog modal-dialog-centered rp-lightbox-dialog">
         <div class="modal-content rp-lightbox-modal">
-            <div class="modal-header border-0 pb-0">
-                <h2 class="modal-title h6 text-white" id="rpAccommodationLightboxLabel">{{ $accommodation->name }}</h2>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header border-0">
+                <h2 class="modal-title rp-lightbox-title" id="rpAccommodationLightboxLabel">{{ $accommodation->name }}</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body pt-2">
-                <div class="rp-lightbox-stage">
+            <div class="modal-body">
+                <div class="rp-lightbox-stage" id="rpLightboxStage" style="--rp-lightbox-bg: url('{{ $accommodation->image_url }}');">
                     @if(count($accommodation->gallery_urls) > 1)
                         <button type="button" class="rp-lightbox-nav rp-lightbox-prev" data-rp-lightbox-prev aria-label="Previous photo">
                             <i class="bi bi-chevron-left"></i>
@@ -154,10 +154,8 @@
                         <button type="button" class="rp-lightbox-nav rp-lightbox-next" data-rp-lightbox-next aria-label="Next photo">
                             <i class="bi bi-chevron-right"></i>
                         </button>
+                        <span class="rp-lightbox-counter" id="rpLightboxCounter">1 / {{ count($accommodation->gallery_urls) }}</span>
                     @endif
-                </div>
-                <div class="rp-lightbox-meta">
-                    <span id="rpLightboxCounter">1 / {{ count($accommodation->gallery_urls) }}</span>
                 </div>
             </div>
         </div>
@@ -175,6 +173,7 @@
     const mainImage = document.getElementById('rpAccommodationMainImage');
     const lightboxEl = document.getElementById('rpAccommodationLightbox');
     const lightboxImage = document.getElementById('rpLightboxImage');
+    const lightboxStage = document.getElementById('rpLightboxStage');
     const counterEl = document.getElementById('rpLightboxCounter');
     let index = 0;
 
@@ -192,6 +191,7 @@
         if (lightboxImage) {
             lightboxImage.src = src;
         }
+        lightboxStage?.style.setProperty('--rp-lightbox-bg', `url("${src}")`);
         if (counterEl) {
             counterEl.textContent = `${index + 1} / ${images.length}`;
         }

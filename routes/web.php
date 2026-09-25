@@ -41,18 +41,10 @@ Route::get('/', function () {
         ->with('type')
         ->where('is_active', true)
         ->orderBy('rate')
-        ->take(6)
+        ->take(3)
         ->get();
 
-    $publicFeedback = \App\Models\Feedback::query()
-        ->with(['guest.user'])
-        ->whereNotNull('comment')
-        ->where('comment', '!=', '')
-        ->latest()
-        ->take(6)
-        ->get();
-
-    return view('welcome', compact('featuredAccommodations', 'publicFeedback'));
+    return view('welcome', compact('featuredAccommodations'));
 });
 
 Route::get('/blog', function () {

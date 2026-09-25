@@ -2,19 +2,38 @@ document.addEventListener('DOMContentLoaded', () => {
     const publicNav = document.querySelector('.rp-public-nav');
 
     if (publicNav) {
-        const scrollThreshold = 120;
-        let navIsScrolled = false;
+        const hideAfter = 100;
+        const scrollDelta = 6;
+        const navOverlay = document.getElementById('rpNavOverlay');
+        let navIsHidden = false;
+        let lastScrollY = Math.max(0, window.scrollY);
+
+        const setNavHidden = (hidden) => {
+            if (hidden !== navIsHidden) {
+                navIsHidden = hidden;
+                publicNav.classList.toggle('rp-nav-hidden', hidden);
+            }
+        };
 
         const updateNavOnScroll = () => {
-            const shouldBeScrolled = window.scrollY > scrollThreshold;
-            if (shouldBeScrolled !== navIsScrolled) {
-                navIsScrolled = shouldBeScrolled;
-                publicNav.classList.toggle('rp-nav-scrolled', navIsScrolled);
+            const y = Math.max(0, window.scrollY);
+
+            if (y <= hideAfter) {
+                setNavHidden(false);
+                lastScrollY = y;
+                return;
             }
+
+            if (Math.abs(y - lastScrollY) < scrollDelta) return;
+
+            const menuOpen = navOverlay?.classList.contains('is-open');
+            setNavHidden(y > lastScrollY && !menuOpen);
+            lastScrollY = y;
         };
 
         updateNavOnScroll();
         window.addEventListener('scroll', updateNavOnScroll, { passive: true });
+        publicNav.addEventListener('focusin', () => setNavHidden(false));
     }
 
     const galleryBannerBg = document.querySelector('.rp-gallery-banner-bg');
@@ -1256,25 +1275,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let deferredInstallPrompt = null;
     const installBtn = document.getElementById('pwaInstallBtn');
-    const iosInstallHelp = document.getElementById('iosInstallHelp');
-    const androidInstallHelp = document.getElementById('androidInstallHelp');
-    const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const installSteps = document.getElementById('rpInstallSteps');
+    const installedNote = document.getElementById('rpInstalledNote');
+    const userAgent = navigator.userAgent;
+    const installPlatform = /iphone|ipad|ipod/i.test(userAgent) ? 'ios' : 'android';
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches
         || window.navigator.standalone === true;
 
-    if (isStandalone) {
+    const showInstallTab = (platform) => {
+        const tabButton = document.querySelector(`[data-rp-install-tab="${platform}"]`);
+        if (tabButton && window.bootstrap?.Tab) {
+            window.bootstrap.Tab.getOrCreateInstance(tabButton).show();
+        }
+    };
+
+    const markInstalled = () => {
         installBtn?.classList.add('d-none');
-        iosInstallHelp?.classList.add('d-none');
-        androidInstallHelp?.classList.add('d-none');
-    } else if (isIos) {
-        iosInstallHelp?.classList.remove('d-none');
+        installSteps?.classList.add('d-none');
+        installedNote?.classList.remove('d-none');
+    };
+
+    if (isStandalone) {
+        markInstalled();
+    } else {
+        showInstallTab(installPlatform);
     }
 
     window.addEventListener('beforeinstallprompt', (event) => {
         event.preventDefault();
         deferredInstallPrompt = event;
-        installBtn?.classList.remove('d-none');
-        androidInstallHelp?.classList.add('d-none');
     });
 
     installBtn?.addEventListener('click', async () => {
@@ -1282,25 +1311,16 @@ document.addEventListener('DOMContentLoaded', () => {
             deferredInstallPrompt.prompt();
             await deferredInstallPrompt.userChoice;
             deferredInstallPrompt = null;
-            installBtn.classList.add('d-none');
             return;
         }
 
-        if (isIos) {
-            iosInstallHelp?.classList.remove('d-none');
-            iosInstallHelp?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            return;
-        }
-
-        androidInstallHelp?.classList.remove('d-none');
-        androidInstallHelp?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        showInstallTab(installPlatform);
+        installSteps?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
     window.addEventListener('appinstalled', () => {
         deferredInstallPrompt = null;
-        installBtn?.classList.add('d-none');
-        iosInstallHelp?.classList.add('d-none');
-        androidInstallHelp?.classList.add('d-none');
+        markInstalled();
     });
 
     initAvailabilityCalendar();
