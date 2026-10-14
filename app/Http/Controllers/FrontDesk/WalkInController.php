@@ -25,8 +25,14 @@ class WalkInController extends Controller
     ) {
     }
 
-    public function create(): View
+    public function create(): RedirectResponse|View
     {
+        if (! request()->boolean('page')) {
+            return redirect()
+                ->route('front_desk.reservations.index')
+                ->with('open_modal', 'walkin');
+        }
+
         $accommodations = Accommodation::query()
             ->where('is_active', true)
             ->whereNotIn('status', ['maintenance', 'inactive'])
@@ -85,6 +91,7 @@ class WalkInController extends Controller
         });
 
         return redirect()
-            ->route('front_desk.reservations.show', ['booking' => $booking, 'created' => 1]);
+            ->route('front_desk.reservations.index')
+            ->with('success', 'Walk-in booking '.$booking->short_number.' created.');
     }
 }

@@ -69,6 +69,9 @@ Route::get('/contact', function () {
 
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 
+Route::get('/feedback', [GuestFeedbackController::class, 'create'])->name('feedback.create');
+Route::post('/feedback', [GuestFeedbackController::class, 'store'])->name('feedback.store');
+
 Route::post('/webhooks/paymongo', [PayMongoWebhookController::class, 'handle'])->name('webhooks.paymongo');
 
 Route::get('/privacy-policy', function () {

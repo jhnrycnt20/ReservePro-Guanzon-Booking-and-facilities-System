@@ -69,8 +69,14 @@ class AccommodationController extends Controller
         return redirect()->route('admin.accommodations.index')->with('success', 'Accommodation created.');
     }
 
-    public function show(Accommodation $accommodation): View
+    public function show(Accommodation $accommodation): RedirectResponse|View
     {
+        if (! request()->boolean('page')) {
+            return redirect()
+                ->route('admin.accommodations.index')
+                ->with('open_acc_view', 'acc_view_'.$accommodation->id);
+        }
+
         $accommodation->load(['type', 'amenities']);
 
         return view('admin.accommodations.show', [

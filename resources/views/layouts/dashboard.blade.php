@@ -27,8 +27,17 @@
             </nav>
             <div class="rp-sidebar-footer">
                 <a href="{{ route('profile.edit') }}" class="rp-sidebar-user">
-                    <div class="rp-sidebar-user-name">{{ auth()->user()->name }}</div>
-                    <div class="rp-sidebar-user-email">{{ auth()->user()->email }}</div>
+                    <div class="rp-sidebar-user-avatar" aria-hidden="true">
+                        @if(auth()->user()->avatar_url)
+                            <img src="{{ auth()->user()->avatar_url }}" alt="">
+                        @else
+                            <span>{{ strtoupper(mb_substr(auth()->user()->name ?? 'U', 0, 1)) }}</span>
+                        @endif
+                    </div>
+                    <div class="rp-sidebar-user-text">
+                        <div class="rp-sidebar-user-name">{{ auth()->user()->name }}</div>
+                        <div class="rp-sidebar-user-email">{{ auth()->user()->email }}</div>
+                    </div>
                 </a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
@@ -111,9 +120,42 @@
 
     @include('partials.terms-modal')
     @include('partials.confirm-modal')
+    @include('partials.notice-modal')
+    @include('partials.modals.profile-modal')
+    @if(auth()->user()?->hasRole('admin'))
+        @include('partials.modals.settings-modal')
+    @endif
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/reservepro.js') }}?v={{ file_exists(public_path('js/reservepro.js')) ? filemtime(public_path('js/reservepro.js')) : '1' }}"></script>
     @stack('scripts')
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const successPopup = @json(session('success_popup'));
+        if (successPopup && window.bootstrap) {
+            const noticeEl = document.getElementById('rpNoticeModal');
+            if (noticeEl) {
+                const titleEl = noticeEl.querySelector('#rpNoticeModalLabel');
+                const messageEl = noticeEl.querySelector('[data-rp-notice-message]');
+                if (titleEl) titleEl.textContent = 'Success';
+                if (messageEl) messageEl.textContent = successPopup;
+                window.bootstrap.Modal.getOrCreateInstance(noticeEl).show();
+            }
+        }
+
+        const openModal = @json(session('open_modal') ?: old('_modal'));
+        const map = {
+            settings: 'rpSettingsModal',
+            profile: 'rpProfileModal',
+            profile_password: 'rpProfileModal',
+        };
+        const targetId = map[openModal] || null;
+        if (!targetId) return;
+        const el = document.getElementById(targetId);
+        if (el && window.bootstrap?.Modal) {
+            window.bootstrap.Modal.getOrCreateInstance(el).show();
+        }
+    });
+    </script>
 </body>
 </html>

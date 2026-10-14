@@ -37,8 +37,16 @@ class PromoController extends Controller
         }
 
         $promos = $query->paginate(20)->withQueryString();
+        $accommodations = Accommodation::query()
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'number', 'rate']);
 
-        return view('admin.promos.index', compact('promos'));
+        return view('admin.promos.index', [
+            'promos' => $promos,
+            'accommodations' => $accommodations,
+            'generatedCode' => $this->promoService->generateCode(),
+        ]);
     }
 
     public function create(): View

@@ -3,31 +3,36 @@
 @section('title', 'My Reservations')
 
 @section('content')
+@php
+    $hasBookings = $bookings->total() > 0;
+    $hasFilter = filled(request('status')) || filled(request('q'));
+@endphp
 <div class="container rp-public-page-top pb-4">
-    <div class="rp-page-intro">
-        <h1 class="rp-page-intro-title">My Reservations</h1>
-    </div>
-
-    @include('partials.list-filters', [
-        'filters' => [
-            [
-                'name' => 'status',
-                'label' => 'Status',
-                'empty' => 'All statuses',
-                'value' => request('status'),
-                'options' => [
-                    'pending' => 'Pending',
-                    'approved' => 'Approved',
-                    'rejected' => 'Rejected',
-                    'cancelled' => 'Cancelled',
-                    'checked_in' => 'Checked in',
-                    'checked_out' => 'Checked out',
+    <div class="rp-page-intro d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <h1 class="rp-page-intro-title mb-0">My Reservations</h1>
+        @if($hasBookings || $hasFilter)
+            @include('partials.list-filters', [
+                'filters' => [
+                    [
+                        'name' => 'status',
+                        'label' => 'Status',
+                        'empty' => 'All statuses',
+                        'value' => request('status'),
+                        'options' => [
+                            'pending' => 'Pending',
+                            'approved' => 'Approved',
+                            'rejected' => 'Rejected',
+                            'cancelled' => 'Cancelled',
+                            'checked_in' => 'Checked in',
+                            'checked_out' => 'Checked out',
+                        ],
+                    ],
                 ],
-            ],
-        ],
-        'searchPlaceholder' => 'Booking Number or Room Name',
-        'clearUrl' => route('guest.bookings.index'),
-    ])
+                'searchPlaceholder' => 'Booking Number or Room Name',
+                'clearUrl' => route('guest.bookings.index'),
+            ])
+        @endif
+    </div>
 
     <div class="rp-booking-list">
         @forelse($bookings as $booking)
@@ -70,9 +75,12 @@
             </a>
         @empty
             <div class="rp-booking-empty">
-                <i class="bi bi-calendar-x"></i>
+                <div class="rp-booking-empty-icon" aria-hidden="true">
+                    <i class="bi bi-calendar3"></i>
+                    <span class="rp-booking-empty-x">×</span>
+                </div>
                 <p>You don't have any reservations yet.</p>
-                <a href="{{ route('accommodations.browse') }}" class="rp-avail-btn-primary">Browse Accommodations</a>
+                <a href="{{ route('accommodations.browse') }}" class="rp-booking-empty-btn">Browse Accommodations</a>
             </div>
         @endforelse
     </div>

@@ -12,7 +12,7 @@
     <link href="{{ asset('css/reservepro.css') }}?v={{ file_exists(public_path('css/reservepro.css')) ? filemtime(public_path('css/reservepro.css')) : '1' }}" rel="stylesheet">
     @stack('styles')
 </head>
-<body class="rp-public">
+<body class="rp-public @yield('body_class')">
     <div class="rp-page-blur-wrap">
     <nav class="rp-public-nav">
         <div class="rp-public-nav-inner">
@@ -30,8 +30,9 @@
                 <div class="rp-nav-links rp-nav-links-main">
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ url('/') }}">The Resort</a>
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ route('gallery') }}">Gallery</a>
-                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('downloads') }}">Download</a>
+                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('offers') }}">Offers</a>
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ route('contact') }}">Contact</a>
+                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('feedback.create') }}">Feedback</a>
                     <a class="rp-nav-link rp-nav-link-booknow" href="{{ route('accommodations.browse') }}">Book Now</a>
                     @guest
                         <a class="rp-nav-link" href="{{ route('login') }}" data-bs-toggle="modal" data-bs-target="#rpLoginModal">Login</a>
@@ -41,8 +42,7 @@
                             <ul class="dropdown-menu dropdown-menu-end rp-nav-account-menu">
                                 <li><a class="dropdown-item" href="{{ route('guest.bookings.index') }}">My Reservations</a></li>
                                 <li><a class="dropdown-item" href="{{ route('guest.payments.index') }}">Payments</a></li>
-                                <li><a class="dropdown-item" href="{{ route('guest.feedback.create') }}">Write Feedback</a></li>
-                                <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Manage Profile</a></li>
+                                <li><a class="dropdown-item" href="#rpProfileModal" data-bs-toggle="modal" data-bs-target="#rpProfileModal">Manage Profile</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rpNavDesktopLogoutForm').submit();">Sign Out</a></li>
                             </ul>
@@ -67,15 +67,15 @@
         <nav class="rp-nav-overlay-links">
             <a href="{{ url('/') }}">The Resort</a>
             <a href="{{ route('gallery') }}">Gallery</a>
-            <a href="{{ route('downloads') }}">Download</a>
+            <a href="{{ route('offers') }}">Offers</a>
             <a href="{{ route('contact') }}">Contact</a>
+            <a href="{{ route('feedback.create') }}">Feedback</a>
             <a href="{{ route('accommodations.browse') }}">Book Now</a>
             @auth
                 @if(auth()->user()->hasRole('guest'))
                     <a href="{{ route('guest.bookings.index') }}">My Reservations</a>
                     <a href="{{ route('guest.payments.index') }}">Payments</a>
-                    <a href="{{ route('guest.feedback.create') }}">Write Feedback</a>
-                    <a href="{{ route('profile.edit') }}">Manage Profile</a>
+                    <a href="#rpProfileModal" data-bs-toggle="modal" data-bs-target="#rpProfileModal">Manage Profile</a>
                 @else
                     <a href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
                 @endif
@@ -146,6 +146,9 @@
     @include('partials.terms-modal')
     @include('partials.confirm-modal')
     @include('partials.notice-modal')
+    @auth
+        @include('partials.modals.profile-modal')
+    @endauth
     @guest
         @include('partials.login-modal')
         @include('partials.register-modal')
@@ -155,5 +158,32 @@
     <script src="{{ asset('js/reservepro.js') }}?v={{ file_exists(public_path('js/reservepro.js')) ? filemtime(public_path('js/reservepro.js')) : '1' }}"></script>
     <script src="{{ asset('js/cookie-consent.js') }}?v={{ file_exists(public_path('js/cookie-consent.js')) ? filemtime(public_path('js/cookie-consent.js')) : '1' }}"></script>
     @stack('scripts')
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const successPopup = @json(session('success_popup'));
+        if (successPopup && window.bootstrap) {
+            const noticeEl = document.getElementById('rpNoticeModal');
+            if (noticeEl) {
+                const titleEl = noticeEl.querySelector('#rpNoticeModalLabel');
+                const messageEl = noticeEl.querySelector('[data-rp-notice-message]');
+                if (titleEl) titleEl.textContent = 'Success';
+                if (messageEl) messageEl.textContent = successPopup;
+                window.bootstrap.Modal.getOrCreateInstance(noticeEl).show();
+            }
+        }
+
+        const openModal = @json(session('open_modal') ?: old('_modal'));
+        const map = {
+            profile: 'rpProfileModal',
+            profile_password: 'rpProfileModal',
+        };
+        const targetId = map[openModal] || null;
+        if (!targetId || !window.bootstrap?.Modal) return;
+        const el = document.getElementById(targetId);
+        if (el) {
+            window.bootstrap.Modal.getOrCreateInstance(el).show();
+        }
+    });
+    </script>
 </body>
 </html>

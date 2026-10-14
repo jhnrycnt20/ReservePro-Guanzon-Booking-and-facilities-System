@@ -9,11 +9,14 @@
             <h1 class="rp-page-intro-title mb-1">My Feedback</h1>
             <p class="text-muted mb-0">Feedback you sent about rooms or the resort.</p>
         </div>
-        <a href="{{ route('guest.feedback.create') }}" class="btn btn-rp-primary">Write Feedback</a>
+        <a href="{{ route('feedback.create') }}" class="btn btn-rp-primary">Write Feedback</a>
     </div>
 
     @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert" data-rp-auto-dismiss>
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     @endif
 
     <div class="rp-flow-card">
@@ -54,7 +57,7 @@
                         <tr>
                             <td colspan="4" class="text-muted py-4">
                                 You have not submitted feedback yet.
-                                <a href="{{ route('guest.feedback.create') }}">Write feedback</a> about a room or the resort.
+                                <a href="{{ route('feedback.create') }}">Write feedback</a> about a room or the resort.
                             </td>
                         </tr>
                     @endforelse

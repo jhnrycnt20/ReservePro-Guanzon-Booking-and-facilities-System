@@ -112,7 +112,10 @@
                         <input type="hidden" name="check_out" value="{{ request('check_out', old('check_out_date')) }}" data-stay-check-out>
                     </div>
                 </div>
-                <button type="button" class="rp-avail-btn-primary" data-rp-show-calendar>Change Date</button>
+                <div class="d-flex flex-column gap-2">
+                    <button type="button" class="rp-avail-btn-secondary" data-rp-show-calendar>Change Date</button>
+                    <button type="submit" class="rp-avail-btn-primary">Check Availability</button>
+                </div>
             </form>
 
             @isset($available)

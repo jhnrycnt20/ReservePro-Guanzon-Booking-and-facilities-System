@@ -4,15 +4,26 @@
 
 @section('content')
 <div class="container rp-public-page-top pb-4">
-    <a href="{{ route('guest.feedback.index') }}" class="rp-back-link"><i class="bi bi-arrow-left"></i> Back to My Feedback</a>
+    @auth
+        @if(auth()->user()->hasRole('guest'))
+            <a href="{{ route('guest.feedback.index') }}" class="rp-back-link"><i class="bi bi-arrow-left"></i> Back to My Feedback</a>
+        @else
+            <a href="{{ url('/') }}" class="rp-back-link"><i class="bi bi-arrow-left"></i> Back to Home</a>
+        @endif
+    @else
+        <a href="{{ url('/') }}" class="rp-back-link"><i class="bi bi-arrow-left"></i> Back to Home</a>
+    @endauth
 
     <div class="rp-page-intro">
         <h1 class="rp-page-intro-title">Write Feedback</h1>
-        <p class="text-muted mb-0">Share your thoughts about a room or the resort.</p>
+        <p class="text-muted mb-0">Share your thoughts about a room or the resort. No account needed.</p>
     </div>
 
     @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert" data-rp-auto-dismiss>
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     @endif
 
     <div class="row justify-content-center">
@@ -27,11 +38,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Rating</label>
-                            <select name="rating" class="form-select" required>
-                                @for($i = 5; $i >= 1; $i--)
-                                    <option value="{{ $i }}" @selected((int) old('rating', 5) === $i)>{{ $i }} — {{ ['', 'Poor', 'Fair', 'Good', 'Very good', 'Excellent'][$i] }}</option>
-                                @endfor
-                            </select>
+                            @include('partials.star-rating-input', ['ratingValue' => old('rating', 5), 'ratingId' => 'rpFeedbackBookingStars'])
                             @error('rating')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                         </div>
                         <div class="mb-3">
@@ -42,7 +49,7 @@
                         <button type="submit" class="btn btn-rp-primary w-100">Submit Feedback</button>
                     </form>
                 @else
-                    <form method="POST" action="{{ route('guest.feedback.store') }}" class="mb-4">
+                    <form method="POST" action="{{ route('feedback.store') }}" class="mb-4">
                         @csrf
                         <div class="mb-3">
                             <label class="form-label d-block">Feedback about</label>
@@ -70,11 +77,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Rating</label>
-                            <select name="rating" class="form-select" required>
-                                @for($i = 5; $i >= 1; $i--)
-                                    <option value="{{ $i }}" @selected((int) old('rating', 5) === $i)>{{ $i }} — {{ ['', 'Poor', 'Fair', 'Good', 'Very good', 'Excellent'][$i] }}</option>
-                                @endfor
-                            </select>
+                            @include('partials.star-rating-input', ['ratingValue' => old('rating', 5), 'ratingId' => 'rpFeedbackStars'])
                             @error('rating')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                         </div>
                         <div class="mb-3">
@@ -109,13 +112,14 @@
 document.addEventListener('DOMContentLoaded', () => {
     const roomWrap = document.getElementById('rpFeedbackRoomWrap');
     const radios = document.querySelectorAll('input[name="scope"]');
-    if (!roomWrap || !radios.length) return;
-    const sync = () => {
-        const selected = document.querySelector('input[name="scope"]:checked');
-        roomWrap.classList.toggle('d-none', !selected || selected.value !== 'room');
-    };
-    radios.forEach((radio) => radio.addEventListener('change', sync));
-    sync();
+    if (roomWrap && radios.length) {
+        const sync = () => {
+            const selected = document.querySelector('input[name="scope"]:checked');
+            roomWrap.classList.toggle('d-none', !selected || selected.value !== 'room');
+        };
+        radios.forEach((radio) => radio.addEventListener('change', sync));
+        sync();
+    }
 });
 </script>
 @endpush

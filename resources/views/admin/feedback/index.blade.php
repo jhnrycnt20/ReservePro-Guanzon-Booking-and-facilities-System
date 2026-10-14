@@ -49,7 +49,7 @@
             <tbody>
                 @forelse($feedback as $item)
                     <tr>
-                        <td>{{ $item->guest?->user?->name ?? '—' }}</td>
+                        <td>{{ $item->guest?->user?->name ?? 'Visitor' }}</td>
                         <td>
                             @if($item->booking)
                                 {{ $item->booking->booking_number }}

@@ -20,9 +20,14 @@ class CheckOutController extends Controller
     ) {
     }
 
-    public function index(Request $request): View
+    public function index(Request $request): RedirectResponse|View
     {
         $this->automation->runDueActions($request->user());
+
+        if (! $request->boolean('page')) {
+            return redirect()
+                ->route('front_desk.reservations.index', ['tab' => 'check_out']);
+        }
 
         $query = Booking::query()
             ->with(['guest.user', 'accommodation' => fn ($q) => $q->withTrashed()])
@@ -47,8 +52,14 @@ class CheckOutController extends Controller
         return view('front_desk.checkouts.index', compact('bookings'));
     }
 
-    public function show(Booking $booking): View
+    public function show(Booking $booking): RedirectResponse|View
     {
+        if (! request()->boolean('page')) {
+            return redirect()
+                ->route('front_desk.reservations.index', ['tab' => 'check_out'])
+                ->with('open_checkout', $booking->id);
+        }
+
         $booking->load(['guest.user', 'accommodation', 'payments', 'checkIn', 'checkOut']);
 
         return view('front_desk.checkouts.show', compact('booking'));
@@ -69,7 +80,7 @@ class CheckOutController extends Controller
         );
 
         return redirect()
-            ->route('front_desk.dashboard')
+            ->route('front_desk.reservations.index')
             ->with('success', 'Guest checked out. Accommodation is now Available.');
     }
 }

@@ -18,8 +18,13 @@ class CheckInController extends Controller
     {
     }
 
-    public function index(Request $request): View
+    public function index(Request $request): RedirectResponse|View
     {
+        if (! $request->boolean('page')) {
+            return redirect()
+                ->route('front_desk.reservations.index', ['tab' => 'check_in']);
+        }
+
         $query = Booking::query()
             ->with(['guest.user', 'accommodation' => fn ($q) => $q->withTrashed(), 'checkIn.staff'])
             ->where('status', BookingStatus::CheckedIn)
@@ -72,7 +77,7 @@ class CheckInController extends Controller
         }
 
         return redirect()
-            ->route('front_desk.checkins.index')
-            ->with('success', 'Guest checked in. They now appear under Check-in.');
+            ->route('front_desk.reservations.index', ['tab' => 'check_out'])
+            ->with('success', 'Guest checked in successfully.');
     }
 }

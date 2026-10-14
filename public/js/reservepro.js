@@ -463,6 +463,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    document.querySelectorAll('[data-rp-filter-compact]').forEach((wrap) => {
+        const toggle = wrap.querySelector('[data-rp-filter-toggle]');
+        const panel = wrap.querySelector('[data-rp-filter-panel]');
+        if (!toggle || !panel) return;
+
+        const setOpen = (open) => {
+            wrap.classList.toggle('is-open', open);
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            panel.hidden = !open;
+        };
+
+        toggle.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            setOpen(panel.hidden);
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!wrap.contains(event.target)) {
+                setOpen(false);
+            }
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                setOpen(false);
+            }
+        });
+    });
+
     document.querySelectorAll('[data-rp-live-filter]').forEach((form) => {
         let timer = null;
         const applyFilter = () => {
@@ -1206,8 +1236,21 @@ document.addEventListener('DOMContentLoaded', () => {
             return setFieldState(name, validators[name](input.value), options);
         };
 
+        const isChangingPassword = () => ['current_password', 'password', 'password_confirmation']
+            .some((name) => Boolean(field(name)?.value?.trim()));
+
+        const clearPasswordErrors = () => {
+            ['current_password', 'password', 'password_confirmation'].forEach((name) => {
+                setFieldState(name, '', { force: true });
+            });
+        };
+
         const validateAll = (options = {}) => {
             updatePasswordChecks();
+            if (!isChangingPassword()) {
+                clearPasswordErrors();
+                return true;
+            }
             return ['current_password', 'password', 'password_confirmation']
                 .map((name) => validateField(name, options))
                 .every(Boolean);
@@ -1219,6 +1262,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             input.addEventListener('input', () => {
                 if (name === 'password') updatePasswordChecks();
+                if (!isChangingPassword()) {
+                    clearPasswordErrors();
+                    return;
+                }
                 if (touched.has(name) || input.classList.contains('is-invalid')) {
                     validateField(name);
                 }
@@ -1228,15 +1275,27 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             input.addEventListener('blur', () => {
+                if (!isChangingPassword()) {
+                    clearPasswordErrors();
+                    return;
+                }
                 touched.add(name);
                 validateField(name, { force: true });
             });
         });
 
         form.addEventListener('submit', (event) => {
+            if (!isChangingPassword()) {
+                clearPasswordErrors();
+                return;
+            }
             ['current_password', 'password', 'password_confirmation'].forEach((name) => touched.add(name));
             if (!validateAll({ force: true })) {
                 event.preventDefault();
+                const panel = form.querySelector('[data-rp-password-panel]');
+                const dropdown = form.querySelector('[data-rp-password-dropdown]');
+                if (panel) panel.hidden = false;
+                dropdown?.classList.add('is-open');
                 const firstInvalid = form.querySelector('.is-invalid');
                 firstInvalid?.focus();
             }
@@ -1252,6 +1311,192 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
+    });
+
+    const ensureProfileLightbox = () => {
+        let lightbox = document.getElementById('rpProfileLightbox');
+        if (lightbox) return lightbox;
+
+        lightbox = document.createElement('div');
+        lightbox.id = 'rpProfileLightbox';
+        lightbox.className = 'rp-profile-lightbox';
+        lightbox.hidden = true;
+        lightbox.innerHTML = '<button type="button" class="rp-profile-lightbox-close" aria-label="Close">&times;</button><img alt="Profile photo">';
+        document.body.appendChild(lightbox);
+
+        const closeLightbox = () => {
+            lightbox.hidden = true;
+            lightbox.querySelector('img').removeAttribute('src');
+        };
+
+        lightbox.querySelector('.rp-profile-lightbox-close')?.addEventListener('click', (event) => {
+            event.stopPropagation();
+            closeLightbox();
+        });
+        lightbox.addEventListener('click', closeLightbox);
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !lightbox.hidden) closeLightbox();
+        });
+
+        return lightbox;
+    };
+
+    const openProfileLightbox = (src, alt = 'Profile photo') => {
+        if (!src) return;
+        const lightbox = ensureProfileLightbox();
+        const image = lightbox.querySelector('img');
+        image.src = src;
+        image.alt = alt;
+        lightbox.hidden = false;
+    };
+
+    document.querySelectorAll('[data-rp-avatar-view]').forEach((viewBtn) => {
+        viewBtn.addEventListener('click', () => {
+            if (viewBtn.disabled) return;
+            const preview = viewBtn.querySelector('[data-rp-avatar-preview], img');
+            const src = viewBtn.dataset.rpAvatarSrc || preview?.getAttribute('src') || '';
+            if (!src || preview?.classList.contains('d-none')) return;
+            openProfileLightbox(src, preview?.getAttribute('alt') || 'Profile photo');
+        });
+    });
+
+    document.querySelectorAll('[data-rp-profile-manage]').forEach((shell) => {
+        const viewPanel = shell.querySelector('[data-rp-profile-view]');
+        const editPanel = shell.querySelector('[data-rp-profile-edit-panel]');
+        const showEdit = () => {
+            if (viewPanel) viewPanel.hidden = true;
+            if (editPanel) editPanel.hidden = false;
+            shell.dataset.rpProfileEditing = '1';
+        };
+        const showView = () => {
+            if (viewPanel) viewPanel.hidden = false;
+            if (editPanel) editPanel.hidden = true;
+            delete shell.dataset.rpProfileEditing;
+        };
+        shell.querySelectorAll('[data-rp-profile-edit]').forEach((btn) => {
+            btn.addEventListener('click', showEdit);
+        });
+        shell.querySelectorAll('[data-rp-profile-cancel]').forEach((btn) => {
+            btn.addEventListener('click', showView);
+        });
+
+        shell.querySelectorAll('[data-rp-password-dropdown]').forEach((dropdown) => {
+            const toggle = dropdown.querySelector('[data-rp-password-toggle]');
+            const panel = dropdown.querySelector('[data-rp-password-panel]');
+            if (!toggle || !panel) return;
+            toggle.addEventListener('click', () => {
+                const open = dropdown.classList.toggle('is-open');
+                panel.hidden = !open;
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            });
+        });
+    });
+
+    document.querySelectorAll('[data-rp-profile-photo]').forEach((wrap) => {
+        const input = wrap.querySelector('[data-rp-avatar-input]');
+        const preview = wrap.querySelector('[data-rp-avatar-preview]');
+        const fallback = wrap.querySelector('[data-rp-avatar-fallback]');
+        const remove = wrap.querySelector('[data-rp-avatar-remove]');
+        const viewBtn = wrap.querySelector('[data-rp-avatar-view]');
+        if (!input || !preview) return;
+
+        const setViewable = (src) => {
+            if (!viewBtn) return;
+            const hasImage = Boolean(src);
+            viewBtn.disabled = !hasImage;
+            viewBtn.classList.toggle('is-empty', !hasImage);
+            viewBtn.setAttribute('aria-label', hasImage ? 'View profile photo' : 'No profile photo yet');
+            if (hasImage) viewBtn.dataset.rpAvatarSrc = src;
+            else delete viewBtn.dataset.rpAvatarSrc;
+        };
+
+        input.addEventListener('change', () => {
+            const file = input.files?.[0];
+            if (!file) return;
+            if (remove) remove.checked = false;
+            const url = URL.createObjectURL(file);
+            preview.src = url;
+            preview.classList.remove('d-none');
+            fallback?.classList.add('d-none');
+            setViewable(url);
+        });
+
+        remove?.addEventListener('change', () => {
+            if (!remove.checked) return;
+            input.value = '';
+            preview.src = '';
+            preview.classList.add('d-none');
+            fallback?.classList.remove('d-none');
+            setViewable('');
+        });
+    });
+
+    document.querySelectorAll('[data-rp-nav-group]').forEach((group) => {
+        const toggle = group.querySelector('[data-rp-nav-group-toggle]');
+        const panel = group.querySelector('[data-rp-nav-group-panel]');
+        if (!toggle || !panel) return;
+
+        // Keep the section open when it contains the active page link.
+        if (panel.querySelector('a.active')) {
+            group.classList.add('is-open');
+            panel.hidden = false;
+            toggle.setAttribute('aria-expanded', 'true');
+        }
+
+        toggle.addEventListener('click', () => {
+            const open = group.classList.toggle('is-open');
+            panel.hidden = !open;
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+    });
+
+    const starLabels = {
+        1: 'Poor',
+        2: 'Fair',
+        3: 'Good',
+        4: 'Very good',
+        5: 'Excellent',
+    };
+
+    document.querySelectorAll('[data-rp-star-rating]').forEach((wrap) => {
+        const input = wrap.querySelector('[data-rp-star-value]');
+        const label = wrap.querySelector('[data-rp-star-label]');
+        const buttons = [...wrap.querySelectorAll('[data-rp-star]')];
+        if (!input || !buttons.length) return;
+
+        const paint = (value) => {
+            const rating = Math.max(1, Math.min(5, Number(value) || 0));
+            input.value = String(rating);
+            if (label) label.textContent = starLabels[rating] || '';
+            buttons.forEach((btn) => {
+                const star = Number(btn.dataset.rpStar || 0);
+                const active = star <= rating;
+                btn.classList.toggle('is-active', active);
+                btn.setAttribute('aria-pressed', star === rating ? 'true' : 'false');
+                const icon = btn.querySelector('i');
+                if (icon) icon.className = active ? 'bi bi-star-fill' : 'bi bi-star';
+            });
+        };
+
+        buttons.forEach((btn) => {
+            btn.addEventListener('click', () => paint(btn.dataset.rpStar));
+            btn.addEventListener('mouseenter', () => {
+                const hoverValue = Number(btn.dataset.rpStar || 0);
+                buttons.forEach((item) => {
+                    const star = Number(item.dataset.rpStar || 0);
+                    const active = star <= hoverValue;
+                    item.classList.toggle('is-active', active);
+                    const icon = item.querySelector('i');
+                    if (icon) icon.className = active ? 'bi bi-star-fill' : 'bi bi-star';
+                });
+            });
+        });
+
+        wrap.querySelector('.rp-star-rating-stars')?.addEventListener('mouseleave', () => {
+            paint(input.value);
+        });
+
+        paint(input.value);
     });
 
     document.querySelectorAll('[data-demo-email]').forEach((button) => {
@@ -1786,7 +2031,41 @@ function initAvailabilityCalendar() {
         }
     };
 
+    let lockedScrollY = 0;
+    let scrollLocked = false;
+
+    const lockPageScroll = () => {
+        if (scrollLocked) return;
+        lockedScrollY = window.scrollY || window.pageYOffset || 0;
+        scrollLocked = true;
+        document.body.dataset.rpAvailScrollY = String(lockedScrollY);
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${lockedScrollY}px`;
+        document.body.style.left = '0';
+        document.body.style.right = '0';
+        document.body.style.width = '100%';
+    };
+
+    const unlockPageScroll = () => {
+        if (!scrollLocked) return;
+        const y = Number(document.body.dataset.rpAvailScrollY || lockedScrollY || 0);
+        scrollLocked = false;
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        document.body.style.width = '';
+        delete document.body.dataset.rpAvailScrollY;
+        window.scrollTo(0, y);
+    };
+
+    modalEl.addEventListener('show.bs.modal', lockPageScroll);
+    modalEl.addEventListener('hidden.bs.modal', unlockPageScroll);
+
     const openCalendar = () => {
+        if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+        }
         pendingCheckIn = checkInInput?.value || '';
         pendingCheckOut = checkOutInput?.value || '';
         selectingCheckout = Boolean(pendingCheckIn && !pendingCheckOut);
@@ -1826,20 +2105,19 @@ function initAvailabilityCalendar() {
         if (!pendingCheckIn || !pendingCheckOut) {
             return;
         }
+        // Fill dates only — do not filter/submit. User clicks Check Availability next.
         checkInInput.value = pendingCheckIn;
         checkOutInput.value = pendingCheckOut;
         if (checkInDisplay) checkInDisplay.value = formatDisplay(pendingCheckIn);
         if (checkOutDisplay) checkOutDisplay.value = formatDisplay(pendingCheckOut);
         checkInInput.dispatchEvent(new Event('change', { bubbles: true }));
         modal.hide();
-        if (!form.hasAttribute('data-rp-no-auto-submit')) {
-            form.submit();
-        }
     });
 
     document.querySelectorAll('[data-rp-show-calendar]').forEach((el) => {
         el.addEventListener('click', (event) => {
             event.preventDefault();
+            event.stopPropagation();
             openCalendar();
         });
     });
@@ -1847,7 +2125,31 @@ function initAvailabilityCalendar() {
     form.querySelectorAll('[data-rp-open-calendar]').forEach((el) => {
         el.addEventListener('click', (event) => {
             event.preventDefault();
+            event.stopPropagation();
             openCalendar();
         });
     });
+
+    // After Check Availability submit, restore scroll to the filters (not the hero).
+    if (form.method?.toLowerCase() === 'get' && !form.hasAttribute('data-rp-no-auto-submit')) {
+        form.addEventListener('submit', () => {
+            try {
+                sessionStorage.setItem('rp-browse-scroll', 'filters');
+            } catch (e) { /* ignore */ }
+        });
+    }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    try {
+        if (sessionStorage.getItem('rp-browse-scroll') !== 'filters') return;
+        sessionStorage.removeItem('rp-browse-scroll');
+    } catch (e) {
+        return;
+    }
+    const target = document.getElementById('rpBrowseFilters');
+    if (!target) return;
+    const restore = () => target.scrollIntoView({ block: 'start' });
+    requestAnimationFrame(restore);
+    window.addEventListener('load', () => requestAnimationFrame(restore), { once: true });
+});

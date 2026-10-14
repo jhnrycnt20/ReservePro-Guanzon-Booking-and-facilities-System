@@ -10,8 +10,14 @@ use Illuminate\View\View;
 
 class SettingController extends Controller
 {
-    public function index(): View
+    public function index(): RedirectResponse|View
     {
+        if (! request()->boolean('page')) {
+            return redirect()
+                ->route('admin.dashboard')
+                ->with('open_modal', 'settings');
+        }
+
         $settings = SystemSetting::query()->pluck('value', 'key');
 
         return view('admin.settings.index', compact('settings'));

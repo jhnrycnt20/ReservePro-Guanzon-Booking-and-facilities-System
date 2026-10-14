@@ -15,7 +15,8 @@ class FeedbackController extends Controller
 {
     public function index(Request $request): View
     {
-        $guestId = $request->user()->guest?->id;
+        $guestId = $request->user()?->guest?->id;
+        abort_unless($guestId, 403);
 
         $feedback = Feedback::query()
             ->where('guest_id', $guestId)
@@ -28,23 +29,27 @@ class FeedbackController extends Controller
 
     public function create(Request $request, ?Booking $booking = null): View
     {
-        $guestId = $request->user()->guest?->id;
+        $guestId = $request->user()?->guest?->id;
 
         if ($booking && $booking->exists) {
-            abort_unless($booking->guest_id === $guestId, 403);
+            abort_unless($request->user(), 403);
+            abort_unless($guestId && $booking->guest_id === $guestId, 403);
             abort_unless($booking->status === BookingStatus::CheckedOut, 422, 'Feedback allowed after check-out only.');
             $booking->load('accommodation');
 
             return view('guest.feedback.create', compact('booking'));
         }
 
-        $bookings = Booking::query()
-            ->where('guest_id', $guestId)
-            ->where('status', BookingStatus::CheckedOut)
-            ->whereDoesntHave('feedback')
-            ->with('accommodation')
-            ->latest()
-            ->get();
+        $bookings = collect();
+        if ($guestId) {
+            $bookings = Booking::query()
+                ->where('guest_id', $guestId)
+                ->where('status', BookingStatus::CheckedOut)
+                ->whereDoesntHave('feedback')
+                ->with('accommodation')
+                ->latest()
+                ->get();
+        }
 
         $accommodations = Accommodation::query()
             ->where('is_active', true)
@@ -56,10 +61,10 @@ class FeedbackController extends Controller
 
     public function store(Request $request, ?Booking $booking = null): RedirectResponse
     {
-        $guest = $request->user()->guest;
-        abort_unless($guest, 403);
+        $guest = $request->user()?->guest;
 
         if ($booking && $booking->exists) {
+            abort_unless($guest, 403);
             abort_unless($booking->guest_id === $guest->id, 403);
             abort_unless($booking->status === BookingStatus::CheckedOut, 422, 'Feedback allowed after check-out only.');
 
@@ -92,15 +97,21 @@ class FeedbackController extends Controller
 
         Feedback::query()->create([
             'booking_id' => null,
-            'guest_id' => $guest->id,
+            'guest_id' => $guest?->id,
             'scope' => $data['scope'],
             'accommodation_id' => $data['scope'] === 'room' ? $data['accommodation_id'] : null,
             'rating' => $data['rating'],
             'comment' => $data['comment'] ?? null,
         ]);
 
+        if ($guest) {
+            return redirect()
+                ->route('guest.feedback.index')
+                ->with('success', 'Thank you for your feedback.');
+        }
+
         return redirect()
-            ->route('guest.feedback.index')
+            ->route('feedback.create')
             ->with('success', 'Thank you for your feedback.');
     }
 }

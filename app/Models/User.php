@@ -22,9 +22,19 @@ class User extends Authenticatable
         'name',
         'email',
         'phone',
+        'avatar',
         'password',
         'is_active',
     ];
+
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if (! $this->avatar) {
+            return null;
+        }
+
+        return asset('storage/'.$this->avatar);
+    }
 
     protected $hidden = [
         'password',
