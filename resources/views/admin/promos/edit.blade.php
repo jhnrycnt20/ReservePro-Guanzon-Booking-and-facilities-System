@@ -60,7 +60,8 @@
                 <div class="row g-3">
                     <div class="col-md-12">
                         <label class="form-label" for="promoName">Promo name</label>
-                        <input type="text" name="name" id="promoName" class="form-control" value="{{ old('name', $promo->name) }}" placeholder="Summer stay discount">
+                        <input type="text" name="name" id="promoName" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $promo->name) }}" placeholder="Summer stay discount" required>
+                        @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-8">
                         <label class="form-label" for="promoCode">Promo code</label>

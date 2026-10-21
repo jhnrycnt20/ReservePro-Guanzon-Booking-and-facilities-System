@@ -7,6 +7,7 @@ use App\Models\AccommodationType;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class AccommodationTypeController extends Controller
@@ -41,6 +42,7 @@ class AccommodationTypeController extends Controller
             'description' => ['nullable', 'string'],
         ]);
         $data['slug'] = Str::slug($data['name']);
+        $this->validateSlug($data['slug']);
         AccommodationType::query()->create($data);
 
         return redirect()->route('admin.types.index')->with('success', 'Type created.');
@@ -58,6 +60,7 @@ class AccommodationTypeController extends Controller
             'description' => ['nullable', 'string'],
         ]);
         $data['slug'] = Str::slug($data['name']);
+        $this->validateSlug($data['slug'], $type->id);
         $type->update($data);
 
         return redirect()->route('admin.types.index')->with('success', 'Type updated.');
@@ -68,5 +71,18 @@ class AccommodationTypeController extends Controller
         $type->delete();
 
         return back()->with('success', 'Type deleted.');
+    }
+
+    private function validateSlug(string $slug, ?int $exceptId = null): void
+    {
+        if ($slug === '') {
+            throw ValidationException::withMessages(['name' => 'Enter a name containing letters or numbers.']);
+        }
+
+        if (AccommodationType::query()->where('slug', $slug)
+            ->when($exceptId, fn ($query) => $query->whereKeyNot($exceptId))
+            ->exists()) {
+            throw ValidationException::withMessages(['name' => 'An accommodation type with this name already exists.']);
+        }
     }
 }

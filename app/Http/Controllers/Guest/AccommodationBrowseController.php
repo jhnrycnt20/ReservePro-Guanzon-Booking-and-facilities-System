@@ -20,6 +20,13 @@ class AccommodationBrowseController extends Controller
 
     public function index(Request $request): View
     {
+        if ($request->filled('check_in') || $request->filled('check_out')) {
+            $request->validate([
+                'check_in' => ['required', 'date_format:Y-m-d', 'after_or_equal:today'],
+                'check_out' => ['required', 'date_format:Y-m-d', 'after:check_in'],
+            ]);
+        }
+
         $query = Accommodation::query()
             ->with(['type', 'amenities'])
             ->where('is_active', true);
@@ -50,6 +57,13 @@ class AccommodationBrowseController extends Controller
 
     public function show(Request $request, Accommodation $accommodation): View|RedirectResponse
     {
+        if ($request->filled('check_in') || $request->filled('check_out')) {
+            $request->validate([
+                'check_in' => ['required', 'date_format:Y-m-d', 'after_or_equal:today'],
+                'check_out' => ['required', 'date_format:Y-m-d', 'after:check_in'],
+            ]);
+        }
+
         $status = $accommodation->status instanceof \BackedEnum
             ? $accommodation->status->value
             : (string) $accommodation->status;
@@ -83,8 +97,8 @@ class AccommodationBrowseController extends Controller
     public function availability(Request $request, Accommodation $accommodation): View
     {
         $request->validate([
-            'check_in' => ['required', 'date', 'after_or_equal:today'],
-            'check_out' => ['required', 'date', 'after:check_in'],
+            'check_in' => ['required', 'date_format:Y-m-d', 'after_or_equal:today'],
+            'check_out' => ['required', 'date_format:Y-m-d', 'after:check_in'],
         ]);
 
         return $this->show($request, $accommodation);

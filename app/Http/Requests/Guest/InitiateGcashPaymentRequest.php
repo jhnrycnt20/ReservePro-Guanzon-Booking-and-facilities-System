@@ -10,19 +10,26 @@ class InitiateGcashPaymentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->isGuestRole() ?? false;
+        $booking = $this->route('booking');
+
+        return ($this->user()?->isGuestRole() ?? false)
+            && $booking?->guest_id === $this->user()?->guest?->id;
     }
 
     public function rules(): array
     {
         return [
-            'amount' => ['required', 'numeric', 'min:0.01'],
+            'amount' => ['required', 'numeric', 'min:0.01', 'max:9999999999.99', 'decimal:0,2'],
         ];
     }
 
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator) {
+            if ($validator->errors()->has('amount')) {
+                return;
+            }
+
             $booking = $this->route('booking');
             if (! $booking) {
                 return;

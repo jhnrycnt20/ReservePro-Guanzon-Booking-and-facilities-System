@@ -50,6 +50,12 @@ class BookingService
         $rate = (float) $accommodation->rate;
         $total = round($nights * $rate, 2);
 
+        if (! is_finite($total) || $total > 9999999999.99) {
+            throw ValidationException::withMessages([
+                'check_out_date' => 'The total stay amount exceeds the supported limit. Choose a shorter stay.',
+            ]);
+        }
+
         return [
             'nights' => $nights,
             'rate' => $rate,

@@ -22,13 +22,13 @@ class ContactController extends Controller
             'message' => ['required', 'string', 'max:2000'],
         ]);
 
-        $subject = $data['subject'] ?: ('New inquiry from '.$data['name']);
+        $subject = $data['subject'] ?? ('New inquiry from '.$data['name']);
 
         ContactMessage::query()->create([
             'subject' => $subject,
             'name' => $data['name'],
             'email' => $data['email'],
-            'phone' => $data['phone'] ?: null,
+            'phone' => $data['phone'] ?? null,
             'message' => $data['message'],
         ]);
 
@@ -37,7 +37,7 @@ class ContactController extends Controller
         $body = implode("\n", [
             'Name: '.$data['name'],
             'Email: '.$data['email'],
-            'Phone: '.($data['phone'] ?: 'N/A'),
+            'Phone: '.($data['phone'] ?? 'N/A'),
             '',
             $data['message'],
         ]);

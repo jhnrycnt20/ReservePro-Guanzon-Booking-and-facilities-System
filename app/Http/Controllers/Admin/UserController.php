@@ -96,7 +96,16 @@ class UserController extends Controller
             $data['password'] = Hash::make($request->input('password'));
         }
 
-        $user->update($data);
+        DB::transaction(function () use ($user, $data): void {
+            $user->update($data);
+
+            if ($user->fresh()->isGuestRole()) {
+                Guest::query()->updateOrCreate(
+                    ['user_id' => $user->id],
+                    ['contact_number' => $data['phone'] ?: 'N/A']
+                );
+            }
+        });
 
         return redirect()->route('admin.users.index')->with('success', 'User updated.');
     }

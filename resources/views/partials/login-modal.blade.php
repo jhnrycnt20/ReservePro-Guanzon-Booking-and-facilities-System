@@ -5,24 +5,24 @@
             <div class="rp-login-modal-body">
                 <h2 class="rp-login-title" id="rpLoginModalLabel">Login</h2>
 
-                <form method="POST" action="{{ route('login') }}">
+                <form method="POST" action="{{ route('login') }}" data-rp-login-form>
                     @csrf
                     @if (session('error'))
                         <div class="rp-login-alert" role="alert">{{ session('error') }}</div>
                     @endif
 
                     <div class="rp-login-field">
-                        <input id="rpLoginEmail" type="email" class="@error('email', 'login') is-invalid @enderror" name="email" value="{{ old('email') }}" placeholder="Email" required autofocus>
+                        <input id="rpLoginEmail" type="email" class="@error('email', 'login') is-invalid @enderror" name="email" value="{{ old('email') }}" placeholder="Email" autocomplete="email" aria-describedby="rpLoginEmailError" @error('email', 'login') aria-invalid="true" @enderror required autofocus data-rp-login-field="email">
                         <i class="bi bi-envelope rp-login-field-icon"></i>
-                        <div class="rp-login-error">@error('email', 'login'){{ $message }}@enderror</div>
+                        <div id="rpLoginEmailError" class="rp-login-error" role="status" aria-live="polite" data-rp-login-feedback="email">@error('email', 'login'){{ $message }}@enderror</div>
                     </div>
 
                     <div class="rp-login-field input-group">
-                        <input id="rpLoginPassword" type="password" class="@error('password', 'login') is-invalid @enderror" name="password" placeholder="Password" required>
+                        <input id="rpLoginPassword" type="password" class="@error('password', 'login') is-invalid @enderror" name="password" placeholder="Password" autocomplete="current-password" aria-describedby="rpLoginPasswordError" @error('password', 'login') aria-invalid="true" @enderror required data-rp-login-field="password">
                         <button type="button" class="rp-login-field-icon-btn" data-rp-toggle-password aria-label="Show password">
                             <i class="bi bi-eye"></i>
                         </button>
-                        <div class="rp-login-error">@error('password', 'login'){{ $message }}@enderror</div>
+                        <div id="rpLoginPasswordError" class="rp-login-error" role="status" aria-live="polite" data-rp-login-feedback="password">@error('password', 'login'){{ $message }}@enderror</div>
                     </div>
 
                     <div class="rp-login-remember">

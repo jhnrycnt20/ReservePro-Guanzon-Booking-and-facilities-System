@@ -11,6 +11,7 @@ use App\Models\Accommodation;
 use App\Models\AuditLog;
 use App\Models\Booking;
 use App\Models\IncidentReport;
+use Carbon\Carbon;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -58,6 +59,27 @@ class DashboardController extends Controller
 
         $recentActivities = AuditLog::query()->latest()->take(8)->get();
 
-        return view('front_desk.dashboard', compact('stats', 'pendingReservations', 'recentActivities'));
+        $chartDays = collect(range(6, 0))->map(fn ($offset) => Carbon::today()->subDays($offset));
+        $chartStart = $chartDays->first()->toDateString();
+        $chartEnd = $chartDays->last()->toDateString();
+        $checkinCounts = Booking::query()
+            ->selectRaw('DATE(check_in_date) as day, COUNT(*) as total')
+            ->whereBetween('check_in_date', [$chartStart, $chartEnd])
+            ->whereIn('status', [BookingStatus::Approved, BookingStatus::CheckedIn])
+            ->groupBy('day')
+            ->pluck('total', 'day');
+        $checkoutCounts = Booking::query()
+            ->selectRaw('DATE(check_out_date) as day, COUNT(*) as total')
+            ->whereBetween('check_out_date', [$chartStart, $chartEnd])
+            ->whereIn('status', [BookingStatus::Approved, BookingStatus::CheckedIn])
+            ->groupBy('day')
+            ->pluck('total', 'day');
+        $chart = [
+            'days' => $chartDays->map(fn ($day) => $day->format('D M j'))->values(),
+            'checkins' => $chartDays->map(fn ($day) => (int) ($checkinCounts[$day->toDateString()] ?? 0))->values(),
+            'checkouts' => $chartDays->map(fn ($day) => (int) ($checkoutCounts[$day->toDateString()] ?? 0))->values(),
+        ];
+
+        return view('front_desk.dashboard', compact('stats', 'pendingReservations', 'recentActivities', 'chart'));
     }
 }

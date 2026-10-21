@@ -14,8 +14,8 @@ class InvestigateIncidentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'investigation_notes' => ['nullable', 'string', 'max:5000'],
-            'investigation_photo' => ['nullable', 'image', 'max:5120'],
+            'investigation_notes' => ['required_if:action,verify', 'nullable', 'string', 'max:5000'],
+            'investigation_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'invalid_reason' => ['required_if:action,invalid', 'nullable', 'string', 'max:2000'],
             'action' => ['required', 'in:verify,invalid'],
         ];

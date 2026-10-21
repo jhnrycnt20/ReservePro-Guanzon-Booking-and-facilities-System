@@ -83,7 +83,7 @@
                         <td class="text-nowrap" data-rp-stop-row-click>
                             <div class="d-flex justify-content-end gap-2">
                                 <button type="button" class="btn btn-sm btn-rp-soft" data-bs-toggle="modal" data-bs-target="#rpAccViewModal{{ $item->id }}">View</button>
-                                <button type="button" class="btn btn-sm btn-rp-primary" data-bs-toggle="modal" data-bs-target="#rpAccEditModal{{ $item->id }}">Edit</button>
+                                <button type="button" class="btn btn-sm rp-staff-edit-button" data-bs-toggle="modal" data-bs-target="#rpAccEditModal{{ $item->id }}">Edit</button>
                                 <form method="POST" action="{{ route('admin.accommodations.destroy', $item) }}" data-rp-confirm="Delete this accommodation?">
                                     @csrf
                                     @method('DELETE')
@@ -103,9 +103,8 @@
 
 {{-- Create --}}
 <div class="modal fade" id="rpAccCreateModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-md">
-        <div class="modal-content rp-admin-modal">
-            <form method="POST" action="{{ route('admin.accommodations.store') }}" enctype="multipart/form-data" data-rp-acc-form>
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <form class="modal-content rp-admin-modal" method="POST" action="{{ route('admin.accommodations.store') }}" enctype="multipart/form-data" data-rp-acc-form>
                 @csrf
                 <input type="hidden" name="_modal" value="acc_create">
                 <div class="modal-header">
@@ -197,8 +196,7 @@
                     <button type="button" class="btn btn-rp-soft" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-rp-primary">Create Accommodation</button>
                 </div>
-            </form>
-        </div>
+        </form>
     </div>
 </div>
 
@@ -225,15 +223,28 @@
                         @if($galleryUrls->isEmpty())
                             <div class="text-muted mb-4">No images uploaded.</div>
                         @else
-                            <div class="rp-accommodation-gallery-layout mb-4">
-                                <button type="button" class="rp-acc-gallery-hit" data-rp-lightbox="{{ $galleryUrls->first() }}" aria-label="View main photo">
-                                    <img src="{{ $galleryUrls->first() }}" alt="{{ $item->name }}" class="rp-accommodation-gallery-main">
-                                </button>
+                            <div id="rpAccGallery{{ $item->id }}" class="carousel slide rp-acc-carousel mb-4" data-bs-touch="true" data-bs-interval="false" aria-label="{{ $item->name }} photo gallery">
+                                <div class="carousel-inner">
+                                    @foreach($galleryUrls as $imageUrl)
+                                        <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
+                                            <button type="button" class="rp-acc-gallery-hit" data-rp-lightbox="{{ $imageUrl }}" aria-label="View {{ $item->name }} photo {{ $loop->iteration }} full size">
+                                                <img src="{{ $imageUrl }}" alt="" class="rp-acc-carousel-backdrop" aria-hidden="true">
+                                                <img src="{{ $imageUrl }}" alt="{{ $item->name }} photo {{ $loop->iteration }}" class="rp-accommodation-gallery-main">
+                                            </button>
+                                        </div>
+                                    @endforeach
+                                </div>
                                 @if($galleryUrls->count() > 1)
-                                    <div class="rp-accommodation-gallery-side">
-                                        @foreach($galleryUrls->slice(1) as $imageUrl)
-                                            <button type="button" class="rp-acc-gallery-hit" data-rp-lightbox="{{ $imageUrl }}" aria-label="View gallery photo">
-                                                <img src="{{ $imageUrl }}" alt="{{ $item->name }}">
+                                    <button class="carousel-control-prev" type="button" data-bs-target="#rpAccGallery{{ $item->id }}" data-bs-slide="prev" aria-label="Previous photo">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    </button>
+                                    <button class="carousel-control-next" type="button" data-bs-target="#rpAccGallery{{ $item->id }}" data-bs-slide="next" aria-label="Next photo">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    </button>
+                                    <div class="carousel-indicators rp-acc-carousel-indicators">
+                                        @foreach($galleryUrls as $imageUrl)
+                                            <button type="button" data-bs-target="#rpAccGallery{{ $item->id }}" data-bs-slide-to="{{ $loop->index }}" class="{{ $loop->first ? 'active' : '' }}" @if($loop->first) aria-current="true" @endif aria-label="Show photo {{ $loop->iteration }}">
+                                                <img src="{{ $imageUrl }}" alt="">
                                             </button>
                                         @endforeach
                                     </div>
@@ -289,9 +300,8 @@
         $activeVal = old('_modal') === 'acc_edit_'.$item->id ? old('is_active') : ($item->is_active ? '1' : '0');
     @endphp
     <div class="modal fade" id="rpAccEditModal{{ $item->id }}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-md">
-            <div class="modal-content rp-admin-modal">
-                <form method="POST" action="{{ route('admin.accommodations.update', $item) }}" enctype="multipart/form-data" data-rp-acc-form>
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+            <form class="modal-content rp-admin-modal" method="POST" action="{{ route('admin.accommodations.update', $item) }}" enctype="multipart/form-data" data-rp-acc-form>
                     @csrf
                     @method('PUT')
                     <input type="hidden" name="_modal" value="acc_edit_{{ $item->id }}">
@@ -407,8 +417,7 @@
                         <button type="button" class="btn btn-rp-soft" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-rp-primary">Save Changes</button>
                     </div>
-                </form>
-            </div>
+            </form>
         </div>
     </div>
 @endforeach

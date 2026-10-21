@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Security;
 use App\Enums\IncidentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\IncidentReport;
+use Carbon\Carbon;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -25,6 +26,23 @@ class DashboardController extends Controller
             ->take(10)
             ->get();
 
-        return view('security.dashboard', compact('stats', 'pendingReports'));
+        $chartDays = collect(range(6, 0))->map(fn ($offset) => Carbon::today()->subDays($offset));
+        $chartStart = $chartDays->first()->startOfDay();
+        $chartEnd = $chartDays->last()->endOfDay();
+        $dailyReports = IncidentReport::query()
+            ->selectRaw('DATE(created_at) as day, status, COUNT(*) as total')
+            ->whereBetween('created_at', [$chartStart, $chartEnd])
+            ->groupBy('day', 'status')
+            ->get()
+            ->groupBy('day');
+        $chart = [
+            'days' => $chartDays->map(fn ($day) => $day->format('D M j'))->values(),
+            'pending' => $chartDays->map(fn ($day) => (int) ($dailyReports[$day->toDateString()] ?? collect())
+                ->filter(fn ($report) => $report->status === IncidentStatus::Pending)->sum('total'))->values(),
+            'reviewed' => $chartDays->map(fn ($day) => (int) ($dailyReports[$day->toDateString()] ?? collect())
+                ->filter(fn ($report) => $report->status !== IncidentStatus::Pending)->sum('total'))->values(),
+        ];
+
+        return view('security.dashboard', compact('stats', 'pendingReports', 'chart'));
     }
 }

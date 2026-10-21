@@ -71,7 +71,19 @@ class DashboardController extends Controller
             'occupancy_rate' => $this->occupancyRate(),
         ];
 
-        return compact('stats', 'charts');
+        $recentBookings = Booking::query()
+            ->with(['guest.user', 'accommodation'])
+            ->latest()
+            ->take(5)
+            ->get();
+
+        $priorityReports = IncidentReport::query()
+            ->where('status', IncidentStatus::Pending)
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return compact('stats', 'charts', 'recentBookings', 'priorityReports');
     }
 
     protected function occupancyRate(): float

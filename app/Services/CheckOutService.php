@@ -41,6 +41,12 @@ class CheckOutService
 
         $additionalCharges = max(0, round($additionalCharges, 2));
 
+        if ((float) $booking->total_amount + $additionalCharges > 9999999999.99) {
+            throw ValidationException::withMessages([
+                'additional_charges' => 'The total booking amount would exceed the supported limit.',
+            ]);
+        }
+
         return DB::transaction(function () use ($booking, $staff, $additionalCharges, $notes) {
             if ($additionalCharges > 0) {
                 $booking->update([

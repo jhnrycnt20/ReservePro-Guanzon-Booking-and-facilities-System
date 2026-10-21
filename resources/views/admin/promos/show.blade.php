@@ -59,7 +59,7 @@
 
     <div class="d-flex justify-content-between mt-4">
         <a href="{{ route('admin.promos.index') }}" class="btn btn-rp-soft">Back</a>
-        <a href="{{ route('admin.promos.edit', $promo) }}" class="btn btn-rp-primary">Edit percentage</a>
+        <a href="{{ route('admin.promos.edit', $promo) }}" class="btn rp-staff-edit-button">Edit percentage</a>
     </div>
 </div>
 @endsection

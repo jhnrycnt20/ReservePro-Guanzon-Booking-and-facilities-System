@@ -68,7 +68,7 @@ class CheckOutController extends Controller
     public function store(Request $request, Booking $booking): RedirectResponse
     {
         $data = $request->validate([
-            'additional_charges' => ['nullable', 'numeric', 'min:0'],
+            'additional_charges' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99', 'decimal:0,2'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ]);
 

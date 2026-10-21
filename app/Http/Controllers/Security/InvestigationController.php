@@ -77,7 +77,7 @@ class InvestigationController extends Controller
 
         $data = $request->validate([
             'investigation_notes' => ['required', 'string', 'max:5000'],
-            'investigation_photo' => ['nullable', 'image', 'max:5120'],
+            'investigation_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ]);
 
         $this->incidentReportService->verify(

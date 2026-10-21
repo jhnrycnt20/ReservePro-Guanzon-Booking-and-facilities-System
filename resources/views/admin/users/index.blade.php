@@ -15,7 +15,7 @@
 
 <div class="rp-filter-with-action mb-3">
     <div class="rp-filter-with-action__btn">
-        <button type="button" class="btn btn-rp-primary" data-bs-toggle="modal" data-bs-target="#rpUserCreateModal">Add User</button>
+        <button type="button" class="btn rp-user-add-button" data-bs-toggle="modal" data-bs-target="#rpUserCreateModal">Add User</button>
     </div>
     @include('partials.list-filters', [
         'filters' => [
@@ -65,7 +65,7 @@
                         <td class="text-center">{{ $user->is_active ? 'Yes' : 'No' }}</td>
                         <td class="text-nowrap">
                             <div class="d-flex justify-content-end gap-2">
-                                <button type="button" class="btn btn-sm btn-rp-primary" data-bs-toggle="modal" data-bs-target="#rpUserEditModal{{ $user->id }}">Edit</button>
+                                <button type="button" class="btn btn-sm rp-user-edit-button" data-bs-toggle="modal" data-bs-target="#rpUserEditModal{{ $user->id }}">Edit</button>
                                 @if($user->id !== auth()->id())
                                     <form method="POST" action="{{ route('admin.users.destroy', $user) }}" data-rp-confirm="Delete this user?">
                                         @csrf
@@ -86,56 +86,81 @@
 </div>
 
 {{-- Create User Modal --}}
+@php
+    $isUserCreate = old('_modal') === 'user_create';
+@endphp
 <div class="modal fade" id="rpUserCreateModal" tabindex="-1" aria-labelledby="rpUserCreateModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-md">
-        <div class="modal-content rp-admin-modal">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg rp-user-create-dialog">
+        <div class="modal-content rp-admin-modal rp-user-create-modal">
             <form method="POST" action="{{ route('admin.users.store') }}">
                 @csrf
                 <input type="hidden" name="_modal" value="user_create">
                 <div class="modal-header">
-                    <h2 class="modal-title h5" id="rpUserCreateModalLabel">Add User</h2>
+                    <div class="rp-user-create-heading">
+                        <span class="rp-user-create-icon" aria-hidden="true"><i class="bi bi-person-plus"></i></span>
+                        <div>
+                            <h2 class="modal-title" id="rpUserCreateModalLabel">Add user</h2>
+                            <p class="rp-user-create-subtitle">Create an account and assign its access level.</p>
+                        </div>
+                    </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="rp-promo-form-stack">
-                        <div>
-                            <label class="form-label">Name</label>
-                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('_modal') === 'user_create' ? old('name') : '' }}" required>
-                            @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    <section class="rp-user-create-section" aria-labelledby="rpUserAccountDetails">
+                        <div class="rp-user-create-section-heading">
+                            <h3 id="rpUserAccountDetails">Account details</h3>
+                            <p>Basic information for the new user.</p>
                         </div>
-                        <div>
-                            <label class="form-label">Email</label>
-                            <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('_modal') === 'user_create' ? old('email') : '' }}" required>
-                            @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        <div class="rp-user-create-grid">
+                            <div class="rp-user-create-field">
+                                <label class="form-label" for="rpCreateUserName">Full name <span class="rp-user-create-required" aria-hidden="true">*</span></label>
+                                <input id="rpCreateUserName" type="text" name="name" class="form-control {{ $isUserCreate && $errors->has('name') ? 'is-invalid' : '' }}" value="{{ $isUserCreate ? old('name') : '' }}" placeholder="Enter full name" maxlength="255" required>
+                                @if($isUserCreate && $errors->has('name'))<div class="rp-user-create-error" role="alert">{{ $errors->first('name') }}</div>@endif
+                            </div>
+                            <div class="rp-user-create-field">
+                                <label class="form-label" for="rpCreateUserEmail">Email address <span class="rp-user-create-required" aria-hidden="true">*</span></label>
+                                <input id="rpCreateUserEmail" type="email" name="email" class="form-control {{ $isUserCreate && $errors->has('email') ? 'is-invalid' : '' }}" value="{{ $isUserCreate ? old('email') : '' }}" placeholder="name@example.com" maxlength="255" required>
+                                @if($isUserCreate && $errors->has('email'))<div class="rp-user-create-error" role="alert">{{ $errors->first('email') }}</div>@endif
+                            </div>
+                            <div class="rp-user-create-field">
+                                <label class="form-label" for="rpCreateUserPhone">Phone number <span class="rp-user-create-optional">Optional</span></label>
+                                <input id="rpCreateUserPhone" type="tel" name="phone" class="form-control {{ $isUserCreate && $errors->has('phone') ? 'is-invalid' : '' }}" value="{{ $isUserCreate ? old('phone') : '' }}" placeholder="Enter phone number" maxlength="50">
+                                @if($isUserCreate && $errors->has('phone'))<div class="rp-user-create-error" role="alert">{{ $errors->first('phone') }}</div>@endif
+                            </div>
+                            <div class="rp-user-create-field">
+                                <label class="form-label" for="rpCreateUserRole">Role <span class="rp-user-create-required" aria-hidden="true">*</span></label>
+                                <select id="rpCreateUserRole" name="role_id" class="form-select {{ $isUserCreate && $errors->has('role_id') ? 'is-invalid' : '' }}" required>
+                                    @foreach($roles as $role)
+                                        <option value="{{ $role->id }}" @selected($isUserCreate && old('role_id') == $role->id)>{{ $role->name }}</option>
+                                    @endforeach
+                                </select>
+                                @if($isUserCreate && $errors->has('role_id'))<div class="rp-user-create-error" role="alert">{{ $errors->first('role_id') }}</div>@endif
+                            </div>
                         </div>
-                        <div>
-                            <label class="form-label">Phone</label>
-                            <input type="text" name="phone" class="form-control @error('phone') is-invalid @enderror" value="{{ old('_modal') === 'user_create' ? old('phone') : '' }}">
-                            @error('phone')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </section>
+                    <section class="rp-user-create-section rp-user-create-security" aria-labelledby="rpUserSecurity">
+                        <div class="rp-user-create-section-heading">
+                            <h3 id="rpUserSecurity">Security</h3>
+                            <p>Set the password this user will sign in with.</p>
                         </div>
-                        <div>
-                            <label class="form-label">Role</label>
-                            <select name="role_id" class="form-select @error('role_id') is-invalid @enderror" required>
-                                @foreach($roles as $role)
-                                    <option value="{{ $role->id }}" @selected(old('_modal') === 'user_create' && old('role_id') == $role->id)>{{ $role->name }}</option>
-                                @endforeach
-                            </select>
-                            @error('role_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        <div class="rp-user-create-grid">
+                            <div class="rp-user-create-field">
+                                <label class="form-label" for="rpCreateUserPassword">Password <span class="rp-user-create-required" aria-hidden="true">*</span></label>
+                                <input id="rpCreateUserPassword" type="password" name="password" class="form-control {{ $isUserCreate && $errors->has('password') ? 'is-invalid' : '' }}" autocomplete="new-password" minlength="8" aria-describedby="rpCreateUserPasswordHint" required>
+                                @if($isUserCreate && $errors->has('password'))<div class="rp-user-create-error" role="alert">{{ $errors->first('password') }}</div>@endif
+                            </div>
+                            <div class="rp-user-create-field">
+                                <label class="form-label" for="rpCreateUserPasswordConfirm">Confirm password <span class="rp-user-create-required" aria-hidden="true">*</span></label>
+                                <input id="rpCreateUserPasswordConfirm" type="password" name="password_confirmation" class="form-control" autocomplete="new-password" required>
+                            </div>
                         </div>
-                        <div>
-                            <label class="form-label">Password</label>
-                            <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" required>
-                            @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                        </div>
-                        <div>
-                            <label class="form-label">Confirm password</label>
-                            <input type="password" name="password_confirmation" class="form-control" required>
-                        </div>
-                    </div>
+                        <p class="rp-user-create-hint" id="rpCreateUserPasswordHint"><i class="bi bi-shield-check" aria-hidden="true"></i> Use at least 8 characters.</p>
+                    </section>
                 </div>
                 <div class="modal-footer">
+                    <span class="rp-user-create-footer-note"><span class="rp-user-create-required" aria-hidden="true">*</span> Required fields</span>
                     <button type="button" class="btn btn-rp-soft" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-rp-primary">Create User</button>
+                    <button type="submit" class="btn rp-user-add-button">Create User</button>
                 </div>
             </form>
         </div>
@@ -277,10 +302,13 @@
                                     </div>
                                     <div>
                                         <label class="form-label" for="rpUserActive{{ $user->id }}">Active account</label>
-                                        <select id="rpUserActive{{ $user->id }}" name="is_active" class="form-select rp-profile-soft-input">
+                                        <select id="rpUserActive{{ $user->id }}" name="is_active" class="form-select rp-profile-soft-input{{ $isThisUserEdit && $errors->has('is_active') ? ' is-invalid' : '' }}">
                                             <option value="1" @selected($userActiveVal == '1' || $userActiveVal === true || $userActiveVal === 1)>Active</option>
                                             <option value="0" @selected($userActiveVal == '0' || $userActiveVal === false || $userActiveVal === 0)>Inactive</option>
                                         </select>
+                                        @if($isThisUserEdit)
+                                            @error('is_active')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                        @endif
                                     </div>
                                 </div>
 

@@ -1665,23 +1665,6 @@ a.rp-brand {
     overflow: auto;
 }
 
-#rpPromoCreateModal .modal-body,
-[id^="rpPromoEditModal"] .modal-body,
-#rpPromoCreateModal .modal-content,
-[id^="rpPromoEditModal"] .modal-content,
-#rpAccCreateModal .modal-body,
-#rpAccCreateModal .modal-content,
-[id^="rpAccEditModal"] .modal-body,
-[id^="rpAccEditModal"] .modal-content {
-    overflow: visible;
-}
-
-#rpPromoCreateModal .rp-promo-preview,
-[id^="rpPromoEditModal"] .rp-promo-preview {
-    max-height: 4.5rem;
-    overflow: hidden;
-}
-
 .rp-promo-accommodation-list.is-disabled {
     opacity: 0.55;
     pointer-events: none;
@@ -2428,7 +2411,7 @@ body.rp-body .container > .row,
     background: var(--rp-lightbox-bg, none) center / cover no-repeat;
     filter: blur(26px);
     opacity: .5;
-    z-index: -1;
+    z-index: 0;
 }
 
 .rp-lightbox-image {
@@ -4742,7 +4725,14 @@ body.rp-login-modal-open .rp-page-blur-overlay {
 
 .rp-login-field input.is-invalid,
 .rp-login-field textarea.is-invalid {
-    border-color: #ff9b9b;
+    border-color: #ff858f;
+    box-shadow: 0 0 0 3px rgba(255, 105, 118, .16);
+}
+
+.rp-login-field input.is-invalid:focus,
+.rp-login-field textarea.is-invalid:focus {
+    border-color: #ff858f;
+    box-shadow: 0 0 0 3px rgba(255, 105, 118, .2);
 }
 
 .rp-login-field--textarea textarea {
@@ -4799,12 +4789,70 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     margin-left: .5rem !important;
     font-family: "Montserrat", var(--rp-font);
     font-size: .78rem;
-    color: #ffb3b3;
+    color: #ffe7e9;
     visibility: hidden;
 }
 
 .rp-login-error:not(:empty) {
+    display: flex;
+    align-items: flex-start;
+    gap: .5rem;
+    width: fit-content;
+    max-width: calc(100% - .5rem);
+    padding: .42rem .7rem;
+    border: 1px solid rgba(255, 132, 143, .65);
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(99, 28, 38, .96), rgba(59, 20, 29, .96));
+    box-shadow: 0 9px 24px rgba(22, 6, 10, .22);
+    line-height: 1.4;
     visibility: visible;
+    animation: rpLoginErrorIn .28s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.rp-login-error:not(:empty)::before {
+    content: "!";
+    display: inline-grid;
+    flex: 0 0 1.1rem;
+    place-items: center;
+    width: 1.1rem;
+    height: 1.1rem;
+    border-radius: 50%;
+    background: #ff9da5;
+    color: #401018;
+    font-size: .72rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+/* Reserve a fixed tooltip lane so validation never shifts login fields. */
+#rpLoginModal .rp-login-field {
+    margin-bottom: 3.5rem;
+}
+
+#rpLoginModal .rp-login-error {
+    position: absolute;
+    top: calc(100% + .35rem);
+    left: .5rem;
+    z-index: 3;
+    min-height: 0;
+    margin: 0 !important;
+}
+
+@keyframes rpLoginErrorIn {
+    from { opacity: 0; transform: translateY(-6px) scale(.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 480px) {
+    #rpLoginModal .rp-login-field {
+        margin-bottom: 4rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rp-login-error:not(:empty) {
+        animation: none;
+    }
 }
 
 .rp-login-alert {
@@ -6481,6 +6529,101 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     gap: 0.5rem;
 }
 
+.rp-acc-carousel {
+    overflow: hidden;
+    border: 1px solid var(--rp-border);
+    border-radius: 1rem;
+    background: #172e38;
+}
+
+.rp-acc-carousel .carousel-item {
+    position: relative;
+    height: clamp(250px, 42vh, 440px);
+    isolation: isolate;
+}
+
+.rp-acc-carousel .rp-acc-gallery-hit,
+.rp-acc-carousel .rp-accommodation-gallery-main {
+    width: 100%;
+    height: 100%;
+}
+
+.rp-acc-carousel .rp-acc-gallery-hit {
+    position: relative;
+    display: block;
+    cursor: zoom-in;
+    overflow: hidden;
+}
+
+.rp-acc-carousel .rp-acc-carousel-backdrop {
+    position: absolute;
+    inset: -1rem;
+    width: calc(100% + 2rem);
+    height: calc(100% + 2rem);
+    object-fit: cover;
+    filter: blur(1rem) brightness(.48);
+    z-index: -1;
+}
+
+.rp-acc-carousel .rp-accommodation-gallery-main {
+    position: relative;
+    z-index: 1;
+    display: block;
+    object-fit: contain;
+    border: 0;
+    border-radius: 0;
+}
+
+.rp-acc-carousel .carousel-control-prev,
+.rp-acc-carousel .carousel-control-next {
+    top: 50%;
+    bottom: auto;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin: 0 1rem;
+    transform: translateY(-50%);
+    border: 1px solid rgba(255, 255, 255, .35);
+    border-radius: 50%;
+    background: rgba(20, 32, 37, .7);
+    opacity: .95;
+}
+
+.rp-acc-carousel .carousel-control-prev:hover,
+.rp-acc-carousel .carousel-control-next:hover {
+    background: rgba(20, 32, 37, .95);
+}
+
+.rp-acc-carousel-indicators {
+    position: static;
+    gap: .6rem;
+    margin: 0;
+    padding: .8rem;
+    overflow-x: auto;
+    background: var(--rp-surface, #fff);
+}
+
+.rp-acc-carousel-indicators [data-bs-target] {
+    width: 4.5rem;
+    height: 3.25rem;
+    margin: 0;
+    overflow: hidden;
+    border: 2px solid transparent;
+    border-radius: .55rem;
+    opacity: .65;
+    text-indent: 0;
+}
+
+.rp-acc-carousel-indicators [data-bs-target].active {
+    border-color: #65b8aa;
+    opacity: 1;
+}
+
+.rp-acc-carousel-indicators img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 .rp-accommodation-gallery-main {
     flex: 2;
     min-width: 0;
@@ -6525,6 +6668,8 @@ body.rp-login-modal-open .rp-page-blur-overlay {
 
 .rp-acc-view-card {
     background: #fff;
+    color: #212529;
+    border-radius: 0 0 .85rem .85rem;
 }
 
 .rp-acc-view-meta {
@@ -6596,6 +6741,27 @@ body.rp-login-modal-open .rp-page-blur-overlay {
 @media (max-width: 767px) {
     .rp-accommodation-gallery-layout {
         flex-direction: column;
+    }
+
+    .rp-acc-carousel .carousel-item {
+        height: clamp(210px, 38vh, 320px);
+    }
+
+    .rp-acc-carousel .carousel-control-prev,
+    .rp-acc-carousel .carousel-control-next {
+        width: 2.35rem;
+        height: 2.35rem;
+        margin: 0 .6rem;
+    }
+
+    .rp-acc-carousel-indicators {
+        gap: .4rem;
+        padding: .6rem;
+    }
+
+    .rp-acc-carousel-indicators [data-bs-target] {
+        width: 3.75rem;
+        height: 2.75rem;
     }
 
     .rp-accommodation-gallery-main,

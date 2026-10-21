@@ -1,4 +1,84 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const themeToggle = document.querySelector('[data-rp-theme-toggle]');
+    if (themeToggle) {
+        const applyChartTheme = (dark) => {
+            if (!window.Chart?.instances) return;
+            const chartText = '#b8cbd0';
+            const chartGrid = 'rgba(184, 203, 208, .16)';
+
+            Object.values(window.Chart.instances).forEach((chart) => {
+                if (!chart.canvas?.closest('.rp-staff-ui')) return;
+                if (!chart.$rpLightPalette) {
+                    chart.$rpLightPalette = chart.data.datasets.map((dataset) => ({
+                        borderColor: dataset.borderColor,
+                        backgroundColor: dataset.backgroundColor,
+                    }));
+                    chart.$rpLightScales = Object.fromEntries(
+                        Object.entries(chart.options.scales || {}).map(([axis, scale]) => [axis, {
+                            tickColor: scale.ticks?.color,
+                            gridColor: scale.grid?.color,
+                        }])
+                    );
+                    chart.$rpLightLegendColor = chart.options.plugins?.legend?.labels?.color;
+                }
+
+                chart.data.datasets.forEach((dataset, index) => {
+                    if (!dark) {
+                        Object.assign(dataset, chart.$rpLightPalette[index]);
+                    } else if (chart.config.type === 'doughnut') {
+                        dataset.backgroundColor = ['#87d5c8', '#d6bb82', '#71a8d6', '#c99acb'];
+                    } else {
+                        dataset.borderColor = index === 0 ? '#87d5c8' : '#d6bb82';
+                        if (dataset.fill) {
+                            const fill = chart.ctx.createLinearGradient(0, 0, 0, chart.height || 260);
+                            fill.addColorStop(0, 'rgba(135, 213, 200, .24)');
+                            fill.addColorStop(1, 'rgba(135, 213, 200, 0)');
+                            dataset.backgroundColor = fill;
+                        } else if (chart.config.type === 'bar') {
+                            dataset.backgroundColor = '#87d5c8';
+                        }
+                    }
+                });
+
+                Object.entries(chart.options.scales || {}).forEach(([axis, scale]) => {
+                    scale.ticks = { ...(scale.ticks || {}), color: dark ? chartText : chart.$rpLightScales[axis]?.tickColor };
+                    scale.grid = { ...(scale.grid || {}), color: dark ? chartGrid : chart.$rpLightScales[axis]?.gridColor };
+                });
+                if (chart.options.plugins?.legend) {
+                    chart.options.plugins.legend.labels = {
+                        ...(chart.options.plugins.legend.labels || {}),
+                        color: dark ? chartText : chart.$rpLightLegendColor,
+                    };
+                }
+                chart.update('none');
+            });
+        };
+
+        const syncThemeToggle = () => {
+            const dark = document.documentElement.dataset.bsTheme === 'dark';
+            const label = dark ? 'Switch to light mode' : 'Switch to dark mode';
+            themeToggle.setAttribute('aria-checked', String(dark));
+            themeToggle.setAttribute('aria-label', label);
+            themeToggle.title = label;
+            applyChartTheme(dark);
+        };
+
+        themeToggle.addEventListener('click', () => {
+            const next = document.documentElement.dataset.bsTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.dataset.bsTheme = next;
+            try { localStorage.setItem('rp-staff-theme', next); } catch (_) {}
+            syncThemeToggle();
+        });
+
+        window.addEventListener('storage', (event) => {
+            if (event.key !== 'rp-staff-theme') return;
+            document.documentElement.dataset.bsTheme = event.newValue === 'dark' ? 'dark' : 'light';
+            syncThemeToggle();
+        });
+
+        syncThemeToggle();
+    }
+
     const publicNav = document.querySelector('.rp-public-nav');
 
     if (publicNav) {
@@ -200,18 +280,66 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebar = document.getElementById('rpSidebar');
     const toggle = document.getElementById('sidebarToggle');
     const backdrop = document.getElementById('sidebarBackdrop');
+    const staffSidebar = document.body.classList.contains('rp-staff-ui');
+    const desktopSidebar = window.matchMedia('(min-width: 992px)');
+    const sidebarStorageKey = 'rp-staff-sidebar-collapsed';
+
+    if (staffSidebar && sidebar) {
+        const sidebarNav = sidebar.querySelector('.rp-nav');
+        sidebar.addEventListener('wheel', (event) => {
+            if (!sidebarNav || sidebarNav.contains(event.target) || !event.deltaY) return;
+            const distance = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? sidebarNav.clientHeight : 1);
+            sidebarNav.scrollTop += distance;
+            event.preventDefault();
+        }, { passive: false });
+    }
+
+    if (staffSidebar) {
+        try {
+            document.body.classList.toggle('rp-sidebar-collapsed', localStorage.getItem(sidebarStorageKey) === '1');
+        } catch (_) {
+            // The toggle still works when browser storage is unavailable.
+        }
+    }
+
+    const syncSidebarToggle = () => {
+        if (!toggle || !sidebar) return;
+        const collapsed = staffSidebar && desktopSidebar.matches && document.body.classList.contains('rp-sidebar-collapsed');
+        const expanded = desktopSidebar.matches ? !collapsed : sidebar.classList.contains('open');
+        sidebar.inert = collapsed;
+        toggle.setAttribute('aria-expanded', String(expanded));
+        toggle.setAttribute('aria-label', expanded ? 'Hide sidebar' : 'Show sidebar');
+        toggle.title = expanded ? 'Hide sidebar' : 'Show sidebar';
+    };
 
     const closeSidebar = () => {
         sidebar?.classList.remove('open');
         backdrop?.classList.remove('show');
+        syncSidebarToggle();
     };
 
     toggle?.addEventListener('click', () => {
+        if (staffSidebar && desktopSidebar.matches) {
+            const collapsed = document.body.classList.toggle('rp-sidebar-collapsed');
+            try {
+                localStorage.setItem(sidebarStorageKey, collapsed ? '1' : '0');
+            } catch (_) {
+                // Keep the current page state without persistence.
+            }
+            syncSidebarToggle();
+            return;
+        }
         sidebar?.classList.toggle('open');
         backdrop?.classList.toggle('show');
+        syncSidebarToggle();
     });
 
     backdrop?.addEventListener('click', closeSidebar);
+    window.addEventListener('resize', () => {
+        if (desktopSidebar.matches) closeSidebar();
+        syncSidebarToggle();
+    });
+    syncSidebarToggle();
 
     document.querySelectorAll('[data-rp-history-back]').forEach((link) => {
         link.addEventListener('click', (event) => {
@@ -643,7 +771,8 @@ document.addEventListener('DOMContentLoaded', () => {
             bootstrap.Alert.getOrCreateInstance(alertEl).close();
         };
         alertEl.querySelector('[data-bs-dismiss="alert"]')?.addEventListener('click', dismiss);
-        setTimeout(dismiss, 4000);
+        const dismissDelay = Number(alertEl.dataset.rpAutoDismiss);
+        setTimeout(dismiss, Number.isFinite(dismissDelay) && dismissDelay > 0 ? dismissDelay : 4000);
     });
 
     document.querySelectorAll('[data-rp-notif]').forEach((root) => {
@@ -1013,6 +1142,65 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyCheck();
             }
         });
+    });
+
+    document.querySelectorAll('[data-rp-login-form]').forEach((form) => {
+        const names = ['email', 'password'];
+        const field = (name) => form.querySelector(`[data-rp-login-field="${name}"]`);
+        const feedback = (name) => form.querySelector(`[data-rp-login-feedback="${name}"]`);
+        const touched = new Set();
+        const serverInvalid = new Set(names.filter((name) => field(name)?.classList.contains('is-invalid')));
+
+        const validateField = (name, force = false) => {
+            const input = field(name);
+            const messageEl = feedback(name);
+            if (!input || !messageEl) return true;
+
+            let message = '';
+            if (name === 'email') {
+                const email = input.value.trim();
+                if (!email) message = 'Please enter your email address.';
+                else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) message = 'Enter a valid email address.';
+            } else if (!input.value) {
+                message = 'Please enter your password.';
+            }
+
+            const showError = Boolean(message) && (force || touched.has(name));
+            input.classList.toggle('is-invalid', showError);
+            if (showError) input.setAttribute('aria-invalid', 'true');
+            else input.removeAttribute('aria-invalid');
+            messageEl.textContent = showError ? message : '';
+
+            return !message;
+        };
+
+        names.forEach((name) => {
+            const input = field(name);
+            if (!input) return;
+
+            input.addEventListener('input', () => {
+                serverInvalid.delete(name);
+                touched.add(name);
+                validateField(name);
+            });
+            input.addEventListener('blur', () => {
+                if (serverInvalid.has(name)) return;
+                touched.add(name);
+                validateField(name);
+            });
+        });
+
+        form.addEventListener('submit', (event) => {
+            names.forEach((name) => touched.add(name));
+            const valid = names.map((name) => validateField(name, true)).every(Boolean);
+            if (!valid) {
+                event.preventDefault();
+                form.querySelector('[data-rp-login-field].is-invalid')?.focus();
+            }
+        });
+
+        // Keep browser validation as a fallback when JavaScript is unavailable.
+        form.noValidate = true;
     });
 
     document.querySelectorAll('[data-rp-register-form]').forEach((form) => {

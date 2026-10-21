@@ -69,7 +69,7 @@
 
     <div class="d-flex justify-content-between mt-4">
         <a href="{{ route('admin.accommodations.index') }}" class="btn btn-rp-soft">Back</a>
-        <a href="{{ route('admin.accommodations.edit', $accommodation) }}" class="btn btn-rp-primary">Edit</a>
+        <a href="{{ route('admin.accommodations.edit', $accommodation) }}" class="btn rp-staff-edit-button">Edit</a>
     </div>
 </div>
 @endsection

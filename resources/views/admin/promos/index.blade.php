@@ -10,7 +10,10 @@
 
 @section('content')
 @if(session('success'))
-    <div class="alert alert-success border-0 shadow-sm mb-3">{{ session('success') }}</div>
+    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-3" role="alert" data-rp-auto-dismiss="2000">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 @endif
 
 <div class="rp-filter-with-action mb-3">
@@ -71,7 +74,7 @@
                         <td class="text-nowrap">
                             <div class="d-flex justify-content-end gap-2">
                                 <button type="button" class="btn btn-sm btn-rp-soft" data-bs-toggle="modal" data-bs-target="#rpPromoViewModal{{ $promo->id }}">View</button>
-                                <button type="button" class="btn btn-sm btn-rp-primary" data-bs-toggle="modal" data-bs-target="#rpPromoEditModal{{ $promo->id }}">Edit</button>
+                                <button type="button" class="btn btn-sm rp-staff-edit-button" data-bs-toggle="modal" data-bs-target="#rpPromoEditModal{{ $promo->id }}">Edit</button>
                                 <form method="POST" action="{{ route('admin.promos.destroy', $promo) }}" data-rp-confirm="Delete this promo?">
                                     @csrf
                                     @method('DELETE')
@@ -91,9 +94,8 @@
 
 {{-- Create Promo --}}
 <div class="modal fade" id="rpPromoCreateModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-md">
-        <div class="modal-content rp-admin-modal">
-            <form method="POST" action="{{ route('admin.promos.store') }}" id="rpPromoCreateForm" data-preview-url="{{ route('admin.promos.preview') }}" data-rp-promo-form>
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <form class="modal-content rp-admin-modal" method="POST" action="{{ route('admin.promos.store') }}" id="rpPromoCreateForm" data-preview-url="{{ route('admin.promos.preview') }}" data-rp-promo-form>
                 @csrf
                 <input type="hidden" name="_modal" value="promo_create">
                 <div class="modal-header">
@@ -124,7 +126,8 @@
                         </div>
                         <div>
                             <label class="form-label">Promo name</label>
-                            <input type="text" name="name" class="form-control" value="{{ old('_modal') === 'promo_create' ? old('name') : '' }}">
+                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('_modal') === 'promo_create' ? old('name') : '' }}" required>
+                            @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div>
                             <label class="form-label">Code</label>
@@ -162,8 +165,7 @@
                     <button type="button" class="btn btn-rp-soft" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-rp-primary">Save Promo</button>
                 </div>
-            </form>
-        </div>
+        </form>
     </div>
 </div>
 
@@ -201,9 +203,8 @@
     </div>
 
     <div class="modal fade" id="rpPromoEditModal{{ $promo->id }}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-md">
-            <div class="modal-content rp-admin-modal">
-                <form method="POST" action="{{ route('admin.promos.update', $promo) }}" data-preview-url="{{ route('admin.promos.preview') }}" data-rp-promo-form>
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+            <form class="modal-content rp-admin-modal" method="POST" action="{{ route('admin.promos.update', $promo) }}" data-preview-url="{{ route('admin.promos.preview') }}" data-rp-promo-form>
                     @csrf
                     @method('PUT')
                     <input type="hidden" name="_modal" value="promo_edit_{{ $promo->id }}">
@@ -235,7 +236,8 @@
                             </div>
                             <div>
                                 <label class="form-label">Promo name</label>
-                                <input type="text" name="name" class="form-control" value="{{ old('_modal') === 'promo_edit_'.$promo->id ? old('name') : $promo->name }}">
+                                <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('_modal') === 'promo_edit_'.$promo->id ? old('name') : $promo->name }}" required>
+                                @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                             <div>
                                 <label class="form-label">Code</label>
@@ -274,8 +276,7 @@
                         <button type="button" class="btn btn-rp-soft" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-rp-primary">Save Changes</button>
                     </div>
-                </form>
-            </div>
+            </form>
         </div>
     </div>
 @endforeach

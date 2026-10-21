@@ -8,6 +8,7 @@ use App\Models\AccommodationType;
 use App\Models\Amenity;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class AccommodationController extends Controller
@@ -64,7 +65,7 @@ class AccommodationController extends Controller
         $data['gallery'] = $this->storeGalleryUploads($request);
 
         $accommodation = Accommodation::query()->create(collect($data)->except('amenities')->all());
-        $accommodation->amenities()->sync($request->input('amenities', []));
+        $accommodation->amenities()->sync($data['amenities'] ?? []);
 
         return redirect()->route('admin.accommodations.index')->with('success', 'Accommodation created.');
     }
@@ -109,12 +110,12 @@ class AccommodationController extends Controller
             unset($data['status']);
         }
 
-        $remove = collect($request->input('remove_gallery', []));
+        $remove = collect($data['remove_gallery'] ?? []);
         $remaining = collect($accommodation->gallery ?? [])->reject(fn ($path) => $remove->contains($path));
         $data['gallery'] = $remaining->merge($this->storeGalleryUploads($request))->values()->all();
 
         $accommodation->update(collect($data)->except(['amenities', 'remove_gallery'])->all());
-        $accommodation->amenities()->sync($request->input('amenities', []));
+        $accommodation->amenities()->sync($data['amenities'] ?? []);
 
         $message = $statusLocked
             ? 'Accommodation updated. Status was not changed because this room is booked or checked in.'
@@ -137,18 +138,18 @@ class AccommodationController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'number' => ['required', 'string', 'max:50', 'unique:accommodations,number,'.($id ?? 'NULL')],
             'description' => ['nullable', 'string'],
-            'capacity' => ['required', 'integer', 'min:1'],
-            'rate' => ['required', 'numeric', 'min:0'],
+            'capacity' => ['required', 'integer', 'min:1', 'max:4294967295'],
+            'rate' => ['required', 'numeric', 'min:0', 'max:9999999999.99', 'decimal:0,2'],
             'status' => $statusLocked
                 ? ['nullable', 'string']
                 : ['required', 'in:'.implode(',', \App\Enums\AccommodationStatus::manualValues())],
-            'image' => ['nullable', 'image', 'max:5120'],
-            'gallery' => ['nullable', 'array'],
-            'gallery.*' => ['image', 'max:5120'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'gallery' => ['nullable', 'array', 'max:20'],
+            'gallery.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'remove_gallery' => ['nullable', 'array'],
-            'remove_gallery.*' => ['string'],
+            'remove_gallery.*' => ['string', Rule::in($id ? (Accommodation::query()->find($id)?->gallery ?? []) : [])],
             'amenities' => ['nullable', 'array'],
-            'amenities.*' => ['exists:amenities,id'],
+            'amenities.*' => ['integer', 'distinct', 'exists:amenities,id'],
         ]);
     }
 

@@ -47,9 +47,9 @@ class PricingController extends Controller
         $data = $request->validate([
             'accommodation_id' => ['required', 'exists:accommodations,id'],
             'name' => ['required', 'string', 'max:255'],
-            'amount' => ['required', 'numeric', 'min:0'],
-            'start_date' => ['nullable', 'date'],
-            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+            'amount' => ['required', 'numeric', 'min:0', 'max:9999999999.99', 'decimal:0,2'],
+            'start_date' => ['nullable', 'date_format:Y-m-d'],
+            'end_date' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:start_date'],
         ]);
         $data['is_active'] = $request->boolean('is_active', true);
         Pricing::query()->create($data);
@@ -70,9 +70,9 @@ class PricingController extends Controller
         $data = $request->validate([
             'accommodation_id' => ['required', 'exists:accommodations,id'],
             'name' => ['required', 'string', 'max:255'],
-            'amount' => ['required', 'numeric', 'min:0'],
-            'start_date' => ['nullable', 'date'],
-            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+            'amount' => ['required', 'numeric', 'min:0', 'max:9999999999.99', 'decimal:0,2'],
+            'start_date' => ['nullable', 'date_format:Y-m-d'],
+            'end_date' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:start_date'],
         ]);
         $data['is_active'] = $request->boolean('is_active', true);
         $pricing->update($data);

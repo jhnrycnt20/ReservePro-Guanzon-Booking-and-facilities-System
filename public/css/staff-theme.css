@@ -1,0 +1,584 @@
+/* Staff-only theme controls. The public/guest pages keep their own palette. */
+.rp-staff-ui .rp-theme-switch {
+    display: inline-flex;
+    align-items: center;
+    width: 2rem;
+    height: 1rem;
+    padding: .15rem;
+    flex: 0 0 auto;
+    border: 1px solid #36555f;
+    border-radius: 999px;
+    background: #172e38;
+    cursor: pointer;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, .22);
+    transition: background-color .24s ease, border-color .24s ease;
+}
+
+.rp-staff-ui .rp-theme-switch:hover {
+    border-color: #6aaca8;
+}
+
+.rp-staff-ui .rp-theme-switch:focus-visible {
+    outline: 3px solid #7ccfc4;
+    outline-offset: 3px;
+}
+
+.rp-staff-ui .rp-theme-switch-thumb {
+    display: grid;
+    place-items: center;
+    width: .6rem;
+    height: .6rem;
+    border-radius: 50%;
+    background: #fff;
+    color: #172e38;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .22);
+    transition: transform .28s cubic-bezier(.22, 1, .36, 1), background-color .24s ease, color .24s ease;
+}
+
+.rp-staff-ui .rp-theme-switch-thumb i {
+    grid-area: 1 / 1;
+    font-size: .6rem;
+    line-height: 1;
+    transition: opacity .2s ease, transform .24s ease;
+}
+
+.rp-staff-ui .rp-theme-sun {
+    opacity: 0;
+    transform: rotate(-70deg) scale(.5);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-theme-switch {
+    background: #62b7ad;
+    border-color: #88d8cb;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-theme-switch-thumb {
+    transform: translateX(1rem);
+    background: #242526;
+    color: #c6f4db;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-theme-moon {
+    opacity: 0;
+    transform: rotate(70deg) scale(.5);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-theme-sun {
+    opacity: 1;
+    transform: rotate(0) scale(1);
+}
+
+@media (max-width: 480px) {
+    .rp-staff-ui .rp-topbar-actions {
+        gap: .55rem !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rp-staff-ui .rp-theme-switch,
+    .rp-staff-ui .rp-theme-switch-thumb,
+    .rp-staff-ui .rp-theme-switch-thumb i {
+        transition: none;
+    }
+}
+
+/* One dark token set for admin, front desk, and security. */
+html[data-bs-theme="dark"] {
+    --rp-scroll-track: #242526;
+    --rp-scroll-thumb: #626568;
+    --rp-scroll-thumb-hover: #79b9b2;
+}
+
+html[data-bs-theme="dark"] body.rp-staff-ui.rp-body {
+    --rp-bg: #242526;
+    --rp-surface: #303132;
+    --rp-surface-raised: #393a3b;
+    --rp-text: #f1f2f3;
+    --rp-muted: #b8bbbe;
+    --rp-border: #4b4d4f;
+    --rp-accent: #9adbd0;
+    --rp-accent-dark: #beeae1;
+    --rp-accent-soft: #354440;
+    --rp-primary: #9adbd0;
+    --rp-shadow: 0 8px 28px rgba(0, 0, 0, .16);
+    --rp-scroll-track: #242526;
+    --rp-scroll-thumb: #626568;
+    --rp-scroll-thumb-hover: #79b9b2;
+    --bs-body-bg: #242526;
+    --bs-body-color: #f1f2f3;
+    --bs-border-color: #4b4d4f;
+    --bs-secondary-color: #b8bbbe;
+    --bs-tertiary-bg: #393a3b;
+    background: #242526;
+    color: var(--rp-text);
+    color-scheme: dark;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-sidebar {
+    background: #242526;
+    color: var(--rp-text);
+    border-right-color: var(--rp-border);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-sidebar .rp-brand,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-sidebar-footer {
+    border-color: var(--rp-border);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-sidebar :is(.rp-brand-name, .rp-brand-role, .rp-sidebar-user-name) {
+    color: var(--rp-text);
+    text-shadow: none;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-sidebar :is(.rp-sidebar-user-email, .rp-nav-group-toggle, .rp-nav .nav-section) {
+    color: var(--rp-muted);
+    opacity: 1;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-nav a {
+    color: #d3d5d6;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-nav a:hover,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-nav a.active,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-nav-group-toggle:hover,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-sidebar-user:hover {
+    background: #343d3b;
+    color: #b6eee3;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-sidebar-user-avatar, .rp-topbar-avatar) {
+    background: #3b4a46;
+    color: #d7f7ef;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-topbar-avatar:hover {
+    background: #4b5b55;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-sidebar-footer .btn-outline-light {
+    background: transparent;
+    border-color: #606466;
+    color: #eef0ef;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-sidebar-footer .btn-outline-light:hover {
+    background: #373b3a;
+    color: #fff;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-topbar {
+    background: #242526;
+    border-bottom-color: var(--rp-border);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-topbar .rp-page-title {
+    color: var(--rp-text) !important;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-topbar .rp-page-subtitle {
+    color: var(--rp-muted) !important;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-topbar :is(.btn-light, .rp-icon-btn) {
+    color: #d4d6d7;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-topbar :is(.btn-light, .rp-icon-btn):hover {
+    background: #383b3c;
+    color: #fff;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-staff-account-menu,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-notif-panel,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-filter-compact-panel,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-resv-date-panel,
+html[data-bs-theme="dark"] .rp-staff-ui .dropdown-menu {
+    background: var(--rp-surface-raised);
+    border-color: var(--rp-border);
+    color: var(--rp-text);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, .3);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-staff-account-summary strong,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-notif-item-text {
+    color: var(--rp-text);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-staff-account-summary span,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-notif-item-meta,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-notif-empty {
+    color: var(--rp-muted);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-staff-account-menu :is(.dropdown-item, .dropdown-divider) {
+    color: var(--rp-text);
+    border-color: var(--rp-border);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-staff-account-menu .dropdown-item, .rp-notif-item):hover {
+    background: #414544;
+    color: #d5f5ec;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-notif-panel :is(.rp-notif-panel-head, .rp-notif-panel-foot, .rp-notif-item + .rp-notif-item) {
+    border-color: var(--rp-border);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-notif-panel :is(.rp-notif-panel-foot, .rp-notif-item-go) {
+    color: #a6e5d9;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-card, .rp-stat, .rp-flow-card, .rp-mobile-list-card, .table-rp, .rp-resv-table-card, .rp-staff-stat, .rp-staff-panel, .rp-profile-page .rp-profile-layout) {
+    background: var(--rp-surface);
+    border-color: var(--rp-border);
+    color: var(--rp-text);
+    box-shadow: var(--rp-shadow);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-content :is(h1, h2, h3, h4, h5, h6),
+html[data-bs-theme="dark"] .rp-staff-ui .rp-flow-card :is(h2, h3),
+html[data-bs-theme="dark"] .rp-staff-ui .rp-stat :is(.label, .value),
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-staff-stat-value, .rp-staff-panel-head h2, .rp-staff-metric strong, .rp-staff-progress-label strong, .rp-staff-activity-copy strong, .rp-staff-queue-item strong, .rp-staff-reservation strong) {
+    color: var(--rp-text);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-staff-stat-label, .rp-staff-metric, .rp-staff-progress-label, .rp-staff-stat-icon) {
+    color: #d3d5d6;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-staff-stat-hint, .rp-staff-panel-head p, .rp-staff-activity-copy span, .rp-staff-activity-list time, .rp-staff-queue-item small, .rp-staff-reservation p, .rp-staff-empty) {
+    color: var(--rp-muted);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-staff-activity-list li + li, .rp-staff-queue-item, .rp-staff-reservation) {
+    border-color: var(--rp-border);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-staff-queue-item, .rp-staff-reservation):hover {
+    background: #3a3d3d;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-staff-activity-icon, .rp-staff-pill, .rp-profile-avatar-fallback, .rp-profile-edit-link) {
+    background: #3c4b45;
+    border-color: #56736a;
+    color: #c2f1e6;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-staff-panel-divider {
+    background: var(--rp-border);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-staff-progress {
+    background: #434647;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-staff-progress > span {
+    background: #89d3c5;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--rp-text);
+    --bs-table-border-color: var(--rp-border);
+    --bs-table-striped-bg: #383a3b;
+    --bs-table-hover-bg: #414445;
+    --bs-table-hover-color: var(--rp-text);
+    color: var(--rp-text);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .table :is(th, td) {
+    border-color: var(--rp-border);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-acc-view-card {
+    background: var(--rp-surface);
+    color: var(--rp-text);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-acc-view-title {
+    color: var(--rp-text);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-acc-view-meta {
+    color: var(--rp-muted);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-acc-carousel-indicators {
+    background: #242526;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-clickable-row-label {
+    color: var(--rp-text);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-resv-table thead th, .rp-resv-footer) {
+    background: #393a3b;
+    border-color: var(--rp-border);
+    color: var(--rp-muted);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-resv-table tbody td {
+    border-color: var(--rp-border);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-resv-id, .rp-resv-guest-name, .rp-resv-room-name, .rp-resv-date-main, .rp-resv-stat-value, .rp-resv-log-item__when) {
+    color: var(--rp-text);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-resv-guest-phone, .rp-resv-room-code, .rp-resv-date-sub, .rp-resv-footer-meta, .rp-resv-log-item__meta, .rp-resv-log-item__notes, .rp-resv-log-mini) {
+    color: var(--rp-muted);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-resv-stat.is-total, .rp-resv-stat.is-checkin, .rp-resv-stat.is-checkout, .rp-resv-stat.is-walkin) {
+    background: #383b3c;
+    border-color: var(--rp-border);
+    color: #d1e5e5;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-resv-stat :is(.rp-resv-stat-icon) {
+    background: #43554f;
+    color: #9eddd2;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-resv-tabs, .rp-resv-action-summary, .rp-resv-log-item, .rp-resv-log-mini, .rp-resv-date-btn, .rp-resv-page, .rp-resv-btn-outline, .rp-filter-compact-toggle) {
+    background: var(--rp-surface);
+    border-color: var(--rp-border);
+    color: var(--rp-text) !important;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-resv-tab, .rp-resv-btn-outline, .rp-resv-id, .rp-staff-text-link, .rp-simple-pagination-arrow) {
+    color: #a6e5d9 !important;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-resv-tab, .rp-resv-btn-outline, .rp-filter-compact-toggle):hover {
+    background: #414747;
+    color: #e2faf4 !important;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-resv-tab.is-active, .rp-resv-page.is-active) {
+    background: #356d6b;
+    border-color: #69b8ac;
+    color: #fff !important;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-resv-search .form-control, .rp-card .form-control, .rp-card .form-select, .form-control, .form-select) {
+    background-color: #353738;
+    border-color: #55585a;
+    color: var(--rp-text);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.form-control, .form-select)::placeholder {
+    color: #aeb2b4;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-card .form-control, .rp-card .form-select, .form-control, .form-select):hover,
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-card .form-control, .rp-card .form-select, .form-control, .form-select):focus {
+    background-color: #404343;
+    border-color: #8bd1c7;
+    color: #fff;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-soft-input, .rp-profile-layout .form-control.rp-profile-soft-input, .rp-profile-layout .form-select.rp-profile-soft-input) {
+    background: #37393a;
+    color: var(--rp-text);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-soft-input, .rp-profile-layout .form-control.rp-profile-soft-input, .rp-profile-layout .form-select.rp-profile-soft-input):focus {
+    background: #444747;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-field-locked {
+    background: #353738;
+    color: var(--rp-muted);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-filter-compact.is-open .rp-filter-compact-toggle,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-filter-compact.is-active .rp-filter-compact-toggle {
+    background: #3b4542;
+    border-color: #78c2b5;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-note-block,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-pay-detail,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-pay-tip,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-contact-view-meta,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-promo-preview,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-profile-details > div {
+    background: #213741;
+    border-color: var(--rp-border);
+    color: var(--rp-text);
+}
+
+/* The modal layout uses an ID selector for this preview, so match it in dark mode. */
+html[data-bs-theme="dark"] .rp-staff-ui :is(#rpPromoCreateModal, [id^="rpPromoEditModal"]) .rp-promo-preview {
+    background: #213741;
+    border-color: var(--rp-border);
+    color: var(--rp-text);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-promo-preview .rp-promo-preview-row {
+    border-color: var(--rp-border);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-promo-preview .text-success {
+    color: #8de0bd !important;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-pay-tip p, .rp-profile-details dd, .rp-profile-identity-name, .rp-profile-edit-title, .rp-user-create-section-heading h3) {
+    color: var(--rp-text);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-modal-sub, .rp-profile-details dt, .rp-profile-identity-meta, .rp-profile-section-title, .rp-profile-photo-hint, .rp-user-create-subtitle, .rp-user-create-section-heading p, .rp-user-create-hint, .rp-user-create-footer-note) {
+    color: var(--rp-muted);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-layout .form-label, .rp-user-create-field .form-label, .modal .form-label) {
+    color: #d1e1e2;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-back-btn, .rp-profile-layout .input-group .btn, .rp-profile-pw-toggle, .rp-user-create-field .input-group [data-rp-toggle-password]) {
+    background: #29434b;
+    border-color: #46616a;
+    color: #d5e8e9;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-section + .rp-profile-section, .rp-user-create-security) {
+    border-color: var(--rp-border);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .modal .modal-content {
+    background: var(--rp-surface);
+    border-color: var(--rp-border);
+    color: var(--rp-text);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .modal :is(.modal-header, .modal-body, .modal-footer) {
+    background: var(--rp-surface);
+    border-color: var(--rp-border);
+    color: var(--rp-text);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .modal .modal-footer {
+    background: #172731;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .modal :is(.modal-title, .rp-user-create-section-heading h3) {
+    color: var(--rp-text);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .modal .modal-header::before,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-user-create-icon {
+    color: #b8ede3;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .modal .modal-header::before {
+    background: #2a4a4d url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23b8ede3' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='3' width='14' height='18' rx='2'/%3E%3Cpath d='M8 8h8M8 12h8M8 16h5'/%3E%3C/svg%3E") center / 1.2rem no-repeat;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-user-create-icon {
+    background: #2a4a4d;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui #rpTermsModal .modal-header {
+    background: #264b50;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .modal .btn-close {
+    filter: invert(1) grayscale(1);
+    opacity: .8;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .modal .modal-body :is(.form-control, .form-select),
+html[data-bs-theme="dark"] .rp-staff-ui .rp-user-create-field :is(.form-control, .form-select) {
+    background-color: #203640;
+    border-color: #46616a;
+    color: var(--rp-text);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .modal :is(.form-control, .form-select)::placeholder {
+    color: #9db2b9;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.modal, .rp-user-create-modal) :is(.form-control, .form-select).is-invalid {
+    border-color: #e87681;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.invalid-feedback, .rp-user-create-error) {
+    color: #ff9ca5;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .modal .input-group [data-rp-toggle-password],
+html[data-bs-theme="dark"] .rp-staff-ui .modal .modal-footer .btn-rp-soft,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-user-create-modal .modal-footer .btn-rp-soft {
+    background: #29434b;
+    border-color: #46616a;
+    color: #d9e9e9;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .modal .input-group [data-rp-toggle-password]:hover,
+html[data-bs-theme="dark"] .rp-staff-ui .modal .modal-footer .btn-rp-soft:hover {
+    background: #35535a;
+    color: #fff;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .btn.btn-rp-soft,
+html[data-bs-theme="dark"] .rp-staff-ui :is(.btn.rp-user-edit-button, .btn.rp-staff-edit-button) {
+    background: #284549;
+    border-color: #426d6a;
+    color: #c6f2e8;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .btn.btn-rp-soft:is(:hover, :focus, :focus-visible, :active, .active),
+html[data-bs-theme="dark"] .rp-staff-ui :is(.btn.rp-user-edit-button, .btn.rp-staff-edit-button):is(:hover, :focus, :focus-visible, :active, .active) {
+    background: #35615d !important;
+    border-color: #6aa69d !important;
+    color: #fff !important;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.btn.btn-rp-primary, .btn.rp-user-add-button, .rp-resv-btn-primary, .rp-profile-save-icon) {
+    background: #326f6a !important;
+    border-color: #326f6a !important;
+    color: #fff !important;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.btn.btn-rp-primary, .btn.rp-user-add-button, .rp-resv-btn-primary, .rp-profile-save-icon):hover {
+    background: #397d78 !important;
+    border-color: #397d78 !important;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-promo-accommodation-item, .rp-booking-list-item) {
+    background: var(--rp-surface-raised);
+    border-color: var(--rp-border);
+    color: var(--rp-text);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-promo-dt-day, .rp-promo-dt-time-list) {
+    background: var(--rp-surface-raised);
+    color: var(--rp-text);
+    border-color: var(--rp-border);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-promo-dt-day.is-disabled, .rp-promo-dt-time-option.is-disabled) {
+    background: #26363e;
+    color: #9aafb6;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-promo-dt-day.is-selected, .rp-promo-dt-time-option.is-selected) {
+    background: #326f6a;
+    color: #fff;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.bg-white, .bg-light) {
+    background-color: var(--rp-surface) !important;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.text-dark, .text-black, .text-body) {
+    color: var(--rp-text) !important;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-receipt-card {
+    /* Receipts deliberately remain paper-white for printing and screenshots. */
+    background: #fff;
+    color: #1d2830;
+}

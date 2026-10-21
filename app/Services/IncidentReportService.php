@@ -62,7 +62,7 @@ class IncidentReportService
                 'report_type' => $data['report_type'],
                 'title' => $data['title'],
                 'description' => $data['description'],
-                'location' => $data['location'],
+                'location' => $data['location'] ?? null,
                 'photo' => $this->storeUploadedImage($photo),
                 'status' => IncidentStatus::Pending,
             ]);

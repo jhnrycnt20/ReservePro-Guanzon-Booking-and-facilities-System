@@ -9,6 +9,7 @@ use App\Services\PromoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class PromoController extends Controller
@@ -65,10 +66,10 @@ class PromoController extends Controller
     public function preview(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'discount_percent' => ['required', 'numeric', 'min:1', 'max:100'],
+            'discount_percent' => ['required', 'numeric', 'min:1', 'max:100', 'decimal:0,2'],
             'applies_to_all' => ['nullable', 'boolean'],
             'accommodation_ids' => ['nullable', 'array'],
-            'accommodation_ids.*' => ['integer', 'exists:accommodations,id'],
+            'accommodation_ids.*' => ['integer', 'distinct', Rule::exists('accommodations', 'id')->where('is_active', true)],
         ]);
 
         $appliesToAll = $request->boolean('applies_to_all');
@@ -89,16 +90,19 @@ class PromoController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        if (is_string($request->input('code'))) {
+            $request->merge(['code' => $this->promoService->normalizeCode($request->input('code'))]);
+        }
         $data = $request->validate([
-            'name' => ['nullable', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
             'code' => ['nullable', 'string', 'max:32', 'unique:promos,code'],
-            'discount_percent' => ['required', 'numeric', 'min:1', 'max:100'],
+            'discount_percent' => ['required', 'numeric', 'min:1', 'max:100', 'decimal:0,2'],
             'applies_to_all' => ['nullable', 'boolean'],
             'accommodation_ids' => ['nullable', 'array'],
-            'accommodation_ids.*' => ['integer', 'exists:accommodations,id'],
-            'starts_at' => ['nullable', 'date', 'after_or_equal:now'],
-            'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at', 'after_or_equal:now'],
-            'usage_limit' => ['nullable', 'integer', 'min:1'],
+            'accommodation_ids.*' => ['integer', 'distinct', Rule::exists('accommodations', 'id')->where('is_active', true)],
+            'starts_at' => ['nullable', 'date_format:Y-m-d\TH:i', $this->notPastMinute()],
+            'ends_at' => ['nullable', 'date_format:Y-m-d\TH:i', 'after_or_equal:starts_at', $this->notPastMinute()],
+            'usage_limit' => ['nullable', 'integer', 'min:1', 'max:4294967295'],
             'is_active' => ['nullable', 'boolean'],
         ]);
 
@@ -163,22 +167,29 @@ class PromoController extends Controller
 
     public function update(Request $request, Promo $promo): RedirectResponse
     {
+        if (is_string($request->input('code'))) {
+            $request->merge(['code' => $this->promoService->normalizeCode($request->input('code'))]);
+        }
         $data = $request->validate([
-            'name' => ['nullable', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
             'code' => ['required', 'string', 'max:32', 'unique:promos,code,'.$promo->id],
-            'discount_percent' => ['required', 'numeric', 'min:1', 'max:100'],
+            'discount_percent' => ['required', 'numeric', 'min:1', 'max:100', 'decimal:0,2'],
             'applies_to_all' => ['nullable', 'boolean'],
             'accommodation_ids' => ['nullable', 'array'],
-            'accommodation_ids.*' => ['integer', 'exists:accommodations,id'],
+            'accommodation_ids.*' => ['integer', 'distinct', Rule::exists('accommodations', 'id')->where('is_active', true)],
             'starts_at' => [
                 'nullable',
-                'date',
+                'date_format:Y-m-d\TH:i',
                 // Allow keeping an existing past start; block setting a new past start.
                 function (string $attribute, mixed $value, \Closure $fail) use ($promo): void {
                     if (! $value) {
                         return;
                     }
-                    $incoming = \Carbon\Carbon::parse($value)->startOfMinute();
+                    try {
+                        $incoming = \Carbon\Carbon::parse($value)->startOfMinute();
+                    } catch (\Throwable) {
+                        return;
+                    }
                     $existing = $promo->starts_at?->copy()->startOfMinute();
                     if ($existing && $incoming->equalTo($existing)) {
                         return;
@@ -188,8 +199,26 @@ class PromoController extends Controller
                     }
                 },
             ],
-            'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at', 'after_or_equal:now'],
-            'usage_limit' => ['nullable', 'integer', 'min:1'],
+            'ends_at' => [
+                'nullable', 'date_format:Y-m-d\TH:i', 'after_or_equal:starts_at',
+                function (string $attribute, mixed $value, \Closure $fail) use ($promo): void {
+                    if (! $value) {
+                        return;
+                    }
+                    try {
+                        $incoming = \Carbon\Carbon::parse($value)->startOfMinute();
+                    } catch (\Throwable) {
+                        return;
+                    }
+                    if ($promo->ends_at?->copy()->startOfMinute()->equalTo($incoming)) {
+                        return;
+                    }
+                    if ($incoming->lt(now()->startOfMinute())) {
+                        $fail('The end date/time cannot be in the past.');
+                    }
+                },
+            ],
+            'usage_limit' => ['nullable', 'integer', 'min:1', 'max:4294967295'],
             'is_active' => ['nullable', 'boolean'],
         ]);
 
@@ -231,5 +260,22 @@ class PromoController extends Controller
         return redirect()
             ->route('admin.promos.index')
             ->with('success', 'Promo deleted.');
+    }
+
+    private function notPastMinute(): \Closure
+    {
+        return function (string $attribute, mixed $value, \Closure $fail): void {
+            if (! $value) {
+                return;
+            }
+            try {
+                $date = \Carbon\Carbon::parse($value)->startOfMinute();
+            } catch (\Throwable) {
+                return;
+            }
+            if ($date->lt(now()->startOfMinute())) {
+                $fail('The date/time cannot be in the past.');
+            }
+        };
     }
 }
