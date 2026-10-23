@@ -19,6 +19,8 @@ services:
           type: web
           name: reservepro
           property: host
+      - key: APP_TIMEZONE
+        value: Asia/Manila
       - key: DB_CONNECTION
         value: sqlite
       - key: DB_DATABASE
