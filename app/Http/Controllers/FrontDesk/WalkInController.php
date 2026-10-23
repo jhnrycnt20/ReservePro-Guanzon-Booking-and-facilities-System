@@ -77,21 +77,31 @@ class WalkInController extends Controller
                 true
             );
 
-            if (! empty($data['payment_amount']) && (float) $data['payment_amount'] > 0) {
+            foreach ($data['payments'] as $payment) {
+                $amount = round((float) ($payment['amount'] ?? 0), 2);
+                if ($amount <= 0) {
+                    continue;
+                }
+
                 $this->paymentService->recordPayment($booking, [
-                    'amount' => $data['payment_amount'],
-                    'payment_method' => $data['payment_method'] ?? 'cash',
-                    'reference_number' => $data['reference_number'] ?? null,
+                    'amount' => $amount,
+                    'payment_method' => $payment['payment_method'] ?? 'cash',
+                    'reference_number' => $payment['reference_number'] ?? null,
                     'payment_date' => now(),
                     'auto_verify' => true,
+                    'notes' => 'Walk-in collection',
                 ], $request->user());
             }
 
             return $booking->fresh();
         });
 
+        $paymentCount = count($data['payments'] ?? []);
+        $suffix = $paymentCount > 1 ? " ({$paymentCount} payments)" : '';
+
         return redirect()
             ->route('front_desk.reservations.index')
-            ->with('success', 'Walk-in booking '.$booking->short_number.' created.');
+            ->with('open_view', $booking->id)
+            ->with('success', 'Walk-in booking '.$booking->short_number.' created and fully paid'.$suffix.'.');
     }
 }

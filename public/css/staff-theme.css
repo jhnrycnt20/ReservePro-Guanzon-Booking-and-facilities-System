@@ -156,14 +156,17 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-topbar-avatar:hover {
     background: #4b5b55;
 }
 
+html[data-bs-theme="dark"] .rp-staff-ui .rp-sidebar-footer .rp-logout-btn,
 html[data-bs-theme="dark"] .rp-staff-ui .rp-sidebar-footer .btn-outline-light {
-    background: transparent;
-    border-color: #606466;
-    color: #eef0ef;
+    background: #3a2424;
+    border-color: #7a3d3d;
+    color: #f0a8a8;
 }
 
+html[data-bs-theme="dark"] .rp-staff-ui .rp-sidebar-footer .rp-logout-btn:hover,
 html[data-bs-theme="dark"] .rp-staff-ui .rp-sidebar-footer .btn-outline-light:hover {
-    background: #373b3a;
+    background: #b42318;
+    border-color: #b42318;
     color: #fff;
 }
 
@@ -328,6 +331,18 @@ html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-resv-id, .rp-resv-guest-name, .r
 
 html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-resv-guest-phone, .rp-resv-room-code, .rp-resv-date-sub, .rp-resv-footer-meta, .rp-resv-log-item__meta, .rp-resv-log-item__notes, .rp-resv-log-mini) {
     color: var(--rp-muted);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-resv-date-actual {
+    color: #9eddd2;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-resv-due {
+    color: #ff8f80;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-resv-early {
+    color: #b8cbd0;
 }
 
 html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-resv-stat.is-total, .rp-resv-stat.is-checkin, .rp-resv-stat.is-checkout, .rp-resv-stat.is-walkin) {
@@ -581,4 +596,123 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-receipt-card {
     /* Receipts deliberately remain paper-white for printing and screenshots. */
     background: #fff;
     color: #1d2830;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-walkin-modal-icon {
+    background: #2a3f48;
+    color: #87d5c8;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-walkin-modal-sub,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-walkin-section-hint,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-walkin-total-hint {
+    color: #9aafb6;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-walkin-total-banner {
+    background: linear-gradient(135deg, #24383f 0%, #1f333a 100%);
+    border-color: #355059;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-walkin-total-label {
+    color: #87d5c8;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-walkin-total-value,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-walkin-section-title {
+    color: #e8f1f0;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-walkin-pay-row {
+    background: #24363e;
+    border-color: #355059;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-walkin-add-pay {
+    background: #24363e;
+    border-color: #355059;
+    color: #cfe3df;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-walkin-pay-summary.is-pending {
+    background: #24363e;
+    color: #b8cbd0;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-walkin-pay-summary.is-ok {
+    background: #1f3d34;
+    color: #8fd6b0;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-walkin-pay-summary.is-bad {
+    background: #3d2628;
+    color: #f0a8a8;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-report-detail-card {
+    background: var(--rp-surface);
+    border-color: var(--rp-border);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-report-detail-title, .rp-report-detail-issue, .rp-report-review-title, .rp-report-detail-meta-value, .rp-report-upload-title) {
+    color: #e8f1f0;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-report-detail-sub, .rp-report-review-sub, .rp-report-detail-label, .rp-report-help, .rp-report-upload-hint, .rp-report-char-count, .rp-report-detail-crumb) {
+    color: #9aafb6;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-report-detail-copy {
+    color: #cfe3df;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-report-detail-hero-icon,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-report-review-icon {
+    background: #2a3f48;
+    color: #87d5c8;
+    border-color: #3d6a66;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-report-action-btn {
+    background: #24363e;
+    border-color: #355059;
+    color: #cfe3df;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-report-action-btn.is-active {
+    background: #326f6a;
+    border-color: #326f6a;
+    color: #fff;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-report-upload {
+    background: #24363e;
+    border-color: #355059;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-report-action-toggle {
+    background: #24363e;
+    border-color: #355059;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-report-action-btn {
+    background: #24363e;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-report-action-btn + .rp-report-action-btn {
+    border-left-color: #355059;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-report-detail-photo {
+    border-color: #355059;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-report-detail-photo-expand {
+    background: rgba(36, 54, 62, .94);
+    color: #87d5c8;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-report-note-panel {
+    background: #24363e;
+    border-color: #355059;
 }

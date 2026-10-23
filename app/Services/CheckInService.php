@@ -46,11 +46,16 @@ class CheckInService
 
         if (! $booking->checkInWindowOpen()) {
             throw ValidationException::withMessages([
-                'check_in_date' => 'Check-in opens at '.config('resort.check_in_time', '14:00').' on the arrival date.',
+                'check_in_date' => 'Check-in is only available on or after the arrival date ('.$booking->check_in_date->format('M j, Y').').',
             ]);
         }
 
         return DB::transaction(function () use ($booking, $staff, $notes) {
+            $booking->loadMissing([
+                'guest.user',
+                'accommodation' => fn ($q) => $q->withTrashed(),
+            ]);
+
             $checkIn = CheckIn::query()->create([
                 'booking_id' => $booking->id,
                 'staff_id' => $staff->id,
@@ -64,9 +69,11 @@ class CheckInService
                 'status' => BookingStatus::CheckedIn,
             ]);
 
-            $booking->accommodation->update([
-                'status' => AccommodationStatus::Occupied,
-            ]);
+            if ($booking->accommodation) {
+                $booking->accommodation->update([
+                    'status' => AccommodationStatus::Occupied,
+                ]);
+            }
 
             $this->auditService->log('booking.checked_in', $booking, $old, $booking->fresh()->toArray(), $staff);
 
@@ -74,8 +81,9 @@ class CheckInService
                 $this->notificationService->notify($booking->guest->user, new CheckedInNotification($booking));
             }
 
-            $booking->loadMissing('accommodation');
-            $this->notificationService->notifyFrontDesk(new StaffGuestCheckedInNotification($booking->fresh()));
+            $this->notificationService->notifyFrontDesk(
+                new StaffGuestCheckedInNotification($booking->fresh(['guest.user', 'accommodation']))
+            );
 
             return $checkIn->fresh(['booking', 'staff']);
         });

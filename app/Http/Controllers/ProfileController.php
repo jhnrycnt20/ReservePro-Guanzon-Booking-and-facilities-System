@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Rules\GmailAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -20,7 +21,7 @@ class ProfileController extends Controller
             if ($user->hasRole('guest')) {
                 $fallback = route('accommodations.browse');
                 $previous = url()->previous();
-                $target = ($previous && $previous !== url()->current()) ? $previous : $fallback;
+                $target = $this->safeInternalRedirectUrl($previous, $fallback);
 
                 return redirect()
                     ->to($target)
@@ -57,7 +58,7 @@ class ProfileController extends Controller
                 'max:255',
                 'regex:/^[\p{L}]+(?:[ \'\-.][\p{L}]+)*$/u',
             ],
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id), new GmailAddress],
             'phone' => [
                 'required',
                 'string',
@@ -146,6 +147,36 @@ class ProfileController extends Controller
         }
 
         return back()->with('success_popup', 'Successfully changed.');
+    }
+
+    /**
+     * Only allow same-app redirects to avoid open-redirect via Referer.
+     */
+    protected function safeInternalRedirectUrl(?string $candidate, string $fallback): string
+    {
+        if (! is_string($candidate) || $candidate === '' || $candidate === url()->current()) {
+            return $fallback;
+        }
+
+        $appHost = parse_url(config('app.url'), PHP_URL_HOST);
+        $candidateHost = parse_url($candidate, PHP_URL_HOST);
+        $candidateScheme = parse_url($candidate, PHP_URL_SCHEME);
+
+        // Relative paths are always internal.
+        if ($candidateHost === null && str_starts_with($candidate, '/')) {
+            return $candidate;
+        }
+
+        if (
+            in_array($candidateScheme, ['http', 'https'], true)
+            && is_string($appHost)
+            && is_string($candidateHost)
+            && strcasecmp($appHost, $candidateHost) === 0
+        ) {
+            return $candidate;
+        }
+
+        return $fallback;
     }
 
     public function updatePassword(Request $request): RedirectResponse

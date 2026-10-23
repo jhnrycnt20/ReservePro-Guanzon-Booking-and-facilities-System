@@ -282,7 +282,6 @@ class InputValidationTest extends TestCase
         $this->actingAs($reporter)->post(route('guest.incidents.store'), [
             'booking_id' => $booking->id,
             'report_type' => 'incident',
-            'title' => 'Test incident',
             'description' => 'A detailed report of an issue.',
         ])->assertSessionHasErrors(['booking_id']);
 

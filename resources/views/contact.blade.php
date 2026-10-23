@@ -67,7 +67,7 @@
                             @error('name')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                         </div>
                         <div class="col-md-6">
-                            <input type="email" class="rp-contact-input @error('email') is-invalid @enderror" name="email" placeholder="Email Address" value="{{ old('email') }}" required>
+                            <input type="email" class="rp-contact-input @error('email') is-invalid @enderror" name="email" placeholder="you@gmail.com" value="{{ old('email') }}" required>
                             @error('email')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                         </div>
                         <div class="col-md-6">

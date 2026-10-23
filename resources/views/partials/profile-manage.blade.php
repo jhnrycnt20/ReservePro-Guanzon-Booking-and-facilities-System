@@ -42,7 +42,6 @@
                     <div class="rp-profile-identity-name">{{ $profileUser->name }}</div>
                     <button type="button" class="rp-profile-edit-link" data-rp-profile-edit>Edit profile</button>
                 </div>
-                <div class="rp-profile-identity-meta">{{ $profileUser->email }}</div>
             </div>
         </div>
 

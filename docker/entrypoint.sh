@@ -20,8 +20,8 @@ if [ -f .env ]; then
         sed -i "s|^APP_URL=.*|APP_URL=${APP_URL}|" .env
     fi
 
-    # Keep PayMongo keys in .env when provided by the host (e.g. Render).
-    for key in PAYMONGO_SECRET_KEY PAYMONGO_PUBLIC_KEY PAYMONGO_WEBHOOK_SECRET; do
+    # Keep PayMongo keys + timezone in .env when provided by the host (e.g. Render).
+    for key in APP_TIMEZONE PAYMONGO_SECRET_KEY PAYMONGO_PUBLIC_KEY PAYMONGO_WEBHOOK_SECRET; do
         val=$(printenv "$key" || true)
         if [ -n "$val" ]; then
             if grep -q "^${key}=" .env; then
@@ -31,6 +31,11 @@ if [ -f .env ]; then
             fi
         fi
     done
+
+    # Default resort timezone if unset (avoids UTC hiding same-day Check-in).
+    if ! grep -q '^APP_TIMEZONE=' .env; then
+        printf 'APP_TIMEZONE=Asia/Manila\n' >> .env
+    fi
 fi
 
 php artisan config:clear

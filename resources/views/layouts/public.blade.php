@@ -8,7 +8,7 @@
     @include('partials.pwa-head')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,600&family=Montserrat:wght@300;400;500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,600&display=swap" rel="stylesheet">
     <link href="{{ asset('css/reservepro.css') }}?v={{ file_exists(public_path('css/reservepro.css')) ? filemtime(public_path('css/reservepro.css')) : '1' }}" rel="stylesheet">
     @stack('styles')
 </head>
@@ -25,14 +25,14 @@
                             <span></span>
                         </span>
                     </button>
-                    <img class="rp-nav-logo-img" src="{{ asset('images/guanzon_navbar_transparent.png') }}" alt="Guanzon Resort">
+                    <img class="rp-nav-logo-img" src="{{ asset('images/guanzon_navbar_transparent.png') }}?v={{ filemtime(public_path('images/guanzon_navbar_transparent.png')) }}" alt="Guanzon Resort">
                 </div>
                 <div class="rp-nav-links rp-nav-links-main">
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ url('/') }}">The Resort</a>
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ route('gallery') }}">Gallery</a>
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ route('offers') }}">Offers</a>
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ route('contact') }}">Contact</a>
-                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('feedback.create') }}">Feedback</a>
+                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('feedback.index') }}">Feedback</a>
                     <a class="rp-nav-link rp-nav-link-booknow" href="{{ route('accommodations.browse') }}">Book Now</a>
                     @guest
                         <a class="rp-nav-link" href="{{ route('login') }}" data-bs-toggle="modal" data-bs-target="#rpLoginModal">Login</a>
@@ -42,9 +42,11 @@
                             <ul class="dropdown-menu dropdown-menu-end rp-nav-account-menu">
                                 <li><a class="dropdown-item" href="{{ route('guest.bookings.index') }}">My Reservations</a></li>
                                 <li><a class="dropdown-item" href="{{ route('guest.payments.index') }}">Payments</a></li>
+                                <li><a class="dropdown-item" href="{{ route('guest.incidents.index') }}">Reports</a></li>
+                                <li><a class="dropdown-item" href="{{ route('guest.feedback.index') }}">My Feedback</a></li>
                                 <li><a class="dropdown-item" href="#rpProfileModal" data-bs-toggle="modal" data-bs-target="#rpProfileModal">Manage Profile</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rpNavDesktopLogoutForm').submit();">Sign Out</a></li>
+                                <li><a class="dropdown-item rp-logout-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rpNavDesktopLogoutForm').submit();">Sign Out</a></li>
                             </ul>
                         </div>
                         <form id="rpNavDesktopLogoutForm" action="{{ route('logout') }}" method="POST" class="d-none">
@@ -52,7 +54,7 @@
                         </form>
                     @else
                         <a class="rp-nav-link" href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
-                        <a class="rp-nav-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rpNavDesktopLogoutForm').submit();">Sign Out</a>
+                        <a class="rp-nav-link rp-logout-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rpNavDesktopLogoutForm').submit();">Sign Out</a>
                         <form id="rpNavDesktopLogoutForm" action="{{ route('logout') }}" method="POST" class="d-none">
                             @csrf
                         </form>
@@ -63,23 +65,25 @@
     </nav>
 
     <div class="rp-nav-overlay" id="rpNavOverlay">
-        <img class="rp-nav-overlay-logo" src="{{ asset('images/guanzon_navbar_transparent.png') }}" alt="Guanzon Resort">
+        <img class="rp-nav-overlay-logo" src="{{ asset('images/guanzon_navbar_transparent.png') }}?v={{ filemtime(public_path('images/guanzon_navbar_transparent.png')) }}" alt="Guanzon Resort">
         <nav class="rp-nav-overlay-links">
             <a href="{{ url('/') }}">The Resort</a>
             <a href="{{ route('gallery') }}">Gallery</a>
             <a href="{{ route('offers') }}">Offers</a>
             <a href="{{ route('contact') }}">Contact</a>
-            <a href="{{ route('feedback.create') }}">Feedback</a>
+            <a href="{{ route('feedback.index') }}">Feedback</a>
             <a href="{{ route('accommodations.browse') }}">Book Now</a>
             @auth
                 @if(auth()->user()->hasRole('guest'))
                     <a href="{{ route('guest.bookings.index') }}">My Reservations</a>
                     <a href="{{ route('guest.payments.index') }}">Payments</a>
+                    <a href="{{ route('guest.incidents.index') }}">Reports</a>
+                    <a href="{{ route('guest.feedback.index') }}">My Feedback</a>
                     <a href="#rpProfileModal" data-bs-toggle="modal" data-bs-target="#rpProfileModal">Manage Profile</a>
                 @else
                     <a href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
                 @endif
-                <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rpNavOverlayLogoutForm').submit();">Sign Out</a>
+                <a class="rp-logout-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rpNavOverlayLogoutForm').submit();">Sign Out</a>
                 <form id="rpNavOverlayLogoutForm" action="{{ route('logout') }}" method="POST" class="d-none">
                     @csrf
                 </form>
@@ -115,6 +119,7 @@
                     <div class="rp-footer-links">
                         <a href="{{ url('/') }}">The Resort</a>
                         <a href="{{ route('gallery') }}">Gallery</a>
+                        <a href="{{ route('feedback.index') }}">Feedback</a>
                         <a href="{{ route('downloads') }}">Download App</a>
                         <a href="{{ route('contact') }}">Contact us</a>
                     </div>

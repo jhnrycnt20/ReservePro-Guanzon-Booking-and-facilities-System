@@ -80,7 +80,8 @@ class CheckOutController extends Controller
         );
 
         return redirect()
-            ->route('front_desk.reservations.index')
-            ->with('success', 'Guest checked out. Accommodation is now Available.');
+            ->route('front_desk.reservations.index', ['tab' => 'logs'])
+            ->with('open_view', $booking->id)
+            ->with('success', 'Guest checked out. Room is now Available — stay moved to Logs.');
     }
 }

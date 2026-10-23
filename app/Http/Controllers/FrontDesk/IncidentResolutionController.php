@@ -27,10 +27,10 @@ class IncidentResolutionController extends Controller
         if ($request->filled('status')) {
             $query->where('status', $request->input('status'));
         } else {
+            // Default: unresolved queue (still needs staff action).
             $query->whereIn('status', [
                 IncidentStatus::Verified,
                 IncidentStatus::InProgress,
-                IncidentStatus::Resolved,
             ]);
         }
 
@@ -38,7 +38,14 @@ class IncidentResolutionController extends Controller
 
         $reports = $query->paginate(20)->withQueryString();
 
-        return view('front_desk.incidents.index', compact('reports'));
+        $unresolvedCount = IncidentReport::query()
+            ->whereIn('status', [
+                IncidentStatus::Verified,
+                IncidentStatus::InProgress,
+            ])
+            ->count();
+
+        return view('front_desk.incidents.index', compact('reports', 'unresolvedCount'));
     }
 
     public function show(IncidentReport $incident): View

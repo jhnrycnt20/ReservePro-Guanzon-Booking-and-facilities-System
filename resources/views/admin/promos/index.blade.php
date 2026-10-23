@@ -142,19 +142,22 @@
                             <input type="number" min="1" name="usage_limit" class="form-control" value="{{ old('_modal') === 'promo_create' ? old('usage_limit') : '' }}" placeholder="Unlimited">
                         </div>
                         <div>
+                            <label class="form-label">Starts</label>
+                            <input type="datetime-local" name="starts_at" class="form-control @error('starts_at') is-invalid @enderror" value="{{ old('_modal') === 'promo_create' ? old('starts_at') : '' }}" data-rp-promo-starts>
+                            @error('starts_at')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div>
+                            <label class="form-label">Ends</label>
+                            <input type="datetime-local" name="ends_at" class="form-control @error('ends_at') is-invalid @enderror" value="{{ old('_modal') === 'promo_create' ? old('ends_at') : '' }}" data-rp-promo-ends>
+                            @error('ends_at')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                            <div class="invalid-feedback d-none" data-rp-promo-date-error>End must be on or after the start date/time.</div>
+                        </div>
+                        <div>
                             <label class="form-label">Status</label>
                             <select name="is_active" class="form-select">
                                 <option value="1" selected>Active</option>
                                 <option value="0">Inactive</option>
                             </select>
-                        </div>
-                        <div>
-                            <label class="form-label">Starts</label>
-                            <input type="datetime-local" name="starts_at" class="form-control" value="{{ old('_modal') === 'promo_create' ? old('starts_at') : '' }}">
-                        </div>
-                        <div>
-                            <label class="form-label">Ends</label>
-                            <input type="datetime-local" name="ends_at" class="form-control" value="{{ old('_modal') === 'promo_create' ? old('ends_at') : '' }}">
                         </div>
                         <div class="rp-promo-preview" data-rp-promo-preview>
                             <div class="text-muted small">Select accommodations and enter a percentage to preview prices.</div>
@@ -252,20 +255,27 @@
                                 <input type="number" min="1" name="usage_limit" class="form-control" value="{{ old('_modal') === 'promo_edit_'.$promo->id ? old('usage_limit') : $promo->usage_limit }}" placeholder="Unlimited">
                             </div>
                             <div>
+                                <label class="form-label">Starts</label>
+                                <input type="datetime-local" name="starts_at" class="form-control @error('starts_at') is-invalid @enderror" value="{{ $startsAt }}" data-rp-promo-starts>
+                                @error('starts_at')
+                                    @if(old('_modal') === 'promo_edit_'.$promo->id)<div class="invalid-feedback">{{ $message }}</div>@endif
+                                @enderror
+                            </div>
+                            <div>
+                                <label class="form-label">Ends</label>
+                                <input type="datetime-local" name="ends_at" class="form-control @error('ends_at') is-invalid @enderror" value="{{ $endsAt }}" data-rp-promo-ends>
+                                @error('ends_at')
+                                    @if(old('_modal') === 'promo_edit_'.$promo->id)<div class="invalid-feedback d-block">{{ $message }}</div>@endif
+                                @enderror
+                                <div class="invalid-feedback d-none" data-rp-promo-date-error>End must be on or after the start date/time.</div>
+                            </div>
+                            <div>
                                 <label class="form-label">Status</label>
                                 @php $activeVal = old('_modal') === 'promo_edit_'.$promo->id ? old('is_active') : ($promo->is_active ? '1' : '0'); @endphp
                                 <select name="is_active" class="form-select">
                                     <option value="1" @selected($activeVal == '1')>Active</option>
                                     <option value="0" @selected($activeVal == '0')>Inactive</option>
                                 </select>
-                            </div>
-                            <div>
-                                <label class="form-label">Starts</label>
-                                <input type="datetime-local" name="starts_at" class="form-control" value="{{ $startsAt }}">
-                            </div>
-                            <div>
-                                <label class="form-label">Ends</label>
-                                <input type="datetime-local" name="ends_at" class="form-control" value="{{ $endsAt }}">
                             </div>
                             <div class="rp-promo-preview" data-rp-promo-preview>
                                 <div class="text-muted small">Preview updates as you change the percentage.</div>
@@ -377,8 +387,44 @@ document.addEventListener('DOMContentLoaded', () => {
         allToggle?.addEventListener('change', () => { syncAll(); schedule(); });
         list?.addEventListener('change', () => { syncLabel(); schedule(); });
         percentInput?.addEventListener('input', schedule);
+
+        const startsInput = form.querySelector('[data-rp-promo-starts]');
+        const endsInput = form.querySelector('[data-rp-promo-ends]');
+        const dateError = form.querySelector('[data-rp-promo-date-error]');
+
+        const syncDateBounds = () => {
+            if (!startsInput || !endsInput) return true;
+            const start = startsInput.value;
+            const end = endsInput.value;
+            if (start) {
+                endsInput.min = start;
+            } else {
+                endsInput.removeAttribute('min');
+            }
+            const invalid = Boolean(start && end && end < start);
+            endsInput.classList.toggle('is-invalid', invalid);
+            if (dateError) {
+                dateError.classList.toggle('d-none', !invalid);
+                dateError.classList.toggle('d-block', invalid);
+            }
+            return !invalid;
+        };
+
+        startsInput?.addEventListener('change', syncDateBounds);
+        endsInput?.addEventListener('change', syncDateBounds);
+        startsInput?.addEventListener('input', syncDateBounds);
+        endsInput?.addEventListener('input', syncDateBounds);
+
+        form.addEventListener('submit', (event) => {
+            if (!syncDateBounds()) {
+                event.preventDefault();
+                endsInput?.focus();
+            }
+        });
+
         syncAll();
         schedule();
+        syncDateBounds();
     });
 });
 </script>

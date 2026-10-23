@@ -104,6 +104,8 @@ class PromoController extends Controller
             'ends_at' => ['nullable', 'date_format:Y-m-d\TH:i', 'after_or_equal:starts_at', $this->notPastMinute()],
             'usage_limit' => ['nullable', 'integer', 'min:1', 'max:4294967295'],
             'is_active' => ['nullable', 'boolean'],
+        ], [
+            'ends_at.after_or_equal' => 'The end date/time must be on or after the start date/time.',
         ]);
 
         $appliesToAll = $request->boolean('applies_to_all');
@@ -220,6 +222,8 @@ class PromoController extends Controller
             ],
             'usage_limit' => ['nullable', 'integer', 'min:1', 'max:4294967295'],
             'is_active' => ['nullable', 'boolean'],
+        ], [
+            'ends_at.after_or_equal' => 'The end date/time must be on or after the start date/time.',
         ]);
 
         $appliesToAll = $request->boolean('applies_to_all');

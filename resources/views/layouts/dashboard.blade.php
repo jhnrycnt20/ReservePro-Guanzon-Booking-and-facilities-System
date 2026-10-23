@@ -20,7 +20,7 @@
     @include('partials.pwa-head')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
     <link href="{{ asset('css/reservepro.css') }}?v={{ file_exists(public_path('css/reservepro.css')) ? filemtime(public_path('css/reservepro.css')) : '1' }}" rel="stylesheet">
     @if($rpStaffPanel)
         <link href="{{ asset('css/staff-dashboard.css') }}?v={{ filemtime(public_path('css/staff-dashboard.css')) }}" rel="stylesheet">
@@ -32,7 +32,7 @@
     <div class="rp-shell">
         <aside class="rp-sidebar" id="rpSidebar">
             <div class="rp-brand">
-                <img class="rp-brand-logo" src="{{ asset('images/guanzon_logo_green.png') }}" alt="Guanzon Resort">
+                <img class="rp-brand-logo" src="{{ asset('images/guanzon_logo_green.png') }}?v={{ filemtime(public_path('images/guanzon_logo_green.png')) }}" alt="Guanzon Resort">
                 <div>
                     <div class="rp-brand-name">Guanzon</div>
                     <div class="rp-brand-role">@yield('role_label', 'Dashboard')</div>
@@ -65,7 +65,7 @@
                 @endif
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="btn btn-outline-light btn-sm w-100">
+                    <button type="submit" class="btn btn-outline-light btn-sm w-100 rp-logout-btn">
                         <i class="bi bi-box-arrow-right me-1"></i> Logout
                     </button>
                 </form>

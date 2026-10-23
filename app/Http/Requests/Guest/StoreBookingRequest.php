@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Guest;
 
 use App\Models\Accommodation;
+use App\Rules\GmailAddress;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreBookingRequest extends FormRequest
@@ -37,7 +38,7 @@ class StoreBookingRequest extends FormRequest
             'special_requests' => ['nullable', 'string', 'max:2000'],
             'guest_name' => ['nullable', 'string', 'max:255'],
             'contact_number' => ['nullable', 'string', 'max:50'],
-            'email' => ['nullable', 'email', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255', new GmailAddress],
             'promo_code' => ['nullable', 'string', 'max:32'],
         ];
     }

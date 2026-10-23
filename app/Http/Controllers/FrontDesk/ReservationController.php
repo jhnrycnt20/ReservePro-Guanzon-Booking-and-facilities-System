@@ -41,6 +41,12 @@ class ReservationController extends Controller
             'promo',
         ];
 
+        $openIncidentStatuses = [
+            \App\Enums\IncidentStatus::Pending,
+            \App\Enums\IncidentStatus::Verified,
+            \App\Enums\IncidentStatus::InProgress,
+        ];
+
         $statsBase = Booking::query()->frontDeskReservations();
 
         $stats = [
@@ -54,6 +60,7 @@ class ReservationController extends Controller
                 ->whereIn('status', [BookingStatus::Pending, BookingStatus::Approved])
                 ->where('remaining_balance', '>', 0)
                 ->count(),
+            'check_ins_ready' => (clone $statsBase)->readyForCheckIn()->count(),
             'check_outs_today' => (clone $statsBase)
                 ->where('status', BookingStatus::CheckedIn)
                 ->whereDate('check_out_date', $today)
@@ -68,27 +75,48 @@ class ReservationController extends Controller
                     $query->whereDate('created_at', $today)
                         ->orWhereDate('check_in_date', $today);
                 })
+                // Walk-ins are always full-pay; exclude leftover partial balances.
+                ->where(function ($query) {
+                    $query->where('status', BookingStatus::CheckedIn)
+                        ->orWhere('remaining_balance', '<=', 0.009);
+                })
                 ->count(),
         ];
+
+        $withCount = ['incidentReports as open_incidents_count' => function ($q) use ($openIncidentStatuses) {
+            $q->whereIn('status', $openIncidentStatuses);
+        }];
 
         if ($tab === 'logs') {
             $query = Booking::query()
                 ->with($with)
+                ->withCount($withCount)
                 ->where(function ($builder) {
                     $builder->whereHas('checkIn')->orWhereHas('checkOut');
                 });
         } else {
             $query = Booking::query()
                 ->with($with)
+                ->withCount($withCount)
                 ->frontDeskReservations();
 
             if ($tab === 'check_in') {
-                $query->whereIn('status', [BookingStatus::Pending, BookingStatus::Approved])
-                    ->whereDate('check_in_date', '<=', $today);
+                // Ready arrivals only (fully paid, arrival day+, not yet checked in).
+                $query->readyForCheckIn();
             } elseif ($tab === 'check_out') {
+                // Action queue: guests still in-house (completed check-outs go to Logs).
                 $query->where('status', BookingStatus::CheckedIn);
             } elseif ($tab === 'walk_in') {
-                $query->where('is_walk_in', true);
+                // Same scope as the Walk-ins Today card: today's walk-ins, fully paid only.
+                $query->where('is_walk_in', true)
+                    ->where(function ($builder) use ($today) {
+                        $builder->whereDate('created_at', $today)
+                            ->orWhereDate('check_in_date', $today);
+                    })
+                    ->where(function ($builder) {
+                        $builder->where('status', BookingStatus::CheckedIn)
+                            ->orWhere('remaining_balance', '<=', 0.009);
+                    });
             }
         }
 
@@ -178,7 +206,7 @@ class ReservationController extends Controller
         }
 
         if (! request()->boolean('page')) {
-            $params = ['q' => $booking->short_number];
+            $params = [];
             if ($booking->status === BookingStatus::CheckedOut) {
                 $params['tab'] = 'logs';
             }

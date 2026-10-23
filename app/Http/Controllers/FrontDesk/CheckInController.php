@@ -71,13 +71,15 @@ class CheckInController extends Controller
             $this->checkInService->checkIn($booking, $request->user(), $request->input('notes'));
         } catch (ValidationException $exception) {
             return redirect()
-                ->route('front_desk.reservations.show', $booking)
+                ->route('front_desk.reservations.index', ['tab' => 'check_in'])
+                ->with('open_view', $booking->id)
                 ->withErrors($exception->errors())
                 ->withInput();
         }
 
         return redirect()
-            ->route('front_desk.reservations.index', ['tab' => 'check_out'])
-            ->with('success', 'Guest checked in successfully.');
+            ->route('front_desk.reservations.index', ['tab' => 'all'])
+            ->with('open_view', $booking->id)
+            ->with('success', 'Guest checked in. Room marked Occupied — use Check-out when they leave.');
     }
 }

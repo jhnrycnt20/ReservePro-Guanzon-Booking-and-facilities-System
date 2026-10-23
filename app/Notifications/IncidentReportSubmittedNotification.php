@@ -21,11 +21,19 @@ class IncidentReportSubmittedNotification extends Notification
 
     public function toArray(object $notifiable): array
     {
+        $num = $this->report->report_number;
+        $guest = $this->report->guest?->user?->name ?? 'Guest';
+        $title = $this->report->title ?: 'Incident report';
+
         return [
-            'type' => 'incident_submitted',
+            'title' => 'New incident report',
+            'message' => sprintf('%s submitted report %s: %s', $guest, $num, $title),
+            'type' => 'report',
+            'id' => $this->report->id,
+            'number' => $num,
+            'report_id' => $this->report->id,
+            'report_number' => $num,
             'incident_report_id' => $this->report->id,
-            'report_number' => $this->report->report_number,
-            'message' => "New incident report {$this->report->report_number}: {$this->report->title}",
         ];
     }
 }

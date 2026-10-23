@@ -71,7 +71,7 @@
     <div class="container">
         <div class="rp-cottages-kicker">VALUE FILLED STAY</div>
         <h2 class="rp-cottages-heading">Our Rooms</h2>
-        <div class="row g-4 mt-2">
+        <div class="row g-4 mt-2 rp-cottage-grid">
             @forelse($featuredAccommodations ?? [] as $item)
                 @php
                     $statusValue = $item->status instanceof \BackedEnum ? $item->status->value : (string) $item->status;
@@ -89,10 +89,14 @@
                     @else
                         <a href="{{ route('accommodations.show', ['accommodation' => $item->id, 'from' => 'home']) }}" class="rp-cottage-card">
                     @endif
-                        <img src="{{ $item->image_url }}" alt="{{ $item->name }}">
+                        <div class="rp-cottage-card-media">
+                            <img src="{{ $item->image_url }}" alt="{{ $item->name }}">
+                        </div>
                         <div class="rp-cottage-card-body">
-                            <div class="rp-cottage-title">{{ $item->name }}</div>
-                            <div class="rp-cottage-subtitle">{{ $item->type->name ?? 'Accommodation' }}</div>
+                            <div class="rp-cottage-card-meta">
+                                <div class="rp-cottage-title">{{ $item->name }}</div>
+                                <div class="rp-cottage-subtitle">{{ $item->type->name ?? 'Accommodation' }}</div>
+                            </div>
                             @if($item->description)
                                 <p class="rp-cottage-desc">{{ $item->description }}</p>
                             @endif
@@ -116,7 +120,7 @@
 
 <div class="rp-gallery-banner">
     <div class="rp-gallery-banner-bg" style="background-image: url('{{ asset('images/landing-hero.png') }}');"></div>
-    <img class="rp-gallery-banner-logo" src="{{ asset('images/guanzon_navbar_transparent.png') }}" alt="Guanzon Resort">
+    <img class="rp-gallery-banner-logo" src="{{ asset('images/guanzon_navbar_transparent.png') }}?v={{ filemtime(public_path('images/guanzon_navbar_transparent.png')) }}" alt="Guanzon Resort">
 </div>
 
 @endsection

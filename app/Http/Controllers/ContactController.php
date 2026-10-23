@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ContactMessage;
 use App\Models\SystemSetting;
+use App\Rules\GmailAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -17,7 +18,7 @@ class ContactController extends Controller
         $data = $request->validate([
             'subject' => ['nullable', 'string', 'max:150'],
             'name' => ['required', 'string', 'max:150'],
-            'email' => ['required', 'email', 'max:150'],
+            'email' => ['required', 'email', 'max:150', new GmailAddress],
             'phone' => ['nullable', 'string', 'max:30'],
             'message' => ['required', 'string', 'max:2000'],
         ]);

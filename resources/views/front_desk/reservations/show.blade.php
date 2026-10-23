@@ -21,6 +21,7 @@
     $bookingPaid = (float) $booking->paid_amount;
     $remainingBalance = (float) $booking->remaining_balance;
     $isPartial = $remainingBalance > 0.009;
+    $canCollectBalance = $isPartial && in_array($bookingStatus, ['pending', 'approved', 'checked_in'], true);
     $paymentShare = ($payment && $bookingTotal > 0)
         ? round(((float) $payment->amount / $bookingTotal) * 100)
         : 0;
@@ -101,10 +102,10 @@
                     <div>
                         <h2 class="h5 mb-0">Ready for check-in</h2>
                         @if($checkInWindowOpen)
-                            <div class="small text-muted mb-0">Fully paid. You can check this guest in now.</div>
+                            <div class="small text-muted mb-0">Fully paid (₱0.00 balance). Guest · {{ $guestName }} · {{ $booking->accommodation?->name ?? '—' }}</div>
                         @else
                             <div class="small text-muted mb-0">
-                                Fully paid. Check-in opens on {{ $booking->check_in_date->format('M d, Y') }} at {{ $checkInTime }}.
+                                Fully paid. Check-in opens on the arrival date ({{ $booking->check_in_date->format('M d, Y') }}; scheduled {{ $checkInTime }}).
                             </div>
                         @endif
                     </div>
@@ -112,7 +113,7 @@
                         @if($checkInWindowOpen)
                             <form method="POST" action="{{ route('front_desk.checkins.store', $booking) }}" class="m-0">
                                 @csrf
-                                <button type="submit" class="btn btn-sm btn-rp-primary" data-rp-confirm-click="Check in this guest now?">
+                                <button type="submit" class="btn btn-sm btn-rp-primary" data-rp-confirm-click="Check in {{ $guestName }} to {{ $booking->accommodation?->name ?? 'room' }}? Balance ₱0.00.">
                                     <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>
                                     Check in
                                 </button>
@@ -125,6 +126,14 @@
                 @error('check_in_date')<div class="text-danger small mb-3">{{ $message }}</div>@enderror
                 @error('payment')<div class="text-danger small mb-3">{{ $message }}</div>@enderror
                 @error('status')<div class="text-danger small mb-3">{{ $message }}</div>@enderror
+            @elseif($canCollectBalance)
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h2 class="h5 mb-0">Balance due</h2>
+                        <div class="small text-muted mb-0">Collect ₱{{ number_format($remainingBalance, 2) }} before check-in{{ $bookingStatus === 'checked_in' ? '/check-out' : '' }}.</div>
+                    </div>
+                    <a href="{{ route('front_desk.reservations.index') }}" class="btn btn-sm btn-rp-primary">Collect on Reservations</a>
+                </div>
             @endif
             <div class="row g-3">
                 <div class="col-md-6"><div class="text-muted small">Booking ID</div><div>{{ $bookingCode }}</div></div>

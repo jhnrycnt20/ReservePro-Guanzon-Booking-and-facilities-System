@@ -67,10 +67,11 @@ Route::get('/contact', function () {
     return view('contact');
 })->name('contact');
 
-Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
+Route::post('/contact', [ContactController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('contact.store');
 
-Route::get('/feedback', [GuestFeedbackController::class, 'create'])->name('feedback.create');
-Route::post('/feedback', [GuestFeedbackController::class, 'store'])->name('feedback.store');
+Route::get('/feedback', [GuestFeedbackController::class, 'publicIndex'])->name('feedback.index');
 
 Route::post('/webhooks/paymongo', [PayMongoWebhookController::class, 'handle'])->name('webhooks.paymongo');
 
@@ -93,10 +94,6 @@ Route::get('/accommodations/{accommodation}', [AccommodationBrowseController::cl
 Route::get('/accommodations/{accommodation}/availability', [AccommodationBrowseController::class, 'availability'])->name('accommodations.availability');
 Route::get('/accommodations/{accommodation}/occupied-dates', [AccommodationBrowseController::class, 'occupiedDates'])->name('accommodations.occupied-dates');
 
-// TEMP: auth requirement removed so the reservation form can be previewed without logging in.
-// Restore this under the auth+active+role:guest group (see below) before shipping.
-Route::get('/guest/bookings/create', [GuestBookingController::class, 'create'])->name('guest.bookings.create');
-
 Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -109,6 +106,7 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     Route::middleware(['role:guest'])->prefix('guest')->name('guest.')->group(function () {
         Route::get('/bookings', [GuestBookingController::class, 'index'])->name('bookings.index');
+        Route::get('/bookings/create', [GuestBookingController::class, 'create'])->name('bookings.create');
         Route::post('/bookings', [GuestBookingController::class, 'store'])->name('bookings.store');
         Route::get('/bookings/{booking}', [GuestBookingController::class, 'show'])->name('bookings.show');
         Route::post('/bookings/{booking}/cancel', [GuestBookingController::class, 'cancel'])->name('bookings.cancel');
@@ -155,6 +153,7 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::post('/check-outs/{booking}', [CheckOutController::class, 'store'])->name('checkouts.store');
 
         Route::get('/payments', [PaymentVerificationController::class, 'index'])->name('payments.index');
+        Route::post('/payments/{booking}/collect', [PaymentVerificationController::class, 'collect'])->name('payments.collect');
         Route::get('/payments/{payment}', [PaymentVerificationController::class, 'show'])->name('payments.show');
         Route::get('/payments/{payment}/receipt', [PaymentVerificationController::class, 'receipt'])->name('payments.receipt');
 

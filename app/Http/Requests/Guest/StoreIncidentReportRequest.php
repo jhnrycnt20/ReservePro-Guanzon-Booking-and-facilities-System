@@ -26,7 +26,6 @@ class StoreIncidentReportRequest extends FormRequest
                     BookingStatus::CheckedOut->value,
                 ])],
             'report_type' => ['required', Rule::enum(IncidentType::class)],
-            'title' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string', 'max:5000'],
             'location' => ['nullable', 'string', 'max:255'],
             'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],

@@ -119,7 +119,7 @@
                             </div>
                             <div class="rp-user-create-field">
                                 <label class="form-label" for="rpCreateUserEmail">Email address <span class="rp-user-create-required" aria-hidden="true">*</span></label>
-                                <input id="rpCreateUserEmail" type="email" name="email" class="form-control {{ $isUserCreate && $errors->has('email') ? 'is-invalid' : '' }}" value="{{ $isUserCreate ? old('email') : '' }}" placeholder="name@example.com" maxlength="255" required>
+                                <input id="rpCreateUserEmail" type="email" name="email" class="form-control {{ $isUserCreate && $errors->has('email') ? 'is-invalid' : '' }}" value="{{ $isUserCreate ? old('email') : '' }}" placeholder="you@gmail.com" maxlength="255" required>
                                 @if($isUserCreate && $errors->has('email'))<div class="rp-user-create-error" role="alert">{{ $errors->first('email') }}</div>@endif
                             </div>
                             <div class="rp-user-create-field">

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Rules\GmailAddress;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
@@ -27,7 +28,7 @@ class UpdateUserRequest extends FormRequest
 
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($userId), new GmailAddress],
             'phone' => ['nullable', 'string', 'max:50'],
             'password' => ['nullable', 'confirmed', Password::min(8)->mixedCase()->numbers()],
             'role_id' => ['required', 'exists:roles,id', ...($editingSelf ? [Rule::in([$this->user()->role_id])] : [])],

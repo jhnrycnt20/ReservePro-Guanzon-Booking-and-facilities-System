@@ -39,7 +39,21 @@ class CheckOutService
             ]);
         }
 
+        if ($booking->hasOpenIncidents()) {
+            throw ValidationException::withMessages([
+                'incidents' => 'Resolve open incident reports for this stay before check-out.',
+            ]);
+        }
+
         $additionalCharges = max(0, round($additionalCharges, 2));
+        $isEarly = $booking->isEarlyCheckOut();
+        $notes = filled($notes) ? trim((string) $notes) : null;
+
+        if ($isEarly && blank($notes)) {
+            throw ValidationException::withMessages([
+                'notes' => 'Add a short note when checking out before the due time.',
+            ]);
+        }
 
         if ((float) $booking->total_amount + $additionalCharges > 9999999999.99) {
             throw ValidationException::withMessages([
@@ -47,7 +61,7 @@ class CheckOutService
             ]);
         }
 
-        return DB::transaction(function () use ($booking, $staff, $additionalCharges, $notes) {
+        return DB::transaction(function () use ($booking, $staff, $additionalCharges, $notes, $isEarly) {
             if ($additionalCharges > 0) {
                 $booking->update([
                     'total_amount' => round((float) $booking->total_amount + $additionalCharges, 2),
@@ -65,8 +79,12 @@ class CheckOutService
 
             if ((float) $booking->remaining_balance > 0) {
                 throw ValidationException::withMessages([
-                    'payment' => 'Outstanding balance must be settled before check-out.',
+                    'payment' => 'Outstanding balance (including extras) must be settled with Collect balance before check-out.',
                 ]);
+            }
+
+            if ($isEarly && $notes && ! str_starts_with($notes, 'Early check-out:')) {
+                $notes = 'Early check-out: '.$notes;
             }
 
             $checkOut = CheckOut::query()->create([

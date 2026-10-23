@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Rules\GmailAddress;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
@@ -23,7 +24,7 @@ class StoreUserRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email', new GmailAddress],
             'phone' => ['nullable', 'string', 'max:50'],
             'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()],
             'role_id' => ['required', 'exists:roles,id'],

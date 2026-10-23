@@ -13,58 +13,96 @@ use Illuminate\View\View;
 
 class FeedbackController extends Controller
 {
-    public function index(Request $request): View
+    /** Public: browse all guest feedback without signing in. */
+    public function publicIndex(Request $request): View
     {
-        $guestId = $request->user()?->guest?->id;
-        abort_unless($guestId, 403);
-
         $feedback = Feedback::query()
-            ->where('guest_id', $guestId)
-            ->with(['booking.accommodation', 'accommodation'])
+            ->with(['guest.user', 'accommodation', 'booking.accommodation'])
             ->latest()
-            ->paginate(15);
+            ->paginate(12);
 
-        return view('guest.feedback.index', compact('feedback'));
+        $average = round((float) Feedback::query()->avg('rating'), 1);
+        $count = Feedback::query()->count();
+
+        return view('feedback.index', compact('feedback', 'average', 'count'));
     }
 
-    public function create(Request $request, ?Booking $booking = null): View
+    public function index(Request $request): View
     {
-        $guestId = $request->user()?->guest?->id;
+        $user = $request->user();
+        $guestId = $user?->guest?->id;
+        abort_unless($guestId, 403);
 
-        if ($booking && $booking->exists) {
-            abort_unless($request->user(), 403);
-            abort_unless($guestId && $booking->guest_id === $guestId, 403);
-            abort_unless($booking->status === BookingStatus::CheckedOut, 422, 'Feedback allowed after check-out only.');
-            $booking->load('accommodation');
+        $baseQuery = Feedback::query()->where('guest_id', $guestId);
 
-            return view('guest.feedback.create', compact('booking'));
+        $feedback = (clone $baseQuery)
+            ->with(['booking.accommodation', 'accommodation'])
+            ->latest()
+            ->paginate(10);
+
+        $average = round((float) (clone $baseQuery)->avg('rating'), 1);
+        $count = (clone $baseQuery)->count();
+
+        $ratingCounts = (clone $baseQuery)
+            ->selectRaw('rating, COUNT(*) as total')
+            ->groupBy('rating')
+            ->pluck('total', 'rating');
+
+        $ratingBreakdown = [];
+        for ($star = 5; $star >= 1; $star--) {
+            $starCount = (int) ($ratingCounts[$star] ?? 0);
+            $ratingBreakdown[$star] = [
+                'count' => $starCount,
+                'percent' => $count > 0 ? (int) round(($starCount / $count) * 100) : 0,
+            ];
         }
 
-        $bookings = collect();
-        if ($guestId) {
-            $bookings = Booking::query()
-                ->where('guest_id', $guestId)
-                ->where('status', BookingStatus::CheckedOut)
-                ->whereDoesntHave('feedback')
-                ->with('accommodation')
-                ->latest()
-                ->get();
-        }
+        $bookings = Booking::query()
+            ->where('guest_id', $guestId)
+            ->where('status', BookingStatus::CheckedOut)
+            ->whereDoesntHave('feedback')
+            ->with('accommodation')
+            ->latest()
+            ->get();
 
         $accommodations = Accommodation::query()
             ->where('is_active', true)
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        return view('guest.feedback.create', compact('bookings', 'accommodations'));
+        return view('guest.feedback.index', compact(
+            'feedback',
+            'average',
+            'count',
+            'ratingBreakdown',
+            'bookings',
+            'accommodations',
+            'user'
+        ));
+    }
+
+    public function create(Request $request, ?Booking $booking = null): View|RedirectResponse
+    {
+        $guestId = $request->user()?->guest?->id;
+        abort_unless($guestId, 403);
+
+        if ($booking && $booking->exists) {
+            abort_unless($booking->guest_id === $guestId, 403);
+            abort_unless($booking->status === BookingStatus::CheckedOut, 422, 'Feedback allowed after check-out only.');
+            $booking->load('accommodation');
+
+            return view('guest.feedback.create', compact('booking'));
+        }
+
+        return redirect()->route('guest.feedback.index', ['write' => 1]);
     }
 
     public function store(Request $request, ?Booking $booking = null): RedirectResponse
     {
         $guest = $request->user()?->guest;
+        abort_unless($guest, 403);
 
         if ($booking && $booking->exists) {
-            abort_unless($guest, 403);
             abort_unless($booking->guest_id === $guest->id, 403);
             abort_unless($booking->status === BookingStatus::CheckedOut, 422, 'Feedback allowed after check-out only.');
 
@@ -92,26 +130,23 @@ class FeedbackController extends Controller
             'scope' => ['required', 'in:resort,room'],
             'accommodation_id' => ['nullable', 'required_if:scope,room', 'exists:accommodations,id'],
             'rating' => ['required', 'integer', 'min:1', 'max:5'],
-            'comment' => ['nullable', 'string', 'max:2000'],
+            'comment' => ['required', 'string', 'min:5', 'max:2000'],
+        ], [
+            'comment.required' => 'Please write your review.',
+            'comment.min' => 'Please write a slightly longer review.',
         ]);
 
         Feedback::query()->create([
             'booking_id' => null,
-            'guest_id' => $guest?->id,
+            'guest_id' => $guest->id,
             'scope' => $data['scope'],
             'accommodation_id' => $data['scope'] === 'room' ? $data['accommodation_id'] : null,
             'rating' => $data['rating'],
             'comment' => $data['comment'] ?? null,
         ]);
 
-        if ($guest) {
-            return redirect()
-                ->route('guest.feedback.index')
-                ->with('success', 'Thank you for your feedback.');
-        }
-
         return redirect()
-            ->route('feedback.create')
+            ->route('guest.feedback.index')
             ->with('success', 'Thank you for your feedback.');
     }
 }

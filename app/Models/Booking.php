@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\BookingStatus;
+use App\Enums\IncidentStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -178,23 +179,24 @@ class Booking extends Model
 
     public function scopeFullyPaid(Builder $query): Builder
     {
-        return $query->where('remaining_balance', '<=', 0);
+        return $query->where('remaining_balance', '<=', 0.009);
+    }
+
+    /** Ready for front-desk check-in: approved, paid, arrival day or later, not yet checked in. */
+    public function scopeReadyForCheckIn(Builder $query): Builder
+    {
+        return $query
+            ->where('status', BookingStatus::Approved)
+            ->fullyPaid()
+            ->whereDate('check_in_date', '<=', today()->toDateString())
+            ->whereDoesntHave('checkIn');
     }
 
     public function checkInWindowOpen(): bool
     {
-        $now = now();
-        $checkInDate = $this->check_in_date->toDateString();
-
-        if ($now->toDateString() < $checkInDate) {
-            return false;
-        }
-
-        if ($now->toDateString() > $checkInDate) {
-            return true;
-        }
-
-        return $now->format('H:i') >= (string) config('resort.check_in_time', '14:00');
+        // Staff may check in any time on/after the arrival date (PH timezone).
+        // Scheduled check_in_time is display-only for guests.
+        return now()->toDateString() >= $this->check_in_date->toDateString();
     }
 
     public function checkOutDue(): bool
@@ -211,6 +213,30 @@ class Booking extends Model
         }
 
         return $now->format('H:i') >= (string) config('resort.check_out_time', '12:00');
+    }
+
+    public function isEarlyCheckOut(): bool
+    {
+        return $this->status === BookingStatus::CheckedIn && ! $this->checkOutDue();
+    }
+
+    public function hasOpenIncidents(): bool
+    {
+        if (array_key_exists('open_incidents_count', $this->attributes)) {
+            return (int) $this->attributes['open_incidents_count'] > 0;
+        }
+
+        if (isset($this->open_incidents_count)) {
+            return (int) $this->open_incidents_count > 0;
+        }
+
+        return $this->incidentReports()
+            ->whereIn('status', [
+                IncidentStatus::Pending,
+                IncidentStatus::Verified,
+                IncidentStatus::InProgress,
+            ])
+            ->exists();
     }
 
     public function scopeCheckOutDue(Builder $query): Builder

@@ -79,11 +79,13 @@
                         <label class="form-label" for="endsAtDisplay">Ends</label>
                         <div class="rp-promo-dt-field" data-rp-promo-dt-field data-rp-promo-dt-role="end">
                             <input type="hidden" name="ends_at" id="endsAt" value="{{ old('ends_at') }}" data-rp-promo-dt-value>
-                            <button type="button" class="form-control text-start rp-promo-dt-trigger" id="endsAtDisplay" data-rp-promo-dt-open>
+                            <button type="button" class="form-control text-start rp-promo-dt-trigger @error('ends_at') is-invalid @enderror" id="endsAtDisplay" data-rp-promo-dt-open>
                                 <span data-rp-promo-dt-label>{{ old('ends_at') ? \Carbon\Carbon::parse(old('ends_at'))->format('m/d/Y g:i A') : 'Select end date & time' }}</span>
                                 <i class="bi bi-calendar3" aria-hidden="true"></i>
                             </button>
                         </div>
+                        @error('ends_at')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                        <div class="text-danger small mt-1 d-none" data-rp-promo-date-error>End must be on or after the start date/time.</div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label" for="usageLimit">Usage limit</label>
@@ -243,11 +245,31 @@
         form.closest('.col-12')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
+    const dateRangeOk = () => {
+        const start = form.querySelector('#startsAt')?.value || '';
+        const end = form.querySelector('#endsAt')?.value || '';
+        const errorEl = form.querySelector('[data-rp-promo-date-error]');
+        const invalid = Boolean(start && end && end < start);
+        errorEl?.classList.toggle('d-none', !invalid);
+        form.querySelector('#endsAtDisplay')?.classList.toggle('is-invalid', invalid);
+        return !invalid;
+    };
+
     form.querySelectorAll('[data-rp-promo-next]').forEach((btn) => {
-        btn.addEventListener('click', () => goToStep(btn.dataset.rpPromoNext));
+        btn.addEventListener('click', () => {
+            const next = btn.dataset.rpPromoNext;
+            if (String(next) === '3' && !dateRangeOk()) return;
+            goToStep(next);
+        });
     });
     form.querySelectorAll('[data-rp-promo-back]').forEach((btn) => {
         btn.addEventListener('click', () => goToStep(btn.dataset.rpPromoBack));
+    });
+    form.addEventListener('submit', (event) => {
+        if (!dateRangeOk()) {
+            event.preventDefault();
+            goToStep(2);
+        }
     });
 })();
 </script>

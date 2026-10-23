@@ -9,16 +9,25 @@
 @endsection
 
 @section('content')
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div class="text-muted small">
+        Default view shows unresolved reports only
+        @if(($unresolvedCount ?? 0) > 0)
+            · <strong>{{ $unresolvedCount }}</strong> still need action
+        @endif
+    </div>
+</div>
+
 @include('partials.list-filters', [
     'filters' => [
         [
             'name' => 'status',
             'label' => 'Status',
-            'empty' => 'Open queue',
+            'empty' => 'Unresolved only',
             'value' => request('status'),
             'options' => [
-                'verified' => 'Verified',
-                'in_progress' => 'In progress',
+                'verified' => 'Verified (ready for FD)',
+                'in_progress' => 'Being processed',
                 'resolved' => 'Resolved',
                 'closed' => 'Closed',
             ],
@@ -55,7 +64,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="7" class="text-muted">No incident reports awaiting resolution.</td></tr>
+                    <tr><td colspan="7" class="text-muted">No unresolved incident reports right now.</td></tr>
                 @endforelse
             </tbody>
         </table>

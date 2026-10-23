@@ -81,7 +81,12 @@ class PayMongoService
         $timestamp = $parts['t'] ?? null;
         $signature = $parts['te'] ?? $parts['li'] ?? null;
 
-        if (! $timestamp || ! $signature) {
+        if (! $timestamp || ! $signature || ! ctype_digit((string) $timestamp)) {
+            return false;
+        }
+
+        // Reject stale signatures to reduce replay risk.
+        if (abs(time() - (int) $timestamp) > 300) {
             return false;
         }
 

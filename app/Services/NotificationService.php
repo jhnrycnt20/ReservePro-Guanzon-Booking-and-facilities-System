@@ -38,4 +38,20 @@ class NotificationService
     {
         $this->notifyMany($this->frontDeskStaff(), $notification);
     }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function securityStaff(): Collection
+    {
+        return User::query()
+            ->where('is_active', true)
+            ->whereHas('role', fn ($q) => $q->whereIn('slug', ['security', 'admin']))
+            ->get();
+    }
+
+    public function notifySecurity(Notification $notification): void
+    {
+        $this->notifyMany($this->securityStaff(), $notification);
+    }
 }

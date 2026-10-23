@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Auth;
 use App\Enums\UserRole;
 use App\Helpers\RoleRedirect;
 use App\Http\Controllers\Controller;
+use App\Rules\GmailAddress;
 use App\Models\Guest;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\GmailExistenceChecker;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
@@ -55,7 +57,7 @@ class RegisterController extends Controller
 
     protected function validator(array $data)
     {
-        return Validator::make($data, [
+        $validator = Validator::make($data, [
             'name' => [
                 'required',
                 'string',
@@ -63,7 +65,7 @@ class RegisterController extends Controller
                 'max:255',
                 'regex:/^[\p{L}]+(?:[ \'\-.][\p{L}]+)*$/u',
             ],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email', new GmailAddress],
             'phone' => [
                 'required',
                 'string',
@@ -82,13 +84,34 @@ class RegisterController extends Controller
             'name.min' => 'Full name must be at least 2 characters.',
             'name.regex' => 'Full name may only include letters, spaces, hyphens, and apostrophes.',
             'email.required' => 'Please enter your email address.',
-            'email.email' => 'Enter a valid email address (e.g. you@email.com).',
+            'email.email' => 'Enter a valid Gmail address (e.g. you@gmail.com).',
             'email.unique' => 'This email is already registered. Try logging in instead.',
             'phone.required' => 'Please enter your contact number.',
             'password.required' => 'Please create a password.',
             'password.confirmed' => 'Password confirmation does not match.',
             'address.max' => 'Address must not exceed 1000 characters.',
         ]);
+
+        // Only hit Google SMTP after the rest of the form is valid (keeps empty submits fast).
+        $validator->after(function ($validator) use ($data): void {
+            if ($validator->errors()->isNotEmpty()) {
+                return;
+            }
+
+            $email = strtolower(trim((string) ($data['email'] ?? '')));
+            if ($email === '') {
+                return;
+            }
+
+            if (app(GmailExistenceChecker::class)->check($email) === false) {
+                $validator->errors()->add(
+                    'email',
+                    'This Gmail does not exist. Please enter a real Gmail address.'
+                );
+            }
+        });
+
+        return $validator;
     }
 
     protected function create(array $data)

@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Notifications\IncidentClosedNotification;
 use App\Notifications\IncidentInProgressNotification;
 use App\Notifications\IncidentInvalidNotification;
+use App\Notifications\IncidentReportSubmittedNotification;
 use App\Notifications\IncidentResolvedNotification;
 use App\Notifications\IncidentSubmittedNotification;
 use App\Notifications\IncidentVerifiedNotification;
@@ -31,6 +32,21 @@ class IncidentReportService
         } while (IncidentReport::withTrashed()->where('report_number', $number)->exists());
 
         return $number;
+    }
+
+    /** Build a list-friendly title from the guest description (title field removed from the form). */
+    protected function titleFromDescription(string $description): string
+    {
+        $normalized = trim(preg_replace('/\s+/u', ' ', $description) ?? '');
+        if ($normalized === '') {
+            return 'Guest report';
+        }
+
+        if (mb_strlen($normalized) <= 80) {
+            return $normalized;
+        }
+
+        return rtrim(mb_substr($normalized, 0, 77)).'…';
     }
 
     public function storeUploadedImage(?UploadedFile $file, string $directory = 'incidents'): ?string
@@ -60,7 +76,7 @@ class IncidentReportService
                 'guest_id' => $guest->id,
                 'booking_id' => $data['booking_id'] ?? null,
                 'report_type' => $data['report_type'],
-                'title' => $data['title'],
+                'title' => $this->titleFromDescription((string) $data['description']),
                 'description' => $data['description'],
                 'location' => $data['location'] ?? null,
                 'photo' => $this->storeUploadedImage($photo),
@@ -68,9 +84,13 @@ class IncidentReportService
             ]);
 
             $this->auditService->log('incident.submitted', $report, null, $report->toArray(), $guestUser);
-            $this->notificationService->notify($guestUser, new IncidentSubmittedNotification($report));
 
-            return $report->fresh();
+            $report->loadMissing('guest.user');
+            $this->notificationService->notify($guestUser, new IncidentSubmittedNotification($report));
+            // Security investigates pending reports first — show in their notification panel.
+            $this->notificationService->notifySecurity(new IncidentReportSubmittedNotification($report));
+
+            return $report->fresh(['guest.user']);
         });
     }
 
@@ -88,18 +108,17 @@ class IncidentReportService
                 'investigation_photo' => $this->storeUploadedImage($photo, 'investigations') ?? $report->investigation_photo,
             ]);
 
-            $this->auditService->log('incident.verified', $report, $old, $report->fresh()->toArray(), $guard);
+            $fresh = $report->fresh(['guest.user']);
+            $this->auditService->log('incident.verified', $report, $old, $fresh->toArray(), $guard);
 
-            if ($report->guest?->user) {
-                $this->notificationService->notify($report->guest->user, new IncidentVerifiedNotification($report));
+            if ($fresh->guest?->user) {
+                $this->notificationService->notify($fresh->guest->user, new IncidentVerifiedNotification($fresh));
             }
 
-            User::query()->whereHas('role', fn ($q) => $q->where('slug', 'front_desk'))
-                ->where('is_active', true)
-                ->get()
-                ->each(fn (User $staff) => $this->notificationService->notify($staff, new IncidentVerifiedNotification($report)));
+            // Front desk notification panel — unresolved reports ready to process.
+            $this->notificationService->notifyFrontDesk(new IncidentVerifiedNotification($fresh));
 
-            return $report->fresh();
+            return $fresh;
         });
     }
 

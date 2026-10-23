@@ -76,7 +76,7 @@ class InvestigationController extends Controller
         $this->authorize('investigate', $incident);
 
         $data = $request->validate([
-            'investigation_notes' => ['required', 'string', 'max:5000'],
+            'investigation_notes' => ['required', 'string', 'max:1000'],
             'investigation_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ]);
 

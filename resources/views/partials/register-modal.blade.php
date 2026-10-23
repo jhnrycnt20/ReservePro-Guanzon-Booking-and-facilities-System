@@ -36,7 +36,7 @@
                             name="email"
                             value="{{ old('email') }}"
                             autocomplete="email"
-                            placeholder="Email"
+                            placeholder="you@gmail.com"
                             required
                             data-rp-register-field="email"
                         >

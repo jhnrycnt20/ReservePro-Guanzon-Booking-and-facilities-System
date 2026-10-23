@@ -1,7 +1,17 @@
 /* The staff dashboard visual system is intentionally scoped away from guest pages. */
 .rp-staff-ui,
 .rp-staff-ui * {
-    font-family: "DM Sans", system-ui, sans-serif !important;
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif !important;
+}
+
+/*
+ * Scroll inside .rp-main (not the document). Bootstrap modals lock body overflow and
+ * normally remove the page scrollbar — that width change + sidebar flex transition
+ * made the whole UI “jump” when opening View. With no document scrollbar, no jump.
+ */
+html:has(body.rp-staff-ui) {
+    height: 100%;
+    overflow: hidden;
 }
 
 body.rp-staff-ui.rp-body {
@@ -11,6 +21,39 @@ body.rp-staff-ui.rp-body {
     --rp-shadow: 0 2px 10px rgba(27, 57, 65, .035);
     background: #f8faf9;
     color: var(--rp-text);
+    height: 100%;
+    overflow: hidden;
+}
+
+body.rp-staff-ui .rp-shell {
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+}
+
+body.rp-staff-ui .rp-main {
+    min-height: 0;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+}
+
+body.rp-staff-ui.modal-open {
+    padding-right: 0 !important;
+    margin-right: 0 !important;
+    overflow: hidden !important;
+}
+
+body.rp-staff-ui.modal-open .rp-sidebar {
+    transition: none !important;
+}
+
+body.rp-staff-ui.modal-open .rp-main {
+    /* Keep main pane scroll locked under the modal without changing layout width */
+    overflow: hidden;
 }
 
 .rp-staff-ui .rp-sidebar {
@@ -93,15 +136,18 @@ body.rp-staff-ui.rp-body {
     color: #1f4b5d;
 }
 
+.rp-staff-ui .rp-sidebar-footer .rp-logout-btn,
 .rp-staff-ui .rp-sidebar-footer .btn-outline-light {
-    color: #526871;
-    border: 1px solid #dce7e4;
-    background: #fff;
+    color: #b42318;
+    border: 1px solid #f0c2bd;
+    background: #fff5f4;
 }
 
+.rp-staff-ui .rp-sidebar-footer .rp-logout-btn:hover,
 .rp-staff-ui .rp-sidebar-footer .btn-outline-light:hover {
-    color: #1f4b5d;
-    background: #eaf5f2;
+    color: #fff;
+    background: #b42318;
+    border-color: #b42318;
 }
 
 .rp-staff-ui .rp-topbar {
@@ -114,7 +160,7 @@ body.rp-staff-ui.rp-body {
 
 .rp-staff-ui .rp-topbar .rp-page-title {
     color: #203541 !important;
-    font-family: "DM Sans", system-ui, sans-serif !important;
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif !important;
     font-size: 1.15rem;
     font-weight: 700;
     line-height: 1.35;
@@ -1228,5 +1274,694 @@ body.rp-staff-ui.rp-body {
     }
     .rp-staff-activity-list time {
         display: none;
+    }
+}
+
+/* Walk-in booking form (modal + page) */
+.rp-walkin-modal-errors {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.rp-walkin-modal-header {
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.rp-walkin-modal-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: .85rem;
+    min-width: 0;
+}
+
+.rp-walkin-modal-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: .75rem;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    background: #e7f6f2;
+    color: #1f4b5d;
+    font-size: 1.15rem;
+}
+
+.rp-walkin-modal-sub {
+    margin-top: .2rem;
+    color: #6b7c84;
+    font-size: .88rem;
+}
+
+.rp-walkin-modal .form-label {
+    font-weight: 600;
+    color: #314852;
+    font-size: .86rem;
+}
+
+.rp-walkin-modal .form-label .bi {
+    color: #6b9a92;
+}
+
+.rp-walkin-modal .form-control,
+.rp-walkin-modal .form-select,
+.rp-walkin-modal .rp-avail-input {
+    border-radius: .7rem;
+    border-color: #d7e3e0;
+    min-height: 2.55rem;
+}
+
+.rp-walkin-modal .form-control:focus,
+.rp-walkin-modal .form-select:focus,
+.rp-walkin-modal .rp-avail-input:focus {
+    border-color: #65b7aa;
+    box-shadow: 0 0 0 .2rem rgba(31, 75, 93, .12);
+}
+
+.rp-walkin-total-banner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: .65rem 1rem;
+    padding: .95rem 1.1rem;
+    border-radius: .9rem;
+    background: linear-gradient(135deg, #e8f7f3 0%, #dff3ee 100%);
+    border: 1px solid #c8e8df;
+}
+
+.rp-walkin-total-label {
+    font-size: .78rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    color: #4f7a72;
+}
+
+.rp-walkin-total-value {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #1f4b5d;
+    line-height: 1.2;
+}
+
+.rp-walkin-total-hint {
+    max-width: 22rem;
+    font-size: .8rem;
+    color: #5f7b75;
+}
+
+.rp-walkin-pay-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: .75rem;
+    margin-bottom: .85rem;
+}
+
+.rp-walkin-section-title {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    font-weight: 700;
+    color: #203541;
+}
+
+.rp-walkin-section-title .bi {
+    color: #1f4b5d;
+}
+
+.rp-walkin-section-hint {
+    margin-top: .15rem;
+    font-size: .82rem;
+    color: #6b7c84;
+}
+
+.rp-walkin-add-pay {
+    border: 1px solid #c9ddd8;
+    background: #fff;
+    color: #1f4b5d;
+    border-radius: .65rem;
+    font-weight: 600;
+}
+
+.rp-walkin-add-pay:hover,
+.rp-walkin-add-pay:focus-visible {
+    background: #eaf5f2;
+    color: #1f4b5d;
+    border-color: #a9cdc4;
+}
+
+.rp-walkin-pay-rows {
+    display: flex;
+    flex-direction: column;
+    gap: .7rem;
+}
+
+.rp-walkin-pay-row {
+    display: grid;
+    grid-template-columns: minmax(7.5rem, .9fr) minmax(7rem, .85fr) auto;
+    gap: .65rem;
+    align-items: end;
+    padding: .85rem;
+    border: 1px solid #e2e9e8;
+    border-radius: .85rem;
+    background: #fbfcfc;
+}
+
+.rp-walkin-pay-row.has-ref {
+    grid-template-columns: minmax(7.5rem, .8fr) minmax(6.5rem, .7fr) minmax(8rem, 1.2fr) auto;
+}
+
+.rp-walkin-pay-field .form-label {
+    margin-bottom: .3rem;
+}
+
+.rp-walkin-pay-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: .1rem;
+}
+
+.rp-walkin-pay-remove {
+    width: 2.4rem;
+    height: 2.4rem;
+    border: 0;
+    border-radius: .65rem;
+    background: #fdecee;
+    color: #b42318;
+    display: grid;
+    place-items: center;
+}
+
+.rp-walkin-pay-remove:hover:not(:disabled),
+.rp-walkin-pay-remove:focus-visible:not(:disabled) {
+    background: #f9d2d6;
+}
+
+.rp-walkin-pay-remove:disabled {
+    opacity: .35;
+    cursor: not-allowed;
+}
+
+.rp-walkin-pay-summary {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    margin-top: .85rem;
+    padding: .75rem 1rem;
+    border-radius: .8rem;
+    font-size: .9rem;
+    font-weight: 600;
+}
+
+.rp-walkin-pay-summary.is-pending {
+    background: #f3f7f6;
+    color: #526871;
+}
+
+.rp-walkin-pay-summary.is-ok {
+    background: #e7f6ef;
+    color: #18794a;
+}
+
+.rp-walkin-pay-summary.is-bad {
+    background: #fdecee;
+    color: #b42318;
+}
+
+.rp-walkin-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: .65rem;
+    flex-wrap: wrap;
+}
+
+.rp-walkin-page .rp-walkin-modal-footer {
+    border-top: 1px solid #e2e9e8;
+    padding-top: 1rem;
+}
+
+@media (max-width: 767.98px) {
+    .rp-walkin-pay-row,
+    .rp-walkin-pay-row.has-ref {
+        grid-template-columns: 1fr 1fr auto;
+    }
+
+    .rp-walkin-pay-ref-field {
+        grid-column: 1 / -2;
+    }
+
+    .rp-walkin-pay-actions {
+        grid-row: 1;
+        grid-column: 3;
+        align-self: start;
+        padding-top: 1.6rem;
+    }
+}
+
+/* Security report details (verify / invalidate) */
+.rp-report-detail-crumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .4rem;
+    margin-bottom: 1rem;
+    font-size: .86rem;
+    color: #829098;
+}
+
+.rp-report-detail-crumb a {
+    color: #526871;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.rp-report-detail-crumb a:hover {
+    color: #1f4b5d;
+}
+
+.rp-report-detail-hero {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.rp-report-detail-hero-main {
+    display: flex;
+    align-items: flex-start;
+    gap: .9rem;
+    min-width: 0;
+}
+
+.rp-report-detail-hero-icon {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: .85rem;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    border: 1.5px solid #7eb8ad;
+    color: #1f4b5d;
+    background: #f3faf8;
+    font-size: 1.2rem;
+}
+
+.rp-report-detail-title {
+    margin: 0;
+    font-size: 1.55rem;
+    font-weight: 700;
+    color: #1f4b5d;
+    line-height: 1.25;
+}
+
+.rp-report-detail-sub {
+    margin-top: .25rem;
+    color: #6b7c84;
+    font-size: .92rem;
+    max-width: 36rem;
+}
+
+.rp-report-detail-status {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .4rem .8rem;
+    border-radius: 999px;
+    font-size: .82rem;
+    font-weight: 700;
+    background: #fff0df;
+    color: #a85a18;
+}
+
+.rp-report-detail-status.is-verified,
+.rp-report-detail-status.is-in_progress {
+    background: #e7f2ff;
+    color: #1d5f8a;
+}
+
+.rp-report-detail-status.is-resolved,
+.rp-report-detail-status.is-closed {
+    background: #dff7ea;
+    color: #18794a;
+}
+
+.rp-report-detail-status.is-invalid {
+    background: #fde8e6;
+    color: #b42318;
+}
+
+.rp-report-detail-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(18rem, .95fr);
+    gap: 1.15rem;
+    align-items: start;
+}
+
+.rp-report-detail-card {
+    background: #fff;
+    border: 1px solid #e2e9e8;
+    border-radius: 1rem;
+    padding: 1.25rem 1.35rem;
+    box-shadow: 0 2px 10px rgba(27, 57, 65, .035);
+}
+
+.rp-report-detail-issue {
+    margin: 0 0 .75rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #203541;
+}
+
+.rp-report-detail-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem;
+    margin-bottom: 1.15rem;
+}
+
+.rp-report-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .35rem .7rem;
+    border-radius: 999px;
+    font-size: .8rem;
+    font-weight: 600;
+    background: #e7f2ff;
+    color: #1d5f8a;
+}
+
+.rp-report-chip.is-location {
+    background: #e8f5f1;
+    color: #1f4b5d;
+}
+
+.rp-report-chip.is-type {
+    background: #e7f2ff;
+    color: #1d5f8a;
+}
+
+.rp-report-chip.is-status-pending {
+    background: #fff0df;
+    color: #a85a18;
+}
+
+.rp-report-chip.is-status-verified,
+.rp-report-chip.is-status-in_progress {
+    background: #e7f2ff;
+    color: #1d5f8a;
+}
+
+.rp-report-chip.is-status-resolved,
+.rp-report-chip.is-status-closed {
+    background: #dff7ea;
+    color: #18794a;
+}
+
+.rp-report-chip.is-status-invalid {
+    background: #fde8e6;
+    color: #b42318;
+}
+
+.rp-report-detail-block {
+    margin-bottom: 1.15rem;
+}
+
+.rp-report-detail-label {
+    font-size: .84rem;
+    font-weight: 600;
+    color: #829098;
+    margin-bottom: .35rem;
+}
+
+.rp-report-detail-copy {
+    color: #314852;
+    line-height: 1.5;
+}
+
+.rp-report-detail-meta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .9rem 1rem;
+    margin-bottom: 1.15rem;
+}
+
+.rp-report-detail-meta-value {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    font-weight: 600;
+    color: #203541;
+}
+
+.rp-report-detail-meta-value .bi {
+    color: #6b9a92;
+}
+
+.rp-report-detail-photo-wrap {
+    position: relative;
+}
+
+.rp-report-detail-photo-trigger {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: zoom-in;
+}
+
+.rp-report-detail-photo {
+    width: 100%;
+    max-height: 22rem;
+    object-fit: cover;
+    border-radius: .85rem;
+    border: 1px solid #e2e9e8;
+    display: block;
+}
+
+.rp-report-detail-photo-expand {
+    position: absolute;
+    right: .65rem;
+    bottom: .65rem;
+    width: 2rem;
+    height: 2rem;
+    border: 0;
+    border-radius: .45rem;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, .92);
+    color: #1f4b5d;
+    box-shadow: 0 2px 8px rgba(27, 57, 65, .15);
+    cursor: pointer;
+}
+
+.rp-report-detail-photo-expand:hover {
+    background: #fff;
+    color: #163844;
+}
+
+.rp-report-photo-modal {
+    border: 0;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.rp-report-photo-modal-img {
+    width: 100%;
+    max-height: min(78vh, 40rem);
+    object-fit: contain;
+    border-radius: .75rem;
+    background: #0f1c22;
+    display: block;
+}
+
+.rp-report-note-panel {
+    padding: .9rem 1rem;
+    border-radius: .85rem;
+    background: #f5faf8;
+    border: 1px solid #e2e9e8;
+}
+
+.rp-report-review-head {
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+    margin-bottom: 1rem;
+}
+
+.rp-report-review-icon {
+    width: 2.35rem;
+    height: 2.35rem;
+    border-radius: .7rem;
+    display: grid;
+    place-items: center;
+    background: #e8f5f1;
+    color: #1f4b5d;
+    flex-shrink: 0;
+}
+
+.rp-report-review-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #203541;
+}
+
+.rp-report-review-sub {
+    margin-top: .15rem;
+    font-size: .86rem;
+    color: #6b7c84;
+}
+
+.rp-report-action-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    margin-bottom: 1.1rem;
+    border: 1px solid #d7e3e0;
+    border-radius: .75rem;
+    overflow: hidden;
+    background: #fff;
+}
+
+.rp-report-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    min-height: 2.65rem;
+    padding: .45rem .7rem;
+    border: 0;
+    border-radius: 0;
+    background: #fff;
+    color: #526871;
+    font-size: .88rem;
+    font-weight: 700;
+}
+
+.rp-report-action-btn + .rp-report-action-btn {
+    border-left: 1px solid #d7e3e0;
+}
+
+.rp-report-action-btn.is-active {
+    background: #1f4b5d;
+    color: #fff;
+}
+
+.rp-report-notes-wrap {
+    position: relative;
+}
+
+.rp-report-notes-wrap .form-control {
+    padding-bottom: 1.75rem;
+    min-height: 8.5rem;
+    resize: vertical;
+}
+
+.rp-report-char-count {
+    position: absolute;
+    right: .75rem;
+    bottom: .55rem;
+    font-size: .78rem;
+    color: #829098;
+    pointer-events: none;
+}
+
+.rp-report-upload {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .25rem;
+    min-height: 7.5rem;
+    padding: 1rem;
+    border: 1.5px dashed #c5d7d2;
+    border-radius: .85rem;
+    background: #f8fbfa;
+    cursor: pointer;
+    text-align: center;
+}
+
+.rp-report-upload:hover {
+    background: #eef7f4;
+    border-color: #9ecfc4;
+}
+
+.rp-report-upload-input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.rp-report-upload-icon {
+    font-size: 1.45rem;
+    color: #1f4b5d;
+}
+
+.rp-report-upload-title {
+    font-size: .9rem;
+    font-weight: 700;
+    color: #203541;
+}
+
+.rp-report-upload-hint {
+    font-size: .78rem;
+    color: #829098;
+}
+
+.rp-report-submit {
+    min-height: 2.7rem;
+    font-weight: 700;
+}
+
+.rp-report-help {
+    display: flex;
+    align-items: flex-start;
+    gap: .45rem;
+    margin-top: .85rem;
+    font-size: .82rem;
+    color: #526871;
+    line-height: 1.4;
+}
+
+.rp-report-help .bi {
+    color: #3d8bb0;
+    margin-top: .1rem;
+}
+
+@media (max-width: 991.98px) {
+    .rp-report-detail-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .rp-report-detail-meta {
+        grid-template-columns: 1fr;
+    }
+
+    .rp-report-action-toggle {
+        grid-template-columns: 1fr;
+    }
+
+    .rp-report-action-btn + .rp-report-action-btn {
+        border-left: 0;
+        border-top: 1px solid #d7e3e0;
+    }
+
+    .rp-report-detail-title {
+        font-size: 1.3rem;
     }
 }

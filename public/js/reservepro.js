@@ -284,6 +284,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const desktopSidebar = window.matchMedia('(min-width: 992px)');
     const sidebarStorageKey = 'rp-staff-sidebar-collapsed';
 
+    // Staff UI: neutralize Bootstrap scrollbar padding (document does not scroll).
+    if (staffSidebar) {
+        const clearModalShift = () => {
+            document.body.style.removeProperty('padding-right');
+            document.body.style.removeProperty('overflow');
+            document.querySelectorAll('.modal-open [style*="padding-right"]').forEach((el) => {
+                if (el === document.body) return;
+                if (el.classList.contains('modal')) return;
+                el.style.removeProperty('padding-right');
+            });
+        };
+        document.addEventListener('show.bs.modal', () => {
+            requestAnimationFrame(clearModalShift);
+        });
+        document.addEventListener('shown.bs.modal', clearModalShift);
+        document.addEventListener('hidden.bs.modal', clearModalShift);
+    }
+
     if (staffSidebar && sidebar) {
         const sidebarNav = sidebar.querySelector('.rp-nav');
         sidebar.addEventListener('wheel', (event) => {
@@ -493,7 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const host = document.createElement('div');
                 host.setAttribute('aria-hidden', 'true');
                 host.style.cssText = 'position:fixed;left:-10000px;top:0;width:360px;padding:0;margin:0;background:#fff;z-index:-1;pointer-events:none;';
-                const clone = target.cloneNode(true);
+            const clone = target.cloneNode(true);
                 clone.id = '';
                 clone.style.width = '360px';
                 clone.style.maxWidth = '360px';
@@ -520,8 +538,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     canvas.toBlob((result) => {
                         if (result) {
                             resolve(result);
-                            return;
-                        }
+                return;
+            }
                         reject(new Error('Could not create receipt image'));
                     }, 'image/png');
                 });
@@ -541,6 +559,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const amountInput = form.querySelector('#paymentAmount');
         const minAmount = Number(form.dataset.rpMinAmount || 0);
         const maxAmount = Number(form.dataset.rpMaxAmount || 0);
+        const methodSelect = form.querySelector('[name="payment_method"]');
+        const refWrap = form.querySelector('[data-rp-pay-ref-wrap]');
+        const refInput = refWrap?.querySelector('[name="reference_number"]');
+
+        const syncPaymentRefVisibility = () => {
+            if (!methodSelect || !refWrap) return;
+            const needsRef = methodSelect.value === 'gcash' || methodSelect.value === 'bank_transfer';
+            refWrap.hidden = !needsRef;
+            if (refInput) {
+                refInput.required = needsRef;
+                if (!needsRef) {
+                    refInput.value = '';
+                    refInput.setCustomValidity('');
+                }
+            }
+        };
+
+        methodSelect?.addEventListener('change', syncPaymentRefVisibility);
+        syncPaymentRefVisibility();
 
         form.querySelectorAll('[data-rp-pay-amount]').forEach((button) => {
             button.addEventListener('click', () => {
@@ -588,6 +625,204 @@ document.addEventListener('DOMContentLoaded', () => {
 
         amountInput?.addEventListener('input', () => {
             amountInput.setCustomValidity('');
+        });
+    });
+
+    const moneyLabel = (value) => `₱${Number(value || 0).toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    })}`;
+
+    document.querySelectorAll('[data-rp-walkin-form]').forEach((form) => {
+        const accommodation = form.querySelector('[data-rp-capacity-select]');
+        const checkIn = form.querySelector('[data-stay-check-in]');
+        const checkOut = form.querySelector('[data-stay-check-out]');
+        const totalEl = form.querySelector('[data-rp-walkin-total]');
+        const payRoot = form.querySelector('[data-rp-walkin-payments]');
+        const rowsWrap = form.querySelector('[data-rp-walkin-pay-rows]');
+        const template = form.querySelector('[data-rp-walkin-pay-template]');
+        const addBtn = form.querySelector('[data-rp-walkin-add-pay]');
+        const summaryEl = form.querySelector('[data-rp-walkin-pay-summary]');
+        const summaryTextEl = form.querySelector('[data-rp-walkin-pay-summary-text]');
+        const summaryIconEl = summaryEl?.querySelector('i');
+        const maxRows = 3;
+        let stayTotal = 0;
+
+        const rows = () => [...(rowsWrap?.querySelectorAll('[data-rp-walkin-pay-row]') || [])];
+
+        const reindexRows = () => {
+            rows().forEach((row, index) => {
+                row.querySelectorAll('[name]').forEach((input) => {
+                    input.name = input.name.replace(/payments\[(?:\d+|__INDEX__)\]/, `payments[${index}]`);
+                });
+            });
+            if (addBtn) {
+                addBtn.disabled = rows().length >= maxRows;
+            }
+            rows().forEach((row) => {
+                const removeBtn = row.querySelector('[data-rp-walkin-remove-pay]');
+                if (removeBtn) removeBtn.disabled = rows().length <= 1;
+            });
+        };
+
+        const clearFieldError = (input) => {
+            if (!input) return;
+            input.classList.remove('is-invalid');
+            input.setCustomValidity('');
+            const field = input.closest('.rp-walkin-pay-field') || input.parentElement;
+            field?.querySelectorAll('.invalid-feedback').forEach((el) => {
+                el.remove();
+            });
+        };
+
+        const syncRowRef = (row) => {
+            const method = row.querySelector('[data-rp-walkin-pay-method]');
+            const refWrap = row.querySelector('[data-rp-walkin-pay-ref-wrap]');
+            const refInput = row.querySelector('[data-rp-walkin-pay-ref]');
+            if (!method || !refWrap || !refInput) return;
+            const needsRef = method.value === 'gcash';
+            refWrap.hidden = !needsRef;
+            row.classList.toggle('has-ref', needsRef);
+            refInput.required = needsRef;
+            if (!needsRef) {
+                refInput.value = '';
+                clearFieldError(refInput);
+            } else if ((refInput.value || '').trim() !== '') {
+                clearFieldError(refInput);
+            }
+        };
+
+        const enteredTotal = () => rows().reduce((sum, row) => {
+            const amount = Number(row.querySelector('[data-rp-walkin-pay-amount]')?.value || 0);
+            return sum + (Number.isFinite(amount) ? amount : 0);
+        }, 0);
+
+        const setSummary = (text, state) => {
+            if (!summaryEl) return;
+            if (summaryTextEl) summaryTextEl.textContent = text;
+            else summaryEl.textContent = text;
+            summaryEl.classList.remove('is-ok', 'is-bad', 'is-pending');
+            summaryEl.classList.add(state);
+            if (summaryIconEl) {
+                summaryIconEl.className = state === 'is-ok'
+                    ? 'bi bi-check-circle-fill'
+                    : (state === 'is-bad' ? 'bi bi-exclamation-circle-fill' : 'bi bi-info-circle');
+            }
+        };
+
+        const updateSummary = () => {
+            const paid = enteredTotal();
+            const ok = stayTotal > 0 && Math.abs(paid - stayTotal) <= 0.009;
+            const bad = stayTotal > 0 && !ok;
+            setSummary(
+                `Entered: ${moneyLabel(paid)} / ${moneyLabel(stayTotal)}${ok ? ' ✓' : ''}`,
+                ok ? 'is-ok' : (bad ? 'is-bad' : 'is-pending')
+            );
+        };
+
+        const fillSingleRowToTotal = () => {
+            const list = rows();
+            if (list.length === 1 && stayTotal > 0) {
+                const amountInput = list[0].querySelector('[data-rp-walkin-pay-amount]');
+                if (amountInput) {
+                    amountInput.value = stayTotal.toFixed(2);
+                    delete amountInput.dataset.rpUserEdited;
+                }
+            }
+            updateSummary();
+        };
+
+        const updateStayTotal = () => {
+            if (!accommodation || !checkIn || !checkOut || !totalEl) return;
+            const start = new Date(`${checkIn.value}T00:00:00`);
+            const end = new Date(`${checkOut.value}T00:00:00`);
+            const nights = Math.round((end - start) / 86400000);
+            const rate = Number(accommodation.selectedOptions[0]?.dataset.rate || 0);
+            stayTotal = nights > 0 && rate > 0 ? nights * rate : 0;
+            totalEl.textContent = stayTotal > 0 ? moneyLabel(stayTotal) : '—';
+            fillSingleRowToTotal();
+        };
+
+        const bindRow = (row) => {
+            row.querySelector('[data-rp-walkin-pay-method]')?.addEventListener('change', () => {
+                syncRowRef(row);
+            });
+            const amountInput = row.querySelector('[data-rp-walkin-pay-amount]');
+            amountInput?.addEventListener('input', () => {
+                amountInput.dataset.rpUserEdited = '1';
+                clearFieldError(amountInput);
+                updateSummary();
+            });
+            const refInput = row.querySelector('[data-rp-walkin-pay-ref]');
+            refInput?.addEventListener('input', () => {
+                clearFieldError(refInput);
+            });
+            row.querySelector('[data-rp-walkin-remove-pay]')?.addEventListener('click', () => {
+                if (rows().length <= 1) return;
+                row.remove();
+                reindexRows();
+                updateSummary();
+            });
+            syncRowRef(row);
+        };
+
+        addBtn?.addEventListener('click', () => {
+            if (!rowsWrap || !template || rows().length >= maxRows) return;
+            const html = template.innerHTML.replaceAll('__INDEX__', String(rows().length));
+            const holder = document.createElement('div');
+            holder.innerHTML = html.trim();
+            const row = holder.firstElementChild;
+            if (!row) return;
+            rowsWrap.appendChild(row);
+            bindRow(row);
+            reindexRows();
+            updateSummary();
+        });
+
+        rows().forEach(bindRow);
+        reindexRows();
+
+        accommodation?.addEventListener('change', updateStayTotal);
+        checkIn?.addEventListener('change', updateStayTotal);
+        checkOut?.addEventListener('change', updateStayTotal);
+        updateStayTotal();
+
+        form.addEventListener('submit', (event) => {
+            reindexRows();
+
+            for (const row of rows()) {
+                const method = row.querySelector('[data-rp-walkin-pay-method]')?.value;
+                const refInput = row.querySelector('[data-rp-walkin-pay-ref]');
+                if (method !== 'gcash' || !refInput) continue;
+
+                const ref = String(refInput.value || '').trim();
+                refInput.value = ref;
+                if (ref === '') {
+                    event.preventDefault();
+                    clearFieldError(refInput);
+                    refInput.classList.add('is-invalid');
+                    refInput.setCustomValidity('Reference number is required for GCash.');
+                    refInput.reportValidity();
+                    refInput.focus();
+                    return;
+                }
+                clearFieldError(refInput);
+            }
+
+            const paid = enteredTotal();
+            if (stayTotal <= 0) {
+                event.preventDefault();
+                setSummary('Select room and dates to calculate the full stay total.', 'is-bad');
+                return;
+            }
+            if (Math.abs(paid - stayTotal) > 0.009) {
+                event.preventDefault();
+                setSummary(`Entered: ${moneyLabel(paid)} / ${moneyLabel(stayTotal)} — must match full total.`, 'is-bad');
+                const firstAmount = form.querySelector('[data-rp-walkin-pay-amount]');
+                firstAmount?.setCustomValidity(`Payments must total ${moneyLabel(stayTotal)}.`);
+                firstAmount?.reportValidity();
+                firstAmount?.setCustomValidity('');
+            }
         });
     });
 
@@ -1204,10 +1439,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.querySelectorAll('[data-rp-register-form]').forEach((form) => {
+        const fieldNames = ['name', 'email', 'phone', 'password', 'password_confirmation'];
         const field = (name) => form.querySelector(`[data-rp-register-field="${name}"]`);
         const feedback = (name) => form.querySelector(`[data-rp-register-feedback="${name}"]`);
         const hint = (name) => form.querySelector(`[data-rp-register-hint="${name}"]`);
+        const submitBtn = form.querySelector('[type="submit"]');
         const touched = new Set();
+
+        form.noValidate = true;
 
         const normalizePhone = (value) => String(value || '').replace(/[\s\-()]/g, '');
 
@@ -1216,16 +1455,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 const trimmed = value.trim();
                 if (!trimmed) return 'Please enter your full name.';
                 if (trimmed.length < 2) return 'Full name must be at least 2 characters.';
-                if (!/^[\p{L}]+(?:[ '\-.][\p{L}]+)*$/u.test(trimmed)) {
+                if (!/^[A-Za-zÀ-ÖØ-öø-ÿ]+(?:[ '\-.][A-Za-zÀ-ÖØ-öø-ÿ]+)*$/.test(trimmed)) {
                     return 'Full name may only include letters, spaces, hyphens, and apostrophes.';
                 }
                 return '';
             },
             email: (value) => {
-                const trimmed = value.trim();
+                const trimmed = value.trim().toLowerCase();
                 if (!trimmed) return 'Please enter your email address.';
                 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
-                    return 'Enter a valid email address (e.g. you@email.com).';
+                    return 'Enter a valid Gmail address (e.g. you@gmail.com).';
+                }
+                const parts = trimmed.split('@');
+                if (parts.length !== 2 || !['gmail.com', 'googlemail.com'].includes(parts[1])) {
+                    return 'Only a Gmail address (@gmail.com) is accepted.';
+                }
+                const base = parts[0].split('+')[0];
+                if (base.length < 6 || base.length > 30) {
+                    return 'Gmail usernames must be 6–30 characters before @gmail.com.';
+                }
+                if (!/^[a-z0-9.]+$/.test(base)) {
+                    return 'Gmail usernames may only use letters, numbers, and periods.';
+                }
+                if (base.startsWith('.') || base.endsWith('.') || base.includes('..')) {
+                    return 'Enter a valid Gmail username (no leading, trailing, or double periods).';
                 }
                 return '';
             },
@@ -1235,10 +1488,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!/^(?:\+?63|0)9\d{9}$/.test(normalized)) {
                     return 'Enter a valid PH mobile number, e.g. 09171234567.';
                 }
-                return '';
-            },
-            address: (value) => {
-                if (value.trim().length > 1000) return 'Address must not exceed 1000 characters.';
                 return '';
             },
             password: (value) => {
@@ -1283,18 +1532,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!input || !messageEl) return !message;
 
             const showError = Boolean(message) && (force || touched.has(name) || input.classList.contains('is-invalid'));
-            const showValid = !message && name !== 'address' && (force || touched.has(name));
+            const showValid = !message && (force || touched.has(name));
 
             input.classList.toggle('is-invalid', showError);
             input.classList.toggle('is-valid', showValid);
 
             if (showError) {
                 messageEl.textContent = message;
-                messageEl.classList.add('d-block');
                 hintEl?.classList.add('d-none');
             } else {
                 messageEl.textContent = '';
-                messageEl.classList.remove('d-block');
                 hintEl?.classList.remove('d-none');
             }
 
@@ -1309,12 +1556,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const validateAll = (options = {}) => {
             updatePasswordChecks();
-            return ['name', 'email', 'phone', 'address', 'password', 'password_confirmation']
-                .map((name) => validateField(name, options))
-                .every(Boolean);
+            return fieldNames.map((name) => validateField(name, options)).every(Boolean);
         };
 
-        ['name', 'email', 'phone', 'address', 'password', 'password_confirmation'].forEach((name) => {
+        fieldNames.forEach((name) => {
             const input = field(name);
             if (!input) return;
 
@@ -1322,13 +1567,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (name === 'password') {
                     updatePasswordChecks();
                     if (touched.has('password_confirmation') || field('password_confirmation')?.value) {
-                        validateField('password_confirmation');
+                        validateField('password_confirmation', { force: true });
                     }
                 }
                 if (touched.has(name) || input.classList.contains('is-invalid')) {
-                    validateField(name);
-                } else if (name === 'password') {
-                    updatePasswordChecks();
+                    validateField(name, { force: true });
                 }
             });
 
@@ -1339,17 +1582,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         form.addEventListener('submit', (event) => {
-            ['name', 'email', 'phone', 'address', 'password', 'password_confirmation'].forEach((name) => touched.add(name));
-            if (!validateAll({ force: true })) {
+            fieldNames.forEach((name) => touched.add(name));
+            const valid = validateAll({ force: true });
+            if (!valid) {
                 event.preventDefault();
+                event.stopPropagation();
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Register';
+                }
                 const firstInvalid = form.querySelector('.is-invalid');
                 firstInvalid?.focus();
+                firstInvalid?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                return;
+            }
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Creating account...';
             }
         });
 
-        updatePasswordChecks();
+                    updatePasswordChecks();
         if (form.querySelector('.is-invalid')) {
-            ['name', 'email', 'phone', 'address', 'password', 'password_confirmation'].forEach((name) => {
+            fieldNames.forEach((name) => {
                 const input = field(name);
                 if (input?.classList.contains('is-invalid')) {
                     touched.add(name);
@@ -2017,11 +2273,35 @@ function initPromoDatetimePicker() {
         if (!date || date < min) {
             date = min;
         }
+
+        // End cannot be before start.
+        if (activeField.dataset.rpPromoDtRole === 'end') {
+            const startValue = document.querySelector('[data-rp-promo-dt-role="start"] [data-rp-promo-dt-value]')?.value;
+            const startDate = parseValue(startValue);
+            if (startDate && date < startDate) {
+                if (previewEl) previewEl.textContent = 'End must be on or after start';
+                return;
+            }
+        }
+
         const value = toLocalValue(date);
         const valueInput = activeField.querySelector('[data-rp-promo-dt-value]');
         const label = activeField.querySelector('[data-rp-promo-dt-label]');
         if (valueInput) valueInput.value = value;
         if (label) label.textContent = formatDisplay(value);
+
+        // If start moved past an existing end, clear the end so the range stays valid.
+        if (activeField.dataset.rpPromoDtRole === 'start') {
+            const endField = document.querySelector('[data-rp-promo-dt-role="end"]');
+            const endValueInput = endField?.querySelector('[data-rp-promo-dt-value]');
+            const endLabel = endField?.querySelector('[data-rp-promo-dt-label]');
+            const endDate = parseValue(endValueInput?.value);
+            if (endDate && date && endDate < date) {
+                if (endValueInput) endValueInput.value = '';
+                if (endLabel) endLabel.textContent = 'Select end date & time';
+            }
+        }
+
         modal.hide();
     });
 }
