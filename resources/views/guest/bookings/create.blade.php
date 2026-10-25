@@ -79,6 +79,15 @@
                         <label class="form-label">Special requests</label>
                         <textarea name="special_requests" class="form-control" rows="3">{{ old('special_requests') }}</textarea>
                     </div>
+                    <div class="col-12">
+                        <label class="form-label" for="promoCode">Promo code (optional)</label>
+                        <div class="rp-promo-apply">
+                            <input type="text" id="promoCode" name="promo_code" class="form-control text-uppercase @error('promo_code') is-invalid @enderror" value="{{ old('promo_code') }}" placeholder="Enter code" maxlength="32" data-rp-promo-input data-rp-promo-validate-url="{{ route('guest.promos.validate') }}" data-rp-promo-accommodation="{{ $accommodation->id }}">
+                            <button type="button" class="rp-btn-check-availability rp-btn-check-availability--inline" data-rp-promo-check>Check</button>
+                        </div>
+                        @error('promo_code')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                        <div class="form-text" data-rp-promo-feedback>Check a code to see your discounted estimate.</div>
+                    </div>
                 </div>
 
                 <div class="alert alert-info mt-3 mb-3">

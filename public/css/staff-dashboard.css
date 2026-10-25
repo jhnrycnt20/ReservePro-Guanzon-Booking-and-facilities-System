@@ -428,6 +428,18 @@ body.rp-staff-ui.modal-open .rp-main {
     box-shadow: 0 3px 9px rgba(31, 75, 93, .2);
 }
 
+.rp-staff-ui .rp-user-row-actions {
+    display: grid;
+    grid-template-columns: 3.25rem 3.75rem;
+    justify-content: end;
+    gap: .5rem;
+}
+
+.rp-staff-ui .rp-user-row-actions form,
+.rp-staff-ui .rp-user-row-actions form .btn {
+    width: 100%;
+}
+
 /* Shared action dialogs across the admin, front desk, and security panels. */
 .rp-staff-ui .modal .modal-content {
     overflow: hidden;
@@ -610,6 +622,533 @@ body.rp-staff-ui.modal-open .rp-main {
     top: .9rem;
 }
 
+.rp-staff-ui .rp-acc-view-modal .modal-header {
+    min-height: 5rem;
+    padding: 1rem 1.4rem;
+    border-bottom: 1px solid #e1e8e7;
+}
+
+.rp-staff-ui .rp-acc-view-modal .modal-header .btn-close {
+    top: 1.6rem;
+}
+
+.rp-staff-ui .rp-acc-view-header-title {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    min-width: 0;
+}
+
+.rp-staff-ui .rp-acc-view-header-icon {
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    flex: 0 0 auto;
+    border-radius: .7rem;
+    background: #eaf5f2;
+    color: #1f4b5d;
+    font-size: 1.05rem;
+}
+
+.rp-staff-ui .rp-acc-view-header-title .modal-title {
+    color: #203541;
+    font-weight: 700;
+}
+
+.rp-staff-ui .rp-acc-view-header-title p {
+    margin: .15rem 0 0;
+    color: #7b8c93;
+    font-size: .78rem;
+}
+
+.rp-staff-ui .rp-acc-view-modal .modal-body {
+    padding: 1.35rem 1.4rem 1.5rem;
+}
+
+.rp-staff-ui .rp-acc-view-card {
+    border-radius: 0;
+    background: transparent;
+}
+
+.rp-staff-ui .rp-acc-view-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.rp-staff-ui .rp-acc-view-meta {
+    margin-bottom: .25rem;
+    color: #72858d;
+    font-size: .78rem;
+    font-weight: 600;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+}
+
+.rp-staff-ui .rp-acc-view-title {
+    margin-bottom: 0;
+    color: #203541;
+    font-size: 1.55rem;
+    line-height: 1.2;
+}
+
+.rp-staff-ui .rp-acc-view-badges {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: .45rem;
+}
+
+.rp-staff-ui .rp-acc-view-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.75rem;
+    padding: .3rem .65rem;
+    border: 1px solid #d6dfe1;
+    border-radius: 999px;
+    background: #eef1f2;
+    color: #526870;
+    font-size: .72rem;
+    font-weight: 700;
+}
+
+.rp-staff-ui .rp-acc-view-badge.is-available,
+.rp-staff-ui .rp-acc-view-badge.is-listed {
+    border-color: #c8e3dc;
+    background: #eaf5f2;
+    color: #276859;
+}
+
+.rp-staff-ui .rp-acc-view-badge.is-unlisted {
+    border-color: #ead3d6;
+    background: #f8ecee;
+    color: #9b3945;
+}
+
+.rp-staff-ui .rp-acc-view-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(17rem, .8fr);
+    align-items: start;
+    gap: 1.15rem;
+}
+
+.rp-staff-ui .rp-acc-view-gallery,
+.rp-staff-ui .rp-acc-view-details {
+    min-width: 0;
+}
+
+.rp-staff-ui .rp-acc-view-modal .rp-acc-carousel {
+    margin: 0;
+    border-color: #d5dfe1;
+    border-radius: .8rem;
+}
+
+.rp-staff-ui .rp-acc-view-modal .rp-acc-carousel .carousel-item {
+    height: clamp(18rem, 47vh, 29rem);
+}
+
+.rp-staff-ui .rp-acc-view-empty-photo {
+    display: grid;
+    place-items: center;
+    align-content: center;
+    min-height: 24rem;
+    gap: .6rem;
+    border: 1px dashed #c8d3d6;
+    border-radius: .8rem;
+    background: #f2f4f5;
+    color: #829198;
+}
+
+.rp-staff-ui .rp-acc-view-empty-photo i {
+    font-size: 2rem;
+}
+
+.rp-staff-ui .rp-acc-view-details {
+    display: grid;
+    gap: .85rem;
+}
+
+.rp-staff-ui .rp-acc-view-facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .7rem;
+}
+
+.rp-staff-ui .rp-acc-view-fact {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    min-width: 0;
+    padding: .8rem;
+    border: 1px solid #dbe3e4;
+    border-radius: .7rem;
+    background: #f4f6f6;
+}
+
+.rp-staff-ui .rp-acc-view-fact-icon {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    flex: 0 0 auto;
+    border-radius: .55rem;
+    background: #e3efec;
+    color: #2c6b60;
+}
+
+.rp-staff-ui .rp-acc-view-fact div {
+    min-width: 0;
+}
+
+.rp-staff-ui .rp-acc-view-fact div > span {
+    display: block;
+    color: #7b8c93;
+    font-size: .68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.rp-staff-ui .rp-acc-view-fact strong {
+    display: block;
+    overflow: hidden;
+    color: #203541;
+    font-size: .92rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rp-staff-ui .rp-acc-view-section {
+    padding: .95rem 1rem;
+    border: 1px solid #dbe3e4;
+    border-radius: .7rem;
+    background: #f8f9f9;
+}
+
+.rp-staff-ui .rp-acc-view-section h3 {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    margin: 0 0 .55rem;
+    color: #344b56;
+    font-size: .78rem;
+    font-weight: 700;
+}
+
+.rp-staff-ui .rp-acc-view-section h3 i {
+    color: #4d8b80;
+}
+
+.rp-staff-ui .rp-acc-view-section p {
+    margin: 0;
+    color: #687b83;
+    font-size: .8rem;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+
+.rp-staff-ui .rp-acc-view-amenities {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem;
+}
+
+.rp-staff-ui .rp-acc-view-amenities > span {
+    display: inline-flex;
+    align-items: center;
+    gap: .25rem;
+    padding: .3rem .55rem;
+    border: 1px solid #d3e3df;
+    border-radius: .45rem;
+    background: #edf5f3;
+    color: #315f57;
+    font-size: .72rem;
+    font-weight: 600;
+}
+
+.rp-staff-ui .rp-acc-view-amenities > span i {
+    color: #438779;
+}
+
+@media (max-width: 991.98px) {
+    .rp-staff-ui .rp-acc-view-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .rp-staff-ui .rp-acc-view-modal .rp-acc-carousel .carousel-item {
+        height: clamp(16rem, 42vh, 24rem);
+    }
+}
+
+@media (max-width: 575.98px) {
+    .rp-staff-ui .rp-acc-view-header-title p {
+        display: none;
+    }
+
+    .rp-staff-ui .rp-acc-view-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .rp-staff-ui .rp-acc-view-badges {
+        justify-content: flex-start;
+    }
+
+    .rp-staff-ui .rp-acc-view-facts {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.rp-staff-ui .rp-promo-view-modal .modal-header::before {
+    display: none;
+}
+
+.rp-staff-ui .rp-promo-view-header {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+}
+
+.rp-staff-ui .rp-promo-view-header-icon {
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    flex: 0 0 auto;
+    border-radius: .7rem;
+    background: #eaf5f2;
+    color: #1f4b5d;
+    font-size: 1.05rem;
+}
+
+.rp-staff-ui .rp-promo-view-modal .modal-body {
+    padding: 1.4rem 1.5rem 1.55rem;
+}
+
+.rp-staff-ui .rp-promo-view-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.15rem;
+}
+
+.rp-staff-ui .rp-promo-view-identity {
+    display: flex;
+    align-items: flex-end;
+    gap: 2rem;
+}
+
+.rp-staff-ui .rp-promo-view-field-label {
+    display: block;
+    margin-bottom: .2rem;
+    color: #7b8c93;
+    font-size: .67rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.rp-staff-ui .rp-promo-view-code {
+    margin-bottom: 0;
+    color: #568078;
+    font-size: .9rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.rp-staff-ui .rp-promo-view-name {
+    color: #203541;
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.rp-staff-ui .rp-promo-view-status {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    flex: 0 0 auto;
+    padding: .35rem .7rem;
+    border: 1px solid #d7e0e1;
+    border-radius: 999px;
+    background: #eef1f2;
+    color: #667980;
+    font-size: .74rem;
+    font-weight: 700;
+}
+
+.rp-staff-ui .rp-promo-view-status i {
+    font-size: .42rem;
+}
+
+.rp-staff-ui .rp-promo-view-status.is-active {
+    border-color: #c8e3dc;
+    background: #eaf5f2;
+    color: #276859;
+}
+
+.rp-staff-ui .rp-promo-view-status.is-inactive {
+    border-color: #ead3d6;
+    background: #f8ecee;
+    color: #9b3945;
+}
+
+.rp-staff-ui .rp-promo-view-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .8rem;
+    margin-bottom: .9rem;
+}
+
+.rp-staff-ui .rp-promo-view-stat {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    min-width: 0;
+    padding: .9rem;
+    border: 1px solid #dbe3e4;
+    border-radius: .75rem;
+    background: #f4f6f6;
+}
+
+.rp-staff-ui .rp-promo-view-stat-icon {
+    display: grid;
+    place-items: center;
+    width: 2.15rem;
+    height: 2.15rem;
+    flex: 0 0 auto;
+    border-radius: .55rem;
+    background: #e3efec;
+    color: #2c6b60;
+}
+
+.rp-staff-ui .rp-promo-view-stat > div {
+    min-width: 0;
+}
+
+.rp-staff-ui .rp-promo-view-stat span:not(.rp-promo-view-stat-icon) {
+    display: block;
+    color: #7b8c93;
+    font-size: .68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.rp-staff-ui .rp-promo-view-stat strong {
+    display: block;
+    overflow: hidden;
+    color: #203541;
+    font-size: .92rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rp-staff-ui .rp-promo-view-sections {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .8rem;
+}
+
+.rp-staff-ui .rp-promo-view-section {
+    min-width: 0;
+    padding: 1rem;
+    border: 1px solid #dbe3e4;
+    border-radius: .75rem;
+    background: #f8f9f9;
+}
+
+.rp-staff-ui .rp-promo-view-section h3 {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    margin: 0 0 .75rem;
+    color: #344b56;
+    font-size: .8rem;
+    font-weight: 700;
+}
+
+.rp-staff-ui .rp-promo-view-section h3 i {
+    color: #4d8b80;
+}
+
+.rp-staff-ui .rp-promo-view-schedule {
+    display: grid;
+    gap: .65rem;
+}
+
+.rp-staff-ui .rp-promo-view-schedule > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: .6rem;
+    border-bottom: 1px solid #e2e8e8;
+}
+
+.rp-staff-ui .rp-promo-view-schedule > div:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.rp-staff-ui .rp-promo-view-schedule span {
+    color: #7b8c93;
+    font-size: .75rem;
+}
+
+.rp-staff-ui .rp-promo-view-schedule strong {
+    color: #344b56;
+    font-size: .76rem;
+    text-align: right;
+}
+
+.rp-staff-ui .rp-promo-view-accommodations {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem;
+}
+
+.rp-staff-ui .rp-promo-view-accommodations > span {
+    display: inline-flex;
+    align-items: center;
+    gap: .25rem;
+    padding: .3rem .55rem;
+    border: 1px solid #d3e3df;
+    border-radius: .45rem;
+    background: #edf5f3;
+    color: #315f57;
+    font-size: .72rem;
+    font-weight: 600;
+}
+
+.rp-staff-ui .rp-promo-view-accommodations p {
+    margin: 0;
+    color: #7b8c93;
+    font-size: .78rem;
+}
+
+@media (max-width: 767.98px) {
+    .rp-staff-ui .rp-promo-view-stats,
+    .rp-staff-ui .rp-promo-view-sections {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 575.98px) {
+    .rp-staff-ui .rp-promo-view-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .rp-staff-ui .rp-promo-view-identity {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: .75rem;
+    }
+}
+
 .rp-staff-ui :is(#rpAccCreateModal, [id^="rpAccEditModal"], #rpPromoCreateModal, [id^="rpPromoEditModal"]) .modal-dialog {
     max-width: 760px;
 }
@@ -620,6 +1159,64 @@ body.rp-staff-ui.modal-open .rp-main {
     gap: 1rem 1.25rem;
 }
 
+.rp-staff-ui :is(#rpAccCreateModal, [id^="rpAccEditModal"]) .rp-promo-form-stack :is(.form-control, .form-select) {
+    background-color: #eef0f1;
+    border-color: #cdd2d4;
+}
+
+.rp-staff-ui :is(#rpPromoCreateModal, [id^="rpPromoEditModal"]) .rp-promo-form-stack :is(.form-control, .form-select) {
+    background-color: #eef0f1;
+    border-color: #cdd2d4;
+}
+
+.rp-staff-ui :is(#rpAccCreateModal, [id^="rpAccEditModal"]) .rp-acc-file-picker {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    min-height: 2.75rem;
+    overflow: hidden;
+    border: 1px solid #cdd2d4;
+    border-radius: .55rem;
+    background: #eef0f1;
+    color: #203541;
+    font-size: .88rem;
+    cursor: pointer;
+}
+
+.rp-staff-ui :is(#rpAccCreateModal, [id^="rpAccEditModal"]) .rp-acc-file-picker:focus-within {
+    outline: 2px solid #6bb7aa;
+    outline-offset: 2px;
+}
+
+.rp-staff-ui :is(#rpAccCreateModal, [id^="rpAccEditModal"]) .rp-acc-file-picker-button {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+    padding: 0 .9rem;
+    border-right: 1px solid #cdd2d4;
+    background: #dde2e4;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.rp-staff-ui :is(#rpAccCreateModal, [id^="rpAccEditModal"]) .rp-acc-file-picker-name {
+    align-self: center;
+    min-width: 0;
+    overflow: hidden;
+    padding: .5rem .85rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rp-staff-ui :is(#rpAccCreateModal, [id^="rpAccEditModal"]) .rp-acc-file-picker-input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
 .rp-staff-ui :is(#rpAccCreateModal, [id^="rpAccEditModal"], #rpPromoCreateModal, [id^="rpPromoEditModal"]) .rp-promo-form-stack > div:has(textarea),
 .rp-staff-ui :is(#rpAccCreateModal, [id^="rpAccEditModal"], #rpPromoCreateModal, [id^="rpPromoEditModal"]) .rp-promo-form-stack > div:has(input[type="file"]),
 .rp-staff-ui :is(#rpAccCreateModal, [id^="rpAccEditModal"], #rpPromoCreateModal, [id^="rpPromoEditModal"]) .rp-promo-form-stack > div:has(.rp-promo-acc-dropdown),
@@ -628,19 +1225,27 @@ body.rp-staff-ui.modal-open .rp-main {
     grid-column: 1 / -1;
 }
 
+.rp-staff-ui :is(#rpPromoCreateModal, [id^="rpPromoEditModal"]) .rp-promo-form-stack > div:has(.rp-promo-acc-dropdown) {
+    grid-column: auto;
+}
+
+.rp-staff-ui :is(#rpAccCreateModal, [id^="rpAccEditModal"]) .rp-promo-form-stack > div:has([data-rp-amenity-wrap]) {
+    grid-column: auto;
+}
+
 .rp-staff-ui [data-rp-amenity-wrap] .dropdown-menu {
-    top: auto;
-    bottom: calc(100% + .25rem);
-    margin-top: 0;
+    top: calc(100% + .25rem);
+    bottom: auto;
 }
 
 .rp-staff-ui :is(#rpPromoCreateModal, [id^="rpPromoEditModal"]) .rp-promo-preview {
-    max-height: none;
-    overflow: visible;
+    max-height: 13rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
     padding: .8rem 1rem;
-    border: 1px solid #dfeae7;
+    border: 1px solid #cdd2d4;
     border-radius: .65rem;
-    background: #f7fbfa;
+    background: #eef0f1;
 }
 
 .rp-staff-ui :is(#rpPromoCreateModal, [id^="rpPromoEditModal"]) .rp-promo-preview-row {
@@ -666,6 +1271,7 @@ body.rp-staff-ui.modal-open .rp-main {
     .rp-staff-ui :is(#rpAccCreateModal, [id^="rpAccEditModal"], #rpPromoCreateModal, [id^="rpPromoEditModal"]) .rp-promo-form-stack {
         grid-template-columns: minmax(0, 1fr);
     }
+
 }
 
 /* Add User dialog */
@@ -723,13 +1329,6 @@ body.rp-staff-ui.modal-open .rp-main {
     line-height: 1.3;
 }
 
-.rp-staff-ui .rp-user-create-subtitle {
-    margin: .2rem 0 0;
-    color: #73848c;
-    font-size: .82rem;
-    line-height: 1.45;
-}
-
 .rp-staff-ui .rp-user-create-modal .btn-close {
     margin: .1rem 0 0 .75rem;
     flex: 0 0 auto;
@@ -757,12 +1356,6 @@ body.rp-staff-ui.modal-open .rp-main {
     font-weight: 700;
 }
 
-.rp-staff-ui .rp-user-create-section-heading p {
-    margin: .25rem 0 0;
-    color: #829098;
-    font-size: .78rem;
-}
-
 .rp-staff-ui .rp-user-create-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -770,9 +1363,7 @@ body.rp-staff-ui.modal-open .rp-main {
 }
 
 .rp-staff-ui .rp-user-create-security {
-    margin-top: 1.5rem;
-    padding-top: 1.4rem;
-    border-top: 1px solid #e8eeec;
+    margin-top: 1.25rem;
 }
 
 .rp-staff-ui .rp-user-create-field {
@@ -807,6 +1398,16 @@ body.rp-staff-ui.modal-open .rp-main {
     color: #203541;
     font-size: .88rem;
     box-shadow: none;
+}
+
+.rp-staff-ui #rpUserCreateModal .rp-user-create-field :is(.form-control, .form-select) {
+    background-color: #eef0f1;
+    border-color: #cdd2d4;
+}
+
+.rp-staff-ui #rpUserCreateModal .rp-user-create-field .input-group [data-rp-toggle-password] {
+    background-color: #eef0f1;
+    border-color: #cdd2d4;
 }
 
 .rp-staff-ui .rp-user-create-field .form-control::placeholder {
@@ -853,6 +1454,11 @@ body.rp-staff-ui.modal-open .rp-main {
     font-size: .75rem;
 }
 
+.rp-staff-ui .rp-user-create-error:empty {
+    display: none !important;
+    margin-top: 0;
+}
+
 .rp-staff-ui .rp-user-create-hint {
     display: flex;
     align-items: center;
@@ -866,17 +1472,20 @@ body.rp-staff-ui.modal-open .rp-main {
     color: #4b9a8d;
 }
 
+.rp-staff-ui .rp-user-create-password-checks {
+    gap: .35rem .8rem;
+    margin-top: .75rem;
+}
+
+.rp-staff-ui .rp-user-create-password-checks li {
+    font-size: .75rem;
+}
+
 .rp-staff-ui .rp-user-create-modal .modal-footer {
     gap: .65rem;
     padding: 1rem 1.65rem;
     border-top: 1px solid #e8eeec;
     background: #fbfcfc;
-}
-
-.rp-staff-ui .rp-user-create-footer-note {
-    margin-right: auto;
-    color: #91a0a5;
-    font-size: .76rem;
 }
 
 .rp-staff-ui .rp-user-create-modal .modal-footer .btn {
@@ -897,6 +1506,92 @@ body.rp-staff-ui.modal-open .rp-main {
     color: #1f4b5d;
 }
 
+/* Edit User dialog uses the same form layout as Add User. */
+.rp-staff-ui .rp-user-edit-modal .rp-profile-view,
+.rp-staff-ui .rp-user-edit-modal .rp-profile-edit-bar,
+.rp-staff-ui .rp-user-edit-modal .rp-profile-pw-toggle {
+    display: none !important;
+}
+
+.rp-staff-ui .rp-user-edit-modal .rp-profile-edit[hidden],
+.rp-staff-ui .rp-user-edit-modal .rp-profile-pw-panel[hidden] {
+    display: block !important;
+}
+
+.rp-staff-ui .rp-user-edit-modal .rp-profile-edit-shell {
+    max-width: none;
+}
+
+.rp-staff-ui .rp-user-edit-modal form.rp-user-edit-form {
+    display: block;
+    max-height: none;
+}
+
+.rp-staff-ui .rp-user-edit-modal .rp-profile-stack.rp-user-create-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem 1.25rem;
+}
+
+.rp-staff-ui .rp-user-edit-modal .rp-profile-stack > div {
+    min-width: 0;
+}
+
+.rp-staff-ui .rp-user-edit-modal .rp-profile-stack .form-label {
+    display: block;
+    margin-bottom: .4rem;
+    color: #344b56;
+    font-size: .8rem;
+    font-weight: 600;
+}
+
+.rp-staff-ui .rp-user-edit-modal .rp-profile-stack :is(.form-control, .form-select) {
+    min-height: 2.75rem;
+    border: 1px solid #cdd2d4;
+    border-radius: .55rem;
+    background-color: #eef0f1;
+    color: #203541;
+    font-size: .88rem;
+    box-shadow: none;
+}
+
+.rp-staff-ui .rp-user-edit-modal .rp-profile-stack :is(.form-control, .form-select):focus {
+    border-color: #6bb7aa;
+    background-color: #eef0f1;
+    box-shadow: 0 0 0 .2rem rgba(107, 183, 170, .16);
+}
+
+.rp-staff-ui .rp-user-edit-modal .rp-profile-stack .input-group [data-rp-toggle-password] {
+    border-color: #cdd2d4;
+    background-color: #eef0f1;
+    color: #73848c;
+}
+
+.rp-staff-ui .rp-user-edit-modal .rp-profile-pw-dropdown {
+    margin-top: 1.25rem;
+    padding-top: 0;
+    border-top: 0;
+}
+
+.rp-staff-ui .rp-user-edit-modal .rp-profile-pw-panel {
+    padding-bottom: 0;
+}
+
+.rp-staff-ui .rp-user-edit-modal .rp-user-edit-actions {
+    gap: .65rem;
+    margin: 1.5rem -1.65rem -1.55rem;
+    padding: 1rem 1.65rem;
+    border-top: 1px solid #e8eeec;
+    background: #fbfcfc;
+}
+
+.rp-staff-ui .rp-user-edit-modal .rp-user-edit-actions .btn {
+    min-height: 2.55rem;
+    margin: 0;
+    padding: .5rem 1rem;
+    font-size: .84rem;
+}
+
 @media (max-width: 575.98px) {
     .rp-staff-ui .rp-user-create-modal .modal-header,
     .rp-staff-ui .rp-user-create-modal .modal-body,
@@ -907,6 +1602,17 @@ body.rp-staff-ui.modal-open .rp-main {
 
     .rp-staff-ui .rp-user-create-grid {
         grid-template-columns: minmax(0, 1fr);
+    }
+
+    .rp-staff-ui .rp-user-edit-modal .rp-profile-stack.rp-user-create-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .rp-staff-ui .rp-user-edit-modal .rp-user-edit-actions {
+        margin-right: -1rem;
+        margin-left: -1rem;
+        padding-right: 1rem;
+        padding-left: 1rem;
     }
 
     .rp-staff-ui .rp-user-create-footer-note {

@@ -100,16 +100,16 @@ class BookingService
             $data['check_out_date']
         );
 
-        $promo = null;
-        if (! empty($data['promo_code'])) {
-            $promo = $this->promoService->findValidForAccommodation(
-                (string) $data['promo_code'],
-                (int) $accommodation->id
-            );
-            $totals = $this->promoService->applyToTotals($totals, $promo);
-        }
+        return DB::transaction(function () use ($data, $guest, $createdBy, $isWalkIn, $accommodation, $adults, $children, $numberOfGuests, $totals) {
+            $promo = null;
+            if (! empty($data['promo_code'])) {
+                $promo = $this->promoService->lockValidForAccommodation(
+                    (string) $data['promo_code'],
+                    (int) $accommodation->id
+                );
+                $totals = $this->promoService->applyToTotals($totals, $promo);
+            }
 
-        return DB::transaction(function () use ($data, $guest, $createdBy, $isWalkIn, $accommodation, $adults, $children, $numberOfGuests, $totals, $promo) {
             $booking = Booking::query()->create([
                 'booking_number' => $this->generateBookingNumber(),
                 'guest_id' => $guest->id,
@@ -143,14 +143,19 @@ class BookingService
             ]);
 
             $booking->items()->create([
-                'description' => "{$accommodation->name} ({$totals['nights']} night(s))"
-                    .($promo ? " · Promo {$promo->code} ({$promo->discount_percent}% off)" : ''),
+                'description' => "{$accommodation->name} ({$totals['nights']} night(s))",
                 'quantity' => $totals['nights'],
-                'unit_price' => $totals['rate'],
-                'total' => $totals['total'],
+                'unit_price' => $accommodation->rate,
+                'total' => $totals['original_total'] ?? $totals['total'],
             ]);
 
             if ($promo) {
+                $booking->items()->create([
+                    'description' => "Promo {$promo->code} ({$promo->discount_percent}% off)",
+                    'quantity' => 1,
+                    'unit_price' => -$totals['discount_amount'],
+                    'total' => -$totals['discount_amount'],
+                ]);
                 $this->promoService->markUsed($promo);
             }
 
@@ -166,30 +171,31 @@ class BookingService
 
     public function applyPromo(Booking $booking, string $promoCode): Booking
     {
-        if ($booking->promo_id || ((float) $booking->discount_amount) > 0) {
-            throw ValidationException::withMessages([
-                'promo_code' => 'A promo has already been applied to this booking.',
-            ]);
-        }
+        return DB::transaction(function () use ($booking, $promoCode) {
+            $booking = Booking::query()->lockForUpdate()->findOrFail($booking->getKey());
 
-        if ((float) $booking->paid_amount > 0) {
-            throw ValidationException::withMessages([
-                'promo_code' => 'Promo codes can only be applied before any payment is recorded.',
-            ]);
-        }
+            if ($booking->promo_id || ((float) $booking->discount_amount) > 0) {
+                throw ValidationException::withMessages([
+                    'promo_code' => 'A promo has already been applied to this booking.',
+                ]);
+            }
 
-        if (! in_array($booking->status, [BookingStatus::Pending, BookingStatus::Approved], true)) {
-            throw ValidationException::withMessages([
-                'promo_code' => 'Promo codes can only be applied to pending or approved bookings.',
-            ]);
-        }
+            if ((float) $booking->paid_amount > 0) {
+                throw ValidationException::withMessages([
+                    'promo_code' => 'Promo codes can only be applied before any payment is recorded.',
+                ]);
+            }
 
-        $promo = $this->promoService->findValidForAccommodation($promoCode, (int) $booking->accommodation_id);
-        $original = (float) ($booking->original_amount ?? $booking->total_amount);
-        $discount = $promo->discountAmount($original);
-        $final = max(0, round($original - $discount, 2));
+            if (! in_array($booking->status, [BookingStatus::Pending, BookingStatus::Approved], true)) {
+                throw ValidationException::withMessages([
+                    'promo_code' => 'Promo codes can only be applied to pending or approved bookings.',
+                ]);
+            }
 
-        return DB::transaction(function () use ($booking, $promo, $original, $discount, $final) {
+            $promo = $this->promoService->lockValidForAccommodation($promoCode, (int) $booking->accommodation_id);
+            $original = (float) ($booking->original_amount ?? $booking->total_amount);
+            $discount = $promo->discountAmount($original);
+            $final = max(0, round($original - $discount, 2));
             $old = $booking->toArray();
 
             $booking->update([
@@ -200,6 +206,13 @@ class BookingService
                 'discount_percent' => $promo->discount_percent,
                 'total_amount' => $final,
                 'remaining_balance' => max(0, round($final - (float) $booking->paid_amount, 2)),
+            ]);
+
+            $booking->items()->create([
+                'description' => "Promo {$promo->code} ({$promo->discount_percent}% off)",
+                'quantity' => 1,
+                'unit_price' => -$discount,
+                'total' => -$discount,
             ]);
 
             $this->promoService->markUsed($promo);
@@ -253,13 +266,14 @@ class BookingService
 
     public function reject(Booking $booking, User $rejector, string $reason): Booking
     {
-        if ($booking->status !== BookingStatus::Pending) {
-            throw ValidationException::withMessages([
-                'status' => 'Only pending bookings can be rejected.',
-            ]);
-        }
-
         return DB::transaction(function () use ($booking, $rejector, $reason) {
+            $booking = Booking::query()->lockForUpdate()->findOrFail($booking->getKey());
+            if ($booking->status !== BookingStatus::Pending) {
+                throw ValidationException::withMessages([
+                    'status' => 'Only pending bookings can be rejected.',
+                ]);
+            }
+
             $old = $booking->toArray();
 
             $booking->update([
@@ -268,6 +282,10 @@ class BookingService
                 'rejected_by' => $rejector->id,
                 'rejected_at' => now(),
             ]);
+
+            if ($booking->promo_id) {
+                $this->promoService->releaseUse((int) $booking->promo_id);
+            }
 
             $this->auditService->log('booking.rejected', $booking, $old, $booking->fresh()->toArray(), $rejector);
 
@@ -281,18 +299,23 @@ class BookingService
 
     public function cancel(Booking $booking, ?User $actor = null): Booking
     {
-        if (! in_array($booking->status, [BookingStatus::Pending, BookingStatus::Approved], true)) {
-            throw ValidationException::withMessages([
-                'status' => 'Only pending or approved bookings can be cancelled.',
-            ]);
-        }
-
         return DB::transaction(function () use ($booking, $actor) {
+            $booking = Booking::query()->lockForUpdate()->findOrFail($booking->getKey());
+            if (! in_array($booking->status, [BookingStatus::Pending, BookingStatus::Approved], true)) {
+                throw ValidationException::withMessages([
+                    'status' => 'Only pending or approved bookings can be cancelled.',
+                ]);
+            }
+
             $old = $booking->toArray();
 
             $booking->update([
                 'status' => BookingStatus::Cancelled,
             ]);
+
+            if ($booking->promo_id) {
+                $this->promoService->releaseUse((int) $booking->promo_id);
+            }
 
             if ($booking->accommodation && $booking->accommodation->status === AccommodationStatus::Reserved) {
                 $stillReserved = Booking::query()

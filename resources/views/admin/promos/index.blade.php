@@ -105,16 +105,41 @@
                 <div class="modal-body">
                     <div class="rp-promo-form-stack">
                         <div>
+                            <label class="form-label">Promo name</label>
+                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('_modal') === 'promo_create' ? old('name') : '' }}" placeholder="e.g. Weekend Special" required>
+                            @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div>
+                            <label class="form-label">Code</label>
+                            <input type="text" name="code" class="form-control text-uppercase" value="{{ old('_modal') === 'promo_create' ? old('code', $generatedCode) : $generatedCode }}" placeholder="e.g. WEEKEND20" maxlength="32" required data-rp-promo-code>
+                        </div>
+                        <div>
+                            <label class="form-label">Discount %</label>
+                            <input type="number" step="0.01" min="1" max="100" name="discount_percent" class="form-control" value="{{ old('_modal') === 'promo_create' ? old('discount_percent', 10) : 10 }}" placeholder="e.g. 20" required data-rp-promo-percent>
+                        </div>
+                        <div>
+                            <label class="form-label">Usage limit</label>
+                            <input type="number" min="1" name="usage_limit" class="form-control" value="{{ old('_modal') === 'promo_create' ? old('usage_limit') : '' }}" placeholder="e.g. 50 (blank = unlimited)">
+                        </div>
+                        <div>
+                            <label class="form-label">Status</label>
+                            <select name="is_active" class="form-select">
+                                <option value="1" selected>Active</option>
+                                <option value="0">Inactive</option>
+                            </select>
+                        </div>
+                        <div>
                             <label class="form-label">Accommodations</label>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" name="applies_to_all" value="1" id="createAppliesToAll" data-rp-promo-all @checked(old('_modal') === 'promo_create' && old('applies_to_all'))>
-                                <label class="form-check-label" for="createAppliesToAll">Apply to all accommodations</label>
-                            </div>
                             <div class="dropdown rp-promo-acc-dropdown" data-rp-promo-acc-wrap>
                                 <button class="form-select text-start rp-promo-acc-trigger" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" data-bs-display="static" aria-expanded="false">
                                     <span data-rp-promo-acc-label>Select accommodations</span>
                                 </button>
                                 <div class="dropdown-menu p-2" data-rp-promo-list>
+                                    <label class="dropdown-item rp-promo-acc-option">
+                                        <input class="form-check-input me-2" type="checkbox" name="applies_to_all" value="1" data-rp-promo-all @checked(old('_modal') === 'promo_create' && old('applies_to_all'))>
+                                        <span>Apply to all accommodations</span>
+                                    </label>
+                                    <div class="dropdown-divider my-1"></div>
                                     @foreach($accommodations as $acc)
                                         <label class="dropdown-item rp-promo-acc-option">
                                             <input type="checkbox" name="accommodation_ids[]" value="{{ $acc->id }}" class="form-check-input rp-promo-accommodation-check me-2" data-rate="{{ $acc->rate }}" data-name="{{ $acc->name }}" @checked(old('_modal') === 'promo_create' && collect(old('accommodation_ids', []))->contains($acc->id))>
@@ -123,23 +148,6 @@
                                     @endforeach
                                 </div>
                             </div>
-                        </div>
-                        <div>
-                            <label class="form-label">Promo name</label>
-                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('_modal') === 'promo_create' ? old('name') : '' }}" required>
-                            @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                        </div>
-                        <div>
-                            <label class="form-label">Code</label>
-                            <input type="text" name="code" class="form-control text-uppercase" value="{{ old('_modal') === 'promo_create' ? old('code', $generatedCode) : $generatedCode }}" maxlength="32" required data-rp-promo-code>
-                        </div>
-                        <div>
-                            <label class="form-label">Discount %</label>
-                            <input type="number" step="0.01" min="1" max="100" name="discount_percent" class="form-control" value="{{ old('_modal') === 'promo_create' ? old('discount_percent', 10) : 10 }}" required data-rp-promo-percent>
-                        </div>
-                        <div>
-                            <label class="form-label">Usage limit</label>
-                            <input type="number" min="1" name="usage_limit" class="form-control" value="{{ old('_modal') === 'promo_create' ? old('usage_limit') : '' }}" placeholder="Unlimited">
                         </div>
                         <div>
                             <label class="form-label">Starts</label>
@@ -151,13 +159,6 @@
                             <input type="datetime-local" name="ends_at" class="form-control @error('ends_at') is-invalid @enderror" value="{{ old('_modal') === 'promo_create' ? old('ends_at') : '' }}" data-rp-promo-ends>
                             @error('ends_at')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                             <div class="invalid-feedback d-none" data-rp-promo-date-error>End must be on or after the start date/time.</div>
-                        </div>
-                        <div>
-                            <label class="form-label">Status</label>
-                            <select name="is_active" class="form-select">
-                                <option value="1" selected>Active</option>
-                                <option value="0">Inactive</option>
-                            </select>
                         </div>
                         <div class="rp-promo-preview" data-rp-promo-preview>
                             <div class="text-muted small">Select accommodations and enter a percentage to preview prices.</div>
@@ -181,25 +182,69 @@
 
     <div class="modal fade" id="rpPromoViewModal{{ $promo->id }}" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-            <div class="modal-content rp-admin-modal">
+            <div class="modal-content rp-admin-modal rp-promo-view-modal">
                 <div class="modal-header">
-                    <h2 class="modal-title h5">Promo {{ $promo->code }}</h2>
+                    <div class="rp-promo-view-header">
+                        <span class="rp-promo-view-header-icon" aria-hidden="true"><i class="bi bi-ticket-perforated"></i></span>
+                        <h2 class="modal-title h5">Promo details</h2>
+                    </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="row g-3 mb-3">
-                        <div class="col-4"><div class="rp-stat"><div class="label">Discount</div><div class="value">{{ rtrim(rtrim(number_format((float) $promo->discount_percent, 2), '0'), '.') }}%</div></div></div>
-                        <div class="col-4"><div class="rp-stat"><div class="label">Scope</div><div class="value">{{ $promo->applies_to_all ? 'All' : $promo->accommodations->count() }}</div></div></div>
-                        <div class="col-4"><div class="rp-stat"><div class="label">Usage</div><div class="value">{{ $promo->used_count }}{{ $promo->usage_limit ? ' / '.$promo->usage_limit : '' }}</div></div></div>
+                    <div class="rp-promo-view-heading">
+                        <div class="rp-promo-view-identity">
+                            <div>
+                                <span class="rp-promo-view-field-label">Code</span>
+                                <div class="rp-promo-view-code">{{ $promo->code }}</div>
+                            </div>
+                            <div>
+                                <span class="rp-promo-view-field-label">Promo name</span>
+                                <div class="rp-promo-view-name">{{ $promo->name ?: 'Unnamed promotion' }}</div>
+                            </div>
+                        </div>
+                        <span class="rp-promo-view-status {{ $promo->is_active ? 'is-active' : 'is-inactive' }}">
+                            <i class="bi bi-circle-fill" aria-hidden="true"></i>{{ $promo->is_active ? 'Active' : 'Inactive' }}
+                        </span>
                     </div>
-                    <p class="mb-1"><strong>Name:</strong> {{ $promo->name ?: '—' }}</p>
-                    <p class="mb-1"><strong>Status:</strong> {{ $promo->is_active ? 'Active' : 'Inactive' }}</p>
-                    <p class="mb-1"><strong>Starts:</strong> {{ $promo->starts_at?->format('M d, Y g:i A') ?? '—' }}</p>
-                    <p class="mb-3"><strong>Ends:</strong> {{ $promo->ends_at?->format('M d, Y g:i A') ?? '—' }}</p>
-                    @unless($promo->applies_to_all)
-                        <h3 class="h6">Accommodations</h3>
-                        <p class="text-muted">{{ $promo->accommodations->pluck('name')->join(', ') ?: '—' }}</p>
-                    @endunless
+
+                    <div class="rp-promo-view-stats">
+                        <div class="rp-promo-view-stat">
+                            <span class="rp-promo-view-stat-icon"><i class="bi bi-percent" aria-hidden="true"></i></span>
+                            <div><span>Discount</span><strong>{{ rtrim(rtrim(number_format((float) $promo->discount_percent, 2), '0'), '.') }}%</strong></div>
+                        </div>
+                        <div class="rp-promo-view-stat">
+                            <span class="rp-promo-view-stat-icon"><i class="bi bi-buildings" aria-hidden="true"></i></span>
+                            <div><span>Scope</span><strong>{{ $promo->applies_to_all ? 'All accommodations' : $promo->accommodations->count().' selected' }}</strong></div>
+                        </div>
+                        <div class="rp-promo-view-stat">
+                            <span class="rp-promo-view-stat-icon"><i class="bi bi-bar-chart" aria-hidden="true"></i></span>
+                            <div><span>Usage</span><strong>{{ $promo->used_count }} / {{ $promo->usage_limit ?: 'Unlimited' }}</strong></div>
+                        </div>
+                    </div>
+                    <div class="rp-promo-view-sections">
+                        <section class="rp-promo-view-section">
+                            <h3><i class="bi bi-calendar3" aria-hidden="true"></i>Schedule</h3>
+                            <div class="rp-promo-view-schedule">
+                                <div><span>Starts</span><strong>{{ $promo->starts_at?->format('M d, Y · g:i A') ?? 'Immediately' }}</strong></div>
+                                <div><span>Ends</span><strong>{{ $promo->ends_at?->format('M d, Y · g:i A') ?? 'No expiry date' }}</strong></div>
+                            </div>
+                        </section>
+
+                        <section class="rp-promo-view-section">
+                            <h3><i class="bi bi-building-check" aria-hidden="true"></i>Applicable accommodations</h3>
+                            <div class="rp-promo-view-accommodations">
+                                @if($promo->applies_to_all)
+                                    <span><i class="bi bi-check2" aria-hidden="true"></i>All accommodations</span>
+                                @else
+                                    @forelse($promo->accommodations as $accommodation)
+                                        <span><i class="bi bi-check2" aria-hidden="true"></i>{{ $accommodation->name }}</span>
+                                    @empty
+                                        <p>No accommodations selected.</p>
+                                    @endforelse
+                                @endif
+                            </div>
+                        </section>
+                    </div>
                 </div>
             </div>
         </div>
@@ -218,41 +263,21 @@
                     <div class="modal-body">
                         <div class="rp-promo-form-stack">
                             <div>
-                                <label class="form-label">Accommodations</label>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" name="applies_to_all" value="1" id="editAppliesToAll{{ $promo->id }}" data-rp-promo-all @checked(old('_modal') === 'promo_edit_'.$promo->id ? old('applies_to_all') : $promo->applies_to_all)>
-                                    <label class="form-check-label" for="editAppliesToAll{{ $promo->id }}">Apply to all accommodations</label>
-                                </div>
-                                <div class="dropdown rp-promo-acc-dropdown" data-rp-promo-acc-wrap>
-                                    <button class="form-select text-start rp-promo-acc-trigger" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" data-bs-display="static" aria-expanded="false">
-                                        <span data-rp-promo-acc-label>Select accommodations</span>
-                                    </button>
-                                    <div class="dropdown-menu p-2" data-rp-promo-list>
-                                        @foreach($accommodations as $acc)
-                                            <label class="dropdown-item rp-promo-acc-option">
-                                                <input type="checkbox" name="accommodation_ids[]" value="{{ $acc->id }}" class="form-check-input rp-promo-accommodation-check me-2" data-rate="{{ $acc->rate }}" data-name="{{ $acc->name }}" @checked($selectedIds->contains($acc->id))>
-                                                <span>{{ $acc->name }} <span class="text-muted">({{ $acc->number }})</span></span>
-                                            </label>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            </div>
-                            <div>
                                 <label class="form-label">Promo name</label>
-                                <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('_modal') === 'promo_edit_'.$promo->id ? old('name') : $promo->name }}" required>
+                                <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('_modal') === 'promo_edit_'.$promo->id ? old('name') : $promo->name }}" placeholder="e.g. Weekend Special" required>
                                 @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                             <div>
                                 <label class="form-label">Code</label>
-                                <input type="text" name="code" class="form-control text-uppercase" value="{{ old('_modal') === 'promo_edit_'.$promo->id ? old('code') : $promo->code }}" maxlength="32" required data-rp-promo-code>
+                                <input type="text" name="code" class="form-control text-uppercase" value="{{ old('_modal') === 'promo_edit_'.$promo->id ? old('code') : $promo->code }}" placeholder="e.g. WEEKEND20" maxlength="32" required data-rp-promo-code>
                             </div>
                             <div>
                                 <label class="form-label">Discount %</label>
-                                <input type="number" step="0.01" min="1" max="100" name="discount_percent" class="form-control" value="{{ old('_modal') === 'promo_edit_'.$promo->id ? old('discount_percent') : $promo->discount_percent }}" required data-rp-promo-percent>
+                                <input type="number" step="0.01" min="1" max="100" name="discount_percent" class="form-control" value="{{ old('_modal') === 'promo_edit_'.$promo->id ? old('discount_percent') : $promo->discount_percent }}" placeholder="e.g. 20" required data-rp-promo-percent>
                             </div>
                             <div>
                                 <label class="form-label">Usage limit</label>
-                                <input type="number" min="1" name="usage_limit" class="form-control" value="{{ old('_modal') === 'promo_edit_'.$promo->id ? old('usage_limit') : $promo->usage_limit }}" placeholder="Unlimited">
+                                <input type="number" min="1" name="usage_limit" class="form-control" value="{{ old('_modal') === 'promo_edit_'.$promo->id ? old('usage_limit') : $promo->usage_limit }}" placeholder="e.g. 50 (blank = unlimited)">
                             </div>
                             <div>
                                 <label class="form-label">Starts</label>
@@ -277,8 +302,29 @@
                                     <option value="0" @selected($activeVal == '0')>Inactive</option>
                                 </select>
                             </div>
+                            <div>
+                                <label class="form-label">Accommodations</label>
+                                <div class="dropdown rp-promo-acc-dropdown" data-rp-promo-acc-wrap>
+                                    <button class="form-select text-start rp-promo-acc-trigger" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" data-bs-display="static" aria-expanded="false">
+                                        <span data-rp-promo-acc-label>Select accommodations</span>
+                                    </button>
+                                    <div class="dropdown-menu p-2" data-rp-promo-list>
+                                        <label class="dropdown-item rp-promo-acc-option">
+                                            <input class="form-check-input me-2" type="checkbox" name="applies_to_all" value="1" data-rp-promo-all @checked(old('_modal') === 'promo_edit_'.$promo->id ? old('applies_to_all') : $promo->applies_to_all)>
+                                            <span>Apply to all accommodations</span>
+                                        </label>
+                                        <div class="dropdown-divider my-1"></div>
+                                        @foreach($accommodations as $acc)
+                                            <label class="dropdown-item rp-promo-acc-option">
+                                                <input type="checkbox" name="accommodation_ids[]" value="{{ $acc->id }}" class="form-check-input rp-promo-accommodation-check me-2" data-rate="{{ $acc->rate }}" data-name="{{ $acc->name }}" @checked($selectedIds->contains($acc->id))>
+                                                <span>{{ $acc->name }} <span class="text-muted">({{ $acc->number }})</span></span>
+                                            </label>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
                             <div class="rp-promo-preview" data-rp-promo-preview>
-                                <div class="text-muted small">Preview updates as you change the percentage.</div>
+                                <div class="text-muted small">Select accommodations and enter a percentage to preview prices.</div>
                             </div>
                         </div>
                     </div>
@@ -311,9 +357,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const previewEl = form.querySelector('[data-rp-promo-preview]');
         const allToggle = form.querySelector('[data-rp-promo-all]');
         const list = form.querySelector('[data-rp-promo-list]');
-        const wrap = form.querySelector('[data-rp-promo-acc-wrap]');
         const labelEl = form.querySelector('[data-rp-promo-acc-label]');
-        const trigger = form.querySelector('.rp-promo-acc-trigger');
         const percentInput = form.querySelector('[data-rp-promo-percent]');
         const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
         let timer = null;
@@ -340,8 +384,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const syncAll = () => {
             const disabled = Boolean(allToggle?.checked);
-            wrap?.classList.toggle('is-disabled', disabled);
-            if (trigger) trigger.disabled = disabled;
             list?.querySelectorAll('.rp-promo-accommodation-check').forEach((el) => { el.disabled = disabled; });
             syncLabel();
         };
@@ -352,9 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 previewEl.innerHTML = '<div class="text-muted small">Select accommodations and enter a percentage to preview prices.</div>';
                 return;
             }
-            const shown = rows.slice(0, 2);
-            const extra = rows.length - shown.length;
-            previewEl.innerHTML = shown.map((row) => `
+            previewEl.innerHTML = rows.map((row) => `
                 <div class="rp-promo-preview-row">
                     <div class="fw-semibold text-truncate">${row.name}</div>
                     <div class="text-end text-nowrap">
@@ -362,7 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="fw-semibold text-success">${peso(row.promo_rate)}</span>
                     </div>
                 </div>
-            `).join('') + (extra > 0 ? `<div class="text-muted small">+${extra} more</div>` : '');
+            `).join('');
         };
 
         const refresh = async () => {
@@ -385,7 +425,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const schedule = () => { clearTimeout(timer); timer = setTimeout(refresh, 200); };
         allToggle?.addEventListener('change', () => { syncAll(); schedule(); });
-        list?.addEventListener('change', () => { syncLabel(); schedule(); });
+        list?.addEventListener('change', (event) => {
+            if (event.target === allToggle) return;
+            syncLabel();
+            schedule();
+        });
         percentInput?.addEventListener('input', schedule);
 
         const startsInput = form.querySelector('[data-rp-promo-starts]');

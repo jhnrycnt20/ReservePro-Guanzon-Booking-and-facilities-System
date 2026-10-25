@@ -17,10 +17,17 @@
             <div class="col-md-6">
                 <label class="form-label">Name</label>
                 <input type="text" name="name" class="form-control" value="{{ old('name') }}" required>
+                <x-accommodation-field-error field="name" />
             </div>
             <div class="col-md-6">
-                <label class="form-label">Number / Code</label>
-                <input type="text" name="number" class="form-control" value="{{ old('number') }}" required>
+                <label class="form-label">Number</label>
+                <select name="number" class="form-select" required>
+                    <option value="" disabled @selected(old('number') === null)>Select a number</option>
+                    @foreach(range(1, 10) as $number)
+                        <option value="{{ $number }}" @selected((string) old('number') === (string) $number)>{{ $number }}</option>
+                    @endforeach
+                </select>
+                <x-accommodation-field-error field="number" />
             </div>
             <div class="col-md-4">
                 <label class="form-label">Type</label>
@@ -29,14 +36,17 @@
                         <option value="{{ $type->id }}" @selected(old('accommodation_type_id') == $type->id)>{{ $type->name }}</option>
                     @endforeach
                 </select>
+                <x-accommodation-field-error field="accommodation_type_id" />
             </div>
             <div class="col-md-4">
                 <label class="form-label">Capacity</label>
-                <input type="number" min="1" name="capacity" class="form-control rp-no-spinner" value="{{ old('capacity', 2) }}" required>
+                <input type="number" min="1" max="50" name="capacity" class="form-control rp-no-spinner" value="{{ old('capacity', 2) }}" required>
+                <x-accommodation-field-error field="capacity" />
             </div>
             <div class="col-md-4">
                 <label class="form-label">Rate</label>
-                <input type="number" step="0.01" min="0" name="rate" class="form-control rp-no-spinner" value="{{ old('rate') }}" required>
+                <input type="number" step="0.01" min="0" max="999999.99" name="rate" class="form-control rp-no-spinner" value="{{ old('rate') }}" required>
+                <x-accommodation-field-error field="rate" />
             </div>
             <div class="col-md-4">
                 <label class="form-label">Availability</label>
@@ -45,17 +55,20 @@
                         <option value="{{ $value }}" @selected(old('status', 'available') === $value)>{{ $label }}</option>
                     @endforeach
                 </select>
+                <x-accommodation-field-error field="status" />
             </div>
         </div>
 
         <div class="mb-3">
             <label class="form-label">Cover image</label>
-            <input type="file" name="image" class="form-control rp-field-narrow" accept="image/*">
+            <input type="file" name="image" class="form-control rp-field-narrow" accept=".jpg,.jpeg,.png,.webp">
+            <x-accommodation-field-error field="image" />
         </div>
 
         <div class="mb-3">
             <label class="form-label">Gallery images</label>
-            <input type="file" name="gallery[]" class="form-control rp-field-narrow" accept="image/*" multiple>
+            <input type="file" name="gallery[]" class="form-control rp-field-narrow" accept=".jpg,.jpeg,.png,.webp" multiple>
+            <x-accommodation-field-error field="gallery" />
         </div>
 
         <div class="d-flex justify-content-between mt-3">
@@ -69,6 +82,7 @@
             <div class="col-6">
                 <label class="form-label">Description</label>
                 <textarea name="description" class="form-control mb-3" rows="3">{{ old('description') }}</textarea>
+                <x-accommodation-field-error field="description" />
 
                 <div class="mt-0">
                     <label class="form-label">Active listing</label>
@@ -76,6 +90,7 @@
                         <option value="1" @selected(old('is_active', true))>Active</option>
                         <option value="0" @selected(! old('is_active', true))>Inactive</option>
                     </select>
+                    <x-accommodation-field-error field="is_active" />
                 </div>
             </div>
             <div class="col-6">
@@ -90,6 +105,7 @@
                         <div class="text-muted small">No amenities yet. Add some under Amenities first.</div>
                     @endforelse
                 </div>
+                <x-accommodation-field-error field="amenities" />
             </div>
         </div>
 
@@ -122,6 +138,9 @@
     form.querySelectorAll('[data-rp-acc-back]').forEach((btn) => {
         btn.addEventListener('click', () => goToStep(btn.dataset.rpAccBack));
     });
+
+    const firstErrorStep = form.querySelector('.invalid-feedback')?.closest('[data-rp-acc-step]');
+    if (firstErrorStep) goToStep(firstErrorStep.dataset.rpAccStep);
 })();
 </script>
 @endpush

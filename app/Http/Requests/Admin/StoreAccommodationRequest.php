@@ -18,7 +18,7 @@ class StoreAccommodationRequest extends FormRequest
         return [
             'accommodation_type_id' => ['required', 'exists:accommodation_types,id'],
             'name' => ['required', 'string', 'max:255'],
-            'number' => ['required', 'string', 'max:50'],
+            'number' => ['required', 'integer', 'between:1,10', Rule::unique('accommodations', 'number')],
             'description' => ['nullable', 'string'],
             'capacity' => ['required', 'integer', 'min:1'],
             'rate' => ['required', 'numeric', 'min:0'],

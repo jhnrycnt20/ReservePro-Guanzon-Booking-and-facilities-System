@@ -3,13 +3,18 @@
 namespace App\Http\Controllers\Guest;
 
 use App\Http\Controllers\Controller;
+use App\Models\Accommodation;
+use App\Services\BookingService;
 use App\Services\PromoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class PromoController extends Controller
 {
-    public function __construct(protected PromoService $promoService)
+    public function __construct(
+        protected PromoService $promoService,
+        protected BookingService $bookingService,
+    )
     {
     }
 
@@ -18,18 +23,22 @@ class PromoController extends Controller
         $data = $request->validate([
             'promo_code' => ['required', 'string', 'max:32'],
             'accommodation_id' => ['required', 'integer', 'exists:accommodations,id'],
-            'nights' => ['nullable', 'integer', 'min:1'],
-            'rate' => ['nullable', 'numeric', 'min:0'],
+            'check_in_date' => ['required', 'date_format:Y-m-d', 'after_or_equal:today'],
+            'check_out_date' => ['required', 'date_format:Y-m-d', 'after:check_in_date'],
         ]);
 
+        $accommodation = Accommodation::query()->findOrFail($data['accommodation_id']);
         $promo = $this->promoService->findValidForAccommodation(
             $data['promo_code'],
-            (int) $data['accommodation_id']
+            (int) $accommodation->id
         );
 
-        $rate = (float) ($data['rate'] ?? 0);
-        $nights = max(1, (int) ($data['nights'] ?? 1));
-        $original = round($rate * $nights, 2);
+        $totals = $this->bookingService->calculateTotal(
+            $accommodation,
+            $data['check_in_date'],
+            $data['check_out_date']
+        );
+        $original = $totals['total'];
         $discount = $promo->discountAmount($original);
         $final = max(0, round($original - $discount, 2));
 
@@ -40,7 +49,7 @@ class PromoController extends Controller
             'original_total' => $original,
             'discount_amount' => $discount,
             'promo_total' => $final,
-            'promo_rate' => $promo->discountedRate($rate),
+            'promo_rate' => $promo->discountedRate($totals['rate']),
             'message' => "{$promo->discount_percent}% off applied with code {$promo->code}.",
         ]);
     }

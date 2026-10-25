@@ -9,7 +9,9 @@ use App\Services\PromoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class PromoController extends Controller
@@ -235,22 +237,27 @@ class PromoController extends Controller
                 ->withErrors(['accommodation_ids' => 'Select at least one accommodation, or choose all accommodations.']);
         }
 
-        $promo->update([
-            'code' => $this->promoService->normalizeCode($data['code']),
-            'name' => $data['name'] ?? null,
-            'discount_percent' => $data['discount_percent'],
-            'applies_to_all' => $appliesToAll,
-            'is_active' => $request->boolean('is_active', true),
-            'starts_at' => $data['starts_at'] ?? null,
-            'ends_at' => $data['ends_at'] ?? null,
-            'usage_limit' => $data['usage_limit'] ?? null,
-        ]);
+        DB::transaction(function () use ($promo, $data, $request, $appliesToAll, $ids): void {
+            $promo = Promo::query()->lockForUpdate()->findOrFail($promo->id);
+            if (isset($data['usage_limit']) && (int) $data['usage_limit'] < $promo->used_count) {
+                throw ValidationException::withMessages([
+                    'usage_limit' => 'The usage limit cannot be lower than the number already used.',
+                ]);
+            }
 
-        if ($appliesToAll) {
-            $promo->accommodations()->sync([]);
-        } else {
-            $promo->accommodations()->sync($ids->all());
-        }
+            $promo->update([
+                'code' => $this->promoService->normalizeCode($data['code']),
+                'name' => $data['name'] ?? null,
+                'discount_percent' => $data['discount_percent'],
+                'applies_to_all' => $appliesToAll,
+                'is_active' => $request->boolean('is_active', true),
+                'starts_at' => $data['starts_at'] ?? null,
+                'ends_at' => $data['ends_at'] ?? null,
+                'usage_limit' => $data['usage_limit'] ?? null,
+            ]);
+
+            $promo->accommodations()->sync($appliesToAll ? [] : $ids->all());
+        });
 
         return redirect()
             ->route('admin.promos.show', $promo)

@@ -23,7 +23,7 @@ class InputValidationTest extends TestCase
         return User::query()->create([
             'role_id' => $role->id,
             'name' => 'Test User',
-            'email' => uniqid('user-', true).'@example.com',
+            'email' => uniqid('user', true).'@gmail.com',
             'password' => 'StrongPass123',
             'is_active' => true,
         ]);
@@ -110,7 +110,7 @@ class InputValidationTest extends TestCase
         ];
 
         $this->actingAs($staff)->post(route('front_desk.walkins.store'), $payload)
-            ->assertSessionHasErrors(['payment_amount', 'reference_number']);
+            ->assertSessionHasErrors(['payments.0.amount', 'payments.0.reference_number']);
 
         $this->assertDatabaseCount('bookings', 0);
     }
@@ -224,6 +224,31 @@ class InputValidationTest extends TestCase
         $this->assertDatabaseCount('promos', 1);
     }
 
+    public function test_admin_cannot_set_promo_limit_below_existing_uses(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $promo = \App\Models\Promo::query()->create([
+            'code' => 'USEDTWICE',
+            'name' => 'Used promo',
+            'discount_percent' => 20,
+            'applies_to_all' => true,
+            'is_active' => true,
+            'usage_limit' => 5,
+            'used_count' => 2,
+        ]);
+
+        $this->actingAs($admin)->put(route('admin.promos.update', $promo), [
+            'name' => $promo->name,
+            'code' => $promo->code,
+            'discount_percent' => 20,
+            'applies_to_all' => 1,
+            'usage_limit' => 1,
+            'is_active' => 1,
+        ])->assertSessionHasErrors(['usage_limit']);
+
+        $this->assertSame(5, $promo->fresh()->usage_limit);
+    }
+
     public function test_admin_email_uniqueness_is_case_insensitive(): void
     {
         $admin = $this->userWithRole('admin');
@@ -236,6 +261,123 @@ class InputValidationTest extends TestCase
             'password_confirmation' => 'StrongPass123',
             'role_id' => $existing->role_id,
         ])->assertSessionHasErrors(['email']);
+    }
+
+    public function test_admin_must_choose_a_supported_role(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $unsupportedRole = Role::query()->create(['name' => 'Other', 'slug' => 'other']);
+        $payload = [
+            'name' => 'New User',
+            'email' => 'new.user@gmail.com',
+            'password' => 'StrongPass123',
+            'password_confirmation' => 'StrongPass123',
+        ];
+
+        $this->actingAs($admin)->post(route('admin.users.store'), $payload)
+            ->assertSessionHasErrors(['role_id']);
+        $this->actingAs($admin)->post(route('admin.users.store'), [
+            ...$payload,
+            'role_id' => $unsupportedRole->id,
+        ])->assertSessionHasErrors(['role_id']);
+
+        $this->assertDatabaseCount('users', 1);
+    }
+
+    public function test_admin_created_guest_requires_a_valid_phone_and_normalizes_it(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $guestRole = Role::query()->create(['name' => 'Guest', 'slug' => 'guest']);
+        $payload = [
+            'name' => 'Guest User',
+            'email' => 'guest.user@gmail.com',
+            'role_id' => $guestRole->id,
+            'password' => 'StrongPass123',
+            'password_confirmation' => 'StrongPass123',
+        ];
+
+        $this->actingAs($admin)->post(route('admin.users.store'), $payload)
+            ->assertSessionHasErrors(['phone']);
+        $this->actingAs($admin)->post(route('admin.users.store'), [
+            ...$payload,
+            'phone' => 'not a phone',
+        ])->assertSessionHasErrors(['phone']);
+        $this->actingAs($admin)->post(route('admin.users.store'), [
+            ...$payload,
+            'phone' => '+63 (917) 123-4567',
+        ])->assertSessionHasNoErrors();
+
+        $guest = User::query()->where('email', $payload['email'])->firstOrFail();
+        $this->assertSame('09171234567', $guest->phone);
+        $this->assertSame('09171234567', $guest->guest->contact_number);
+    }
+
+    public function test_changing_a_user_to_guest_also_requires_a_contact_number(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $staff = $this->userWithRole('front_desk');
+        $guestRole = Role::query()->create(['name' => 'Guest', 'slug' => 'guest']);
+        $payload = [
+            'name' => $staff->name,
+            'email' => $staff->email,
+            'role_id' => $guestRole->id,
+            'is_active' => 1,
+        ];
+
+        $this->actingAs($admin)->put(route('admin.users.update', $staff), $payload)
+            ->assertSessionHasErrors(['phone']);
+        $this->assertSame('front_desk', $staff->fresh()->role->slug);
+
+        $this->actingAs($admin)->put(route('admin.users.update', $staff), [
+            ...$payload,
+            'phone' => '09171234567',
+        ])->assertSessionHasNoErrors();
+
+        $this->assertSame('guest', $staff->fresh()->role->slug);
+        $this->assertSame('09171234567', $staff->guest->contact_number);
+    }
+
+    public function test_add_user_normalizes_names_and_reports_confirmation_errors_on_the_confirmation_field(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $payload = [
+            'name' => '  Ana   María  ',
+            'email' => 'anamaria@gmail.com',
+            'role_id' => $admin->role_id,
+            'password' => 'StrongPass123',
+            'password_confirmation' => 'DifferentPass123',
+        ];
+
+        $this->actingAs($admin)->post(route('admin.users.store'), $payload)
+            ->assertSessionHasErrors(['password_confirmation']);
+        $this->actingAs($admin)->post(route('admin.users.store'), [
+            ...$payload,
+            'name' => '---',
+            'password_confirmation' => 'StrongPass123',
+        ])->assertSessionHasErrors(['name']);
+        $this->actingAs($admin)->post(route('admin.users.store'), [
+            ...$payload,
+            'password_confirmation' => 'StrongPass123',
+        ])->assertSessionHasNoErrors();
+
+        $this->assertSame('Ana María', User::query()->where('email', $payload['email'])->value('name'));
+    }
+
+    public function test_deleted_user_email_gets_a_clear_duplicate_error(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $deletedUser = $this->userWithRole('guest');
+        $deletedUser->delete();
+
+        $this->actingAs($admin)->post(route('admin.users.store'), [
+            'name' => 'Another User',
+            'email' => $deletedUser->email,
+            'role_id' => $admin->role_id,
+            'password' => 'StrongPass123',
+            'password_confirmation' => 'StrongPass123',
+        ])->assertSessionHasErrors([
+            'email' => 'This email is already associated with an account, including deleted accounts. Use a different email.',
+        ]);
     }
 
     public function test_accommodation_type_rejects_duplicate_generated_slug(): void

@@ -9,6 +9,7 @@ use App\Models\Amenity;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class AccommodationController extends Controller
@@ -133,24 +134,41 @@ class AccommodationController extends Controller
 
     protected function validated(Request $request, ?int $id = null, bool $statusLocked = false): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'accommodation_type_id' => ['required', 'exists:accommodation_types,id'],
             'name' => ['required', 'string', 'max:255'],
-            'number' => ['required', 'string', 'max:50', 'unique:accommodations,number,'.($id ?? 'NULL')],
+            'number' => ['required', 'integer', 'between:1,10', Rule::unique('accommodations', 'number')->ignore($id)],
             'description' => ['nullable', 'string'],
-            'capacity' => ['required', 'integer', 'min:1', 'max:4294967295'],
-            'rate' => ['required', 'numeric', 'min:0', 'max:9999999999.99', 'decimal:0,2'],
+            'capacity' => ['required', 'integer', 'min:1', 'max:50'],
+            'rate' => ['required', 'numeric', $request->boolean('is_active', true) ? 'min:0.01' : 'min:0', 'max:999999.99', 'decimal:0,2'],
             'status' => $statusLocked
                 ? ['nullable', 'string']
                 : ['required', 'in:'.implode(',', \App\Enums\AccommodationStatus::manualValues())],
-            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120', 'dimensions:min_width=800,min_height=600'],
             'gallery' => ['nullable', 'array', 'max:20'],
-            'gallery.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'gallery.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120', 'dimensions:min_width=400,min_height=300'],
             'remove_gallery' => ['nullable', 'array'],
-            'remove_gallery.*' => ['string', Rule::in($id ? (Accommodation::query()->find($id)?->gallery ?? []) : [])],
+            'remove_gallery.*' => ['string', 'distinct', Rule::in($id ? (Accommodation::query()->find($id)?->gallery ?? []) : [])],
             'amenities' => ['nullable', 'array'],
             'amenities.*' => ['integer', 'distinct', 'exists:amenities,id'],
+            'is_active' => ['required', 'boolean'],
+        ], [
+            'number.integer' => 'Select an accommodation number from 1 to 10.',
+            'number.between' => 'Select an accommodation number from 1 to 10.',
+            'rate.min' => 'The rate must be non-negative, and an active listing needs at least ₱0.01.',
+            'image.dimensions' => 'The cover image must be at least 800 × 600 pixels.',
+            'gallery.*.dimensions' => 'Each gallery image must be at least 400 × 300 pixels.',
         ]);
+
+        $remainingGallery = count($id ? (Accommodation::query()->find($id)?->gallery ?? []) : [])
+            - count($data['remove_gallery'] ?? []);
+        if ($remainingGallery + count($data['gallery'] ?? []) > 20) {
+            throw ValidationException::withMessages([
+                'gallery' => 'An accommodation can have no more than 20 gallery images.',
+            ]);
+        }
+
+        return $data;
     }
 
     /**

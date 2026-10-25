@@ -71,7 +71,7 @@
             </thead>
             <tbody>
                 @forelse($accommodations as $item)
-                    <tr class="rp-clickable-row" role="button" tabindex="0" data-bs-toggle="modal" data-bs-target="#rpAccViewModal{{ $item->id }}" title="View accommodation">
+                    <tr class="rp-clickable-row" role="button" tabindex="0" data-rp-row-modal="#rpAccViewModal{{ $item->id }}" title="View accommodation">
                         <td>
                             <span class="rp-clickable-row-label">{{ $item->name }}</span>
                         </td>
@@ -84,7 +84,7 @@
                             <div class="d-flex justify-content-end gap-2">
                                 <button type="button" class="btn btn-sm btn-rp-soft" data-bs-toggle="modal" data-bs-target="#rpAccViewModal{{ $item->id }}">View</button>
                                 <button type="button" class="btn btn-sm rp-staff-edit-button" data-bs-toggle="modal" data-bs-target="#rpAccEditModal{{ $item->id }}">Edit</button>
-                                <form method="POST" action="{{ route('admin.accommodations.destroy', $item) }}" data-rp-confirm="Delete this accommodation?">
+                                <form method="POST" action="{{ route('admin.accommodations.destroy', $item) }}" data-rp-confirm="Are you sure you want to permanently delete this accommodation? This action cannot be undone.">
                                     @csrf
                                     @method('DELETE')
                                     <button class="btn btn-sm btn-outline-danger">Delete</button>
@@ -102,6 +102,9 @@
 </div>
 
 {{-- Create --}}
+@php
+    $isAccCreate = old('_modal') === 'acc_create';
+@endphp
 <div class="modal fade" id="rpAccCreateModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
         <form class="modal-content rp-admin-modal" method="POST" action="{{ route('admin.accommodations.store') }}" enctype="multipart/form-data" data-rp-acc-form>
@@ -115,11 +118,18 @@
                     <div class="rp-promo-form-stack">
                         <div>
                             <label class="form-label">Name</label>
-                            <input type="text" name="name" class="form-control" value="{{ old('_modal') === 'acc_create' ? old('name') : '' }}" required>
+                            <input type="text" name="name" class="form-control" value="{{ old('_modal') === 'acc_create' ? old('name') : '' }}" placeholder="e.g. Deluxe Family Cabin" required>
+                            <x-accommodation-field-error field="name" :show="$isAccCreate" />
                         </div>
                         <div>
-                            <label class="form-label">Number / Code</label>
-                            <input type="text" name="number" class="form-control" value="{{ old('_modal') === 'acc_create' ? old('number') : '' }}" required>
+                            <label class="form-label">Number</label>
+                            <select name="number" class="form-select" required>
+                                <option value="" disabled @selected(old('_modal') !== 'acc_create' || old('number') === null)>Select a number</option>
+                                @foreach(range(1, 10) as $number)
+                                    <option value="{{ $number }}" @selected(old('_modal') === 'acc_create' && (string) old('number') === (string) $number)>{{ $number }}</option>
+                                @endforeach
+                            </select>
+                            <x-accommodation-field-error field="number" :show="$isAccCreate" />
                         </div>
                         <div>
                             <label class="form-label">Type</label>
@@ -128,14 +138,17 @@
                                     <option value="{{ $type->id }}" @selected(old('_modal') === 'acc_create' && old('accommodation_type_id') == $type->id)>{{ $type->name }}</option>
                                 @endforeach
                             </select>
+                            <x-accommodation-field-error field="accommodation_type_id" :show="$isAccCreate" />
                         </div>
                         <div>
                             <label class="form-label">Capacity</label>
-                            <input type="number" min="1" name="capacity" class="form-control rp-no-spinner" value="{{ old('_modal') === 'acc_create' ? old('capacity', 2) : 2 }}" required>
+                            <input type="number" min="1" max="50" name="capacity" class="form-control rp-no-spinner" value="{{ old('_modal') === 'acc_create' ? old('capacity', 2) : 2 }}" required>
+                            <x-accommodation-field-error field="capacity" :show="$isAccCreate" />
                         </div>
                         <div>
                             <label class="form-label">Rate</label>
-                            <input type="number" step="0.01" min="0" name="rate" class="form-control rp-no-spinner" value="{{ old('_modal') === 'acc_create' ? old('rate') : '' }}" required>
+                            <input type="number" step="0.01" min="0" max="999999.99" name="rate" class="form-control rp-no-spinner" value="{{ old('_modal') === 'acc_create' ? old('rate') : '' }}" placeholder="e.g. 2500.00" required>
+                            <x-accommodation-field-error field="rate" :show="$isAccCreate" />
                         </div>
                         <div>
                             <label class="form-label">Availability</label>
@@ -144,6 +157,7 @@
                                     <option value="{{ $value }}" @selected((old('_modal') === 'acc_create' ? old('status', 'available') : 'available') === $value)>{{ $label }}</option>
                                 @endforeach
                             </select>
+                            <x-accommodation-field-error field="status" :show="$isAccCreate" />
                         </div>
                         <div>
                             <label class="form-label">Active listing</label>
@@ -151,18 +165,7 @@
                                 <option value="1" @selected(old('_modal') !== 'acc_create' || old('is_active', '1') == '1')>Active</option>
                                 <option value="0" @selected(old('_modal') === 'acc_create' && old('is_active') == '0')>Inactive</option>
                             </select>
-                        </div>
-                        <div>
-                            <label class="form-label">Cover image</label>
-                            <input type="file" name="image" class="form-control" accept="image/*">
-                        </div>
-                        <div>
-                            <label class="form-label">Gallery images</label>
-                            <input type="file" name="gallery[]" class="form-control" accept="image/*" multiple>
-                        </div>
-                        <div>
-                            <label class="form-label">Description</label>
-                            <textarea name="description" class="form-control" rows="2">{{ old('_modal') === 'acc_create' ? old('description') : '' }}</textarea>
+                            <x-accommodation-field-error field="is_active" :show="$isAccCreate" />
                         </div>
                         <div>
                             <label class="form-label">Amenities</label>
@@ -189,6 +192,30 @@
                                     @endforelse
                                 </div>
                             </div>
+                            <x-accommodation-field-error field="amenities" :show="$isAccCreate" />
+                        </div>
+                        <div>
+                            <label class="form-label" for="rpAccCreateCoverImage">Cover image</label>
+                            <div class="rp-acc-file-picker" data-rp-acc-file-picker>
+                                <span class="rp-acc-file-picker-button" aria-hidden="true">Browse files</span>
+                                <span class="rp-acc-file-picker-name" id="rpAccCreateCoverName" data-rp-acc-file-name aria-live="polite">No file selected.</span>
+                                <input id="rpAccCreateCoverImage" type="file" name="image" class="rp-acc-file-picker-input" accept=".jpg,.jpeg,.png,.webp" aria-describedby="rpAccCreateCoverName">
+                            </div>
+                            <x-accommodation-field-error field="image" :show="$isAccCreate" />
+                        </div>
+                        <div>
+                            <label class="form-label" for="rpAccCreateGalleryImages">Gallery images</label>
+                            <div class="rp-acc-file-picker" data-rp-acc-file-picker>
+                                <span class="rp-acc-file-picker-button" aria-hidden="true">Browse files</span>
+                                <span class="rp-acc-file-picker-name" id="rpAccCreateGalleryName" data-rp-acc-file-name aria-live="polite">No files selected.</span>
+                                <input id="rpAccCreateGalleryImages" type="file" name="gallery[]" class="rp-acc-file-picker-input" accept=".jpg,.jpeg,.png,.webp" aria-describedby="rpAccCreateGalleryName" multiple>
+                            </div>
+                            <x-accommodation-field-error field="gallery" :show="$isAccCreate" />
+                        </div>
+                        <div>
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control" rows="2" placeholder="e.g. Air-conditioned cabin with a private bathroom.">{{ old('_modal') === 'acc_create' ? old('description') : '' }}</textarea>
+                            <x-accommodation-field-error field="description" :show="$isAccCreate" />
                         </div>
                     </div>
                 </div>
@@ -211,78 +238,94 @@
     <div class="modal fade" id="rpAccViewModal{{ $item->id }}" tabindex="-1" aria-labelledby="rpAccViewModalLabel{{ $item->id }}" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
             <div class="modal-content rp-admin-modal rp-acc-view-modal">
-                <div class="modal-header border-0 pb-0">
-                    <h2 class="modal-title h5 visually-hidden" id="rpAccViewModalLabel{{ $item->id }}">{{ $item->name }}</h2>
-                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-header">
+                    <div class="rp-acc-view-header-title">
+                        <span class="rp-acc-view-header-icon" aria-hidden="true"><i class="bi bi-building"></i></span>
+                        <div>
+                            <h2 class="modal-title h5" id="rpAccViewModalLabel{{ $item->id }}">Accommodation details</h2>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body pt-0">
+                <div class="modal-body">
                     <div class="rp-acc-view-card">
-                        <div class="rp-acc-view-meta">No. {{ $item->number }} · {{ $item->type->name ?? 'Room' }}</div>
-                        <div class="rp-acc-view-title">{{ $item->name }}</div>
-
-                        @if($galleryUrls->isEmpty())
-                            <div class="text-muted mb-4">No images uploaded.</div>
-                        @else
-                            <div id="rpAccGallery{{ $item->id }}" class="carousel slide rp-acc-carousel mb-4" data-bs-touch="true" data-bs-interval="false" aria-label="{{ $item->name }} photo gallery">
-                                <div class="carousel-inner">
-                                    @foreach($galleryUrls as $imageUrl)
-                                        <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
-                                            <button type="button" class="rp-acc-gallery-hit" data-rp-lightbox="{{ $imageUrl }}" aria-label="View {{ $item->name }} photo {{ $loop->iteration }} full size">
-                                                <img src="{{ $imageUrl }}" alt="" class="rp-acc-carousel-backdrop" aria-hidden="true">
-                                                <img src="{{ $imageUrl }}" alt="{{ $item->name }} photo {{ $loop->iteration }}" class="rp-accommodation-gallery-main">
-                                            </button>
-                                        </div>
-                                    @endforeach
-                                </div>
-                                @if($galleryUrls->count() > 1)
-                                    <button class="carousel-control-prev" type="button" data-bs-target="#rpAccGallery{{ $item->id }}" data-bs-slide="prev" aria-label="Previous photo">
-                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                    </button>
-                                    <button class="carousel-control-next" type="button" data-bs-target="#rpAccGallery{{ $item->id }}" data-bs-slide="next" aria-label="Next photo">
-                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                    </button>
-                                    <div class="carousel-indicators rp-acc-carousel-indicators">
-                                        @foreach($galleryUrls as $imageUrl)
-                                            <button type="button" data-bs-target="#rpAccGallery{{ $item->id }}" data-bs-slide-to="{{ $loop->index }}" class="{{ $loop->first ? 'active' : '' }}" @if($loop->first) aria-current="true" @endif aria-label="Show photo {{ $loop->iteration }}">
-                                                <img src="{{ $imageUrl }}" alt="">
-                                            </button>
-                                        @endforeach
-                                    </div>
-                                @endif
+                        <div class="rp-acc-view-heading">
+                            <div>
+                                <div class="rp-acc-view-meta">{{ $item->type->name ?? 'Accommodation' }} · No. {{ $item->number }}</div>
+                                <div class="rp-acc-view-title">{{ $item->name }}</div>
                             </div>
-                        @endif
-
-                        <div class="row g-3 mb-4">
-                            <div class="col-4">
-                                <div class="rp-stat">
-                                    <div class="label">Capacity</div>
-                                    <div class="value">{{ $item->capacity }}</div>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="rp-stat">
-                                    <div class="label">Rate</div>
-                                    <div class="value">₱{{ number_format((float) $item->rate, 0) }}</div>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="rp-stat">
-                                    <div class="label">Listed</div>
-                                    <div class="value">{{ $item->is_active ? 'Yes' : 'No' }}</div>
-                                </div>
+                            <div class="rp-acc-view-badges">
+                                <span class="rp-acc-view-badge {{ $statusValue === 'available' ? 'is-available' : '' }}">{{ ucfirst(str_replace('_', ' ', $statusValue)) }}</span>
+                                <span class="rp-acc-view-badge {{ $item->is_active ? 'is-listed' : 'is-unlisted' }}">{{ $item->is_active ? 'Active listing' : 'Inactive listing' }}</span>
                             </div>
                         </div>
 
-                        <h3 class="h6 mb-2">Description</h3>
-                        <p class="text-muted mb-4">{{ $item->description ?: 'No description.' }}</p>
+                        <div class="rp-acc-view-layout">
+                            <div class="rp-acc-view-gallery">
+                                @if($galleryUrls->isEmpty())
+                                    <div class="rp-acc-view-empty-photo">
+                                        <i class="bi bi-image" aria-hidden="true"></i>
+                                        <span>No images uploaded</span>
+                                    </div>
+                                @else
+                                    <div id="rpAccGallery{{ $item->id }}" class="carousel slide rp-acc-carousel" data-bs-touch="true" data-bs-interval="false" aria-label="{{ $item->name }} photo gallery">
+                                        <div class="carousel-inner">
+                                            @foreach($galleryUrls as $imageUrl)
+                                                <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
+                                                    <button type="button" class="rp-acc-gallery-hit" data-rp-lightbox="{{ $imageUrl }}" aria-label="View {{ $item->name }} photo {{ $loop->iteration }} full size">
+                                                        <img src="{{ $imageUrl }}" alt="" class="rp-acc-carousel-backdrop" aria-hidden="true">
+                                                        <img src="{{ $imageUrl }}" alt="{{ $item->name }} photo {{ $loop->iteration }}" class="rp-accommodation-gallery-main">
+                                                    </button>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        @if($galleryUrls->count() > 1)
+                                            <button class="carousel-control-prev" type="button" data-bs-target="#rpAccGallery{{ $item->id }}" data-bs-slide="prev" aria-label="Previous photo">
+                                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                            </button>
+                                            <button class="carousel-control-next" type="button" data-bs-target="#rpAccGallery{{ $item->id }}" data-bs-slide="next" aria-label="Next photo">
+                                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                            </button>
+                                            <div class="carousel-indicators rp-acc-carousel-indicators">
+                                                @foreach($galleryUrls as $imageUrl)
+                                                    <button type="button" data-bs-target="#rpAccGallery{{ $item->id }}" data-bs-slide-to="{{ $loop->index }}" class="{{ $loop->first ? 'active' : '' }}" @if($loop->first) aria-current="true" @endif aria-label="Show photo {{ $loop->iteration }}">
+                                                        <img src="{{ $imageUrl }}" alt="">
+                                                    </button>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
+                            </div>
 
-                        <h3 class="h6 mb-2">Amenities</h3>
-                        <div class="d-flex flex-wrap gap-2">
-                            @forelse($item->amenities as $amenity)
-                                <span class="badge text-bg-light border">{{ $amenity->name }}</span>
-                            @empty
-                                <span class="text-muted">No amenities listed.</span>
-                            @endforelse
+                            <div class="rp-acc-view-details">
+                                <div class="rp-acc-view-facts">
+                                    <div class="rp-acc-view-fact">
+                                        <span class="rp-acc-view-fact-icon"><i class="bi bi-people" aria-hidden="true"></i></span>
+                                        <div><span>Capacity</span><strong>{{ $item->capacity }} {{ (int) $item->capacity === 1 ? 'guest' : 'guests' }}</strong></div>
+                                    </div>
+                                    <div class="rp-acc-view-fact">
+                                        <span class="rp-acc-view-fact-icon"><i class="bi bi-cash-stack" aria-hidden="true"></i></span>
+                                        <div><span>Rate</span><strong>₱{{ number_format((float) $item->rate, 2) }}</strong></div>
+                                    </div>
+                                </div>
+
+                                <section class="rp-acc-view-section">
+                                    <h3><i class="bi bi-card-text" aria-hidden="true"></i>Description</h3>
+                                    <p>{{ $item->description ?: 'No description provided.' }}</p>
+                                </section>
+
+                                <section class="rp-acc-view-section">
+                                    <h3><i class="bi bi-stars" aria-hidden="true"></i>Amenities</h3>
+                                    <div class="rp-acc-view-amenities">
+                                        @forelse($item->amenities as $amenity)
+                                            <span><i class="bi bi-check2" aria-hidden="true"></i>{{ $amenity->name }}</span>
+                                        @empty
+                                            <p>No amenities listed.</p>
+                                        @endforelse
+                                    </div>
+                                </section>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -293,6 +336,7 @@
     {{-- Edit --}}
     @php
         $statusLocked = $item->isStatusLocked();
+        $isAccEdit = old('_modal') === 'acc_edit_'.$item->id;
         $selectedStatus = old('_modal') === 'acc_edit_'.$item->id ? old('status', $statusValue) : $statusValue;
         if (! in_array($selectedStatus, \App\Enums\AccommodationStatus::manualValues(), true)) {
             $selectedStatus = \App\Enums\AccommodationStatus::Available->value;
@@ -314,10 +358,18 @@
                             <div>
                                 <label class="form-label">Name</label>
                                 <input type="text" name="name" class="form-control" value="{{ old('_modal') === 'acc_edit_'.$item->id ? old('name') : $item->name }}" required>
+                                <x-accommodation-field-error field="name" :show="$isAccEdit" />
                             </div>
                             <div>
-                                <label class="form-label">Number / Code</label>
-                                <input type="text" name="number" class="form-control" value="{{ old('_modal') === 'acc_edit_'.$item->id ? old('number') : $item->number }}" required>
+                                <label class="form-label">Number</label>
+                                @php $selectedNumber = old('_modal') === 'acc_edit_'.$item->id ? old('number') : $item->number; @endphp
+                                <select name="number" class="form-select" required>
+                                    <option value="" disabled @selected(! in_array((int) $selectedNumber, range(1, 10), true))>Select a number</option>
+                                    @foreach(range(1, 10) as $number)
+                                        <option value="{{ $number }}" @selected((string) $selectedNumber === (string) $number)>{{ $number }}</option>
+                                    @endforeach
+                                </select>
+                                <x-accommodation-field-error field="number" :show="$isAccEdit" />
                             </div>
                             <div>
                                 <label class="form-label">Type</label>
@@ -326,14 +378,17 @@
                                         <option value="{{ $type->id }}" @selected((old('_modal') === 'acc_edit_'.$item->id ? old('accommodation_type_id') : $item->accommodation_type_id) == $type->id)>{{ $type->name }}</option>
                                     @endforeach
                                 </select>
+                                <x-accommodation-field-error field="accommodation_type_id" :show="$isAccEdit" />
                             </div>
                             <div>
                                 <label class="form-label">Capacity</label>
-                                <input type="number" min="1" name="capacity" class="form-control rp-no-spinner" value="{{ old('_modal') === 'acc_edit_'.$item->id ? old('capacity') : $item->capacity }}" required>
+                                <input type="number" min="1" max="50" name="capacity" class="form-control rp-no-spinner" value="{{ old('_modal') === 'acc_edit_'.$item->id ? old('capacity') : $item->capacity }}" required>
+                                <x-accommodation-field-error field="capacity" :show="$isAccEdit" />
                             </div>
                             <div>
                                 <label class="form-label">Rate</label>
-                                <input type="number" step="0.01" min="0" name="rate" class="form-control rp-no-spinner" value="{{ old('_modal') === 'acc_edit_'.$item->id ? old('rate') : $item->rate }}" required>
+                                <input type="number" step="0.01" min="0" max="999999.99" name="rate" class="form-control rp-no-spinner" value="{{ old('_modal') === 'acc_edit_'.$item->id ? old('rate') : $item->rate }}" required>
+                                <x-accommodation-field-error field="rate" :show="$isAccEdit" />
                             </div>
                             <div>
                                 <label class="form-label">Availability</label>
@@ -348,6 +403,7 @@
                                         @endforeach
                                     </select>
                                 @endif
+                                <x-accommodation-field-error field="status" :show="$isAccEdit" />
                             </div>
                             <div>
                                 <label class="form-label">Active listing</label>
@@ -355,37 +411,7 @@
                                     <option value="1" @selected($activeVal == '1')>Active</option>
                                     <option value="0" @selected($activeVal == '0')>Inactive</option>
                                 </select>
-                            </div>
-                            <div>
-                                <label class="form-label">Cover image</label>
-                                <input type="file" name="image" class="form-control" accept="image/*">
-                                @if($item->image)
-                                    <img src="{{ $item->image_url }}" alt="" class="img-thumbnail mt-2" style="max-height: 64px;">
-                                @endif
-                            </div>
-                            <div>
-                                <label class="form-label">Add gallery images</label>
-                                <input type="file" name="gallery[]" class="form-control" accept="image/*" multiple>
-                            </div>
-                            @if($item->gallery_items)
-                                <div>
-                                    <label class="form-label">Current gallery</label>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        @foreach($item->gallery_items as $index => $galleryItem)
-                                            <div class="rp-gallery-thumb-check">
-                                                <img src="{{ $galleryItem['url'] }}" alt="" class="img-fluid rounded border">
-                                                <div class="form-check mt-1">
-                                                    <input class="form-check-input" type="checkbox" name="remove_gallery[]" value="{{ $galleryItem['path'] }}" id="removeGallery{{ $item->id }}_{{ $index }}">
-                                                    <label class="form-check-label small" for="removeGallery{{ $item->id }}_{{ $index }}">Remove</label>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            @endif
-                            <div>
-                                <label class="form-label">Description</label>
-                                <textarea name="description" class="form-control" rows="2">{{ old('_modal') === 'acc_edit_'.$item->id ? old('description') : $item->description }}</textarea>
+                                <x-accommodation-field-error field="is_active" :show="$isAccEdit" />
                             </div>
                             <div>
                                 <label class="form-label">Amenities</label>
@@ -410,6 +436,50 @@
                                         @endforeach
                                     </div>
                                 </div>
+                                <x-accommodation-field-error field="amenities" :show="$isAccEdit" />
+                            </div>
+                            <div>
+                                <label class="form-label" for="rpAccEditCoverImage{{ $item->id }}">Cover image</label>
+                                <div class="rp-acc-file-picker" data-rp-acc-file-picker>
+                                    <span class="rp-acc-file-picker-button" aria-hidden="true">Browse files</span>
+                                    <span class="rp-acc-file-picker-name" id="rpAccEditCoverName{{ $item->id }}" data-rp-acc-file-name aria-live="polite">No file selected.</span>
+                                    <input id="rpAccEditCoverImage{{ $item->id }}" type="file" name="image" class="rp-acc-file-picker-input" accept=".jpg,.jpeg,.png,.webp" aria-describedby="rpAccEditCoverName{{ $item->id }}">
+                                </div>
+                                <x-accommodation-field-error field="image" :show="$isAccEdit" />
+                                @if($item->image)
+                                    <img src="{{ $item->image_url }}" alt="" class="img-thumbnail mt-2" style="max-height: 64px;">
+                                @endif
+                            </div>
+                            <div>
+                                <label class="form-label" for="rpAccEditGalleryImages{{ $item->id }}">Add gallery images</label>
+                                <div class="rp-acc-file-picker" data-rp-acc-file-picker>
+                                    <span class="rp-acc-file-picker-button" aria-hidden="true">Browse files</span>
+                                    <span class="rp-acc-file-picker-name" id="rpAccEditGalleryName{{ $item->id }}" data-rp-acc-file-name aria-live="polite">No files selected.</span>
+                                    <input id="rpAccEditGalleryImages{{ $item->id }}" type="file" name="gallery[]" class="rp-acc-file-picker-input" accept=".jpg,.jpeg,.png,.webp" aria-describedby="rpAccEditGalleryName{{ $item->id }}" multiple>
+                                </div>
+                                <x-accommodation-field-error field="gallery" :show="$isAccEdit" />
+                            </div>
+                            @if($item->gallery_items)
+                                <div>
+                                    <label class="form-label">Current gallery</label>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @foreach($item->gallery_items as $index => $galleryItem)
+                                            <div class="rp-gallery-thumb-check">
+                                                <img src="{{ $galleryItem['url'] }}" alt="" class="img-fluid rounded border">
+                                                <div class="form-check mt-1">
+                                                    <input class="form-check-input" type="checkbox" name="remove_gallery[]" value="{{ $galleryItem['path'] }}" id="removeGallery{{ $item->id }}_{{ $index }}">
+                                                    <label class="form-check-label small" for="removeGallery{{ $item->id }}_{{ $index }}">Remove</label>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    <x-accommodation-field-error field="remove_gallery" :show="$isAccEdit" />
+                                </div>
+                            @endif
+                            <div>
+                                <label class="form-label">Description</label>
+                                <textarea name="description" class="form-control" rows="2">{{ old('_modal') === 'acc_edit_'.$item->id ? old('description') : $item->description }}</textarea>
+                                <x-accommodation-field-error field="description" :show="$isAccEdit" />
                             </div>
                         </div>
                     </div>
@@ -454,16 +524,42 @@ document.addEventListener('DOMContentLoaded', () => {
         syncLabel();
     });
 
+    document.querySelectorAll('[data-rp-acc-file-picker]').forEach((picker) => {
+        const input = picker.querySelector('input[type="file"]');
+        const name = picker.querySelector('[data-rp-acc-file-name]');
+        input?.addEventListener('change', () => {
+            const files = Array.from(input.files || []);
+            name.textContent = files.length === 0
+                ? (input.multiple ? 'No files selected.' : 'No file selected.')
+                : files.length === 1 ? files[0].name : `${files.length} files selected`;
+        });
+    });
+
     document.querySelectorAll('[data-rp-stop-row-click]').forEach((cell) => {
         cell.addEventListener('click', (event) => event.stopPropagation());
         cell.addEventListener('keydown', (event) => event.stopPropagation());
     });
 
     document.querySelectorAll('.rp-clickable-row').forEach((row) => {
+        const openDetails = () => {
+            const selector = row.dataset.rpRowModal;
+            if (!selector) return;
+            const target = document.querySelector(selector);
+            if (target && window.bootstrap?.Modal) {
+                window.bootstrap.Modal.getOrCreateInstance(target).show();
+            }
+        };
+
+        row.addEventListener('click', (event) => {
+            if (event.target.closest('button, a, form, input, select, textarea, label, [data-rp-stop-row-click]')) return;
+            openDetails();
+        });
+
         row.addEventListener('keydown', (event) => {
+            if (event.target !== row) return;
             if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
-                row.click();
+                openDetails();
             }
         });
     });

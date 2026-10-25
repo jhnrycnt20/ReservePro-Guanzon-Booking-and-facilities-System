@@ -311,6 +311,103 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-acc-carousel-indicators {
     background: #242526;
 }
 
+html[data-bs-theme="dark"] .rp-staff-ui .rp-acc-view-header-icon {
+    background: #2a4a4d;
+    color: #b8ede3;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-acc-view-header-title :is(.modal-title, p),
+html[data-bs-theme="dark"] .rp-staff-ui .rp-acc-view-fact strong,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-acc-view-section h3 {
+    color: var(--rp-text);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-acc-view-fact, .rp-acc-view-section, .rp-acc-view-empty-photo) {
+    border-color: #565b5e;
+    background: #393c3e;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-acc-view-fact-icon {
+    background: #2d5150;
+    color: #b8ede3;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-acc-view-fact div > span, .rp-acc-view-section p, .rp-acc-view-empty-photo) {
+    color: #bdc7ca;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-acc-view-amenities > span {
+    border-color: #4d6864;
+    background: #314b49;
+    color: #d8efea;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-acc-view-badge {
+    border-color: #5b6265;
+    background: #414547;
+    color: #d1d8da;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-acc-view-badge.is-available,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-acc-view-badge.is-listed {
+    border-color: #4f716b;
+    background: #304c48;
+    color: #bce7dd;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-acc-view-badge.is-unlisted {
+    border-color: #774f54;
+    background: #51383b;
+    color: #f1c2c7;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-promo-view-header-icon,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-promo-view-stat-icon {
+    background: #2a4a4d;
+    color: #b8ede3;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-promo-view-name, .rp-promo-view-stat strong, .rp-promo-view-section h3, .rp-promo-view-schedule strong) {
+    color: var(--rp-text);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-promo-view-stat, .rp-promo-view-section) {
+    border-color: #565b5e;
+    background: #393c3e;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-promo-view-field-label, .rp-promo-view-stat span:not(.rp-promo-view-stat-icon), .rp-promo-view-schedule span, .rp-promo-view-accommodations p) {
+    color: #bdc7ca;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-promo-view-schedule > div {
+    border-color: #53585a;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-promo-view-accommodations > span {
+    border-color: #4d6864;
+    background: #314b49;
+    color: #d8efea;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-promo-view-status {
+    border-color: #5b6265;
+    background: #414547;
+    color: #d1d8da;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-promo-view-status.is-active {
+    border-color: #4f716b;
+    background: #304c48;
+    color: #bce7dd;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-promo-view-status.is-inactive {
+    border-color: #774f54;
+    background: #51383b;
+    color: #f1c2c7;
+}
+
 html[data-bs-theme="dark"] .rp-staff-ui .rp-clickable-row-label {
     color: var(--rp-text);
 }
@@ -427,8 +524,8 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-profile-details > div {
 
 /* The modal layout uses an ID selector for this preview, so match it in dark mode. */
 html[data-bs-theme="dark"] .rp-staff-ui :is(#rpPromoCreateModal, [id^="rpPromoEditModal"]) .rp-promo-preview {
-    background: #213741;
-    border-color: var(--rp-border);
+    background: #414446;
+    border-color: #686d70;
     color: var(--rp-text);
 }
 
@@ -444,7 +541,7 @@ html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-pay-tip p, .rp-profile-details d
     color: var(--rp-text);
 }
 
-html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-modal-sub, .rp-profile-details dt, .rp-profile-identity-meta, .rp-profile-section-title, .rp-profile-photo-hint, .rp-user-create-subtitle, .rp-user-create-section-heading p, .rp-user-create-hint, .rp-user-create-footer-note) {
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-modal-sub, .rp-profile-details dt, .rp-profile-identity-meta, .rp-profile-section-title, .rp-profile-photo-hint, .rp-user-create-hint) {
     color: var(--rp-muted);
 }
 
@@ -458,7 +555,7 @@ html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-back-btn, .rp-profile-la
     color: #d5e8e9;
 }
 
-html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-section + .rp-profile-section, .rp-user-create-security) {
+html[data-bs-theme="dark"] .rp-staff-ui .rp-profile-section + .rp-profile-section {
     border-color: var(--rp-border);
 }
 
@@ -476,6 +573,15 @@ html[data-bs-theme="dark"] .rp-staff-ui .modal :is(.modal-header, .modal-body, .
 
 html[data-bs-theme="dark"] .rp-staff-ui .modal .modal-footer {
     background: #172731;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui #rpConfirmModal .modal-footer {
+    background: var(--rp-surface);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-user-create-modal .modal-footer,
+html[data-bs-theme="dark"] .rp-staff-ui :is(#rpAccCreateModal, [id^="rpAccEditModal"], #rpPromoCreateModal, [id^="rpPromoEditModal"]) .modal-footer {
+    background: var(--rp-surface);
 }
 
 html[data-bs-theme="dark"] .rp-staff-ui .modal :is(.modal-title, .rp-user-create-section-heading h3) {
@@ -509,6 +615,61 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-user-create-field :is(.form-control,
     background-color: #203640;
     border-color: #46616a;
     color: var(--rp-text);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui #rpUserCreateModal .rp-user-create-field :is(.form-control, .form-select),
+html[data-bs-theme="dark"] .rp-staff-ui .rp-user-edit-modal .rp-profile-stack :is(.form-control, .form-select) {
+    background-color: #414446;
+    border-color: #686d70;
+    color: #f1f4f4;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui #rpUserCreateModal .rp-user-create-field :is(.form-control, .form-select):is(:hover, :focus),
+html[data-bs-theme="dark"] .rp-staff-ui .rp-user-edit-modal .rp-profile-stack :is(.form-control, .form-select):is(:hover, :focus) {
+    background-color: #4b4f51;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(#rpAccCreateModal, [id^="rpAccEditModal"]) .rp-promo-form-stack :is(.form-control, .form-select) {
+    background-color: #414446;
+    border-color: #686d70;
+    color: #f1f4f4;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(#rpAccCreateModal, [id^="rpAccEditModal"]) .rp-promo-form-stack :is(.form-control, .form-select):is(:hover, :focus) {
+    background-color: #4b4f51;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(#rpPromoCreateModal, [id^="rpPromoEditModal"]) .rp-promo-form-stack :is(.form-control, .form-select) {
+    background-color: #414446;
+    border-color: #686d70;
+    color: #f1f4f4;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(#rpPromoCreateModal, [id^="rpPromoEditModal"]) .rp-promo-form-stack :is(.form-control, .form-select):is(:hover, :focus) {
+    background-color: #4b4f51;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(#rpAccCreateModal, [id^="rpAccEditModal"]) .rp-acc-file-picker {
+    background: #414446;
+    border-color: #686d70;
+    color: #f1f4f4;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(#rpAccCreateModal, [id^="rpAccEditModal"]) .rp-acc-file-picker-button {
+    background: #4b4f51;
+    border-color: #686d70;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui #rpUserCreateModal .rp-user-create-field .form-control::placeholder,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-user-edit-modal .rp-profile-stack .form-control::placeholder {
+    color: #b8bec1;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui #rpUserCreateModal .rp-user-create-field .input-group [data-rp-toggle-password],
+html[data-bs-theme="dark"] .rp-staff-ui .rp-user-edit-modal .rp-profile-stack .input-group [data-rp-toggle-password] {
+    background-color: #414446;
+    border-color: #686d70;
+    color: #e3e8e9;
 }
 
 html[data-bs-theme="dark"] .rp-staff-ui .modal :is(.form-control, .form-select)::placeholder {

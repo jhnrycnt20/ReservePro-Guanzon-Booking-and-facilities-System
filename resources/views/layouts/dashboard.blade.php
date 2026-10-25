@@ -41,35 +41,29 @@
             <nav class="rp-nav">
                 @yield('sidebar')
             </nav>
-            <div class="rp-sidebar-footer">
-                @if($rpStaffPanel)
-                    <div class="rp-sidebar-user">
-                @else
+            @unless($rpStaffPanel)
+                <div class="rp-sidebar-footer">
                     <a href="{{ route('profile.edit') }}" class="rp-sidebar-user">
-                @endif
-                    <div class="rp-sidebar-user-avatar" aria-hidden="true">
-                        @if(auth()->user()->avatar_url)
-                            <img src="{{ auth()->user()->avatar_url }}" alt="">
-                        @else
-                            <span>{{ strtoupper(mb_substr(auth()->user()->name ?? 'U', 0, 1)) }}</span>
-                        @endif
-                    </div>
-                    <div class="rp-sidebar-user-text">
-                        <div class="rp-sidebar-user-name">{{ auth()->user()->name }}</div>
-                        <div class="rp-sidebar-user-email">{{ auth()->user()->email }}</div>
-                    </div>
-                @if($rpStaffPanel)
-                    </div>
-                @else
+                        <div class="rp-sidebar-user-avatar" aria-hidden="true">
+                            @if(auth()->user()->avatar_url)
+                                <img src="{{ auth()->user()->avatar_url }}" alt="">
+                            @else
+                                <span>{{ strtoupper(mb_substr(auth()->user()->name ?? 'U', 0, 1)) }}</span>
+                            @endif
+                        </div>
+                        <div class="rp-sidebar-user-text">
+                            <div class="rp-sidebar-user-name">{{ auth()->user()->name }}</div>
+                            <div class="rp-sidebar-user-email">{{ auth()->user()->email }}</div>
+                        </div>
                     </a>
-                @endif
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="btn btn-outline-light btn-sm w-100 rp-logout-btn">
-                        <i class="bi bi-box-arrow-right me-1"></i> Logout
-                    </button>
-                </form>
-            </div>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-light btn-sm w-100 rp-logout-btn">
+                            <i class="bi bi-box-arrow-right me-1"></i> Logout
+                        </button>
+                    </form>
+                </div>
+            @endunless
         </aside>
 
         <div class="rp-main">
@@ -166,6 +160,13 @@
                                         <i class="bi bi-gear" aria-hidden="true"></i> Settings
                                     </button>
                                 @endif
+                                <div class="dropdown-divider"></div>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="bi bi-box-arrow-right" aria-hidden="true"></i> Logout
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     @endif

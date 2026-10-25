@@ -31,6 +31,16 @@ class PromoService
 
     public function findValidForAccommodation(string $code, int $accommodationId): Promo
     {
+        return $this->findForAccommodation($code, $accommodationId, false);
+    }
+
+    public function lockValidForAccommodation(string $code, int $accommodationId): Promo
+    {
+        return $this->findForAccommodation($code, $accommodationId, true);
+    }
+
+    private function findForAccommodation(string $code, int $accommodationId, bool $lock): Promo
+    {
         $normalized = $this->normalizeCode($code);
 
         if ($normalized === '') {
@@ -39,10 +49,12 @@ class PromoService
             ]);
         }
 
-        $promo = Promo::query()
-            ->with('accommodations:id')
-            ->where('code', $normalized)
-            ->first();
+        $query = Promo::query()->where('code', $normalized);
+        if ($lock) {
+            $query->lockForUpdate();
+        }
+
+        $promo = $query->first();
 
         if (! $promo || ! $promo->isCurrentlyValid()) {
             throw ValidationException::withMessages([
@@ -106,5 +118,13 @@ class PromoService
     public function markUsed(Promo $promo): void
     {
         $promo->increment('used_count');
+    }
+
+    public function releaseUse(int $promoId): void
+    {
+        $promo = Promo::withTrashed()->lockForUpdate()->find($promoId);
+        if ($promo && $promo->used_count > 0) {
+            $promo->decrement('used_count');
+        }
     }
 }

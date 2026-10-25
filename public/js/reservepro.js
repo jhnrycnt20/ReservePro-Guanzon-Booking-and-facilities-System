@@ -1301,6 +1301,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     enhancePasswordFields();
 
+    document.querySelectorAll('[data-rp-user-create-form]').forEach((form) => {
+        const role = form.querySelector('[data-rp-user-role]');
+        const phone = form.querySelector('[data-rp-user-phone]');
+        const requiredMarker = form.querySelector('[data-rp-user-phone-required]');
+        const optionalMarker = form.querySelector('[data-rp-user-phone-optional]');
+        if (!role || !phone) return;
+
+        const syncPhoneRequirement = () => {
+            const required = role.selectedOptions[0]?.dataset.rpRequiresPhone === '1';
+            phone.required = required;
+            phone.setAttribute('aria-required', String(required));
+            if (requiredMarker) requiredMarker.hidden = !required;
+            if (optionalMarker) optionalMarker.hidden = required;
+        };
+
+        role.addEventListener('change', syncPhoneRequirement);
+        syncPhoneRequirement();
+    });
+
     document.querySelectorAll('[data-rp-promo-input]').forEach((input) => {
         const wrap = input.closest('form') || document;
         const button = wrap.querySelector('[data-rp-promo-check]');
@@ -1308,25 +1327,31 @@ document.addEventListener('DOMContentLoaded', () => {
         const estimate = wrap.querySelector('[data-rp-promo-estimate]');
         const totalEl = wrap.querySelector('[data-calc-total]');
         const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
+        const checkInInput = wrap.querySelector('[name="check_in_date"]');
+        const checkOutInput = wrap.querySelector('[name="check_out_date"]');
+        let requestNumber = 0;
 
-        const nightsFromForm = () => {
-            const checkIn = wrap.querySelector('[data-calc-check-in], [name="check_in_date"]')?.value;
-            const checkOut = wrap.querySelector('[data-calc-check-out], [name="check_out_date"]')?.value;
-            if (!checkIn || !checkOut) return 1;
-            const start = new Date(`${checkIn}T00:00:00`);
-            const end = new Date(`${checkOut}T00:00:00`);
-            const days = Math.round((end - start) / 86400000);
-            return Math.max(1, days);
+        const resetPreview = () => {
+            requestNumber++;
+            input.classList.remove('is-valid', 'is-invalid');
+            if (estimate) estimate.textContent = '';
+            if (feedback) feedback.textContent = 'Check a code to see your discounted estimate.';
+            calcTotal();
         };
 
         const applyCheck = async () => {
             const code = (input.value || '').trim();
             if (!code) {
-                if (feedback) feedback.textContent = 'Leave blank if you don’t have a promo.';
-                if (estimate) estimate.textContent = '';
+                resetPreview();
+                return;
+            }
+            if (!checkInInput?.value || !checkOutInput?.value) {
+                resetPreview();
+                if (feedback) feedback.textContent = 'Select your check-in and check-out dates first.';
                 return;
             }
 
+            const currentRequest = ++requestNumber;
             try {
                 const response = await fetch(input.dataset.rpPromoValidateUrl, {
                     method: 'POST',
@@ -1338,15 +1363,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify({
                         promo_code: code,
                         accommodation_id: Number(input.dataset.rpPromoAccommodation || 0),
-                        rate: Number(input.dataset.rpPromoRate || totalEl?.dataset.calcRate || 0),
-                        nights: nightsFromForm(),
+                        check_in_date: checkInInput.value,
+                        check_out_date: checkOutInput.value,
                     }),
                 });
                 const data = await response.json();
+                if (currentRequest !== requestNumber) return;
                 if (!response.ok) {
                     const message = data?.errors?.promo_code?.[0] || data?.message || 'Invalid promo code.';
                     if (feedback) feedback.textContent = message;
                     if (estimate) estimate.textContent = '';
+                    calcTotal();
                     input.classList.add('is-invalid');
                     return;
                 }
@@ -1362,9 +1389,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     totalEl.textContent = `₱${Number(data.promo_total).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                 }
             } catch (e) {
+                if (currentRequest !== requestNumber) return;
                 if (feedback) feedback.textContent = 'Could not validate promo code right now.';
+                if (estimate) estimate.textContent = '';
+                calcTotal();
             }
         };
+
+        input.addEventListener('input', resetPreview);
+        [checkInInput, checkOutInput].forEach((dateInput) => {
+            dateInput?.addEventListener('change', () => {
+                resetPreview();
+                if (input.value.trim()) applyCheck();
+            });
+        });
 
         button?.addEventListener('click', (event) => {
             event.preventDefault();

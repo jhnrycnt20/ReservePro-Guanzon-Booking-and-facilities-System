@@ -39,14 +39,14 @@ class UserController extends Controller
         }
 
         $users = $query->paginate(20)->withQueryString();
-        $roles = Role::query()->orderBy('name')->get();
+        $roles = Role::query()->whereIn('slug', array_map(fn (UserRole $role): string => $role->value, UserRole::cases()))->orderBy('name')->get();
 
         return view('admin.users.index', compact('users', 'roles'));
     }
 
     public function create(): View
     {
-        $roles = Role::query()->orderBy('name')->get();
+        $roles = Role::query()->whereIn('slug', array_map(fn (UserRole $role): string => $role->value, UserRole::cases()))->orderBy('name')->get();
 
         return view('admin.users.create', compact('roles'));
     }
@@ -67,7 +67,7 @@ class UserController extends Controller
             if ($role?->slug === UserRole::Guest->value) {
                 Guest::query()->create([
                     'user_id' => $user->id,
-                    'contact_number' => $request->input('phone') ?? 'N/A',
+                    'contact_number' => $request->input('phone'),
                 ]);
             }
         });
@@ -77,7 +77,7 @@ class UserController extends Controller
 
     public function edit(User $user): View
     {
-        $roles = Role::query()->orderBy('name')->get();
+        $roles = Role::query()->whereIn('slug', array_map(fn (UserRole $role): string => $role->value, UserRole::cases()))->orderBy('name')->get();
 
         return view('admin.users.edit', compact('user', 'roles'));
     }
@@ -102,7 +102,7 @@ class UserController extends Controller
             if ($user->fresh()->isGuestRole()) {
                 Guest::query()->updateOrCreate(
                     ['user_id' => $user->id],
-                    ['contact_number' => $data['phone'] ?: 'N/A']
+                    ['contact_number' => $data['phone']]
                 );
             }
         });
