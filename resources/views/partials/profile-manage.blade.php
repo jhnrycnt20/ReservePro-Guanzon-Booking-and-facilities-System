@@ -38,20 +38,15 @@
                 @endif
             </button>
             <div class="rp-profile-hero-text">
-                <div class="rp-profile-hero-top">
-                    <div class="rp-profile-identity-name">{{ $profileUser->name }}</div>
-                    <button type="button" class="rp-profile-edit-link" data-rp-profile-edit>Edit profile</button>
-                </div>
+                <div class="rp-profile-identity-name">{{ $profileUser->name }}</div>
+                <div class="rp-profile-identity-meta">{{ $profileUser->role?->name ?? 'Account' }}</div>
             </div>
+            <button type="button" class="rp-profile-edit-link" data-rp-profile-edit><i class="bi bi-pencil-square" aria-hidden="true"></i>Edit profile</button>
         </div>
 
         <dl class="rp-profile-details">
             <div>
-                <dt>Full name</dt>
-                <dd>{{ $profileUser->name }}</dd>
-            </div>
-            <div>
-                <dt>Email</dt>
+                <dt>Email address</dt>
                 <dd>{{ $profileUser->email }}</dd>
             </div>
             <div>
@@ -67,9 +62,10 @@
                 <button type="button" class="rp-profile-back-btn" data-rp-profile-cancel aria-label="Back">
                     <i class="bi bi-arrow-left" aria-hidden="true"></i>
                 </button>
-                <h3 class="rp-profile-edit-title mb-0">Edit Profile</h3>
-                <button type="submit" form="rpProfileInfoForm-{{ $photoInputId }}" class="rp-profile-save-icon" aria-label="Save changes" title="Save changes">
+                <h3 class="rp-profile-edit-title mb-0">Edit details</h3>
+                <button type="submit" form="rpProfileInfoForm-{{ $photoInputId }}" class="rp-profile-save-icon" aria-label="Save changes">
                     <i class="bi bi-check-lg" aria-hidden="true"></i>
+                    <span>Save</span>
                 </button>
             </div>
 
@@ -79,6 +75,8 @@
                 action="{{ route('profile.update') }}"
                 class="rp-profile-form rp-profile-edit-form"
                 enctype="multipart/form-data"
+                data-rp-profile-form
+                data-rp-original-email="{{ strtolower(trim((string) $profileUser->email)) }}"
                 data-rp-password-form
                 novalidate
             >
@@ -97,18 +95,24 @@
                 <div class="rp-profile-stack">
                     <div>
                         <label class="form-label" for="{{ $nameInputId }}">Name</label>
-                        <input id="{{ $nameInputId }}" type="text" name="name" class="form-control rp-profile-soft-input @error('name', 'profile') is-invalid @enderror" value="{{ old('name', $profileUser->name) }}" required>
-                        @error('name', 'profile')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        <input id="{{ $nameInputId }}" type="text" name="name" class="form-control rp-profile-soft-input @error('name', 'profile') is-invalid @enderror" value="{{ old('name', $profileUser->name) }}" data-rp-profile-field="name" aria-describedby="{{ $nameInputId }}Feedback" autocomplete="name" required>
+                        <div id="{{ $nameInputId }}Feedback" class="invalid-feedback @error('name', 'profile') d-block @enderror" data-rp-profile-feedback="name" aria-live="polite">@error('name', 'profile'){{ $message }}@enderror</div>
                     </div>
                     <div>
                         <label class="form-label" for="{{ $emailInputId }}">Email address</label>
-                        <input id="{{ $emailInputId }}" type="email" name="email" class="form-control rp-profile-soft-input @error('email', 'profile') is-invalid @enderror" value="{{ old('email', $profileUser->email) }}" required>
-                        @error('email', 'profile')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        <input id="{{ $emailInputId }}" type="email" name="email" class="form-control rp-profile-soft-input @error('email', 'profile') is-invalid @enderror" value="{{ old('email', $profileUser->email) }}" data-rp-profile-field="email" aria-describedby="{{ $emailInputId }}Feedback" autocomplete="email" required>
+                        <div id="{{ $emailInputId }}Feedback" class="invalid-feedback @error('email', 'profile') d-block @enderror" data-rp-profile-feedback="email" aria-live="polite">@error('email', 'profile'){{ $message }}@enderror</div>
                     </div>
                     <div>
                         <label class="form-label" for="{{ $phoneInputId }}">Phone number</label>
-                        <input id="{{ $phoneInputId }}" type="text" name="phone" class="form-control rp-profile-soft-input @error('phone', 'profile') is-invalid @enderror" value="{{ old('phone', $profileUser->phone) }}" placeholder="09171234567" required>
-                        @error('phone', 'profile')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        <input id="{{ $phoneInputId }}" type="tel" name="phone" class="form-control rp-profile-soft-input @error('phone', 'profile') is-invalid @enderror" value="{{ old('phone', $profileUser->phone) }}" placeholder="09171234567" data-rp-profile-field="phone" aria-describedby="{{ $phoneInputId }}Feedback" autocomplete="tel" required>
+                        <div id="{{ $phoneInputId }}Feedback" class="invalid-feedback @error('phone', 'profile') d-block @enderror" data-rp-profile-feedback="phone" aria-live="polite">@error('phone', 'profile'){{ $message }}@enderror</div>
+                    </div>
+                    <div>
+                        <label class="form-label" for="{{ $currentPasswordId }}">Current password</label>
+                        <input id="{{ $currentPasswordId }}" type="password" name="current_password" class="form-control rp-profile-soft-input @error('current_password', 'profile') is-invalid @enderror" data-rp-password-field="current_password" aria-describedby="{{ $currentPasswordId }}Hint {{ $currentPasswordId }}Feedback" autocomplete="current-password">
+                        <div id="{{ $currentPasswordId }}Hint" class="rp-profile-field-hint">Required to change your email or password.</div>
+                        <div id="{{ $currentPasswordId }}Feedback" class="invalid-feedback @error('current_password', 'profile') d-block @enderror" data-rp-password-feedback="current_password" aria-live="polite">@error('current_password', 'profile'){{ $message }}@enderror</div>
                     </div>
                 </div>
 
@@ -119,16 +123,11 @@
                         data-rp-password-toggle
                         aria-expanded="{{ $passwordErrors ? 'true' : 'false' }}"
                     >
-                        <span>Change password</span>
+                        <span class="rp-profile-pw-toggle-label"><i class="bi bi-shield-lock" aria-hidden="true"></i>Change password</span>
                         <i class="bi bi-chevron-down" aria-hidden="true"></i>
                     </button>
                     <div class="rp-profile-pw-panel" data-rp-password-panel @if(! $passwordErrors) hidden @endif>
                         <div class="rp-profile-stack">
-                            <div>
-                                <label class="form-label" for="{{ $currentPasswordId }}">Current password</label>
-                                <input id="{{ $currentPasswordId }}" type="password" name="current_password" class="form-control rp-profile-soft-input @error('current_password', 'profile') is-invalid @enderror" data-rp-password-field="current_password" autocomplete="current-password">
-                                <div class="invalid-feedback @error('current_password', 'profile') d-block @enderror" data-rp-password-feedback="current_password">@error('current_password', 'profile'){{ $message }}@enderror</div>
-                            </div>
                             <div>
                                 <label class="form-label" for="{{ $newPasswordId }}">New password</label>
                                 <input id="{{ $newPasswordId }}" type="password" name="password" class="form-control rp-profile-soft-input @error('password', 'profile') is-invalid @enderror" data-rp-password-field="password" autocomplete="new-password">
@@ -136,8 +135,8 @@
                             </div>
                             <div>
                                 <label class="form-label" for="{{ $confirmPasswordId }}">Confirm password</label>
-                                <input id="{{ $confirmPasswordId }}" type="password" name="password_confirmation" class="form-control rp-profile-soft-input" data-rp-password-field="password_confirmation" autocomplete="new-password">
-                                <div class="invalid-feedback" data-rp-password-feedback="password_confirmation"></div>
+                                <input id="{{ $confirmPasswordId }}" type="password" name="password_confirmation" class="form-control rp-profile-soft-input @error('password_confirmation', 'profile') is-invalid @enderror" data-rp-password-field="password_confirmation" autocomplete="new-password">
+                                <div class="invalid-feedback @error('password_confirmation', 'profile') d-block @enderror" data-rp-password-feedback="password_confirmation">@error('password_confirmation', 'profile'){{ $message }}@enderror</div>
                             </div>
                         </div>
                         <ul class="rp-profile-pw-checks list-unstyled mb-0" data-rp-password-pw-checks aria-live="polite">
@@ -152,6 +151,7 @@
                 <div class="rp-profile-actions d-md-none">
                     <button type="submit" class="btn btn-rp-primary w-100">Save changes</button>
                 </div>
+
             </form>
         </div>
     </div>

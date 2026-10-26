@@ -268,6 +268,38 @@ html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-staff-activity-icon, .rp-staff-p
     color: #c2f1e6;
 }
 
+html[data-bs-theme="dark"] .rp-staff-ui .rp-profile-modal-icon {
+    background: #324d48;
+    color: #b9e7db;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-modal, .rp-profile-page) .rp-profile-hero {
+    border-color: #455e58;
+    background: #2d413d;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-modal, .rp-profile-page) .rp-profile-details {
+    border-color: var(--rp-border);
+    background: #303839;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-modal, .rp-profile-page) .rp-profile-details > div {
+    background: transparent;
+    border-color: var(--rp-border);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-modal, .rp-profile-page) .rp-profile-edit-link {
+    border-color: #56736a;
+    background: #364c46;
+    color: #c2f1e6;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-modal, .rp-profile-page) .rp-profile-edit-link:is(:hover, :focus-visible) {
+    border-color: #70aa9d;
+    background: #435d53;
+    color: #fff;
+}
+
 html[data-bs-theme="dark"] .rp-staff-ui .rp-staff-panel-divider {
     background: var(--rp-border);
 }
@@ -929,4 +961,48 @@ html[data-bs-theme="dark"] .rp-staff-ui #contactMessageViewModal {
 html[data-bs-theme="dark"] .rp-staff-ui #contactMessageViewModal .modal-body,
 html[data-bs-theme="dark"] .rp-staff-ui #contactMessageViewModal .modal-footer {
     background: var(--rp-contact-view-surface);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-modal, .rp-profile-page) .rp-profile-edit-bar {
+    border-color: var(--rp-border);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-modal, .rp-profile-page) .rp-profile-photo.is-centered,
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-modal, .rp-profile-page) .rp-profile-pw-dropdown {
+    border-color: var(--rp-border);
+    background: #303b3c;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-modal, .rp-profile-page) .rp-profile-photo-title,
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-modal, .rp-profile-page) .rp-profile-pw-toggle {
+    color: #e9f3f2;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-modal, .rp-profile-page) .rp-profile-photo-change,
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-modal, .rp-profile-page) .rp-profile-pw-toggle-label .bi {
+    color: #9fdfd2;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-modal, .rp-profile-page) .rp-profile-field-hint {
+    color: #a6bbbf;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-modal, .rp-profile-page) .rp-profile-pw-toggle {
+    background: transparent;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-modal, .rp-profile-page) .rp-profile-pw-panel {
+    border-color: var(--rp-border);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-modal, .rp-profile-page) .rp-profile-stack .rp-profile-soft-input,
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-modal, .rp-profile-page) .rp-profile-layout .input-group .btn {
+    border-color: #53615f;
+    background: #353f40;
+    color: #e9f3f2;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-modal, .rp-profile-page) .rp-profile-stack .rp-profile-soft-input:focus {
+    border-color: #78bdaf;
+    background: #3b4948;
 }

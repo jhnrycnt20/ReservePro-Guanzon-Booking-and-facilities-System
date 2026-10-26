@@ -409,6 +409,40 @@ body.rp-staff-ui.modal-open .rp-main {
     transform: none;
 }
 
+.rp-staff-ui .rp-profile-modal .modal-header {
+    align-items: center;
+    padding: 1.1rem 4rem 1.1rem 1.5rem;
+}
+
+.rp-staff-ui .modal .rp-profile-modal .modal-header::before {
+    content: none;
+    display: none;
+}
+
+.rp-staff-ui :is(.rp-profile-modal, .rp-profile-page) .rp-profile-edit-link {
+    border-color: #bfdbd2;
+    border-radius: .55rem;
+    background: #fff;
+    color: #245a55;
+    box-shadow: none;
+}
+
+.rp-staff-ui :is(.rp-profile-modal, .rp-profile-page) .rp-profile-edit-link:is(:hover, :focus-visible) {
+    border-color: #89bcb0;
+    background: #e9f5f0;
+    color: #1e4f49;
+}
+
+.rp-staff-ui :is(.rp-profile-modal, .rp-profile-page) .rp-profile-edit-link:active {
+    transform: scale(.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rp-staff-ui :is(.rp-profile-modal, .rp-profile-page) .rp-profile-edit-link:active {
+        transform: none;
+    }
+}
+
 .rp-staff-ui .btn.rp-user-add-button {
     padding: .55rem 1rem;
     border: 1px solid #1f4b5d;

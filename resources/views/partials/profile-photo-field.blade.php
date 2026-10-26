@@ -23,10 +23,12 @@
                 <span class="rp-profile-avatar-fallback" data-rp-avatar-fallback>{{ $initial }}</span>
             @endif
         </button>
-        <label class="rp-profile-photo-edit" for="{{ $photoInputId }}" title="Change photo">
-            <i class="bi bi-camera" aria-hidden="true"></i>
-            <span class="visually-hidden">Change photo</span>
-        </label>
+        @if($photoLayout !== 'centered')
+            <label class="rp-profile-photo-edit" for="{{ $photoInputId }}" title="Change photo">
+                <i class="bi bi-camera" aria-hidden="true"></i>
+                <span class="visually-hidden">Change photo</span>
+            </label>
+        @endif
     </div>
 
     @if($photoLayout !== 'centered')
@@ -54,28 +56,29 @@
             @enderror
         </div>
     @else
-        <div class="rp-profile-photo-actions is-centered">
-            @if($profilePhotoUser->avatar)
-                <label class="rp-profile-photo-remove mb-0">
-                    <input type="checkbox" name="remove_avatar" value="1" data-rp-avatar-remove>
-                    Remove photo
-                </label>
-            @endif
+        <div class="rp-profile-photo-meta">
+            <div class="rp-profile-photo-title">Profile photo</div>
+            <div class="rp-profile-photo-hint">JPG, PNG or WebP · Up to 2 MB</div>
+            <div class="rp-profile-photo-actions is-centered">
+                <button type="button" class="rp-profile-photo-change" data-rp-avatar-trigger aria-describedby="{{ $photoInputId }}Feedback">Change photo</button>
+                @if($profilePhotoUser->avatar)
+                    <label class="rp-profile-photo-remove mb-0">
+                        <input type="checkbox" name="remove_avatar" value="1" data-rp-avatar-remove>
+                        Remove
+                    </label>
+                @endif
+            </div>
+            <div id="{{ $photoInputId }}Feedback" class="invalid-feedback @error('avatar', 'profile') d-block @enderror" data-rp-profile-feedback="avatar" aria-live="polite">@error('avatar', 'profile'){{ $message }}@enderror</div>
         </div>
-        <div class="rp-profile-photo-hint text-center">
-            Tap camera to change · Click photo to view
-        </div>
-        @error('avatar', 'profile')
-            <div class="text-danger small text-center mt-1">{{ $message }}</div>
-        @enderror
     @endif
 
     <input
         id="{{ $photoInputId }}"
         type="file"
         name="avatar"
-        class="d-none"
+        class="d-none @error('avatar', 'profile') is-invalid @enderror"
         accept="image/jpeg,image/png,image/webp"
         data-rp-avatar-input
+        data-rp-profile-field="avatar"
     >
 </div>

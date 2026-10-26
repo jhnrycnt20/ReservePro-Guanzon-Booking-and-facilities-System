@@ -1659,14 +1659,137 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    document.querySelectorAll('[data-rp-profile-form]').forEach((form) => {
+        const names = ['name', 'email', 'phone', 'avatar'];
+        const field = (name) => form.querySelector(`[data-rp-profile-field="${name}"]`);
+        const feedback = (name) => form.querySelector(`[data-rp-profile-feedback="${name}"]`);
+        const touched = new Set();
+        const serverErrors = new Map();
+        const originalEmail = (form.dataset.rpOriginalEmail || '').trim().toLowerCase();
+
+        names.forEach((name) => {
+            const input = field(name);
+            if (input?.classList.contains('is-invalid')) {
+                touched.add(name);
+                if (name !== 'avatar') {
+                    serverErrors.set(name, { value: input.value, message: feedback(name)?.textContent?.trim() || '' });
+                }
+                input.setAttribute('aria-invalid', 'true');
+            }
+        });
+
+        const errorFor = (name) => {
+            const input = field(name);
+            if (!input) return '';
+            const value = input.value.trim();
+
+            if (name === 'name') {
+                if (!value) return 'Please enter your full name.';
+                if ([...value].length < 2) return 'Full name must be at least 2 characters.';
+                if ([...value].length > 255) return 'Full name must be 255 characters or fewer.';
+                if (!/^\p{L}+(?:[ '\-.]\p{L}+)*$/u.test(value)) {
+                    return 'Full name may only include letters, spaces, hyphens, and apostrophes.';
+                }
+            }
+
+            if (name === 'email') {
+                if (!value) return 'Please enter your email address.';
+                if (value.length > 255 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Enter a valid email address.';
+                if (value.toLowerCase() !== originalEmail) {
+                    const [local, domain] = value.toLowerCase().split('@');
+                    const base = local.split('+')[0];
+                    if (!['gmail.com', 'googlemail.com'].includes(domain)) return 'Only a Gmail address (@gmail.com) is accepted.';
+                    if (base.length < 6 || base.length > 30 || !/^[a-z0-9.]+$/.test(base) || base.startsWith('.') || base.endsWith('.') || base.includes('..')) {
+                        return 'Enter a valid Gmail username (6–30 letters, numbers, or periods).';
+                    }
+                }
+            }
+
+            if (name === 'phone') {
+                if (!value) return 'Please enter your contact number.';
+                if (value.length > 20 || !/^(?:\+?63|0)9\d{9}$/.test(value.replace(/[\s\-()]/g, ''))) {
+                    return 'Enter a valid PH mobile number, e.g. 09171234567.';
+                }
+            }
+
+            if (name === 'avatar') {
+                const file = input.files?.[0];
+                if (!file) return '';
+                const extension = file.name.split('.').pop()?.toLowerCase();
+                if (!['jpg', 'jpeg', 'png', 'webp'].includes(extension) || (file.type && !['image/jpeg', 'image/png', 'image/webp'].includes(file.type))) {
+                    return 'Choose a JPG, PNG, or WebP image.';
+                }
+                if (file.size > 2048 * 1024) return 'Profile photo must be 2MB or smaller.';
+            }
+
+            return '';
+        };
+
+        const validate = (name, { force = false } = {}) => {
+            const input = field(name);
+            if (!input) return true;
+            const serverError = serverErrors.get(name);
+            const message = serverError && input.value === serverError.value
+                ? serverError.message
+                : errorFor(name);
+            const show = Boolean(message) && (force || touched.has(name));
+            input.classList.toggle('is-invalid', show);
+            if (show) input.setAttribute('aria-invalid', 'true');
+            else input.removeAttribute('aria-invalid');
+            const messageEl = feedback(name);
+            if (messageEl) {
+                messageEl.textContent = show ? message : '';
+                messageEl.classList.toggle('d-block', show);
+            }
+            if (name === 'avatar') {
+                const trigger = form.querySelector('[data-rp-avatar-trigger]');
+                if (show) trigger?.setAttribute('aria-invalid', 'true');
+                else trigger?.removeAttribute('aria-invalid');
+            }
+            return !message;
+        };
+
+        names.forEach((name) => {
+            const input = field(name);
+            if (!input) return;
+            input.addEventListener(name === 'avatar' ? 'change' : 'input', () => {
+                if (name === 'avatar') touched.add(name);
+                if (touched.has(name)) validate(name);
+            });
+            if (name !== 'avatar') {
+                input.addEventListener('blur', () => {
+                    touched.add(name);
+                    validate(name, { force: true });
+                });
+            }
+        });
+
+        form.addEventListener('submit', (event) => {
+            names.forEach((name) => touched.add(name));
+            const valid = names.map((name) => validate(name, { force: true })).every(Boolean);
+            if (!valid) {
+                event.preventDefault();
+                const firstInvalid = form.querySelector('[data-rp-profile-field].is-invalid');
+                (firstInvalid?.name === 'avatar' ? form.querySelector('[data-rp-avatar-trigger]') : firstInvalid)?.focus();
+            }
+        });
+    });
+
     document.querySelectorAll('[data-rp-password-form]').forEach((form) => {
         const field = (name) => form.querySelector(`[data-rp-password-field="${name}"]`);
         const feedback = (name) => form.querySelector(`[data-rp-password-feedback="${name}"]`);
         const touched = new Set();
+        const serverErrors = new Map();
+        const emailField = form.querySelector('[data-rp-profile-field="email"]');
+        const originalEmail = (form.dataset.rpOriginalEmail || '').trim().toLowerCase();
+        const emailChanged = () => Boolean(emailField) && emailField.value.trim().toLowerCase() !== originalEmail;
+        const isChangingPassword = () => ['password', 'password_confirmation']
+            .some((name) => Boolean(field(name)?.value?.trim()));
+        const needsCurrentPassword = () => emailChanged() || isChangingPassword();
 
         const validators = {
             current_password: (value) => {
-                if (!value) return 'Please enter your current password.';
+                if (!value && needsCurrentPassword()) return 'Please enter your current password.';
                 return '';
             },
             password: (value) => {
@@ -1710,6 +1833,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const showError = Boolean(message) && (force || touched.has(name) || input.classList.contains('is-invalid'));
 
             input.classList.toggle('is-invalid', showError);
+            if (showError) input.setAttribute('aria-invalid', 'true');
+            else input.removeAttribute('aria-invalid');
             if (messageEl) {
                 messageEl.textContent = showError ? message : '';
                 messageEl.classList.toggle('d-block', showError);
@@ -1721,28 +1846,42 @@ document.addEventListener('DOMContentLoaded', () => {
         const validateField = (name, options = {}) => {
             const input = field(name);
             if (!input || !validators[name]) return true;
-            return setFieldState(name, validators[name](input.value), options);
+            const serverError = serverErrors.get(name);
+            const message = serverError && input.value === serverError.value
+                ? serverError.message
+                : validators[name](input.value);
+            return setFieldState(name, message, options);
         };
-
-        const isChangingPassword = () => ['current_password', 'password', 'password_confirmation']
-            .some((name) => Boolean(field(name)?.value?.trim()));
 
         const clearPasswordErrors = () => {
             ['current_password', 'password', 'password_confirmation'].forEach((name) => {
                 setFieldState(name, '', { force: true });
             });
+            serverErrors.clear();
         };
 
         const validateAll = (options = {}) => {
             updatePasswordChecks();
-            if (!isChangingPassword()) {
+            const changingPassword = isChangingPassword();
+            const currentRequired = needsCurrentPassword();
+            if (field('current_password')) field('current_password').required = currentRequired;
+            if (!currentRequired) {
                 clearPasswordErrors();
                 return true;
             }
-            return ['current_password', 'password', 'password_confirmation']
+            if (!changingPassword) {
+                ['password', 'password_confirmation'].forEach((name) => setFieldState(name, '', { force: true }));
+            }
+            return (changingPassword ? ['current_password', 'password', 'password_confirmation'] : ['current_password'])
                 .map((name) => validateField(name, options))
                 .every(Boolean);
         };
+
+        emailField?.addEventListener('input', () => {
+            if (field('current_password')) field('current_password').required = needsCurrentPassword();
+            if (!needsCurrentPassword()) clearPasswordErrors();
+            else if (touched.has('current_password')) validateField('current_password');
+        });
 
         ['current_password', 'password', 'password_confirmation'].forEach((name) => {
             const input = field(name);
@@ -1750,11 +1889,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             input.addEventListener('input', () => {
                 if (name === 'password') updatePasswordChecks();
-                if (!isChangingPassword()) {
+                if (field('current_password')) field('current_password').required = needsCurrentPassword();
+                if (!needsCurrentPassword()) {
                     clearPasswordErrors();
                     return;
                 }
-                if (touched.has(name) || input.classList.contains('is-invalid')) {
+                if ((name === 'current_password' || isChangingPassword()) && (touched.has(name) || input.classList.contains('is-invalid'))) {
                     validateField(name);
                 }
                 if (name === 'password' && touched.has('password_confirmation')) {
@@ -1763,37 +1903,43 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             input.addEventListener('blur', () => {
-                if (!isChangingPassword()) {
+                if (!needsCurrentPassword()) {
                     clearPasswordErrors();
                     return;
                 }
+                if (name !== 'current_password' && !isChangingPassword()) return;
                 touched.add(name);
                 validateField(name, { force: true });
             });
         });
 
         form.addEventListener('submit', (event) => {
-            if (!isChangingPassword()) {
+            if (!needsCurrentPassword()) {
                 clearPasswordErrors();
                 return;
             }
-            ['current_password', 'password', 'password_confirmation'].forEach((name) => touched.add(name));
+            (isChangingPassword() ? ['current_password', 'password', 'password_confirmation'] : ['current_password'])
+                .forEach((name) => touched.add(name));
             if (!validateAll({ force: true })) {
                 event.preventDefault();
                 const panel = form.querySelector('[data-rp-password-panel]');
                 const dropdown = form.querySelector('[data-rp-password-dropdown]');
-                if (panel) panel.hidden = false;
-                dropdown?.classList.add('is-open');
-                const firstInvalid = form.querySelector('.is-invalid');
+                if (isChangingPassword()) {
+                    if (panel) panel.hidden = false;
+                    dropdown?.classList.add('is-open');
+                }
+                const firstInvalid = form.querySelector('[data-rp-password-field].is-invalid');
                 firstInvalid?.focus();
             }
         });
 
         updatePasswordChecks();
+        if (field('current_password')) field('current_password').required = needsCurrentPassword();
         if (form.querySelector('.is-invalid')) {
             ['current_password', 'password', 'password_confirmation'].forEach((name) => {
                 const input = field(name);
                 if (input?.classList.contains('is-invalid')) {
+                    serverErrors.set(name, { value: input.value, message: feedback(name)?.textContent?.trim() || '' });
                     touched.add(name);
                     validateField(name, { force: true });
                 }
@@ -1888,6 +2034,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const viewBtn = wrap.querySelector('[data-rp-avatar-view]');
         if (!input || !preview) return;
 
+        wrap.querySelector('[data-rp-avatar-trigger]')?.addEventListener('click', () => input.click());
+
         const setViewable = (src) => {
             if (!viewBtn) return;
             const hasImage = Boolean(src);
@@ -1901,6 +2049,10 @@ document.addEventListener('DOMContentLoaded', () => {
         input.addEventListener('change', () => {
             const file = input.files?.[0];
             if (!file) return;
+            const extension = file.name.split('.').pop()?.toLowerCase();
+            if (!['jpg', 'jpeg', 'png', 'webp'].includes(extension)
+                || (file.type && !['image/jpeg', 'image/png', 'image/webp'].includes(file.type))
+                || file.size > 2048 * 1024) return;
             if (remove) remove.checked = false;
             const url = URL.createObjectURL(file);
             preview.src = url;

@@ -4,9 +4,10 @@
     <div class="modal-dialog modal-dialog-centered modal-md modal-dialog-scrollable">
         <div class="modal-content rp-admin-modal rp-profile-modal">
             <div class="modal-header">
+                <span class="rp-profile-modal-icon" aria-hidden="true"><i class="bi bi-person"></i></span>
                 <div>
-                    <h2 class="modal-title h5 mb-0" id="rpProfileModalLabel">Manage Profile</h2>
-                    <p class="rp-profile-modal-sub mb-0">Your account details</p>
+                    <h2 class="modal-title h5 mb-0" id="rpProfileModalLabel">Manage profile</h2>
+                    <p class="rp-profile-modal-sub mb-0">Account details and settings</p>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>

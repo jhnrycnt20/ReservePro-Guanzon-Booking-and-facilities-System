@@ -46,9 +46,14 @@ class ProfileController extends Controller
     public function update(Request $request): RedirectResponse
     {
         $user = $request->user();
-        $changingPassword = $request->filled('current_password')
-            || $request->filled('password')
+        $email = strtolower(trim((string) $request->input('email', '')));
+        $emailChanged = $email !== strtolower(trim((string) $user->email));
+        $changingPassword = $request->filled('password')
             || $request->filled('password_confirmation');
+        $emailRules = ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)];
+        if ($emailChanged) {
+            $emailRules[] = new GmailAddress;
+        }
 
         $rules = [
             'name' => [
@@ -58,7 +63,7 @@ class ProfileController extends Controller
                 'max:255',
                 'regex:/^[\p{L}]+(?:[ \'\-.][\p{L}]+)*$/u',
             ],
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id), new GmailAddress],
+            'email' => $emailRules,
             'phone' => [
                 'required',
                 'string',
@@ -72,9 +77,9 @@ class ProfileController extends Controller
             ],
             'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'remove_avatar' => ['nullable', 'boolean'],
-            'current_password' => $changingPassword
+            'current_password' => ($emailChanged || $changingPassword)
                 ? ['required', 'current_password']
-                : ['nullable'],
+                : ['nullable', 'current_password'],
             'password' => $changingPassword
                 ? ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()]
                 : ['nullable'],
