@@ -9,9 +9,9 @@
 @endsection
 
 @section('content')
-<div class="rp-card mb-3">
+<div class="rp-card rp-feedback-summary mb-3">
     <div class="d-flex align-items-center gap-3">
-        <div class="fs-2" style="font-family: var(--rp-display);">{{ number_format($average ?? 0, 2) }}</div>
+        <div class="rp-feedback-summary-value">{{ number_format($average ?? 0, 2) }}</div>
         <div class="text-muted">Average rating across all feedback</div>
     </div>
 </div>
@@ -34,22 +34,22 @@
     'searchPlaceholder' => 'Guest, Booking Number, or Comment',
     'clearUrl' => route('admin.feedback.index'),
 ])
-<div class="rp-card">
+<div class="rp-card rp-admin-list-card">
     <div class="table-responsive">
-        <table class="table align-middle" style="table-layout: fixed;">
+        <table class="table align-middle rp-admin-list-table rp-admin-list-table--feedback">
             <thead>
                 <tr>
-                    <th style="width: 14%;">Guest</th>
-                    <th style="width: 16%;">About</th>
-                    <th style="width: 12%;">Rating</th>
-                    <th style="width: 44%;">Comment</th>
-                    <th style="width: 14%;">Date</th>
+                    <th scope="col" style="width: 14%;">Guest</th>
+                    <th scope="col" style="width: 16%;">About</th>
+                    <th scope="col" style="width: 12%;">Rating</th>
+                    <th scope="col" style="width: 44%;">Comment</th>
+                    <th scope="col" style="width: 14%;">Date</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($feedback as $item)
                     <tr>
-                        <td>{{ $item->guest?->user?->name ?? 'Visitor' }}</td>
+                        <td class="rp-admin-list-primary">{{ $item->guest?->user?->name ?? 'Visitor' }}</td>
                         <td>
                             @if($item->booking)
                                 {{ $item->booking->booking_number }}
@@ -59,13 +59,14 @@
                                 Resort
                             @endif
                         </td>
-                        <td>
+                        <td class="rp-feedback-rating">
+                            <span class="visually-hidden">{{ $item->rating }} out of 5 stars</span>
                             @for($i = 1; $i <= 5; $i++)
-                                <i class="bi bi-star{{ $i <= $item->rating ? '-fill text-warning' : '' }}"></i>
+                                <i aria-hidden="true" class="bi bi-star{{ $i <= $item->rating ? '-fill text-warning' : '' }}"></i>
                             @endfor
                         </td>
-                        <td>{{ $item->comment ?: '—' }}</td>
-                        <td>{{ $item->created_at?->format('M d, Y') }}</td>
+                        <td class="rp-admin-list-wrap">{{ $item->comment ?: '—' }}</td>
+                        <td class="rp-admin-list-mono">{{ $item->created_at?->format('M d, Y') }}</td>
                     </tr>
                 @empty
                     <tr><td colspan="5" class="text-muted">No feedback yet.</td></tr>

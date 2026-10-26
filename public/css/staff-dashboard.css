@@ -440,6 +440,263 @@ body.rp-staff-ui.modal-open .rp-main {
     width: 100%;
 }
 
+/* Users directory: quieter labels and a clear scan path through each account. */
+.rp-staff-ui .rp-users-card {
+    padding: .35rem 1.25rem .65rem;
+}
+
+.rp-staff-ui .rp-users-table {
+    min-width: 830px;
+    margin-bottom: 0;
+    table-layout: fixed;
+    font-size: .875rem;
+    line-height: 1.45;
+}
+
+.rp-staff-ui .rp-users-table th:nth-child(1) { width: 19%; }
+.rp-staff-ui .rp-users-table th:nth-child(2) { width: 24%; }
+.rp-staff-ui .rp-users-table th:nth-child(3) { width: 15%; }
+.rp-staff-ui .rp-users-table th:nth-child(4) { width: 15%; }
+.rp-staff-ui .rp-users-table th:nth-child(5) { width: 10%; }
+.rp-staff-ui .rp-users-table th:nth-child(6) { width: 17%; }
+
+.rp-staff-ui .rp-users-table th,
+.rp-staff-ui .rp-users-table td {
+    padding: .9rem .6rem;
+    vertical-align: middle;
+}
+
+.rp-staff-ui .rp-users-table thead th {
+    color: #687d84;
+    font-size: .71rem;
+    font-weight: 700;
+    letter-spacing: .075em;
+    line-height: 1.3;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.rp-staff-ui .rp-users-table tbody td {
+    color: #41565f;
+    font-weight: 500;
+}
+
+.rp-staff-ui .rp-users-table .rp-users-name {
+    color: #203541;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.rp-staff-ui .rp-users-table .rp-users-email {
+    color: #586e77;
+    overflow-wrap: anywhere;
+}
+
+.rp-staff-ui .rp-users-table .rp-users-phone {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.rp-staff-ui .rp-users-table .rp-users-actions-heading {
+    text-align: right;
+}
+
+.rp-staff-ui .rp-users-status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.7rem;
+    padding: .25rem .55rem;
+    border-radius: 999px;
+    font-size: .73rem;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.rp-staff-ui .rp-users-status.is-active {
+    background: #e9f4ee;
+    color: #246347;
+}
+
+.rp-staff-ui .rp-users-status.is-inactive {
+    background: #f1f3f4;
+    color: #66757b;
+}
+
+.rp-staff-ui .rp-users-table .rp-user-row-actions {
+    grid-template-columns: 3.25rem 3.75rem;
+    gap: .4rem;
+}
+
+.rp-staff-ui .rp-users-table .rp-user-row-actions .btn {
+    min-height: 2rem;
+    padding: .3rem .5rem;
+    font-size: .78rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.rp-staff-ui .rp-users-table .rp-user-row-actions .btn-outline-danger {
+    border-color: #e9c9ca;
+    color: #ae4248;
+}
+
+.rp-staff-ui .rp-users-table .rp-user-row-actions .btn-outline-danger:hover,
+.rp-staff-ui .rp-users-table .rp-user-row-actions .btn-outline-danger:focus-visible {
+    border-color: #b4444a;
+    background: #b4444a;
+    color: #fff;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-users-table thead th { color: #aabdc0; }
+html[data-bs-theme="dark"] .rp-staff-ui .rp-users-table tbody td { color: #d0dcdd; }
+html[data-bs-theme="dark"] .rp-staff-ui .rp-users-table .rp-users-name { color: #f1f6f5; }
+html[data-bs-theme="dark"] .rp-staff-ui .rp-users-table .rp-users-email { color: #b9ccce; }
+html[data-bs-theme="dark"] .rp-staff-ui .rp-users-status.is-active { background: #284b3d; color: #b9e7ca; }
+html[data-bs-theme="dark"] .rp-staff-ui .rp-users-status.is-inactive { background: #42494b; color: #d2dcdd; }
+html[data-bs-theme="dark"] .rp-staff-ui .rp-users-table .rp-user-row-actions .btn-outline-danger {
+    border-color: #98585d;
+    color: #f2b7bb;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-users-table .rp-user-row-actions .btn-outline-danger:hover,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-users-table .rp-user-row-actions .btn-outline-danger:focus-visible {
+    border-color: #b96b70;
+    background: #914047;
+    color: #fff;
+}
+
+/* The other admin directories use the same type and spacing as Users. */
+.rp-staff-ui .rp-admin-list-card {
+    padding: .35rem 1.25rem .65rem;
+}
+
+.rp-staff-ui .rp-admin-list-table {
+    min-width: 850px;
+    margin-bottom: 0;
+    table-layout: fixed;
+    font-size: .875rem;
+    line-height: 1.45;
+}
+
+.rp-staff-ui .rp-admin-list-table--accommodations,
+.rp-staff-ui .rp-admin-list-table--promos { min-width: 1100px; }
+.rp-staff-ui .rp-admin-list-table--reports { min-width: 960px; }
+.rp-staff-ui .rp-admin-list-table--contact { min-width: 830px; }
+
+.rp-staff-ui .rp-admin-list-table th,
+.rp-staff-ui .rp-admin-list-table td {
+    padding: .9rem .6rem;
+    vertical-align: middle;
+}
+
+.rp-staff-ui .rp-admin-list-table thead th {
+    color: #687d84;
+    font-size: .71rem;
+    font-weight: 700;
+    letter-spacing: .075em;
+    line-height: 1.3;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.rp-staff-ui .rp-admin-list-table tbody td {
+    color: #41565f;
+    font-weight: 500;
+}
+
+.rp-staff-ui .rp-admin-list-table tbody td.text-muted { color: #687d84; }
+
+.rp-staff-ui .rp-admin-list-table .rp-admin-list-primary,
+.rp-staff-ui .rp-admin-list-table .rp-clickable-row-label {
+    color: #203541;
+    font-weight: 700;
+}
+
+.rp-staff-ui .rp-admin-list-table .rp-admin-list-secondary {
+    margin-top: .12rem;
+    color: #586e77;
+    font-size: .79rem;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+
+.rp-staff-ui .rp-admin-list-table .rp-admin-list-wrap,
+.rp-staff-ui .rp-admin-list-table .rp-admin-list-primary {
+    overflow-wrap: anywhere;
+}
+
+.rp-staff-ui .rp-admin-list-table .rp-admin-list-mono {
+    font-variant-numeric: tabular-nums;
+}
+
+.rp-staff-ui .rp-admin-list-table .rp-admin-list-actions-heading {
+    text-align: right;
+}
+
+.rp-staff-ui .rp-admin-list-table .rp-status-badge {
+    padding: .4rem .6rem;
+    border-radius: 999px;
+    font-size: .73rem;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.rp-staff-ui .rp-admin-list-table .btn.btn-sm {
+    min-height: 2rem;
+    padding: .3rem .55rem;
+    font-size: .78rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.rp-staff-ui .rp-admin-list-table .btn-outline-danger {
+    border-color: #e9c9ca;
+    color: #ae4248;
+}
+
+.rp-staff-ui .rp-admin-list-table .btn-outline-danger:hover,
+.rp-staff-ui .rp-admin-list-table .btn-outline-danger:focus-visible {
+    border-color: #b4444a;
+    background: #b4444a;
+    color: #fff;
+}
+
+.rp-staff-ui .rp-feedback-summary-value {
+    color: #203541;
+    font-size: 1.65rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+}
+
+.rp-staff-ui .rp-admin-list-table tbody td.rp-feedback-rating {
+    color: #9caeb2;
+    white-space: nowrap;
+}
+
+.rp-staff-ui .rp-feedback-rating .bi + .bi { margin-left: .12rem; }
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-list-table thead th { color: #aabdc0; }
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-list-table tbody td { color: #d0dcdd; }
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-list-table tbody td.text-muted { color: #aabdc0; }
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-list-table .rp-admin-list-primary,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-list-table .rp-clickable-row-label,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-feedback-summary-value { color: #f1f6f5; }
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-list-table .rp-admin-list-secondary { color: #b9ccce; }
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-list-table tbody td.rp-feedback-rating { color: #9daeb2; }
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-list-table .btn-outline-danger {
+    border-color: #98585d;
+    color: #f2b7bb;
+}
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-list-table .btn-outline-danger:hover,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-list-table .btn-outline-danger:focus-visible {
+    border-color: #b96b70;
+    background: #914047;
+    color: #fff;
+}
+
 /* Shared action dialogs across the admin, front desk, and security panels. */
 .rp-staff-ui .modal .modal-content {
     overflow: hidden;
@@ -937,7 +1194,7 @@ body.rp-staff-ui.modal-open .rp-main {
 
 .rp-staff-ui .rp-promo-view-identity {
     display: flex;
-    align-items: flex-end;
+    align-items: flex-start;
     gap: 2rem;
 }
 
@@ -951,20 +1208,19 @@ body.rp-staff-ui.modal-open .rp-main {
     text-transform: uppercase;
 }
 
-.rp-staff-ui .rp-promo-view-code {
-    margin-bottom: 0;
-    color: #568078;
-    font-size: .9rem;
+.rp-staff-ui :is(.rp-promo-view-code, .rp-promo-view-name) {
+    font-size: 1.4rem;
     font-weight: 700;
-    letter-spacing: .06em;
+    line-height: 1.2;
+}
+
+.rp-staff-ui .rp-promo-view-code {
+    color: #568078;
     text-transform: uppercase;
 }
 
 .rp-staff-ui .rp-promo-view-name {
     color: #203541;
-    font-size: 1.4rem;
-    font-weight: 700;
-    line-height: 1.2;
 }
 
 .rp-staff-ui .rp-promo-view-status {
@@ -2525,6 +2781,345 @@ body.rp-staff-ui.modal-open .rp-main {
     margin-top: .15rem;
     font-size: .86rem;
     color: #6b7c84;
+}
+
+/* Admin report modal: a clear record summary with a compact activity rail. */
+.rp-staff-ui .rp-admin-report-modal {
+    --rp-report-modal-ink: #203541;
+    --rp-report-modal-muted: #607681;
+    --rp-report-modal-rule: #e1e9e8;
+    --rp-report-modal-summary: #f5faf8;
+    --rp-report-modal-surface: #fff;
+}
+
+.rp-staff-ui .rp-admin-report-modal .modal-header {
+    min-height: 4.75rem;
+    padding-top: .95rem;
+    padding-bottom: .95rem;
+}
+
+.rp-staff-ui .rp-admin-report-header-copy {
+    display: grid;
+    gap: .18rem;
+    min-width: 0;
+}
+
+.rp-staff-ui .rp-admin-report-number {
+    color: var(--rp-report-modal-muted);
+    font-size: .75rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+.rp-staff-ui .rp-admin-report-modal .modal-body {
+    padding: 0;
+    background: var(--rp-report-modal-surface);
+}
+
+.rp-staff-ui .rp-admin-report-modal .rp-report-detail-hero {
+    align-items: center;
+    margin: 0;
+    padding: 1.65rem 1.85rem;
+    border-bottom: 1px solid var(--rp-report-modal-rule);
+    background: var(--rp-report-modal-summary);
+}
+
+.rp-staff-ui .rp-admin-report-modal .rp-report-detail-title {
+    max-width: 25ch;
+    color: var(--rp-report-modal-ink);
+    font-size: clamp(1.35rem, 2vw, 1.7rem);
+    line-height: 1.28;
+    overflow-wrap: anywhere;
+}
+
+.rp-staff-ui .rp-admin-report-modal .rp-report-detail-tags {
+    gap: .45rem;
+    margin: .8rem 0 0;
+}
+
+.rp-staff-ui .rp-admin-report-modal .rp-report-chip {
+    padding: .32rem .65rem;
+    font-size: .76rem;
+}
+
+.rp-staff-ui .rp-admin-report-modal .rp-report-detail-status {
+    align-self: flex-start;
+    flex-shrink: 0;
+}
+
+.rp-staff-ui .rp-admin-report-modal .rp-report-detail-grid {
+    grid-template-columns: minmax(0, 1.55fr) minmax(17rem, .8fr);
+    gap: 0;
+    align-items: stretch;
+}
+
+.rp-staff-ui .rp-admin-report-modal .rp-report-detail-card {
+    padding: 1.65rem 1.85rem 1.8rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.rp-staff-ui .rp-admin-report-modal .rp-report-review-card {
+    border-left: 1px solid var(--rp-report-modal-rule);
+}
+
+.rp-staff-ui .rp-admin-report-modal .rp-report-detail-block {
+    margin: 0;
+}
+
+.rp-staff-ui .rp-admin-report-modal .rp-report-detail-block:not(:last-child) {
+    margin-bottom: 1.45rem;
+    padding-bottom: 1.45rem;
+    border-bottom: 1px solid var(--rp-report-modal-rule);
+}
+
+.rp-staff-ui .rp-admin-report-modal .rp-report-detail-label {
+    margin-bottom: .4rem;
+    color: var(--rp-report-modal-muted);
+    font-size: .78rem;
+    font-weight: 700;
+}
+
+.rp-staff-ui .rp-admin-report-modal .rp-report-detail-copy {
+    max-width: 70ch;
+    color: var(--rp-report-modal-ink);
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+}
+
+.rp-staff-ui .rp-admin-report-modal .rp-report-note-panel {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+.rp-staff-ui .rp-admin-report-modal .rp-report-review-head {
+    margin-bottom: .45rem;
+}
+
+.rp-staff-ui .rp-admin-report-modal .rp-report-review-title {
+    color: var(--rp-report-modal-ink);
+    font-size: 1rem;
+}
+
+.rp-staff-ui .rp-admin-report-modal .rp-report-detail-meta {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    margin: 0;
+}
+
+.rp-staff-ui .rp-admin-report-modal .rp-report-detail-meta > div {
+    display: grid;
+    grid-template-columns: 5.7rem minmax(0, 1fr);
+    gap: .75rem;
+    align-items: baseline;
+    padding: .82rem 0;
+    border-bottom: 1px solid var(--rp-report-modal-rule);
+}
+
+.rp-staff-ui .rp-admin-report-modal .rp-report-detail-meta > div:last-child {
+    border-bottom: 0;
+}
+
+.rp-staff-ui .rp-admin-report-modal .rp-report-detail-meta .rp-report-detail-label {
+    margin: 0;
+    font-size: .75rem;
+}
+
+.rp-staff-ui .rp-admin-report-modal .rp-report-detail-meta-value {
+    display: block;
+    color: var(--rp-report-modal-ink);
+    font-size: .83rem;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.rp-staff-ui .rp-admin-report-modal :is(.rp-report-detail-photo-trigger, .rp-report-detail-photo-expand):focus-visible {
+    outline: 3px solid #4e9c90;
+    outline-offset: 3px;
+}
+
+@media (max-width: 991.98px) {
+    .rp-staff-ui .rp-admin-report-modal .rp-report-detail-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .rp-staff-ui .rp-admin-report-modal .rp-report-review-card {
+        border-top: 1px solid var(--rp-report-modal-rule);
+        border-left: 0;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .rp-staff-ui .rp-admin-report-modal .rp-report-detail-hero,
+    .rp-staff-ui .rp-admin-report-modal .rp-report-detail-card {
+        padding-right: 1.2rem;
+        padding-left: 1.2rem;
+    }
+
+    .rp-staff-ui .rp-admin-report-modal .rp-report-detail-hero {
+        gap: .85rem;
+    }
+
+    .rp-staff-ui .rp-admin-report-modal .rp-report-detail-meta > div {
+        grid-template-columns: 5.2rem minmax(0, 1fr);
+    }
+}
+
+/* Admin contact message: the inquiry leads, with sender details beside it. */
+.rp-staff-ui #contactMessageViewModal {
+    --rp-contact-view-ink: #203541;
+    --rp-contact-view-muted: #607681;
+    --rp-contact-view-rule: #e1e9e8;
+    --rp-contact-view-summary: #f5faf8;
+    --rp-contact-view-surface: #fff;
+    --rp-contact-view-link: #176b65;
+}
+
+.rp-staff-ui #contactMessageViewModal .modal-body {
+    padding: 0;
+    background: var(--rp-contact-view-surface);
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-intro {
+    padding: 1.55rem 1.7rem 1.35rem;
+    border-bottom: 1px solid var(--rp-contact-view-rule);
+    background: var(--rp-contact-view-summary);
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-subject {
+    margin: 0;
+    color: var(--rp-contact-view-ink);
+    font-size: clamp(1.2rem, 2vw, 1.45rem);
+    font-weight: 700;
+    line-height: 1.32;
+    overflow-wrap: anywhere;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-received {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .35rem;
+    margin-top: .75rem;
+    color: var(--rp-contact-view-muted);
+    font-size: .78rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-received .bi {
+    margin-right: .1rem;
+    color: var(--rp-contact-view-link);
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(14rem, .85fr);
+}
+
+.rp-staff-ui #contactMessageViewModal :is(.rp-contact-view-content, .rp-contact-view-sender) {
+    min-width: 0;
+    padding: 1.6rem 1.7rem 1.85rem;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-sender {
+    border-left: 1px solid var(--rp-contact-view-rule);
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-heading {
+    margin: 0 0 .9rem;
+    color: var(--rp-contact-view-muted);
+    font-size: .82rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-message-body {
+    min-height: 0;
+    max-width: 70ch;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--rp-contact-view-ink);
+    font-size: .93rem;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-name {
+    margin: 0 0 .25rem;
+    color: var(--rp-contact-view-ink);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-email {
+    color: var(--rp-contact-view-link);
+    font-size: .84rem;
+    line-height: 1.5;
+    text-underline-offset: .2rem;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-email:focus-visible {
+    outline: 3px solid var(--rp-contact-view-link);
+    outline-offset: 3px;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-sender-meta {
+    margin: 1.35rem 0 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--rp-contact-view-rule);
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-sender-meta dt {
+    margin-bottom: .3rem;
+    color: var(--rp-contact-view-muted);
+    font-size: .75rem;
+    font-weight: 600;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-sender-meta dd {
+    margin: 0;
+    color: var(--rp-contact-view-ink);
+    font-size: .88rem;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+.rp-staff-ui #contactMessageViewModal .modal-footer {
+    padding: 1rem 1.7rem;
+    border-color: var(--rp-contact-view-rule);
+    background: var(--rp-contact-view-surface);
+}
+
+@media (max-width: 675px) {
+    .rp-staff-ui #contactMessageViewModal .rp-contact-view-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .rp-staff-ui #contactMessageViewModal .rp-contact-view-sender {
+        border-top: 1px solid var(--rp-contact-view-rule);
+        border-left: 0;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .rp-staff-ui #contactMessageViewModal .rp-contact-view-intro,
+    .rp-staff-ui #contactMessageViewModal :is(.rp-contact-view-content, .rp-contact-view-sender),
+    .rp-staff-ui #contactMessageViewModal .modal-footer {
+        padding-right: 1.2rem;
+        padding-left: 1.2rem;
+    }
 }
 
 .rp-report-action-toggle {

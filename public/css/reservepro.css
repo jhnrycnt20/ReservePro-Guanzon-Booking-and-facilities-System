@@ -3383,7 +3383,7 @@ body.rp-receipt-save-open {
     transform: translateY(-1px);
 }
 
-/* Compact filter icon + dropdown — always right-aligned */
+/* Compact filter control and anchored form. */
 .rp-filter-bar {
     display: flex;
     justify-content: flex-end;
@@ -3417,27 +3417,36 @@ body.rp-receipt-save-open {
 .rp-filter-compact-toggle {
     display: inline-flex;
     align-items: center;
-    gap: .45rem;
-    padding: .55rem .9rem;
-    border: 1px solid var(--rp-border, #d5e8e4);
-    border-radius: 999px;
+    justify-content: center;
+    gap: .55rem;
+    min-height: 2.5rem;
+    padding: .55rem .85rem;
+    border: 1px solid #cddedb;
+    border-radius: .65rem;
     background: #fff;
     color: var(--rp-text, #1F4B5D);
     font-family: var(--rp-font);
-    font-size: .82rem;
-    font-weight: 600;
-    letter-spacing: .04em;
-    text-transform: uppercase;
+    font-size: .84rem;
+    font-weight: 700;
+    line-height: 1.2;
     cursor: pointer;
-    transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
+    transition: transform 120ms cubic-bezier(.23, 1, .32, 1), background-color 150ms ease, border-color 150ms ease;
 }
 
 .rp-filter-compact-toggle:hover,
 .rp-filter-compact.is-open .rp-filter-compact-toggle,
 .rp-filter-compact.is-active .rp-filter-compact-toggle {
-    border-color: #96DFD3;
-    background: #f3fcfa;
-    box-shadow: 0 8px 20px rgba(31, 75, 93, 0.08);
+    border-color: #82bfb5;
+    background: #f3faf8;
+}
+
+.rp-filter-compact-toggle:focus-visible {
+    outline: 2px solid #488f83;
+    outline-offset: 2px;
+}
+
+.rp-filter-compact-toggle:active {
+    transform: scale(.97);
 }
 
 .rp-filter-compact-badge {
@@ -3445,7 +3454,7 @@ body.rp-receipt-save-open {
     height: 1.25rem;
     padding: 0 .35rem;
     border-radius: 999px;
-    background: var(--rp-dashboard-gradient, linear-gradient(135deg, #96DFD3, #1F4B5D));
+    background: #1f4b5d;
     color: #fff;
     font-size: .72rem;
     line-height: 1.25rem;
@@ -3453,9 +3462,9 @@ body.rp-receipt-save-open {
 }
 
 .rp-filter-compact-caret {
-    font-size: .75rem;
-    opacity: .7;
-    transition: transform .2s ease;
+    font-size: .68rem;
+    opacity: .65;
+    transition: transform 160ms cubic-bezier(.23, 1, .32, 1);
 }
 
 .rp-filter-compact.is-open .rp-filter-compact-caret {
@@ -3464,16 +3473,17 @@ body.rp-receipt-save-open {
 
 .rp-filter-compact-panel {
     position: absolute;
-    top: calc(100% + .45rem);
+    top: calc(100% + .6rem);
     left: auto;
     right: 0;
-    width: min(320px, calc(100vw - 2.5rem));
-    max-width: calc(100vw - 2.5rem);
-    padding: 1rem;
+    width: min(350px, calc(100vw - 2rem));
+    max-width: calc(100vw - 2rem);
+    max-height: min(32rem, calc(100dvh - 6rem));
+    overflow-y: auto;
     background: #fff;
-    border: 1px solid var(--rp-border, #d5e8e4);
-    border-radius: 14px;
-    box-shadow: 0 18px 40px rgba(31, 75, 93, 0.16);
+    border: 1px solid #dce6e4;
+    border-radius: 1rem;
+    box-shadow: 0 18px 48px rgba(25, 53, 60, .16);
     z-index: 1100;
 }
 
@@ -3481,30 +3491,140 @@ body.rp-receipt-save-open {
     display: none !important;
 }
 
+.rp-filter-compact-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .95rem 1rem;
+    border-bottom: 1px solid #e8eeed;
+}
+
+.rp-filter-compact-title {
+    color: var(--rp-text, #203541);
+    font-size: .9rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.rp-filter-compact-close {
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    border: 0;
+    border-radius: .4rem;
+    background: transparent;
+    color: var(--rp-muted, #647980);
+    cursor: pointer;
+}
+
+.rp-filter-compact-close:hover,
+.rp-filter-compact-close:focus-visible {
+    background: #edf4f2;
+    color: var(--rp-text, #203541);
+}
+
+.rp-filter-compact-close:focus-visible {
+    outline: 2px solid #488f83;
+    outline-offset: 2px;
+}
+
 .rp-filter-compact-form {
     display: grid;
-    gap: .75rem;
+    gap: .9rem;
+    padding: 1rem;
 }
 
 .rp-filter-compact-field .form-label {
-    font-size: .78rem;
-    margin-bottom: .3rem;
-    color: var(--rp-muted);
+    margin-bottom: .4rem;
+    color: var(--rp-text, #203541);
+    font-size: .75rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.rp-filter-compact-field :is(.form-select, .form-control) {
+    min-height: 2.6rem;
+    border: 1px solid #d6e1df;
+    border-radius: .55rem;
+    background-color: #f9fbfa;
+    color: var(--rp-text, #203541);
+    font-size: .875rem;
+}
+
+.rp-filter-compact-field :is(.form-select, .form-control):focus {
+    border-color: #5aab9d;
+    box-shadow: 0 0 0 3px rgba(90, 171, 157, .16);
+}
+
+.rp-filter-compact-search {
+    position: relative;
+}
+
+.rp-filter-compact-search > .bi {
+    position: absolute;
+    top: 50%;
+    left: .8rem;
+    z-index: 1;
+    color: #7f979b;
+    font-size: .85rem;
+    pointer-events: none;
+    transform: translateY(-50%);
+}
+
+.rp-filter-compact-search .form-control {
+    padding-left: 2.2rem;
 }
 
 .rp-filter-compact-actions {
     display: flex;
-    gap: .5rem;
-    margin-top: .25rem;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .75rem;
+    margin: .15rem -1rem -1rem;
+    padding: .9rem 1rem;
+    border-top: 1px solid #e8eeed;
+}
+
+.rp-filter-compact-clear {
+    color: #426970;
+    font-size: .8rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.rp-filter-compact-clear:hover,
+.rp-filter-compact-clear:focus-visible {
+    color: #1f4b5d;
+    text-decoration: underline;
+    text-underline-offset: 2px;
 }
 
 .rp-filter-compact-actions .btn {
     flex: 1 1 auto;
+    min-height: 2.5rem;
+    border-radius: .55rem;
+    font-size: .83rem;
+    font-weight: 700;
+    transition: transform 120ms cubic-bezier(.23, 1, .32, 1), background-color 150ms ease;
 }
 
-@media (hover: hover) and (pointer: fine) {
-    .rp-filter-compact:hover .rp-filter-compact-panel[hidden] {
-        /* Keep click-to-open; hover only previews open state via toggle styling */
+.rp-filter-compact-actions .btn:active {
+    transform: scale(.98);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rp-filter-compact-toggle,
+    .rp-filter-compact-actions .btn,
+    .rp-filter-compact-caret {
+        transition: none;
+    }
+
+    .rp-filter-compact-toggle:active,
+    .rp-filter-compact-actions .btn:active {
+        transform: none;
     }
 }
 

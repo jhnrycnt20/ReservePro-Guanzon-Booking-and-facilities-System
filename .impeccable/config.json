@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "public/js/reservepro.js"
+        ],
+        "createdAt": "2026-10-26T04:22:49.735Z",
+        "reason": "Existing receipt and profile lightboxes stay hidden until runtime assigns each image src before opening."
+      }
+    ]
+  }
+}

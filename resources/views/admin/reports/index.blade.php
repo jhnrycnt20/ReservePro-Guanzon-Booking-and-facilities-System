@@ -29,31 +29,31 @@
     'searchPlaceholder' => 'Report Number, Title, Location, or Guest',
     'clearUrl' => route('admin.reports.index'),
 ])
-<div class="rp-card">
+<div class="rp-card rp-admin-list-card">
     <div class="table-responsive">
-        <table class="table align-middle" style="table-layout: fixed;">
+        <table class="table align-middle rp-admin-list-table rp-admin-list-table--reports">
             <thead>
                 <tr>
-                    <th style="width: 16%;">Report ID</th>
-                    <th style="width: 12%;">Type</th>
-                    <th style="width: 24%;">Title</th>
-                    <th style="width: 14%;">Guest</th>
-                    <th style="width: 10%;">Status</th>
-                    <th style="width: 12%;">Submitted</th>
-                    <th style="width: 12%;"></th>
+                    <th scope="col" style="width: 16%;">Report ID</th>
+                    <th scope="col" style="width: 12%;">Type</th>
+                    <th scope="col" style="width: 22%;">Title</th>
+                    <th scope="col" style="width: 14%;">Guest</th>
+                    <th scope="col" style="width: 12%;">Status</th>
+                    <th scope="col" style="width: 12%;">Submitted</th>
+                    <th scope="col" class="rp-admin-list-actions-heading" style="width: 12%;">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($reports as $report)
                     <tr>
-                        <td>{{ $report->report_number }}</td>
+                        <td class="rp-admin-list-primary rp-admin-list-mono">{{ $report->report_number }}</td>
                         <td>{{ str_replace('_', ' ', ucfirst($report->report_type instanceof \BackedEnum ? $report->report_type->value : $report->report_type)) }}</td>
-                        <td>{{ $report->title }}</td>
+                        <td class="rp-admin-list-wrap">{{ $report->title }}</td>
                         <td>{{ $report->guest?->user?->name ?? '—' }}</td>
-                        <td><x-status-badge :status="$report->status" plain /></td>
-                        <td>{{ $report->created_at?->format('M d, Y') }}</td>
+                        <td><x-status-badge :status="$report->status" /></td>
+                        <td class="rp-admin-list-mono">{{ $report->created_at?->format('M d, Y') }}</td>
                         <td class="text-end">
-                            <a href="{{ route('admin.reports.show', $report) }}" class="btn btn-sm btn-rp-soft">View</a>
+                            <button type="button" class="btn btn-sm btn-rp-soft" data-bs-toggle="modal" data-bs-target="#rpAdminReportModal{{ $report->id }}">View</button>
                         </td>
                     </tr>
                 @empty
@@ -62,6 +62,52 @@
             </tbody>
         </table>
     </div>
-    @if(method_exists($reports, 'links')) {{ $reports->withQueryString()->links() }} @endif
+    @if(method_exists($reports, 'links')) {{ $reports->links() }} @endif
 </div>
+@foreach($modalReports as $report)
+    @include('admin.reports.detail-modal', ['report' => $report])
+@endforeach
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('[data-rp-report-photo-modal]').forEach((photoModal) => {
+                photoModal.addEventListener('hidden.bs.modal', () => {
+                    const reportModal = document.getElementById(photoModal.dataset.rpReturnModal);
+                    if (reportModal && window.bootstrap?.Modal) {
+                        window.bootstrap.Modal.getOrCreateInstance(reportModal).show();
+                    }
+                });
+            });
+        });
+    </script>
+@endpush
+
+@if($selectedReportId && $modalReports->contains('id', $selectedReportId))
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const modal = document.getElementById(@json('rpAdminReportModal'.$selectedReportId));
+                if (modal && window.bootstrap?.Modal) {
+                    let openingPhoto = false;
+                    modal.addEventListener('click', (event) => {
+                        if (event.target.closest('[data-bs-toggle="modal"]')) {
+                            openingPhoto = true;
+                        }
+                    });
+                    modal.addEventListener('hidden.bs.modal', () => {
+                        if (openingPhoto) {
+                            openingPhoto = false;
+                            return;
+                        }
+                        const url = new URL(window.location.href);
+                        url.searchParams.delete('report');
+                        window.history.replaceState(window.history.state, '', url);
+                    });
+                    window.bootstrap.Modal.getOrCreateInstance(modal).show();
+                }
+            });
+        </script>
+    @endpush
+@endif

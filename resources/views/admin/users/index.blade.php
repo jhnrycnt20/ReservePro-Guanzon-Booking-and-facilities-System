@@ -42,28 +42,28 @@
         'embedded' => true,
     ])
 </div>
-<div class="rp-card">
+<div class="rp-card rp-users-card">
     <div class="table-responsive">
-        <table class="table align-middle" style="table-layout: fixed;">
+        <table class="table align-middle rp-users-table">
             <thead>
                 <tr>
-                    <th style="width: 20%;">Name</th>
-                    <th style="width: 24%;">Email</th>
-                    <th style="width: 16%;">Phone</th>
-                    <th style="width: 14%;">Role</th>
-                    <th class="text-center" style="width: 10%;">Active</th>
-                    <th style="width: 16%;"></th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Phone</th>
+                    <th scope="col">Role</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" class="rp-users-actions-heading">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($users as $user)
                     <tr>
-                        <td>{{ $user->name }}</td>
-                        <td>{{ $user->email }}</td>
-                        <td>{{ $user->phone ?? '—' }}</td>
+                        <td class="rp-users-name">{{ $user->name }}</td>
+                        <td class="rp-users-email">{{ $user->email }}</td>
+                        <td class="rp-users-phone">{{ $user->phone ?? '—' }}</td>
                         <td>{{ $user->role->name ?? '—' }}</td>
-                        <td class="text-center">{{ $user->is_active ? 'Yes' : 'No' }}</td>
-                        <td class="text-nowrap">
+                        <td><span class="rp-users-status {{ $user->is_active ? 'is-active' : 'is-inactive' }}">{{ $user->is_active ? 'Active' : 'Inactive' }}</span></td>
+                        <td>
                             <div class="rp-user-row-actions">
                                 <button type="button" class="btn btn-sm rp-user-edit-button" data-bs-toggle="modal" data-bs-target="#rpUserEditModal{{ $user->id }}">Edit</button>
                                 @if($user->id !== auth()->id())

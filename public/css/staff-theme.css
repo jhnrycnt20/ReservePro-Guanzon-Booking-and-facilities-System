@@ -511,6 +511,27 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-filter-compact.is-active .rp-filter-
     border-color: #78c2b5;
 }
 
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-filter-compact-header, .rp-filter-compact-actions) {
+    border-color: var(--rp-border);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-filter-compact-close {
+    color: #b9ccce;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-filter-compact-close:is(:hover, :focus-visible) {
+    background: #414747;
+    color: #fff;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-filter-compact-search > .bi {
+    color: #aabdc0;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-filter-compact-clear {
+    color: #a6e5d9;
+}
+
 html[data-bs-theme="dark"] .rp-staff-ui .rp-note-block,
 html[data-bs-theme="dark"] .rp-staff-ui .rp-pay-detail,
 html[data-bs-theme="dark"] .rp-staff-ui .rp-pay-tip,
@@ -876,4 +897,36 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-report-detail-photo-expand {
 html[data-bs-theme="dark"] .rp-staff-ui .rp-report-note-panel {
     background: #24363e;
     border-color: #355059;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-report-modal {
+    --rp-report-modal-ink: #e9f3f2;
+    --rp-report-modal-muted: #a6bbbf;
+    --rp-report-modal-rule: #485255;
+    --rp-report-modal-summary: #303b3d;
+    --rp-report-modal-surface: #2d3031;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-report-modal .modal-body {
+    background: var(--rp-report-modal-surface);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-report-modal .rp-report-detail-card,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-report-modal .rp-report-note-panel {
+    border-color: var(--rp-report-modal-rule);
+    background: transparent;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui #contactMessageViewModal {
+    --rp-contact-view-ink: #e9f3f2;
+    --rp-contact-view-muted: #a6bbbf;
+    --rp-contact-view-rule: #485255;
+    --rp-contact-view-summary: #303b3d;
+    --rp-contact-view-surface: #2d3031;
+    --rp-contact-view-link: #8bd5c8;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui #contactMessageViewModal .modal-body,
+html[data-bs-theme="dark"] .rp-staff-ui #contactMessageViewModal .modal-footer {
+    background: var(--rp-contact-view-surface);
 }

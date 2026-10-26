@@ -55,31 +55,31 @@
         'embedded' => true,
     ])
 </div>
-<div class="rp-card">
+<div class="rp-card rp-admin-list-card">
     <div class="table-responsive">
-        <table class="table align-middle" style="table-layout: fixed;">
+        <table class="table align-middle rp-admin-list-table rp-admin-list-table--accommodations">
             <thead>
                 <tr>
-                    <th style="width: 18%;">Name</th>
-                    <th style="width: 14%;">Number</th>
-                    <th style="width: 12%;">Type</th>
-                    <th style="width: 10%;">Capacity</th>
-                    <th style="width: 14%;">Rate</th>
-                    <th style="width: 10%;">Status</th>
-                    <th style="width: 22%;"></th>
+                    <th scope="col" style="width: 17%;">Name</th>
+                    <th scope="col" style="width: 14%;">Number</th>
+                    <th scope="col" style="width: 12%;">Type</th>
+                    <th scope="col" style="width: 10%;">Capacity</th>
+                    <th scope="col" style="width: 14%;">Rate</th>
+                    <th scope="col" style="width: 11%;">Status</th>
+                    <th scope="col" class="rp-admin-list-actions-heading" style="width: 22%;">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($accommodations as $item)
                     <tr class="rp-clickable-row" role="button" tabindex="0" data-rp-row-modal="#rpAccViewModal{{ $item->id }}" title="View accommodation">
-                        <td>
+                        <td class="rp-admin-list-primary">
                             <span class="rp-clickable-row-label">{{ $item->name }}</span>
                         </td>
-                        <td>{{ $item->number }}</td>
+                        <td class="rp-admin-list-mono">{{ $item->number }}</td>
                         <td>{{ $item->type->name ?? '—' }}</td>
                         <td>{{ $item->capacity }}</td>
-                        <td>₱{{ number_format($item->rate, 2) }}</td>
-                        <td><x-status-badge :status="$item->status" plain /></td>
+                        <td class="rp-admin-list-mono">₱{{ number_format($item->rate, 2) }}</td>
+                        <td><x-status-badge :status="$item->status" /></td>
                         <td class="text-nowrap" data-rp-stop-row-click>
                             <div class="d-flex justify-content-end gap-2">
                                 <button type="button" class="btn btn-sm btn-rp-soft" data-bs-toggle="modal" data-bs-target="#rpAccViewModal{{ $item->id }}">View</button>

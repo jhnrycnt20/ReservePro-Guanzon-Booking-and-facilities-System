@@ -39,26 +39,26 @@
     ])
 </div>
 
-<div class="rp-card">
+<div class="rp-card rp-admin-list-card">
     <div class="table-responsive">
-        <table class="table align-middle" style="table-layout: fixed;">
+        <table class="table align-middle rp-admin-list-table rp-admin-list-table--promos">
             <thead>
                 <tr>
-                    <th style="width: 12%;">Code</th>
-                    <th style="width: 26%;">Name</th>
-                    <th style="width: 10%;">Discount</th>
-                    <th style="width: 20%;">Scope</th>
-                    <th style="width: 8%;">Used</th>
-                    <th style="width: 10%;">Status</th>
-                    <th style="width: 14%;"></th>
+                    <th scope="col" style="width: 12%;">Code</th>
+                    <th scope="col" style="width: 20%;">Name</th>
+                    <th scope="col" style="width: 10%;">Discount</th>
+                    <th scope="col" style="width: 18%;">Scope</th>
+                    <th scope="col" style="width: 8%;">Used</th>
+                    <th scope="col" style="width: 10%;">Status</th>
+                    <th scope="col" class="rp-admin-list-actions-heading" style="width: 22%;">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($promos as $promo)
                     <tr>
-                        <td><code class="fw-semibold text-body">{{ $promo->code }}</code></td>
+                        <td class="rp-admin-list-primary rp-admin-list-mono">{{ $promo->code }}</td>
                         <td>{{ $promo->name ?: '—' }}</td>
-                        <td>{{ rtrim(rtrim(number_format((float) $promo->discount_percent, 2), '0'), '.') }}%</td>
+                        <td class="rp-admin-list-mono">{{ rtrim(rtrim(number_format((float) $promo->discount_percent, 2), '0'), '.') }}%</td>
                         <td>
                             @if($promo->applies_to_all)
                                 All accommodations
@@ -66,11 +66,11 @@
                                 <div class="small">{{ $promo->accommodations->pluck('name')->filter()->join(', ') ?: '—' }}</div>
                             @endif
                         </td>
-                        <td>
+                        <td class="rp-admin-list-mono">
                             {{ $promo->used_count }}
                             @if($promo->usage_limit) / {{ $promo->usage_limit }} @endif
                         </td>
-                        <td>{{ $promo->is_active ? 'Active' : 'Inactive' }}</td>
+                        <td><span class="rp-users-status {{ $promo->is_active ? 'is-active' : 'is-inactive' }}">{{ $promo->is_active ? 'Active' : 'Inactive' }}</span></td>
                         <td class="text-nowrap">
                             <div class="d-flex justify-content-end gap-2">
                                 <button type="button" class="btn btn-sm btn-rp-soft" data-bs-toggle="modal" data-bs-target="#rpPromoViewModal{{ $promo->id }}">View</button>
@@ -194,12 +194,12 @@
                     <div class="rp-promo-view-heading">
                         <div class="rp-promo-view-identity">
                             <div>
-                                <span class="rp-promo-view-field-label">Code</span>
-                                <div class="rp-promo-view-code">{{ $promo->code }}</div>
-                            </div>
-                            <div>
                                 <span class="rp-promo-view-field-label">Promo name</span>
                                 <div class="rp-promo-view-name">{{ $promo->name ?: 'Unnamed promotion' }}</div>
+                            </div>
+                            <div>
+                                <span class="rp-promo-view-field-label">Code</span>
+                                <div class="rp-promo-view-code">{{ $promo->code }}</div>
                             </div>
                         </div>
                         <span class="rp-promo-view-status {{ $promo->is_active ? 'is-active' : 'is-inactive' }}">

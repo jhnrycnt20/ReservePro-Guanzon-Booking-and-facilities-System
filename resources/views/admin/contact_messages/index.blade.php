@@ -25,28 +25,28 @@
     'searchPlaceholder' => 'Name, Email, Subject, or Message',
     'clearUrl' => route('admin.contact-messages.index'),
 ])
-<div class="rp-card">
+<div class="rp-card rp-admin-list-card">
     <div class="table-responsive">
-        <table class="table align-middle" style="table-layout: fixed;">
+        <table class="table align-middle rp-admin-list-table rp-admin-list-table--contact">
             <thead>
                 <tr>
-                    <th style="width: 24%;">From</th>
-                    <th style="width: 30%;">Subject</th>
-                    <th style="width: 16%;">Phone</th>
-                    <th style="width: 18%;">Received</th>
-                    <th style="width: 12%;"></th>
+                    <th scope="col" style="width: 24%;">From</th>
+                    <th scope="col" style="width: 30%;">Subject</th>
+                    <th scope="col" style="width: 16%;">Phone</th>
+                    <th scope="col" style="width: 18%;">Received</th>
+                    <th scope="col" class="rp-admin-list-actions-heading" style="width: 12%;">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($messages as $item)
                     <tr>
-                        <td>
-                            <div>{{ $item->name }}</div>
-                            <div class="small text-muted">{{ $item->email }}</div>
+                        <td class="rp-admin-list-wrap">
+                            <div class="rp-admin-list-primary">{{ $item->name }}</div>
+                            <div class="rp-admin-list-secondary">{{ $item->email }}</div>
                         </td>
-                        <td>{{ $item->subject ?: '—' }}</td>
-                        <td>{{ $item->phone ?: '—' }}</td>
-                        <td>{{ $item->created_at?->format('M d, Y g:i A') }}</td>
+                        <td class="rp-admin-list-wrap">{{ $item->subject ?: '—' }}</td>
+                        <td class="rp-admin-list-mono">{{ $item->phone ?: '—' }}</td>
+                        <td class="rp-admin-list-mono">{{ $item->created_at?->format('M d, Y g:i A') }}</td>
                         <td class="text-end">
                             <button
                                 type="button"
@@ -77,38 +77,34 @@
 
 <div class="modal fade" id="contactMessageViewModal" tabindex="-1" aria-labelledby="contactMessageViewModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
+        <div class="modal-content rp-contact-view-modal">
             <div class="modal-header">
                 <h2 class="modal-title h5" id="contactMessageViewModalLabel">Contact message</h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <dl class="rp-contact-view-meta">
-                    <div class="rp-contact-view-meta-item rp-contact-view-meta-item--wide">
-                        <dt>From</dt>
-                        <dd>
-                            <span class="rp-contact-view-name" id="contactViewName">—</span>
-                            <a href="#" id="contactViewEmail" class="rp-contact-view-email">—</a>
-                        </dd>
-                    </div>
-                    <div class="rp-contact-view-meta-item">
-                        <dt>Phone</dt>
-                        <dd id="contactViewPhone">—</dd>
-                    </div>
-                    <div class="rp-contact-view-meta-item">
-                        <dt>Received</dt>
-                        <dd id="contactViewReceived">—</dd>
-                    </div>
-                </dl>
-
-                <div class="rp-contact-view-section">
-                    <div class="rp-contact-view-label">Subject</div>
-                    <div class="rp-contact-view-subject" id="contactViewSubject">—</div>
+                <div class="rp-contact-view-intro">
+                    <h3 class="rp-contact-view-subject" id="contactViewSubject">—</h3>
+                    <div class="rp-contact-view-received"><i class="bi bi-clock" aria-hidden="true"></i> Received <span id="contactViewReceived">—</span></div>
                 </div>
 
-                <div class="rp-contact-view-section mb-0">
-                    <div class="rp-contact-view-label">Message</div>
-                    <div id="contactViewMessage" class="rp-contact-message-body">—</div>
+                <div class="rp-contact-view-layout">
+                    <section class="rp-contact-view-content">
+                        <h4 class="rp-contact-view-heading">Message</h4>
+                        <div id="contactViewMessage" class="rp-contact-message-body">—</div>
+                    </section>
+
+                    <aside class="rp-contact-view-sender">
+                        <h4 class="rp-contact-view-heading">From</h4>
+                        <div class="rp-contact-view-name" id="contactViewName">—</div>
+                        <a href="#" id="contactViewEmail" class="rp-contact-view-email">—</a>
+                        <dl class="rp-contact-view-sender-meta">
+                            <div>
+                                <dt>Phone</dt>
+                                <dd id="contactViewPhone">—</dd>
+                            </div>
+                        </dl>
+                    </aside>
                 </div>
             </div>
             <div class="modal-footer">
@@ -128,7 +124,7 @@ document.getElementById('contactMessageViewModal')?.addEventListener('show.bs.mo
     let payload = {};
     try {
         const raw = button.dataset.payload || '';
-        payload = JSON.parse(raw ? atob(raw) : '{}');
+        payload = JSON.parse(raw ? new TextDecoder().decode(Uint8Array.from(atob(raw), (char) => char.charCodeAt(0))) : '{}');
     } catch (error) {
         payload = {};
     }

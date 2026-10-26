@@ -843,6 +843,11 @@ document.addEventListener('DOMContentLoaded', () => {
             setOpen(panel.hidden);
         });
 
+        panel.querySelector('[data-rp-filter-close]')?.addEventListener('click', () => {
+            setOpen(false);
+            toggle.focus();
+        });
+
         document.addEventListener('click', (event) => {
             if (!wrap.contains(event.target)) {
                 setOpen(false);
@@ -850,8 +855,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') {
+            if (event.key === 'Escape' && !panel.hidden) {
                 setOpen(false);
+                toggle.focus();
             }
         });
     });
