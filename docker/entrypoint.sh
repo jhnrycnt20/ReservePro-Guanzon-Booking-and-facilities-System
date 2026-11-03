@@ -12,7 +12,7 @@ fi
 
 export DB_CONNECTION=sqlite
 export DB_DATABASE="${DB_DATABASE:-/app/database/database.sqlite}"
-export SESSION_DRIVER="${SESSION_DRIVER:-cookie}"
+export SESSION_DRIVER="${SESSION_DRIVER:-file}"
 export SESSION_SECURE_COOKIE="${SESSION_SECURE_COOKIE:-true}"
 export SESSION_SAME_SITE="${SESSION_SAME_SITE:-lax}"
 
@@ -22,15 +22,19 @@ if [ -f .env ]; then
     sed -i "s|^SESSION_DRIVER=.*|SESSION_DRIVER=${SESSION_DRIVER}|" .env
 
     if [ -n "$APP_URL" ]; then
-        sed -i "s|^APP_URL=.*|APP_URL=${APP_URL}|" .env
+        # Escape sed replacement specials (& and \).
+        safe_url=$(printf '%s' "$APP_URL" | sed 's/[&\\]/\\&/g')
+        sed -i "s|^APP_URL=.*|APP_URL=${safe_url}|" .env
     fi
 
-    # Keep runtime secrets + session cookie flags in .env when provided by the host (e.g. Render).
-    for key in APP_KEY APP_TIMEZONE SESSION_SECURE_COOKIE SESSION_SAME_SITE PAYMONGO_SECRET_KEY PAYMONGO_PUBLIC_KEY PAYMONGO_WEBHOOK_SECRET; do
+    # Never sed-replace APP_KEY (can corrupt base64). Laravel reads it from the process env.
+    # Keep timezone + session cookie flags + PayMongo keys in .env when provided by the host.
+    for key in APP_TIMEZONE SESSION_SECURE_COOKIE SESSION_SAME_SITE PAYMONGO_SECRET_KEY PAYMONGO_PUBLIC_KEY PAYMONGO_WEBHOOK_SECRET; do
         val=$(printenv "$key" || true)
         if [ -n "$val" ]; then
+            safe_val=$(printf '%s' "$val" | sed 's/[&\\]/\\&/g')
             if grep -q "^${key}=" .env; then
-                sed -i "s|^${key}=.*|${key}=${val}|" .env
+                sed -i "s|^${key}=.*|${key}=${safe_val}|" .env
             else
                 printf '%s=%s\n' "$key" "$val" >> .env
             fi
