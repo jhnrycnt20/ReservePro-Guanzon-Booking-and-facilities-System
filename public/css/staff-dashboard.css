@@ -38,7 +38,14 @@ body.rp-staff-ui .rp-main {
     overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior: contain;
-    scrollbar-gutter: stable;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+body.rp-staff-ui .rp-main::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
 }
 
 body.rp-staff-ui.modal-open {

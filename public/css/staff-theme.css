@@ -83,12 +83,6 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-theme-sun {
 }
 
 /* One dark token set for admin, front desk, and security. */
-html[data-bs-theme="dark"] {
-    --rp-scroll-track: #242526;
-    --rp-scroll-thumb: #626568;
-    --rp-scroll-thumb-hover: #79b9b2;
-}
-
 html[data-bs-theme="dark"] body.rp-staff-ui.rp-body {
     --rp-bg: #242526;
     --rp-surface: #303132;
@@ -101,9 +95,6 @@ html[data-bs-theme="dark"] body.rp-staff-ui.rp-body {
     --rp-accent-soft: #354440;
     --rp-primary: #9adbd0;
     --rp-shadow: 0 8px 28px rgba(0, 0, 0, .16);
-    --rp-scroll-track: #242526;
-    --rp-scroll-thumb: #626568;
-    --rp-scroll-thumb-hover: #79b9b2;
     --bs-body-bg: #242526;
     --bs-body-color: #f1f2f3;
     --bs-border-color: #4b4d4f;

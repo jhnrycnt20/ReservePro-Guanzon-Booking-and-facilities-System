@@ -199,6 +199,41 @@ class Booking extends Model
         return now()->toDateString() >= $this->check_in_date->toDateString();
     }
 
+    /**
+     * Scheduled arrival (check-in date + resort check-in time).
+     */
+    public function scheduledArrivalAt(): \Carbon\CarbonInterface
+    {
+        $time = (string) config('resort.check_in_time', '14:00');
+
+        return $this->check_in_date->copy()->setTimeFromTimeString($time);
+    }
+
+    /**
+     * True when the guest is 24+ hours past scheduled arrival and never checked in.
+     */
+    public function hasMissedArrival(): bool
+    {
+        if ($this->checkIn) {
+            return false;
+        }
+
+        if (! in_array($this->status, [BookingStatus::Pending, BookingStatus::Approved], true)) {
+            return false;
+        }
+
+        return now()->greaterThanOrEqualTo($this->scheduledArrivalAt()->addHours(24));
+    }
+
+    public function scopeMissedArrivalCandidates(Builder $query): Builder
+    {
+        // Broad date filter; hasMissedArrival() applies the exact 24-hour cutoff.
+        return $query
+            ->whereIn('status', [BookingStatus::Pending, BookingStatus::Approved])
+            ->whereDoesntHave('checkIn')
+            ->whereDate('check_in_date', '<=', now()->toDateString());
+    }
+
     public function checkOutDue(): bool
     {
         $now = now();

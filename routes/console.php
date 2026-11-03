@@ -21,4 +21,5 @@ Artisan::command('inspire', function () {
 
 Artisan::command('frontdesk:process-automation', function (FrontDeskAutomationService $automation) {
     $automation->runDueActions();
-})->purpose('Automatically check in and check out eligible bookings');
+    $this->info('Front desk automation finished (no-shows + due check-outs).');
+})->purpose('Mark missed arrivals as no-show and auto check-out due stays');

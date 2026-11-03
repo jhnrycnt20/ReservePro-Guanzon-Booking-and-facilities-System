@@ -317,19 +317,7 @@ class BookingService
                 $this->promoService->releaseUse((int) $booking->promo_id);
             }
 
-            if ($booking->accommodation && $booking->accommodation->status === AccommodationStatus::Reserved) {
-                $stillReserved = Booking::query()
-                    ->where('accommodation_id', $booking->accommodation_id)
-                    ->where('id', '!=', $booking->id)
-                    ->whereIn('status', [BookingStatus::Approved->value, BookingStatus::CheckedIn->value])
-                    ->exists();
-
-                if (! $stillReserved) {
-                    $booking->accommodation->update([
-                        'status' => AccommodationStatus::Available,
-                    ]);
-                }
-            }
+            $this->releaseAccommodationIfUnused($booking);
 
             $this->auditService->log('booking.cancelled', $booking, $old, $booking->fresh()->toArray(), $actor);
 
@@ -339,5 +327,73 @@ class BookingService
 
             return $booking->fresh();
         });
+    }
+
+    /**
+     * Mark a missed arrival (24h past scheduled check-in) as no-show and free the room.
+     */
+    public function markNoShow(Booking $booking, ?User $actor = null): Booking
+    {
+        return DB::transaction(function () use ($booking, $actor) {
+            $booking = Booking::query()->lockForUpdate()->findOrFail($booking->getKey());
+
+            if ($booking->checkIn) {
+                throw ValidationException::withMessages([
+                    'status' => 'This booking already has a check-in.',
+                ]);
+            }
+
+            if (! in_array($booking->status, [BookingStatus::Pending, BookingStatus::Approved], true)) {
+                throw ValidationException::withMessages([
+                    'status' => 'Only pending or approved bookings can be marked as no-show.',
+                ]);
+            }
+
+            if (! $booking->hasMissedArrival()) {
+                throw ValidationException::withMessages([
+                    'check_in_date' => 'Arrival grace period (24 hours) has not passed yet.',
+                ]);
+            }
+
+            $old = $booking->toArray();
+            $reason = 'No-show: guest did not arrive within 24 hours of scheduled check-in ('
+                .$booking->scheduledArrivalAt()->format('M j, Y g:i A').').';
+
+            $booking->update([
+                'status' => BookingStatus::NoShow,
+                'rejection_reason' => $reason,
+                'rejected_at' => now(),
+                'rejected_by' => $actor?->id,
+            ]);
+
+            if ($booking->promo_id) {
+                $this->promoService->releaseUse((int) $booking->promo_id);
+            }
+
+            $this->releaseAccommodationIfUnused($booking);
+
+            $this->auditService->log('booking.no_show', $booking, $old, $booking->fresh()->toArray(), $actor);
+
+            return $booking->fresh();
+        });
+    }
+
+    protected function releaseAccommodationIfUnused(Booking $booking): void
+    {
+        if (! $booking->accommodation || $booking->accommodation->status !== AccommodationStatus::Reserved) {
+            return;
+        }
+
+        $stillReserved = Booking::query()
+            ->where('accommodation_id', $booking->accommodation_id)
+            ->where('id', '!=', $booking->id)
+            ->whereIn('status', [BookingStatus::Approved->value, BookingStatus::CheckedIn->value])
+            ->exists();
+
+        if (! $stillReserved) {
+            $booking->accommodation->update([
+                'status' => AccommodationStatus::Available,
+            ]);
+        }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Helpers\RoleRedirect;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,7 +29,14 @@ class RoleMiddleware
             ->values();
 
         if ($allowed->isEmpty() || ! $allowed->contains($user->role?->slug)) {
-            abort(403, 'You do not have permission to access this resource.');
+            if ($request->expectsJson()) {
+                abort(403, 'You do not have permission to access this resource.');
+            }
+
+            // Send signed-in users back to their own area instead of a dead-end 403 page.
+            return redirect()
+                ->to(RoleRedirect::dashboardPath($user))
+                ->with('error', 'That page belongs to a different role. Use the Front Desk account for reservations and logs.');
         }
 
         return $next($request);

@@ -72,6 +72,22 @@ class Promo extends Model
         return true;
     }
 
+    public function scopeCurrentlyValid($query)
+    {
+        return $query
+            ->where('is_active', true)
+            ->where(function ($builder) {
+                $builder->whereNull('starts_at')->orWhere('starts_at', '<=', now());
+            })
+            ->where(function ($builder) {
+                $builder->whereNull('ends_at')->orWhere('ends_at', '>=', now());
+            })
+            ->where(function ($builder) {
+                $builder->whereNull('usage_limit')
+                    ->orWhereColumn('used_count', '<', 'usage_limit');
+            });
+    }
+
     public function appliesToAccommodation(int $accommodationId): bool
     {
         if ($this->applies_to_all) {

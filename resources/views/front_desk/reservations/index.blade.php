@@ -168,6 +168,9 @@
                         } elseif ($statusValue === 'checked_out') {
                             $resStatus = 'checked_out';
                             $resLabel = 'Checked-out';
+                        } elseif ($statusValue === 'no_show') {
+                            $resStatus = 'no_show';
+                            $resLabel = 'No-show';
                         } else {
                             $resStatus = $statusValue;
                             $resLabel = str_replace('_', ' ', ucwords($statusValue, '_'));
@@ -401,6 +404,8 @@
             $resLabel = 'Checked-in';
         } elseif ($statusValue === 'checked_out') {
             $resLabel = 'Checked-out';
+        } elseif ($statusValue === 'no_show') {
+            $resLabel = 'No-show';
         } else {
             $resLabel = str_replace('_', ' ', ucwords($statusValue, '_'));
         }
@@ -478,38 +483,51 @@
                         <div class="col-12">
                             <div class="text-muted small mb-2">Check-in / Check-out log</div>
                             <div class="rp-resv-log-list">
-                                @if($booking->checkIn)
+                                @if($statusValue === 'no_show')
                                     <div class="rp-resv-log-item">
                                         <div class="rp-resv-log-item__head">
-                                            <span class="rp-resv-pill is-status-checked_in">Check-in</span>
-                                            <span class="rp-resv-log-item__when">{{ $booking->checkIn->checked_in_at?->format('M j, Y · g:i A') ?? '—' }}</span>
+                                            <span class="rp-resv-pill is-status-no_show">No-show</span>
+                                            <span class="rp-resv-log-item__when">{{ $booking->rejected_at?->format('M j, Y · g:i A') ?? $booking->updated_at?->format('M j, Y · g:i A') }}</span>
                                         </div>
-                                        <div class="rp-resv-log-item__meta">By {{ $booking->checkIn->staff?->name ?? 'Staff' }}</div>
-                                        @if($booking->checkIn->notes)
-                                            <div class="rp-resv-log-item__notes">{{ $booking->checkIn->notes }}</div>
+                                        <div class="rp-resv-log-item__meta">Missed arrival (24h past scheduled check-in)</div>
+                                        @if($booking->rejection_reason)
+                                            <div class="rp-resv-log-item__notes">{{ $booking->rejection_reason }}</div>
                                         @endif
                                     </div>
                                 @else
-                                    <div class="rp-resv-log-item is-empty">No check-in recorded yet.</div>
-                                @endif
-                                @if($booking->checkOut)
-                                    <div class="rp-resv-log-item">
-                                        <div class="rp-resv-log-item__head">
-                                            <span class="rp-resv-pill is-status-checked_out">Check-out</span>
-                                            <span class="rp-resv-log-item__when">{{ $booking->checkOut->checked_out_at?->format('M j, Y · g:i A') ?? '—' }}</span>
-                                        </div>
-                                        <div class="rp-resv-log-item__meta">
-                                            By {{ $booking->checkOut->staff?->name ?? 'Staff' }}
-                                            @if(((float) $booking->checkOut->additional_charges) > 0)
-                                                · Extra ₱{{ number_format((float) $booking->checkOut->additional_charges, 2) }}
+                                    @if($booking->checkIn)
+                                        <div class="rp-resv-log-item">
+                                            <div class="rp-resv-log-item__head">
+                                                <span class="rp-resv-pill is-status-checked_in">Check-in</span>
+                                                <span class="rp-resv-log-item__when">{{ $booking->checkIn->checked_in_at?->format('M j, Y · g:i A') ?? '—' }}</span>
+                                            </div>
+                                            <div class="rp-resv-log-item__meta">By {{ $booking->checkIn->staff?->name ?? 'Staff' }}</div>
+                                            @if($booking->checkIn->notes)
+                                                <div class="rp-resv-log-item__notes">{{ $booking->checkIn->notes }}</div>
                                             @endif
                                         </div>
-                                        @if($booking->checkOut->notes)
-                                            <div class="rp-resv-log-item__notes">{{ $booking->checkOut->notes }}</div>
-                                        @endif
-                                    </div>
-                                @else
-                                    <div class="rp-resv-log-item is-empty">No check-out recorded yet.</div>
+                                    @else
+                                        <div class="rp-resv-log-item is-empty">No check-in recorded yet.</div>
+                                    @endif
+                                    @if($booking->checkOut)
+                                        <div class="rp-resv-log-item">
+                                            <div class="rp-resv-log-item__head">
+                                                <span class="rp-resv-pill is-status-checked_out">Check-out</span>
+                                                <span class="rp-resv-log-item__when">{{ $booking->checkOut->checked_out_at?->format('M j, Y · g:i A') ?? '—' }}</span>
+                                            </div>
+                                            <div class="rp-resv-log-item__meta">
+                                                By {{ $booking->checkOut->staff?->name ?? 'Staff' }}
+                                                @if(((float) $booking->checkOut->additional_charges) > 0)
+                                                    · Extra ₱{{ number_format((float) $booking->checkOut->additional_charges, 2) }}
+                                                @endif
+                                            </div>
+                                            @if($booking->checkOut->notes)
+                                                <div class="rp-resv-log-item__notes">{{ $booking->checkOut->notes }}</div>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <div class="rp-resv-log-item is-empty">No check-out recorded yet.</div>
+                                    @endif
                                 @endif
                             </div>
                         </div>

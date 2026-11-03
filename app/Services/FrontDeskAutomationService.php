@@ -13,6 +13,7 @@ class FrontDeskAutomationService
     public function __construct(
         protected CheckOutService $checkOutService,
         protected PaymentService $paymentService,
+        protected BookingService $bookingService,
     ) {
     }
 
@@ -20,7 +21,13 @@ class FrontDeskAutomationService
     {
         $actor = $actor ?? $this->resolveStaffActor();
 
-        // Check-in is manual at front desk — only auto check-out remains.
+        // Missed arrivals (24h past scheduled check-in) → Logs as no-show.
+        Booking::query()
+            ->missedArrivalCandidates()
+            ->orderBy('id')
+            ->each(fn (Booking $booking) => $this->tryMarkNoShow($booking, $actor));
+
+        // Check-in is manual at front desk — only auto check-out remains for in-house stays.
         Booking::query()
             ->where('status', BookingStatus::CheckedIn)
             ->checkOutDue()
@@ -33,8 +40,27 @@ class FrontDeskAutomationService
         $actor = $actor ?? $this->resolveStaffActor();
         $booking = $booking->fresh();
 
-        if ($booking->status === BookingStatus::CheckedIn) {
-            $this->tryAutoCheckOut($booking, $actor);
+        $this->tryMarkNoShow($booking, $actor);
+
+        if ($booking->fresh()?->status === BookingStatus::CheckedIn) {
+            $this->tryAutoCheckOut($booking->fresh(), $actor);
+        }
+    }
+
+    public function tryMarkNoShow(Booking $booking, User $staff): void
+    {
+        $booking = $booking->fresh();
+        if (! $booking || ! $booking->hasMissedArrival()) {
+            return;
+        }
+
+        try {
+            $this->bookingService->markNoShow($booking, $staff);
+        } catch (ValidationException $exception) {
+            Log::debug('Auto no-show skipped', [
+                'booking_id' => $booking->id,
+                'messages' => $exception->errors(),
+            ]);
         }
     }
 

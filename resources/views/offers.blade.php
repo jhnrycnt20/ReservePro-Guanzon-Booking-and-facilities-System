@@ -23,6 +23,38 @@
     <div class="container">
         <div class="rp-offers-layout">
             <div class="rp-offers-content" id="rpOffersContent">
+                @forelse(($promoOffers ?? collect()) as $offer)
+                    <div class="rp-offer-row">
+                        <div class="rp-offer-row-media">
+                            <img src="{{ $offer['image'] }}" alt="{{ $offer['title'] }}" loading="lazy">
+                            <span class="rp-offer-badge">Promo rate</span>
+                        </div>
+                        <div class="rp-offer-row-content">
+                            <h2 class="rp-offer-row-title">{{ $offer['title'] }}</h2>
+                            <span class="rp-offer-row-title-line"></span>
+                            <p class="rp-offer-row-desc">{{ $offer['description'] }}</p>
+                            @if(!empty($offer['perks']))
+                                <ul class="rp-offer-perks">
+                                    @foreach($offer['perks'] as $perk)
+                                        <li>{{ $perk }}</li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                            <p class="rp-offer-code-hint">Promo codes are private — selected guests enter theirs at booking.</p>
+                            @if(!empty($offer['cta']))
+                                <a href="{{ $offer['cta'] }}" class="rp-offer-cta">{{ $offer['cta_label'] ?? 'Learn more' }}</a>
+                            @endif
+                        </div>
+                    </div>
+                @empty
+                    <div class="rp-offer-empty">
+                        <h2 class="rp-offer-row-title">No active promo rooms right now</h2>
+                        <p class="rp-offer-row-desc mb-0">Check back soon, or browse all accommodations to book a stay.</p>
+                        <a href="{{ route('accommodations.browse', ['from' => 'offers']) }}" class="rp-offer-cta">Browse rooms</a>
+                    </div>
+                @endforelse
+
+                {{-- Always-on resort packages (marketing) — not tied to private promo codes --}}
                 @foreach ([
                     [
                         'title' => 'AC Room (with / without Videoke)',
@@ -42,28 +74,6 @@
                             'from' => 'offers',
                         ]),
                         'cta_label' => 'View AC Rooms',
-                    ],
-                    [
-                        'title' => 'Cabana Promo Rate',
-                        'description' => 'Avail our Promo Rates ₱2,500 (good for 4 pax).',
-                        'perks' => [
-                            'Aircon',
-                            'Smart TV',
-                            'Hot and Cold shower',
-                            'Toiletries',
-                            'Complimentary coffee & water',
-                            'Electric kettle',
-                            'Pay Wifi',
-                            'Balcony',
-                            'No pets',
-                            'No Visitors',
-                        ],
-                        'image' => asset('images/offers/cabana-promo.png'),
-                        'cta' => route('accommodations.browse', [
-                            'type' => \App\Models\AccommodationType::query()->where('slug', 'cabana')->value('id'),
-                            'from' => 'offers',
-                        ]),
-                        'cta_label' => 'View Cabana',
                     ],
                     [
                         'title' => 'Suite Room at Guanzon Beach',

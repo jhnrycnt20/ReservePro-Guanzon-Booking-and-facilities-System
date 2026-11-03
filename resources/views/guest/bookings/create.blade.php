@@ -22,18 +22,32 @@
                 @csrf
                 <input type="hidden" name="accommodation_id" value="{{ $accommodation->id }}">
 
+                @if ($errors->any())
+                    <div class="alert alert-danger" role="alert">
+                        <div class="fw-semibold mb-1">We could not submit your reservation.</div>
+                        <ul class="mb-0 ps-3">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label">Guest name</label>
-                        <input type="text" name="guest_name" class="form-control" value="{{ old('guest_name', auth()->user()->name ?? '') }}" required>
+                        <input type="text" name="guest_name" class="form-control @error('guest_name') is-invalid @enderror" value="{{ old('guest_name', auth()->user()->name ?? '') }}" required>
+                        @error('guest_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Contact number</label>
-                        <input type="text" name="contact_number" class="form-control" value="{{ old('contact_number', auth()->user()->phone ?? '') }}" required>
+                        <input type="text" name="contact_number" class="form-control @error('contact_number') is-invalid @enderror" value="{{ old('contact_number', auth()->user()->phone ?? '') }}" required>
+                        @error('contact_number')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-control" value="{{ old('email', auth()->user()->email ?? '') }}" required>
+                        <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', auth()->user()->email ?? '') }}" required>
+                        @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Accommodation</label>
@@ -103,7 +117,7 @@
                     </label>
                 </div>
 
-                <button type="submit" class="rp-avail-btn-secondary mt-3">Submit Reservation</button>
+                <button type="submit" class="rp-avail-btn-primary mt-3">Submit Reservation</button>
             </form>
         </div>
     </div>

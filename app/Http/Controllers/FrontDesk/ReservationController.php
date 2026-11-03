@@ -8,6 +8,7 @@ use App\Http\Requests\FrontDesk\RejectBookingRequest;
 use App\Models\Accommodation;
 use App\Models\Booking;
 use App\Services\BookingService;
+use App\Services\FrontDeskAutomationService;
 use App\Support\ListFilters;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -17,12 +18,16 @@ use Illuminate\View\View;
 
 class ReservationController extends Controller
 {
-    public function __construct(protected BookingService $bookingService)
-    {
+    public function __construct(
+        protected BookingService $bookingService,
+        protected FrontDeskAutomationService $automation,
+    ) {
     }
 
     public function index(Request $request): View
     {
+        $this->automation->runDueActions($request->user());
+
         $tab = (string) $request->input('tab', 'all');
         if (! in_array($tab, ['all', 'check_in', 'check_out', 'walk_in', 'logs'], true)) {
             $tab = 'all';
@@ -92,7 +97,9 @@ class ReservationController extends Controller
                 ->with($with)
                 ->withCount($withCount)
                 ->where(function ($builder) {
-                    $builder->whereHas('checkIn')->orWhereHas('checkOut');
+                    $builder->whereHas('checkIn')
+                        ->orWhereHas('checkOut')
+                        ->orWhere('status', BookingStatus::NoShow);
                 });
         } else {
             $query = Booking::query()
@@ -129,6 +136,10 @@ class ReservationController extends Controller
                     })->orWhereHas('checkOut', function ($checkOut) use ($dateFrom, $dateTo) {
                         $checkOut->whereDate('checked_out_at', '>=', $dateFrom)
                             ->whereDate('checked_out_at', '<=', $dateTo);
+                    })->orWhere(function ($noShow) use ($dateFrom, $dateTo) {
+                        $noShow->where('status', BookingStatus::NoShow)
+                            ->whereDate('check_in_date', '>=', $dateFrom)
+                            ->whereDate('check_in_date', '<=', $dateTo);
                     });
 
                     return;
@@ -145,7 +156,11 @@ class ReservationController extends Controller
             if ($tab === 'logs') {
                 $query->where(function ($builder) use ($dateFrom) {
                     $builder->whereHas('checkIn', fn ($q) => $q->whereDate('checked_in_at', '>=', $dateFrom))
-                        ->orWhereHas('checkOut', fn ($q) => $q->whereDate('checked_out_at', '>=', $dateFrom));
+                        ->orWhereHas('checkOut', fn ($q) => $q->whereDate('checked_out_at', '>=', $dateFrom))
+                        ->orWhere(function ($noShow) use ($dateFrom) {
+                            $noShow->where('status', BookingStatus::NoShow)
+                                ->whereDate('check_in_date', '>=', $dateFrom);
+                        });
                 });
             } else {
                 $query->whereDate('check_out_date', '>=', $dateFrom);
@@ -154,7 +169,11 @@ class ReservationController extends Controller
             if ($tab === 'logs') {
                 $query->where(function ($builder) use ($dateTo) {
                     $builder->whereHas('checkIn', fn ($q) => $q->whereDate('checked_in_at', '<=', $dateTo))
-                        ->orWhereHas('checkOut', fn ($q) => $q->whereDate('checked_out_at', '<=', $dateTo));
+                        ->orWhereHas('checkOut', fn ($q) => $q->whereDate('checked_out_at', '<=', $dateTo))
+                        ->orWhere(function ($noShow) use ($dateTo) {
+                            $noShow->where('status', BookingStatus::NoShow)
+                                ->whereDate('check_in_date', '<=', $dateTo);
+                        });
                 });
             } else {
                 $query->whereDate('check_in_date', '<=', $dateTo);
@@ -199,6 +218,13 @@ class ReservationController extends Controller
 
     public function show(Booking $booking): View|RedirectResponse
     {
+        if ($booking->status === BookingStatus::NoShow) {
+            return redirect()
+                ->route('front_desk.reservations.index', ['tab' => 'logs'])
+                ->with('open_view', $booking->id)
+                ->with('success', 'This reservation was marked as a no-show (missed arrival).');
+        }
+
         if (in_array($booking->status, [BookingStatus::Rejected, BookingStatus::Cancelled], true)) {
             return redirect()
                 ->route('front_desk.reservations.index')

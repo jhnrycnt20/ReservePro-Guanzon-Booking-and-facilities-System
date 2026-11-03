@@ -10,4 +10,5 @@ enum BookingStatus: string
     case Cancelled = 'cancelled';
     case CheckedIn = 'checked_in';
     case CheckedOut = 'checked_out';
+    case NoShow = 'no_show';
 }

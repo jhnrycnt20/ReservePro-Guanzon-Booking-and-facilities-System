@@ -18,10 +18,6 @@
     --rp-topbar-muted: rgba(255, 255, 255, 0.78);
     --rp-dashboard-gradient: linear-gradient(135deg, #96DFD3 0%, #1F4B5D 100%);
     --rp-shadow: 0 10px 30px rgba(31, 75, 93, 0.12);
-    --rp-scroll-track: #e8f1ef;
-    --rp-scroll-thumb: #6fa8a0;
-    --rp-scroll-thumb-hover: #1F4B5D;
-    --rp-scroll-size: 8px;
 }
 
 /* Shared Lagoon → Deep Sea palette for every role dashboard */
@@ -46,41 +42,20 @@ body.theme-admin {
     --rp-border: #d5e8e4;
     --rp-dashboard-gradient: linear-gradient(135deg, #96DFD3 0%, #1F4B5D 100%);
     --rp-shadow: 0 10px 30px rgba(31, 75, 93, 0.12);
-    --rp-scroll-track: #e8f1ef;
-    --rp-scroll-thumb: #6fa8a0;
-    --rp-scroll-thumb-hover: #1F4B5D;
 }
 
 * { box-sizing: border-box; }
 
-/* Flat system scrollbars (black track + solid thumb) */
+/* Hide custom scrollbars site-wide (public + actors). Scrolling still works. */
 * {
-    scrollbar-width: thin;
-    scrollbar-color: var(--rp-scroll-thumb) var(--rp-scroll-track);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
 *::-webkit-scrollbar {
-    width: var(--rp-scroll-size);
-    height: var(--rp-scroll-size);
-}
-
-*::-webkit-scrollbar-track {
-    background: var(--rp-scroll-track);
-    border-radius: 0;
-}
-
-*::-webkit-scrollbar-thumb {
-    background: var(--rp-scroll-thumb);
-    border-radius: 0;
-    border: 0;
-}
-
-*::-webkit-scrollbar-thumb:hover {
-    background: var(--rp-scroll-thumb-hover);
-}
-
-*::-webkit-scrollbar-corner {
-    background: var(--rp-scroll-track);
+    width: 0;
+    height: 0;
+    display: none;
 }
 
 body.theme-admin,
@@ -2619,7 +2594,7 @@ body.rp-body .container > .row,
     justify-content: center;
     width: 100%;
     height: 40px;
-    background: var(--rp-accent, #6b7f7d);
+    background: linear-gradient(135deg, #6fcf97 0%, #0F6B45 100%);
     color: #FFFFFF;
     border: none;
     border-radius: 6px;
@@ -2629,13 +2604,13 @@ body.rp-body .container > .row,
     text-align: center;
     text-decoration: none;
     cursor: pointer;
-    transition: background .2s ease;
+    transition: background .2s ease, filter .2s ease;
 }
 
 .rp-avail-btn-primary:hover,
 .rp-avail-btn-primary:focus,
 .rp-avail-btn-primary:active {
-    background: var(--rp-accent-dark, #4a5655);
+    background: linear-gradient(135deg, #5bbb85 0%, #0a4f33 100%);
     color: #FFFFFF;
     text-decoration: none;
 }
@@ -2677,8 +2652,8 @@ body.rp-body .container > .row,
     width: 100%;
     height: 40px;
     background: #FFFFFF;
-    border: 1px solid var(--rp-accent, #6b7f7d);
-    color: var(--rp-accent, #6b7f7d);
+    border: 1px solid #cfe5d9;
+    color: #2B4A3E;
     border-radius: 6px;
     font-family: var(--rp-font);
     font-size: 15px;
@@ -2686,7 +2661,7 @@ body.rp-body .container > .row,
     text-align: center;
     text-decoration: none;
     margin-top: 12px;
-    transition: background .2s ease;
+    transition: background .2s ease, border-color .2s ease, color .2s ease;
 }
 
 .rp-booking-actions {
@@ -2715,8 +2690,9 @@ body.rp-body .container > .row,
 .rp-avail-btn-secondary:hover,
 .rp-avail-btn-secondary:focus,
 .rp-avail-btn-secondary:active {
-    background: var(--rp-accent-soft, #e6eeed);
-    color: var(--rp-accent, #6b7f7d);
+    background: #e8f7ef;
+    border-color: #0F6B45;
+    color: #0F6B45;
     text-decoration: none;
 }
 
@@ -4814,6 +4790,7 @@ body.rp-receipt-save-open {
 .rp-resv-pill.is-pay-pending { background: #eef1f3; color: #5a6a72; }
 .rp-resv-pill.is-status-checked_in { background: #e7f2ff; color: #1d5f8a; }
 .rp-resv-pill.is-status-checked_out { background: #e8f7f3; color: #1F4B5D; }
+.rp-resv-pill.is-status-no_show { background: #fde8e6; color: #b42318; }
 .rp-resv-pill.is-status-confirmed,
 .rp-resv-pill.is-status-ready { background: #fff0df; color: #a85a18; }
 .rp-resv-pill.is-status-pending { background: #fff0df; color: #a85a18; }
@@ -5750,8 +5727,8 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     padding: .7rem 1.1rem;
     border: 0;
     border-radius: .75rem;
-    background: linear-gradient(135deg, #96DFD3 0%, #1F4B5D 100%);
-    box-shadow: 0 2px 8px rgba(31, 75, 93, 0.22);
+    background: linear-gradient(135deg, #6fcf97 0%, #0F6B45 100%);
+    box-shadow: 0 2px 8px rgba(15, 107, 69, 0.22);
     font-family: var(--rp-font);
     font-weight: 700;
     font-size: 14px;
@@ -5773,7 +5750,7 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     color: #fff;
     filter: brightness(1.06);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(31, 75, 93, 0.3);
+    box-shadow: 0 4px 12px rgba(15, 107, 69, 0.3);
     outline: none;
 }
 
@@ -6210,6 +6187,7 @@ body.rp-login-modal-open .rp-page-blur-overlay {
 }
 
 .rp-offer-row-media {
+    position: relative;
     flex: 0 0 auto;
     width: 55%;
     max-width: 520px;
@@ -6219,12 +6197,42 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     transition: box-shadow .3s ease;
 }
 
+.rp-offer-badge {
+    position: absolute;
+    top: .85rem;
+    left: .85rem;
+    z-index: 1;
+    padding: .35rem .7rem;
+    border-radius: .4rem;
+    background: rgba(15, 107, 69, .92);
+    color: #fff;
+    font-family: var(--rp-font);
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
 .rp-offer-row-media img {
     width: 100%;
     height: 380px;
     object-fit: cover;
     display: block;
     transition: transform .5s ease;
+}
+
+.rp-offer-code-hint {
+    margin: .85rem 0 0;
+    max-width: 32rem;
+    font-family: var(--rp-font);
+    font-size: .82rem;
+    line-height: 1.45;
+    color: var(--rp-muted);
+    font-style: italic;
+}
+
+.rp-offer-empty {
+    padding: 1.5rem 0 2rem;
 }
 
 .rp-offer-row:hover .rp-offer-row-media {
@@ -7021,10 +7029,46 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     }
 }
 
-.rp-availability-modal .modal-content {
+.modal-content.rp-availability-modal {
+    --rp-accent: #0F6B45;
+    --rp-accent-dark: #0a4f33;
+    --rp-accent-soft: #e8f7ef;
+    --rp-primary: #0F6B45;
+    --rp-border: #cfe5d9;
+    --rp-dashboard-gradient: linear-gradient(135deg, #6fcf97 0%, #0F6B45 100%);
     border: 0;
     border-radius: 1rem;
-    box-shadow: var(--rp-shadow);
+    box-shadow: 0 10px 30px rgba(15, 107, 69, 0.12);
+}
+
+.modal-content.rp-availability-modal .btn.btn-rp-primary {
+    background: linear-gradient(135deg, #6fcf97 0%, #0F6B45 100%);
+    border-color: transparent;
+    color: #fff;
+}
+
+.modal-content.rp-availability-modal .btn.btn-rp-primary:hover,
+.modal-content.rp-availability-modal .btn.btn-rp-primary:focus,
+.modal-content.rp-availability-modal .btn.btn-rp-primary:focus-visible,
+.modal-content.rp-availability-modal .btn.btn-rp-primary:active {
+    background: linear-gradient(135deg, #5bbb85 0%, #0a4f33 100%) !important;
+    border-color: transparent !important;
+    color: #fff !important;
+}
+
+.modal-content.rp-availability-modal .btn.btn-rp-soft {
+    background: #e8f7ef;
+    border-color: transparent;
+    color: #0F6B45;
+}
+
+.modal-content.rp-availability-modal .btn.btn-rp-soft:hover,
+.modal-content.rp-availability-modal .btn.btn-rp-soft:focus,
+.modal-content.rp-availability-modal .btn.btn-rp-soft:focus-visible,
+.modal-content.rp-availability-modal .btn.btn-rp-soft:active {
+    background-color: #d4efdf !important;
+    border-color: transparent !important;
+    color: #0a4f33 !important;
 }
 
 /* Tall admin forms: keep header/footer fixed, scroll the body */

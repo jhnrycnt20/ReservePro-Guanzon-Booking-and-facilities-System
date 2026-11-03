@@ -1700,7 +1700,7 @@ document.addEventListener('DOMContentLoaded', () => {
             HTMLFormElement.prototype.submit.call(form);
         });
 
-        updatePasswordChecks();
+                    updatePasswordChecks();
         if (form.querySelector('.is-invalid')) {
             fieldNames.forEach((name) => {
                 const input = field(name);
@@ -1810,7 +1810,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (touched.has(name)) validate(name);
             });
             if (name !== 'avatar') {
-                input.addEventListener('blur', () => {
+            input.addEventListener('blur', () => {
                     touched.add(name);
                     validate(name, { force: true });
                 });

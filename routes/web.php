@@ -63,7 +63,68 @@ Route::get('/gallery', function () {
 })->name('gallery');
 
 Route::get('/offers', function () {
-    return view('offers');
+    $activePromos = \App\Models\Promo::query()
+        ->currentlyValid()
+        ->with(['accommodations' => function ($query) {
+            $query->where('is_active', true)
+                ->with(['type', 'amenities'])
+                ->orderBy('name');
+        }])
+        ->orderByDesc('discount_percent')
+        ->get();
+
+    // One card per room that has an active promo — never expose the promo code publicly.
+    $promoOffers = collect();
+    foreach ($activePromos as $promo) {
+        $rooms = $promo->applies_to_all
+            ? \App\Models\Accommodation::query()
+                ->where('is_active', true)
+                ->with(['type', 'amenities'])
+                ->orderBy('name')
+                ->get()
+            : $promo->accommodations;
+
+        foreach ($rooms as $room) {
+            $key = (string) $room->id;
+            $existing = $promoOffers->get($key);
+            $percent = (float) $promo->discount_percent;
+            if ($existing && (float) $existing['discount_percent'] >= $percent) {
+                continue;
+            }
+
+            $rate = (float) $room->rate;
+            $promoRate = $promo->discountedRate($rate);
+            $perks = $room->amenities->pluck('name')->take(8)->values()->all();
+            if ($perks === []) {
+                $perks = array_filter([
+                    'Up to '.rtrim(rtrim(number_format($percent, 2), '0'), '.').'% off selected stays',
+                    'Capacity '.$room->capacity.' guests',
+                    $room->type?->name ? ($room->type->name.' stay') : null,
+                ]);
+            }
+
+            $promoOffers->put($key, [
+                'title' => $room->name,
+                'description' => filled($promo->name)
+                    ? $promo->name.' — special rate for selected guests.'
+                    : 'Special rate for selected guests. Enter your private promo code when booking.',
+                'perks' => array_values(array_unique(array_merge([
+                    'Regular rate ₱'.number_format($rate, 0),
+                    'Promo rate ₱'.number_format($promoRate, 0).' ('.rtrim(rtrim(number_format($percent, 2), '0'), '.').'% off)',
+                    'Good for '.$room->capacity.' guests',
+                ], $perks))),
+                'image' => $room->image_url,
+                'cta' => route('accommodations.show', ['accommodation' => $room->id, 'from' => 'offers']),
+                'cta_label' => 'View '.$room->name,
+                'discount_percent' => $percent,
+                'is_promo' => true,
+            ]);
+        }
+    }
+
+    $promoOffers = $promoOffers->sortByDesc('discount_percent')->values();
+
+    return view('offers', compact('promoOffers'));
 })->name('offers');
 
 Route::get('/downloads', function () {
@@ -139,7 +200,7 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::post('/bookings/{booking}/feedback', [GuestFeedbackController::class, 'store'])->name('feedback.store_booking');
     });
 
-    Route::middleware(['role:front_desk'])->prefix('front-desk')->name('front_desk.')->group(function () {
+    Route::middleware(['role:front_desk,admin'])->prefix('front-desk')->name('front_desk.')->group(function () {
         Route::get('/dashboard', [FrontDeskDashboardController::class, 'index'])->name('dashboard');
 
         Route::get('/reservations', [ReservationController::class, 'index'])->name('reservations.index');

@@ -94,9 +94,15 @@ class BookingController extends Controller
             $request->user()
         );
 
-        $this->notificationService->notifyFrontDesk(new StaffNewReservationNotification($booking));
+        try {
+            $this->notificationService->notifyFrontDesk(new StaffNewReservationNotification($booking));
+        } catch (\Throwable) {
+            // Booking is already saved; staff notification must not block payment.
+        }
 
-        return redirect()->route('guest.bookings.show', $booking);
+        return redirect()
+            ->route('guest.payments.create', $booking)
+            ->with('success', 'Reservation created. Complete your payment to confirm the stay.');
     }
 
     public function show(Request $request, Booking $booking): View

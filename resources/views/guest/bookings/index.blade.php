@@ -8,6 +8,9 @@
     $hasFilter = filled(request('status')) || filled(request('q'));
 @endphp
 <div class="container rp-public-page-top pb-4">
+    @if(session('error'))
+        <div class="alert alert-warning border-0 shadow-sm mb-3">{{ session('error') }}</div>
+    @endif
     <div class="rp-page-intro d-flex flex-wrap justify-content-between align-items-center gap-3">
         <h1 class="rp-page-intro-title mb-0">My Reservations</h1>
         @if($hasBookings || $hasFilter)
