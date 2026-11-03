@@ -12,7 +12,19 @@ class WelcomeGuestNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        $channels = ['database'];
+
+        // Skip SMTP on hosts without real mail config (Render defaults to unreachable smtp/mailpit).
+        $mailer = (string) config('mail.default', 'smtp');
+        $smtpHost = (string) config('mail.mailers.smtp.host', '');
+        $canMail = in_array($mailer, ['log', 'array'], true)
+            || ($mailer === 'smtp' && $smtpHost !== '' && ! in_array($smtpHost, ['mailpit', 'localhost', '127.0.0.1'], true) && filled(config('mail.mailers.smtp.username')));
+
+        if ($canMail) {
+            $channels[] = 'mail';
+        }
+
+        return $channels;
     }
 
     public function toMail(object $notifiable): MailMessage

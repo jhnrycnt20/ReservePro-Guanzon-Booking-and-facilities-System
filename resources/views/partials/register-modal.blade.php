@@ -10,6 +10,11 @@
                     @if (session('error'))
                         <div class="rp-login-alert" role="alert">{{ session('error') }}</div>
                     @endif
+                    @if ($errors->register->any())
+                        <div class="rp-login-alert" role="alert">
+                            {{ $errors->register->first('email') ?: $errors->register->first() }}
+                        </div>
+                    @endif
 
                     <div class="rp-login-field">
                         <input

@@ -42,13 +42,33 @@ class RegisterController extends Controller
 
     public function register(Request $request)
     {
+        $request->merge([
+            'email' => strtolower(trim((string) $request->input('email', ''))),
+            'name' => trim((string) $request->input('name', '')),
+        ]);
+
         $validator = $this->validator($request->all());
 
         if ($validator->fails()) {
-            throw ValidationException::withMessages($validator->errors()->getMessages())->errorBag('register');
+            throw ValidationException::withMessages($validator->errors()->getMessages())
+                ->errorBag('register')
+                ->redirectTo(url('/?signup=1'));
         }
 
-        event(new Registered($user = $this->create($request->all())));
+        try {
+            $user = $this->create($request->all());
+        } catch (\Illuminate\Database\UniqueConstraintViolationException $exception) {
+            throw ValidationException::withMessages([
+                'email' => ['This email is already registered. Try logging in instead.'],
+            ])->errorBag('register')->redirectTo(url('/?signup=1'));
+        }
+
+        try {
+            event(new Registered($user));
+        } catch (\Throwable $exception) {
+            // Account is already saved; welcome mail/notifications must not block signup.
+            report($exception);
+        }
 
         $this->guard()->login($user);
 
@@ -92,9 +112,10 @@ class RegisterController extends Controller
             'address.max' => 'Address must not exceed 1000 characters.',
         ]);
 
-        // Only hit Google SMTP after the rest of the form is valid (keeps empty submits fast).
+        // Optional Gmail mailbox probe (local/dev). Skip in production — outbound SMTP
+        // port 25 is blocked on many hosts (including Render) and can time out as a 500.
         $validator->after(function ($validator) use ($data): void {
-            if ($validator->errors()->isNotEmpty()) {
+            if (app()->environment('production') || $validator->errors()->isNotEmpty()) {
                 return;
             }
 
@@ -103,11 +124,15 @@ class RegisterController extends Controller
                 return;
             }
 
-            if (app(GmailExistenceChecker::class)->check($email) === false) {
-                $validator->errors()->add(
-                    'email',
-                    'This Gmail does not exist. Please enter a real Gmail address.'
-                );
+            try {
+                if (app(GmailExistenceChecker::class)->check($email) === false) {
+                    $validator->errors()->add(
+                        'email',
+                        'This Gmail does not exist. Please enter a real Gmail address.'
+                    );
+                }
+            } catch (\Throwable $exception) {
+                report($exception);
             }
         });
 
