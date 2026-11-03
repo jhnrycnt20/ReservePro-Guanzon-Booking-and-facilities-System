@@ -55,7 +55,7 @@ class LoginController extends Controller
         }
 
         try {
-            if (app(GmailExistenceChecker::class)->check($email) === false) {
+            if (! app(GmailExistenceChecker::class)->exists($email)) {
                 $this->guard()->logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
@@ -68,6 +68,10 @@ class LoginController extends Controller
             throw $exception;
         } catch (\Throwable $exception) {
             report($exception);
+            $this->guard()->logout();
+            throw ValidationException::withMessages([
+                'email' => ['This Gmail does not exist. Please enter a real Gmail address.'],
+            ])->errorBag('login')->redirectTo(url('/?login=1'));
         }
 
         return null;

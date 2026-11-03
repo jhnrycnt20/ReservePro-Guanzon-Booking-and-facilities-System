@@ -20,53 +20,71 @@ class GmailExistenceChecker
             return false;
         }
 
-        $cacheKey = 'gmail-exists:'.sha1($email);
+        $parts = explode('@', $email, 2);
+        $domain = $parts[1] ?? '';
+        if (! in_array($domain, ['gmail.com', 'googlemail.com'], true)) {
+            return false;
+        }
+
+        $cacheKey = 'gmail-exists:v2:'.sha1($email);
 
         if (Cache::has($cacheKey)) {
             return Cache::get($cacheKey);
         }
 
+        // Production/Render: HTTPS first (outbound SMTP ports are blocked on free plans).
+        // Local: SMTP first (accurate + fast), then HTTPS fallback.
+        $probes = app()->environment('production')
+            ? ['https', 'smtp']
+            : ['smtp', 'https'];
+
         $result = null;
-
-        try {
-            $result = $this->probeSmtp($email);
-        } catch (Throwable $e) {
-            Log::warning('Gmail SMTP existence check failed.', [
-                'email' => $email,
-                'error' => $e->getMessage(),
-            ]);
-        }
-
-        // Render free blocks outbound SMTP (25/465/587). Fall back to HTTPS probe.
-        if ($result === null) {
+        foreach ($probes as $probe) {
             try {
-                $result = $this->probeHttps($email);
+                $result = $probe === 'https'
+                    ? $this->probeHttps($email)
+                    : $this->probeSmtp($email);
             } catch (Throwable $e) {
-                Log::warning('Gmail HTTPS existence check failed.', [
+                Log::warning("Gmail {$probe} existence check failed.", [
                     'email' => $email,
                     'error' => $e->getMessage(),
                 ]);
                 $result = null;
             }
+
+            if ($result !== null) {
+                break;
+            }
         }
 
         if ($result !== null) {
-            Cache::put($cacheKey, $result, now()->addMinutes(15));
+            Cache::put($cacheKey, $result, now()->addMinutes(30));
         }
 
         return $result;
     }
 
+    /**
+     * True only when the mailbox is confirmed to exist.
+     */
+    public function exists(string $email): bool
+    {
+        return $this->check($email) === true;
+    }
+
     private function probeSmtp(string $email): ?bool
     {
         $hosts = [];
-        if (! getmxrr('gmail.com', $hosts) || $hosts === []) {
+        if (function_exists('getmxrr')) {
+            @getmxrr('gmail.com', $hosts);
+        }
+        if ($hosts === []) {
             $hosts = ['gmail-smtp-in.l.google.com'];
         }
 
         $fp = null;
-        foreach (array_slice($hosts, 0, 3) as $host) {
-            $fp = @fsockopen($host, 25, $errno, $errstr, 3);
+        foreach (array_slice($hosts, 0, 2) as $host) {
+            $fp = @fsockopen($host, 25, $errno, $errstr, 2);
             if (is_resource($fp)) {
                 break;
             }
@@ -76,7 +94,7 @@ class GmailExistenceChecker
             return null;
         }
 
-        stream_set_timeout($fp, 5);
+        stream_set_timeout($fp, 4);
 
         try {
             if (! $this->expectCode($fp, 220)) {
@@ -118,20 +136,28 @@ class GmailExistenceChecker
      */
     private function probeHttps(string $email): ?bool
     {
-        $response = Http::timeout(20)
+        $response = Http::timeout(25)
             ->withHeaders([
                 'Accept' => 'application/json, text/plain, */*',
                 'Origin' => 'https://gmail.k1god.com',
                 'Referer' => 'https://gmail.k1god.com/',
                 'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             ])
+            ->acceptJson()
             ->asJson()
             ->post('https://gmail.k1god.com/api/v1/check', [
                 'emails' => [$email],
-                'mode' => 'precision',
+                'email' => $email,
+                'mode' => 'precision-detailed',
             ]);
 
         if (! $response->successful()) {
+            Log::warning('Gmail HTTPS probe non-success.', [
+                'email' => $email,
+                'status' => $response->status(),
+                'body' => substr($response->body(), 0, 300),
+            ]);
+
             return null;
         }
 
@@ -149,12 +175,19 @@ class GmailExistenceChecker
         }
 
         $status = strtolower(trim((string) data_get($match, 'status', '')));
+        $category = strtolower(trim((string) data_get($match, 'category', '')));
 
-        if (in_array($status, ['unregistered', 'disabled'], true)) {
+        if (
+            in_array($status, ['unregistered', 'disabled'], true)
+            || in_array($category, ['unregistered', 'disabled'], true)
+        ) {
             return false;
         }
 
-        if (in_array($status, ['live', 'verify'], true)) {
+        if (
+            in_array($status, ['live', 'verify'], true)
+            || in_array($category, ['live', 'verify'], true)
+        ) {
             return true;
         }
 

@@ -112,7 +112,8 @@ class RegisterController extends Controller
             'address.max' => 'Address must not exceed 1000 characters.',
         ]);
 
-        // Same Gmail mailbox probe locally and on Render (SMTP locally, HTTPS fallback on Render).
+        // Require a confirmed-existing Gmail on local AND Render.
+        // Only === true may pass; false/null both block signup.
         $validator->after(function ($validator) use ($data): void {
             if ($validator->errors()->isNotEmpty()) {
                 return;
@@ -124,7 +125,7 @@ class RegisterController extends Controller
             }
 
             try {
-                if (app(GmailExistenceChecker::class)->check($email) === false) {
+                if (! app(GmailExistenceChecker::class)->exists($email)) {
                     $validator->errors()->add(
                         'email',
                         'This Gmail does not exist. Please enter a real Gmail address.'
@@ -132,6 +133,10 @@ class RegisterController extends Controller
                 }
             } catch (\Throwable $exception) {
                 report($exception);
+                $validator->errors()->add(
+                    'email',
+                    'This Gmail does not exist. Please enter a real Gmail address.'
+                );
             }
         });
 
