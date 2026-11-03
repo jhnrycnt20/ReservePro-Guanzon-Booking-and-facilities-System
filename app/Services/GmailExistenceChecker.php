@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -25,15 +26,28 @@ class GmailExistenceChecker
             return Cache::get($cacheKey);
         }
 
+        $result = null;
+
         try {
             $result = $this->probeSmtp($email);
         } catch (Throwable $e) {
-            Log::warning('Gmail existence check failed.', [
+            Log::warning('Gmail SMTP existence check failed.', [
                 'email' => $email,
                 'error' => $e->getMessage(),
             ]);
+        }
 
-            return null;
+        // Render free blocks outbound SMTP (25/465/587). Fall back to HTTPS probe.
+        if ($result === null) {
+            try {
+                $result = $this->probeHttps($email);
+            } catch (Throwable $e) {
+                Log::warning('Gmail HTTPS existence check failed.', [
+                    'email' => $email,
+                    'error' => $e->getMessage(),
+                ]);
+                $result = null;
+            }
         }
 
         if ($result !== null) {
@@ -51,8 +65,8 @@ class GmailExistenceChecker
         }
 
         $fp = null;
-        foreach ($hosts as $host) {
-            $fp = @fsockopen($host, 25, $errno, $errstr, 6);
+        foreach (array_slice($hosts, 0, 3) as $host) {
+            $fp = @fsockopen($host, 25, $errno, $errstr, 3);
             if (is_resource($fp)) {
                 break;
             }
@@ -62,7 +76,7 @@ class GmailExistenceChecker
             return null;
         }
 
-        stream_set_timeout($fp, 6);
+        stream_set_timeout($fp, 5);
 
         try {
             if (! $this->expectCode($fp, 220)) {
@@ -85,12 +99,10 @@ class GmailExistenceChecker
 
             $this->command($fp, 'QUIT');
 
-            // Hard "no such user"
             if ($code === 550 || $code === 551 || $code === 553 || str_contains($response, '5.1.1')) {
                 return false;
             }
 
-            // Accepted, or mailbox issues that still prove the account exists
             if ($code === 250 || $code === 251 || $code === 252 || $code === 552) {
                 return true;
             }
@@ -99,6 +111,54 @@ class GmailExistenceChecker
         } finally {
             fclose($fp);
         }
+    }
+
+    /**
+     * HTTPS mailbox probe for hosts that block outbound SMTP (e.g. Render free).
+     */
+    private function probeHttps(string $email): ?bool
+    {
+        $response = Http::timeout(20)
+            ->withHeaders([
+                'Accept' => 'application/json, text/plain, */*',
+                'Origin' => 'https://gmail.k1god.com',
+                'Referer' => 'https://gmail.k1god.com/',
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            ])
+            ->asJson()
+            ->post('https://gmail.k1god.com/api/v1/check', [
+                'emails' => [$email],
+                'mode' => 'precision',
+            ]);
+
+        if (! $response->successful()) {
+            return null;
+        }
+
+        $results = $response->json('results');
+        if (! is_array($results) || $results === []) {
+            return null;
+        }
+
+        $match = collect($results)->first(
+            fn ($row) => strtolower((string) data_get($row, 'email')) === $email
+        );
+
+        if (! is_array($match)) {
+            return null;
+        }
+
+        $status = strtolower(trim((string) data_get($match, 'status', '')));
+
+        if (in_array($status, ['unregistered', 'disabled'], true)) {
+            return false;
+        }
+
+        if (in_array($status, ['live', 'verify'], true)) {
+            return true;
+        }
+
+        return null;
     }
 
     private function command($fp, string $line): void

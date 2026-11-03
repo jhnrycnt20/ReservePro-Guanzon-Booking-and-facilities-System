@@ -112,10 +112,9 @@ class RegisterController extends Controller
             'address.max' => 'Address must not exceed 1000 characters.',
         ]);
 
-        // Optional Gmail mailbox probe (local/dev). Skip in production — outbound SMTP
-        // port 25 is blocked on many hosts (including Render) and can time out as a 500.
+        // Same Gmail mailbox probe locally and on Render (SMTP locally, HTTPS fallback on Render).
         $validator->after(function ($validator) use ($data): void {
-            if (app()->environment('production') || $validator->errors()->isNotEmpty()) {
+            if ($validator->errors()->isNotEmpty()) {
                 return;
             }
 
