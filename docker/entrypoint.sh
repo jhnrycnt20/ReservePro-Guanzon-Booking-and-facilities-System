@@ -12,7 +12,7 @@ fi
 
 export DB_CONNECTION=sqlite
 export DB_DATABASE="${DB_DATABASE:-/app/database/database.sqlite}"
-export SESSION_DRIVER="${SESSION_DRIVER:-database}"
+export SESSION_DRIVER="${SESSION_DRIVER:-cookie}"
 export SESSION_SECURE_COOKIE="${SESSION_SECURE_COOKIE:-true}"
 export SESSION_SAME_SITE="${SESSION_SAME_SITE:-lax}"
 
@@ -25,8 +25,8 @@ if [ -f .env ]; then
         sed -i "s|^APP_URL=.*|APP_URL=${APP_URL}|" .env
     fi
 
-    # Keep PayMongo keys + timezone + session cookie flags in .env when provided by the host (e.g. Render).
-    for key in APP_TIMEZONE SESSION_SECURE_COOKIE SESSION_SAME_SITE PAYMONGO_SECRET_KEY PAYMONGO_PUBLIC_KEY PAYMONGO_WEBHOOK_SECRET; do
+    # Keep runtime secrets + session cookie flags in .env when provided by the host (e.g. Render).
+    for key in APP_KEY APP_TIMEZONE SESSION_SECURE_COOKIE SESSION_SAME_SITE PAYMONGO_SECRET_KEY PAYMONGO_PUBLIC_KEY PAYMONGO_WEBHOOK_SECRET; do
         val=$(printenv "$key" || true)
         if [ -n "$val" ]; then
             if grep -q "^${key}=" .env; then

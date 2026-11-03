@@ -27,8 +27,9 @@ services:
         value: sqlite
       - key: DB_DATABASE
         value: /app/database/database.sqlite
+      # Cookie sessions survive free-tier disk resets; database sessions caused mobile 419s.
       - key: SESSION_DRIVER
-        value: database
+        value: cookie
       - key: SESSION_SECURE_COOKIE
         value: "true"
       - key: SESSION_SAME_SITE

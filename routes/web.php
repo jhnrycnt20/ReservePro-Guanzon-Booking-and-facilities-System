@@ -47,6 +47,13 @@ Route::get('/', function () {
     return view('welcome', compact('featuredAccommodations'));
 });
 
+// Fresh CSRF for mobile/WebView login (avoids stale tokens after sleep/resume).
+Route::get('/csrf-token', function () {
+    return response()
+        ->json(['token' => csrf_token()])
+        ->header('Cache-Control', 'no-store, no-cache, must-revalidate');
+})->name('csrf.token');
+
 Route::get('/blog', function () {
     return view('blog');
 })->name('blog');

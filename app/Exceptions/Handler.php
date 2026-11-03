@@ -48,13 +48,17 @@ class Handler extends ExceptionHandler
             return response()->json(['message' => 'Page expired. Please refresh and try again.'], 419);
         }
 
-        $fallback = route('login');
-        if ($request->is('register') || $request->routeIs('register')) {
-            $fallback = route('register');
+        // Re-open the auth modal on a fresh page load so mobile gets a new session cookie.
+        if ($request->is('login') || $request->routeIs('login')) {
+            $fallback = url('/?login=1');
+        } elseif ($request->is('register') || $request->routeIs('register')) {
+            $fallback = url('/?signup=1');
         } elseif ($request->is('contact') || $request->routeIs('contact') || $request->routeIs('contact.store')) {
             $fallback = route('contact');
         } elseif ($request->headers->get('referer')) {
-            $fallback = url()->previous() ?: $fallback;
+            $fallback = url()->previous() ?: url('/?login=1');
+        } else {
+            $fallback = url('/?login=1');
         }
 
         return redirect()

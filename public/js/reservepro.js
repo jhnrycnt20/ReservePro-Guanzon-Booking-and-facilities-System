@@ -1423,12 +1423,39 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    const refreshCsrfToken = async (form) => {
+        const response = await fetch('/csrf-token', {
+            method: 'GET',
+            credentials: 'same-origin',
+            cache: 'no-store',
+            headers: {
+                Accept: 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
+        if (!response.ok) {
+            throw new Error('csrf-refresh-failed');
+        }
+        const data = await response.json();
+        const token = data?.token;
+        if (!token) {
+            throw new Error('csrf-token-missing');
+        }
+        form.querySelectorAll('input[name="_token"]').forEach((input) => {
+            input.value = token;
+        });
+        const meta = document.querySelector('meta[name="csrf-token"]');
+        if (meta) meta.setAttribute('content', token);
+        return token;
+    };
+
     document.querySelectorAll('[data-rp-login-form]').forEach((form) => {
         const names = ['email', 'password'];
         const field = (name) => form.querySelector(`[data-rp-login-field="${name}"]`);
         const feedback = (name) => form.querySelector(`[data-rp-login-feedback="${name}"]`);
         const touched = new Set();
         const serverInvalid = new Set(names.filter((name) => field(name)?.classList.contains('is-invalid')));
+        let submitting = false;
 
         const validateField = (name, force = false) => {
             const input = field(name);
@@ -1469,13 +1496,28 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        form.addEventListener('submit', (event) => {
+        form.addEventListener('submit', async (event) => {
+            if (submitting) return;
+
             names.forEach((name) => touched.add(name));
             const valid = names.map((name) => validateField(name, true)).every(Boolean);
             if (!valid) {
                 event.preventDefault();
                 form.querySelector('[data-rp-login-field].is-invalid')?.focus();
+                return;
             }
+
+            // Refresh CSRF right before POST — fixes mobile "session expired" (419) after sleep/resume.
+            event.preventDefault();
+            const submitBtn = form.querySelector('[type="submit"]');
+            if (submitBtn) submitBtn.disabled = true;
+            try {
+                await refreshCsrfToken(form);
+            } catch (error) {
+                // Fall through and let the server respond; user can retry.
+            }
+            submitting = true;
+            HTMLFormElement.prototype.submit.call(form);
         });
 
         // Keep browser validation as a fallback when JavaScript is unavailable.
@@ -1625,7 +1667,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        form.addEventListener('submit', (event) => {
+        let registering = false;
+        form.addEventListener('submit', async (event) => {
+            if (registering) return;
+
             fieldNames.forEach((name) => touched.add(name));
             const valid = validateAll({ force: true });
             if (!valid) {
@@ -1641,13 +1686,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            event.preventDefault();
             if (submitBtn) {
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Creating account...';
             }
+            try {
+                await refreshCsrfToken(form);
+            } catch (error) {
+                // Continue; server will show a clear error if the token is still stale.
+            }
+            registering = true;
+            HTMLFormElement.prototype.submit.call(form);
         });
 
-                    updatePasswordChecks();
+        updatePasswordChecks();
         if (form.querySelector('.is-invalid')) {
             fieldNames.forEach((name) => {
                 const input = field(name);
