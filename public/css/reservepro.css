@@ -5138,16 +5138,44 @@ body.rp-receipt-save-open {
 }
 
 .rp-login-modal.modal-content {
-    background: linear-gradient(165deg, rgba(8, 20, 15, .5), rgba(6, 15, 12, .65));
-    backdrop-filter: blur(22px);
-    -webkit-backdrop-filter: blur(22px);
+    background: linear-gradient(165deg, rgba(8, 20, 15, .92), rgba(6, 15, 12, .96));
     border: 1px solid rgba(255, 255, 255, .15);
     border-radius: 28px;
     overflow: hidden;
 }
 
+/* Desktop-only blur — iOS Safari often breaks inputs/taps with backdrop-filter on modals. */
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    @media (hover: hover) and (pointer: fine) {
+        .rp-login-modal.modal-content {
+            background: linear-gradient(165deg, rgba(8, 20, 15, .5), rgba(6, 15, 12, .65));
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+        }
+    }
+}
+
+#rpLoginModal .modal-dialog,
+#rpRegisterModal .modal-dialog {
+    max-width: 28rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#rpLoginModal .modal-dialog-scrollable .modal-content,
+#rpRegisterModal .modal-dialog-scrollable .modal-content {
+    max-height: min(92dvh, 40rem);
+}
+
+#rpLoginModal .modal-dialog-scrollable .rp-login-modal-body,
+#rpRegisterModal .modal-dialog-scrollable .rp-login-modal-body {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
 body.rp-login-modal-open .modal-backdrop {
-    background: rgba(6, 15, 12, .25);
+    background: rgba(6, 15, 12, .55);
 }
 
 body.rp-login-modal-open {
@@ -5164,8 +5192,15 @@ body.rp-login-modal-open {
 
 body.rp-login-modal-open .rp-page-blur-overlay {
     display: block;
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    background: rgba(6, 15, 12, .2);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    body.rp-login-modal-open .rp-page-blur-overlay {
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        background: transparent;
+    }
 }
 
 .rp-login-modal-close {
@@ -5218,9 +5253,7 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     padding: .85rem 2.75rem .85rem 1.4rem;
     color: #fff;
     font-family: var(--rp-font);
-    font-size: .92rem;
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    font-size: 16px; /* prevents iOS zoom-on-focus that hides the Login button */
     transition: background .2s ease, border-color .2s ease;
 }
 

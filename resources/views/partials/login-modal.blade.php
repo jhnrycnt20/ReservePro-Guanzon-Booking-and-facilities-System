@@ -1,18 +1,19 @@
 <div class="modal fade" id="rpLoginModal" tabindex="-1" aria-labelledby="rpLoginModalLabel" aria-hidden="true" data-rp-autoshow="{{ $errors->login->any() ? '1' : '0' }}">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content rp-login-modal">
             <button type="button" class="btn-close rp-login-modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
             <div class="rp-login-modal-body">
                 <h2 class="rp-login-title" id="rpLoginModalLabel">Login</h2>
 
-                <form method="POST" action="{{ route('login') }}" data-rp-login-form>
+                <form method="POST" action="{{ route('login') }}" data-rp-login-form novalidate>
                     @csrf
                     @if (session('error'))
                         <div class="rp-login-alert" role="alert">{{ session('error') }}</div>
                     @endif
 
                     <div class="rp-login-field">
-                        <input id="rpLoginEmail" type="email" class="@error('email', 'login') is-invalid @enderror" name="email" value="{{ old('email') }}" placeholder="Email" autocomplete="email" aria-describedby="rpLoginEmailError" @error('email', 'login') aria-invalid="true" @enderror required autofocus data-rp-login-field="email">
+                        {{-- type=text + inputmode avoids some mobile browsers rejecting reserved .test demo emails --}}
+                        <input id="rpLoginEmail" type="text" inputmode="email" autocomplete="username" class="@error('email', 'login') is-invalid @enderror" name="email" value="{{ old('email') }}" placeholder="Email" aria-describedby="rpLoginEmailError" @error('email', 'login') aria-invalid="true" @enderror required data-rp-login-field="email">
                         <i class="bi bi-envelope rp-login-field-icon"></i>
                         <div id="rpLoginEmailError" class="rp-login-error" role="status" aria-live="polite" data-rp-login-feedback="email">@error('email', 'login'){{ $message }}@enderror</div>
                     </div>

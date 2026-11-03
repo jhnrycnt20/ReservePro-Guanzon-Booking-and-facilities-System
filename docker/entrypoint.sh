@@ -3,13 +3,18 @@ set -e
 
 cd /app
 
+# Render injects the public HTTPS URL here. Blueprint "host" is scheme-less — never use it raw.
 if [ -n "$RENDER_EXTERNAL_URL" ]; then
     export APP_URL="$RENDER_EXTERNAL_URL"
+elif [ -n "$APP_URL" ] && ! printf '%s' "$APP_URL" | grep -Eq '^https?://'; then
+    export APP_URL="https://${APP_URL}"
 fi
 
 export DB_CONNECTION=sqlite
 export DB_DATABASE="${DB_DATABASE:-/app/database/database.sqlite}"
 export SESSION_DRIVER="${SESSION_DRIVER:-database}"
+export SESSION_SECURE_COOKIE="${SESSION_SECURE_COOKIE:-true}"
+export SESSION_SAME_SITE="${SESSION_SAME_SITE:-lax}"
 
 if [ -f .env ]; then
     sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
@@ -20,8 +25,8 @@ if [ -f .env ]; then
         sed -i "s|^APP_URL=.*|APP_URL=${APP_URL}|" .env
     fi
 
-    # Keep PayMongo keys + timezone in .env when provided by the host (e.g. Render).
-    for key in APP_TIMEZONE PAYMONGO_SECRET_KEY PAYMONGO_PUBLIC_KEY PAYMONGO_WEBHOOK_SECRET; do
+    # Keep PayMongo keys + timezone + session cookie flags in .env when provided by the host (e.g. Render).
+    for key in APP_TIMEZONE SESSION_SECURE_COOKIE SESSION_SAME_SITE PAYMONGO_SECRET_KEY PAYMONGO_PUBLIC_KEY PAYMONGO_WEBHOOK_SECRET; do
         val=$(printenv "$key" || true)
         if [ -n "$val" ]; then
             if grep -q "^${key}=" .env; then

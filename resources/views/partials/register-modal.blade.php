@@ -1,5 +1,5 @@
 <div class="modal fade" id="rpRegisterModal" tabindex="-1" aria-labelledby="rpRegisterModalLabel" aria-hidden="true" data-rp-autoshow="{{ $errors->register->any() ? '1' : '0' }}">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content rp-login-modal">
             <button type="button" class="btn-close rp-login-modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
             <div class="rp-login-modal-body">

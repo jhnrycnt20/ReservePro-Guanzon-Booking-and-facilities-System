@@ -14,6 +14,8 @@ services:
         value: "false"
       - key: APP_KEY
         generateValue: true
+      # Prefer RENDER_EXTERNAL_URL in entrypoint (includes https://).
+      # Keep this as a fallback hostname only — never use host without a scheme in Laravel.
       - key: APP_URL
         fromService:
           type: web
@@ -29,5 +31,7 @@ services:
         value: database
       - key: SESSION_SECURE_COOKIE
         value: "true"
+      - key: SESSION_SAME_SITE
+        value: lax
       - key: LOG_CHANNEL
         value: stderr

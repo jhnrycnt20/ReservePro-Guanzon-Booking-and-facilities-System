@@ -2142,15 +2142,26 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-demo-email]').forEach((button) => {
         button.addEventListener('click', () => {
             const scope = button.closest('.rp-login-modal-body, .rp-auth-card') || document;
-            const emailInput = scope.querySelector('input[type="email"]') || document.getElementById('email');
-            const demoPasswordInput = scope.querySelector('input[type="password"]') || document.getElementById('password');
+            const form = scope.querySelector('[data-rp-login-form]') || button.closest('form');
+            const emailInput = scope.querySelector('[data-rp-login-field="email"]')
+                || scope.querySelector('input[name="email"]')
+                || document.getElementById('email');
+            const demoPasswordInput = scope.querySelector('[data-rp-login-field="password"]')
+                || scope.querySelector('input[name="password"]')
+                || document.getElementById('password');
             if (!emailInput || !demoPasswordInput) return;
 
             emailInput.value = button.dataset.demoEmail || '';
             demoPasswordInput.value = button.dataset.demoPassword || '';
             emailInput.dispatchEvent(new Event('input', { bubbles: true }));
             demoPasswordInput.dispatchEvent(new Event('input', { bubbles: true }));
-            emailInput.focus();
+
+            // On mobile, auto-submit so users do not lose the Login button behind the keyboard.
+            if (form && typeof form.requestSubmit === 'function') {
+                form.requestSubmit();
+            } else if (form) {
+                form.submit();
+            }
         });
     });
 
