@@ -940,18 +940,67 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-report-modal .rp-report-note-p
     background: transparent;
 }
 
-html[data-bs-theme="dark"] .rp-staff-ui #contactMessageViewModal {
-    --rp-contact-view-ink: #e9f3f2;
-    --rp-contact-view-muted: #a6bbbf;
-    --rp-contact-view-rule: #485255;
-    --rp-contact-view-summary: #303b3d;
-    --rp-contact-view-surface: #2d3031;
-    --rp-contact-view-link: #8bd5c8;
+html[data-bs-theme="dark"] .rp-staff-ui .pagination .page-link {
+    border-color: #4a5552;
+    background: #303132;
+    color: #e8f0ed;
 }
 
-html[data-bs-theme="dark"] .rp-staff-ui #contactMessageViewModal .modal-body,
-html[data-bs-theme="dark"] .rp-staff-ui #contactMessageViewModal .modal-footer {
+html[data-bs-theme="dark"] .rp-staff-ui .pagination .page-link:hover {
+    border-color: #7dcf9a;
+    background: #354440;
+    color: #9adbd0;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .pagination .page-item.active .page-link {
+    border-color: #7dcf9a;
+    background: #0F6B45;
+    color: #fff;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .pagination .page-item.disabled .page-link {
+    border-color: #3f4644;
+    background: #2a2c2d;
+    color: #7d8884;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui #contactMessageViewModal {
+    --rp-contact-view-ink: #eef6f3;
+    --rp-contact-view-muted: #9db0ab;
+    --rp-contact-view-rule: #3f4f4a;
+    --rp-contact-view-summary: linear-gradient(180deg, #2f3c38 0%, #2a3431 100%);
+    --rp-contact-view-surface: #262e2c;
+    --rp-contact-view-panel: #303b37;
+    --rp-contact-view-link: #8fd4b4;
+    --rp-contact-view-accent: #7dcf9a;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui #contactMessageViewModal .rp-contact-view-body,
+html[data-bs-theme="dark"] .rp-staff-ui #contactMessageViewModal .rp-contact-view-header,
+html[data-bs-theme="dark"] .rp-staff-ui #contactMessageViewModal .rp-contact-view-footer {
     background: var(--rp-contact-view-surface);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui #contactMessageViewModal .rp-contact-message-body {
+    background: #22302c;
+    border-color: var(--rp-contact-view-rule);
+    color: var(--rp-contact-view-ink);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-contact-page-card {
+    --rp-contact-view-ink: #eef6f3;
+    --rp-contact-view-muted: #9db0ab;
+    --rp-contact-view-rule: #3f4f4a;
+    --rp-contact-view-summary: linear-gradient(180deg, #2f3c38 0%, #2a3431 100%);
+    --rp-contact-view-panel: #303b37;
+    --rp-contact-view-link: #8fd4b4;
+    --rp-contact-view-accent: #7dcf9a;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-contact-page-card .rp-contact-message-body {
+    background: #22302c;
+    border-color: var(--rp-contact-view-rule);
+    color: var(--rp-contact-view-ink);
 }
 
 html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-modal, .rp-profile-page) .rp-profile-edit-bar {

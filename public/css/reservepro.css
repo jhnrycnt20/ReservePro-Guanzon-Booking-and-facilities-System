@@ -1,6 +1,6 @@
 :root {
     --rp-font: "Plus Jakarta Sans", system-ui, sans-serif;
-    --rp-display: "Fraunces", Georgia, serif;
+    --rp-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
     --rp-lagoon: #96DFD3;
     --rp-deep-sea: #1F4B5D;
     --rp-bg: #FAFAFA;
@@ -1208,7 +1208,7 @@ body.rp-page-booknow .rp-public-nav .rp-nav-link:hover {
 
 .rp-public .rp-brand,
 a.rp-brand {
-    font-family: "Cormorant Garamond", var(--rp-display);
+    font-family: var(--rp-display);
     font-weight: 600;
     font-size: 1.3rem;
     color: var(--rp-text);
@@ -1317,7 +1317,7 @@ a.rp-brand {
     display: flex;
     flex-direction: column;
     align-items: center;
-    font-family: "Cormorant Garamond", var(--rp-display);
+    font-family: var(--rp-display);
     font-weight: 600;
     color: #fff;
     font-size: clamp(2.4rem, 11vw, 7.8rem);
@@ -1367,7 +1367,7 @@ a.rp-brand {
 }
 
 .rp-hero h1 em {
-    font-family: "Cormorant Garamond", var(--rp-display);
+    font-family: var(--rp-display);
     font-style: normal;
     font-weight: 600;
     color: #fff;
@@ -1438,7 +1438,7 @@ a.rp-brand {
     background: transparent;
     color: #fff;
     border: 1px solid rgba(255,255,255,.65);
-    font-family: "Cormorant Garamond", var(--rp-display);
+    font-family: var(--rp-display);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: .15em;
@@ -2046,7 +2046,7 @@ a.rp-brand {
 
 .rp-story-heading {
     text-align: center;
-    font-family: "Cormorant Garamond", var(--rp-display);
+    font-family: var(--rp-display);
     font-weight: 600;
     font-size: clamp(42px, 3.5vw, 46px);
     color: #174F50;
@@ -2239,7 +2239,7 @@ body.rp-body .container > .row,
     padding: 2.5rem 1rem .9rem;
     background: linear-gradient(to top, rgba(0,0,0,.6), rgba(0,0,0,0));
     color: #fff;
-    font-family: "Cormorant Garamond", var(--rp-display);
+    font-family: var(--rp-display);
     font-weight: 600;
     font-size: 1.15rem;
     letter-spacing: .03em;
@@ -2263,7 +2263,7 @@ body.rp-body .container > .row,
 
 .rp-cottages-heading {
     text-align: center;
-    font-family: "Cormorant Garamond", var(--rp-display);
+    font-family: var(--rp-display);
     font-weight: 600;
     font-size: clamp(42px, 4vw, 48px);
     color: #2B4A3E;
@@ -2388,7 +2388,7 @@ body.rp-body .container > .row,
 
 .rp-lightbox-title {
     margin: 0;
-    font-family: "Cormorant Garamond", var(--rp-display);
+    font-family: var(--rp-display);
     font-size: 1.6rem;
     font-weight: 600;
     color: #2B4A3E;
@@ -5619,7 +5619,7 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     -webkit-line-clamp: 2;
     overflow: hidden;
     min-height: 2.5em;
-    font-family: "Cormorant Garamond", var(--rp-display);
+    font-family: var(--rp-display);
     font-size: 21px;
     font-weight: 600;
     line-height: 1.25;
@@ -5984,7 +5984,7 @@ body.rp-login-modal-open .rp-page-blur-overlay {
 }
 
 .rp-gallery-intro-heading {
-    font-family: "Cormorant Garamond", var(--rp-display);
+    font-family: var(--rp-display);
     font-weight: 600;
     font-size: clamp(1.9rem, 3.4vw, 2.6rem);
     line-height: 1.25;
@@ -6249,7 +6249,7 @@ body.rp-login-modal-open .rp-page-blur-overlay {
 }
 
 .rp-offer-row-title {
-    font-family: "Cormorant Garamond", var(--rp-display);
+    font-family: var(--rp-display);
     font-weight: 600;
     font-size: 1.85rem;
     letter-spacing: .5px;
@@ -6455,7 +6455,7 @@ body.rp-login-modal-open .rp-page-blur-overlay {
 }
 
 .rp-footer-brand {
-    font-family: "Cormorant Garamond", var(--rp-display);
+    font-family: var(--rp-display);
     font-weight: 600;
     font-size: 1.2rem;
     color: #174F50;
@@ -7062,6 +7062,53 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     color: #0F6B45;
 }
 
+.rp-availability-unit .form-label {
+    font-family: var(--rp-font);
+    font-size: .85rem;
+    font-weight: 600;
+    color: #2B4A3E;
+}
+
+.rp-availability-unit .form-select {
+    border-color: #cfe5d9;
+    border-radius: .55rem;
+    color: #2B4A3E;
+    min-height: 2.5rem;
+}
+
+.rp-availability-unit .form-select:focus {
+    border-color: #0F6B45;
+    box-shadow: 0 0 0 .2rem rgba(15, 107, 69, .15);
+}
+
+.rp-availability-times {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .45rem .75rem;
+    margin-top: .75rem;
+    padding-top: .75rem;
+    border-top: 1px solid #cfe5d9;
+    font-family: var(--rp-font);
+    font-size: .82rem;
+    color: #2B4A3E;
+}
+
+.rp-availability-times div {
+    display: flex;
+    flex-direction: column;
+    gap: .1rem;
+}
+
+.rp-availability-times span {
+    color: var(--rp-muted, #5f7b73);
+    font-size: .75rem;
+}
+
+.rp-availability-times strong {
+    font-weight: 700;
+    color: #0F6B45;
+}
+
 .modal-content.rp-availability-modal .btn.btn-rp-soft:hover,
 .modal-content.rp-availability-modal .btn.btn-rp-soft:focus,
 .modal-content.rp-availability-modal .btn.btn-rp-soft:focus-visible,
@@ -7591,7 +7638,7 @@ body.rp-login-modal-open .rp-page-blur-overlay {
 }
 
 .rp-dl-headline {
-    font-family: "Cormorant Garamond", var(--rp-display);
+    font-family: var(--rp-display);
     font-weight: 600;
     font-size: clamp(2.3rem, 5.2vw, 3.7rem);
     line-height: 1.05;
@@ -7870,7 +7917,7 @@ body.rp-login-modal-open .rp-page-blur-overlay {
 }
 
 .rp-dl-title {
-    font-family: "Cormorant Garamond", var(--rp-display);
+    font-family: var(--rp-display);
     font-weight: 600;
     font-size: clamp(1.9rem, 4vw, 2.6rem);
     color: var(--rp-dl-ink);

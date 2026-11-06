@@ -94,7 +94,7 @@
                         </div>
                         <div class="rp-cottage-card-body">
                             <div class="rp-cottage-card-meta">
-                                <div class="rp-cottage-title">{{ $item->name }}</div>
+                                <div class="rp-cottage-title">{{ $item->baseDisplayName() }}</div>
                                 <div class="rp-cottage-subtitle">{{ $item->type->name ?? 'Accommodation' }}</div>
                             </div>
                             @if($item->description)

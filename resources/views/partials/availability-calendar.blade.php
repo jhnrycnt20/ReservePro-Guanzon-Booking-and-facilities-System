@@ -14,6 +14,11 @@
                     <span><i class="rp-legend-dot rp-legend-occupied"></i> Occupied</span>
                     <span><i class="rp-legend-dot rp-legend-selected"></i> Selected</span>
                 </div>
+                <div class="rp-availability-unit mb-3 d-none" data-rp-cal-unit-wrap>
+                    <label class="form-label mb-1" for="rpCalUnitSelect">Room number</label>
+                    <select id="rpCalUnitSelect" class="form-select" data-rp-cal-unit></select>
+                    <div class="form-text">Pick which unit you want before choosing dates.</div>
+                </div>
                 <div class="rp-availability-calendar" data-rp-availability-calendar>
                     <div class="rp-availability-calendar-header">
                         <button type="button" class="btn btn-sm btn-rp-soft" data-rp-cal-prev aria-label="Previous month">&lsaquo;</button>
@@ -25,6 +30,14 @@
                     </div>
                     <div class="rp-availability-days" data-rp-cal-days></div>
                     <div class="small text-muted mt-3" data-rp-cal-selection>Pick a check-in date, then a check-out date.</div>
+                    @php
+                        $rpCheckInTime = \Carbon\Carbon::createFromFormat('H:i', (string) config('resort.check_in_time', '14:00'))->format('g:i A');
+                        $rpCheckOutTime = \Carbon\Carbon::createFromFormat('H:i', (string) config('resort.check_out_time', '12:00'))->format('g:i A');
+                    @endphp
+                    <div class="rp-availability-times" data-rp-cal-times>
+                        <div><span>Check-in time</span><strong>{{ $rpCheckInTime }}</strong></div>
+                        <div><span>Check-out time</span><strong>{{ $rpCheckOutTime }}</strong></div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer border-0 pt-0">

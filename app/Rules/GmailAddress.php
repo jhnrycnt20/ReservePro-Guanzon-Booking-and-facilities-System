@@ -44,10 +44,11 @@ class GmailAddress implements ValidationRule
         }
 
         // Gmail delivers user+tag@gmail.com to user@gmail.com — validate the base username.
+        // Allow 1–30 chars: older Gmail accounts can be shorter than Google's current 6-char signup minimum.
         $base = explode('+', $local, 2)[0];
 
-        if ($base === '' || strlen($base) < 6 || strlen($base) > 30) {
-            $fail('Gmail usernames must be 6–30 characters before @gmail.com.');
+        if ($base === '' || strlen($base) > 30) {
+            $fail('Enter a valid Gmail address (example@gmail.com).');
 
             return;
         }

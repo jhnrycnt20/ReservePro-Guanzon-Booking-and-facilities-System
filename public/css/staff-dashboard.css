@@ -612,6 +612,57 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-users-table .rp-user-row-actions .bt
     padding: .35rem 1.25rem .65rem;
 }
 
+.rp-staff-ui .pagination {
+    flex-wrap: wrap;
+    gap: .25rem;
+    margin: .85rem 0 .35rem;
+}
+
+.rp-staff-ui .pagination .page-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.15rem;
+    min-height: 2.15rem;
+    padding: .35rem .65rem;
+    border: 1px solid #d5e3df;
+    border-radius: .45rem !important;
+    background: #fff;
+    color: #1f3b34;
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    font-size: .82rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.rp-staff-ui .pagination .page-item + .page-item .page-link {
+    margin-left: 0;
+}
+
+.rp-staff-ui .pagination .page-link:hover {
+    border-color: #0F6B45;
+    background: #eef8f2;
+    color: #0F6B45;
+}
+
+.rp-staff-ui .pagination .page-item.active .page-link {
+    border-color: #0F6B45;
+    background: #0F6B45;
+    color: #fff;
+}
+
+.rp-staff-ui .pagination .page-item.disabled .page-link {
+    border-color: #e4ece9;
+    background: #f7faf8;
+    color: #8aa099;
+}
+
+.rp-staff-ui .rp-admin-list-card > nav[role="navigation"],
+.rp-staff-ui .rp-admin-list-card > .d-flex.justify-content-between {
+    margin-top: .65rem;
+    padding-top: .35rem;
+}
+
 .rp-staff-ui .rp-admin-list-table {
     min-width: 850px;
     margin-bottom: 0;
@@ -3012,155 +3063,394 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-list-table .btn-outline-danger
     }
 }
 
-/* Admin contact message: the inquiry leads, with sender details beside it. */
+/* Admin contact message modal — stacked, readable inquiry detail. */
 .rp-staff-ui #contactMessageViewModal {
-    --rp-contact-view-ink: #203541;
-    --rp-contact-view-muted: #607681;
-    --rp-contact-view-rule: #e1e9e8;
-    --rp-contact-view-summary: #f5faf8;
-    --rp-contact-view-surface: #fff;
-    --rp-contact-view-link: #176b65;
+    --rp-contact-view-ink: #1f3b34;
+    --rp-contact-view-muted: #5f7b73;
+    --rp-contact-view-rule: #d7e8df;
+    --rp-contact-view-summary: linear-gradient(180deg, #eef8f2 0%, #f7fbf8 100%);
+    --rp-contact-view-surface: #ffffff;
+    --rp-contact-view-panel: #f4faf6;
+    --rp-contact-view-link: #0F6B45;
+    --rp-contact-view-accent: #0F6B45;
 }
 
-.rp-staff-ui #contactMessageViewModal .modal-body {
+.rp-staff-ui #contactMessageViewModal .modal-dialog {
+    max-width: 34rem;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-modal {
+    border: 0;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 18px 40px rgba(15, 107, 69, .14);
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .85rem;
+    min-height: 0;
+    padding: 1rem 1.15rem 1rem 1.35rem;
+    border-bottom: 1px solid var(--rp-contact-view-rule);
+    background: var(--rp-contact-view-surface);
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-header::before {
+    content: none;
+    display: none;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-header-copy {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding-right: .25rem;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-header .btn-close {
+    position: static;
+    top: auto;
+    right: auto;
+    flex: 0 0 auto;
+    width: 1.85rem;
+    height: 1.85rem;
+    margin: 0 !important;
+    padding: 0;
+    opacity: .5;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-header .btn-close:hover,
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-header .btn-close:focus-visible {
+    opacity: .85;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-kicker {
+    display: block;
+    margin: 0 0 .35rem;
+    color: var(--rp-contact-view-accent);
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    font-size: .65rem;
+    font-weight: 600;
+    letter-spacing: .14em;
+    line-height: 1.2;
+    text-transform: uppercase;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-header .modal-title {
+    margin: 0;
+    color: var(--rp-contact-view-ink);
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: -.015em;
+    line-height: 1.3;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-body {
     padding: 0;
     background: var(--rp-contact-view-surface);
 }
 
 .rp-staff-ui #contactMessageViewModal .rp-contact-view-intro {
-    padding: 1.55rem 1.7rem 1.35rem;
+    padding: 1.25rem 1.35rem 1.15rem;
     border-bottom: 1px solid var(--rp-contact-view-rule);
     background: var(--rp-contact-view-summary);
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-eyebrow {
+    margin: 0 0 .4rem;
+    color: var(--rp-contact-view-muted);
+    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
 }
 
 .rp-staff-ui #contactMessageViewModal .rp-contact-view-subject {
     margin: 0;
     color: var(--rp-contact-view-ink);
-    font-size: clamp(1.2rem, 2vw, 1.45rem);
+    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    font-size: clamp(1.15rem, 2.2vw, 1.35rem);
     font-weight: 700;
-    line-height: 1.32;
+    line-height: 1.35;
+    letter-spacing: -.01em;
     overflow-wrap: anywhere;
 }
 
 .rp-staff-ui #contactMessageViewModal .rp-contact-view-received {
-    display: flex;
-    flex-wrap: wrap;
+    display: inline-flex;
     align-items: center;
-    gap: .35rem;
-    margin-top: .75rem;
+    gap: .4rem;
+    margin-top: .7rem;
     color: var(--rp-contact-view-muted);
-    font-size: .78rem;
+    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    font-size: .8rem;
     font-variant-numeric: tabular-nums;
 }
 
 .rp-staff-ui #contactMessageViewModal .rp-contact-view-received .bi {
-    margin-right: .1rem;
-    color: var(--rp-contact-view-link);
+    color: var(--rp-contact-view-accent);
 }
 
-.rp-staff-ui #contactMessageViewModal .rp-contact-view-layout {
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-sender-card {
     display: grid;
-    grid-template-columns: minmax(0, 1.55fr) minmax(14rem, .85fr);
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: .85rem 1rem;
+    align-items: center;
+    margin: 1.15rem 1.35rem 0;
+    padding: 1rem 1.05rem;
+    border: 1px solid var(--rp-contact-view-rule);
+    border-radius: .85rem;
+    background: var(--rp-contact-view-panel);
 }
 
-.rp-staff-ui #contactMessageViewModal :is(.rp-contact-view-content, .rp-contact-view-sender) {
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-sender-copy {
     min-width: 0;
-    padding: 1.6rem 1.7rem 1.85rem;
 }
 
-.rp-staff-ui #contactMessageViewModal .rp-contact-view-sender {
-    border-left: 1px solid var(--rp-contact-view-rule);
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-sender-copy > .rp-contact-view-eyebrow {
+    margin-bottom: .25rem;
 }
 
-.rp-staff-ui #contactMessageViewModal .rp-contact-view-heading {
-    margin: 0 0 .9rem;
-    color: var(--rp-contact-view-muted);
-    font-size: .82rem;
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-avatar {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #6fcf97 0%, #0F6B45 100%);
+    color: #fff;
+    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    font-size: 1.05rem;
     font-weight: 700;
-    line-height: 1.3;
-}
-
-.rp-staff-ui #contactMessageViewModal .rp-contact-message-body {
-    min-height: 0;
-    max-width: 70ch;
-    padding: 0;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    color: var(--rp-contact-view-ink);
-    font-size: .93rem;
-    line-height: 1.7;
-    overflow-wrap: anywhere;
 }
 
 .rp-staff-ui #contactMessageViewModal .rp-contact-view-name {
-    margin: 0 0 .25rem;
+    margin: 0 0 .15rem;
     color: var(--rp-contact-view-ink);
+    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
     font-size: 1rem;
     font-weight: 700;
-    line-height: 1.4;
+    line-height: 1.35;
     overflow-wrap: anywhere;
 }
 
 .rp-staff-ui #contactMessageViewModal .rp-contact-view-email {
+    display: inline-block;
     color: var(--rp-contact-view-link);
-    font-size: .84rem;
-    line-height: 1.5;
-    text-underline-offset: .2rem;
-    overflow-wrap: anywhere;
-    word-break: break-word;
-}
-
-.rp-staff-ui #contactMessageViewModal .rp-contact-view-email:focus-visible {
-    outline: 3px solid var(--rp-contact-view-link);
-    outline-offset: 3px;
-}
-
-.rp-staff-ui #contactMessageViewModal .rp-contact-view-sender-meta {
-    margin: 1.35rem 0 0;
-    padding-top: 1rem;
-    border-top: 1px solid var(--rp-contact-view-rule);
-}
-
-.rp-staff-ui #contactMessageViewModal .rp-contact-view-sender-meta dt {
-    margin-bottom: .3rem;
-    color: var(--rp-contact-view-muted);
-    font-size: .75rem;
-    font-weight: 600;
-}
-
-.rp-staff-ui #contactMessageViewModal .rp-contact-view-sender-meta dd {
-    margin: 0;
-    color: var(--rp-contact-view-ink);
+    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
     font-size: .88rem;
-    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    line-height: 1.45;
+    text-decoration: none;
     overflow-wrap: anywhere;
 }
 
-.rp-staff-ui #contactMessageViewModal .modal-footer {
-    padding: 1rem 1.7rem;
-    border-color: var(--rp-contact-view-rule);
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-email:hover {
+    text-decoration: underline;
+    text-underline-offset: .18rem;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-phone-row {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: .35rem .75rem;
+    margin-top: .15rem;
+    padding-top: .85rem;
+    border-top: 1px solid var(--rp-contact-view-rule);
+    color: var(--rp-contact-view-ink);
+    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    font-size: .9rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-phone-row .rp-contact-view-eyebrow {
+    margin: 0;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-content {
+    padding: 1.2rem 1.35rem 1.4rem;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-message-body {
+    margin: 0;
+    min-height: 4.5rem;
+    max-width: none;
+    padding: 1rem 1.05rem;
+    border: 1px solid var(--rp-contact-view-rule);
+    border-radius: .75rem;
+    background: #fff;
+    color: var(--rp-contact-view-ink);
+    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    font-size: .95rem;
+    font-weight: 500;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: .65rem;
+    padding: 1rem 1.35rem 1.15rem;
+    border-top: 1px solid var(--rp-contact-view-rule);
     background: var(--rp-contact-view-surface);
 }
 
-@media (max-width: 675px) {
-    .rp-staff-ui #contactMessageViewModal .rp-contact-view-layout {
-        grid-template-columns: minmax(0, 1fr);
-    }
-
-    .rp-staff-ui #contactMessageViewModal .rp-contact-view-sender {
-        border-top: 1px solid var(--rp-contact-view-rule);
-        border-left: 0;
-    }
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-footer .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    min-height: 2.45rem;
+    border-radius: .55rem;
+    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    font-weight: 600;
 }
 
 @media (max-width: 575.98px) {
+    .rp-staff-ui #contactMessageViewModal .rp-contact-view-header,
     .rp-staff-ui #contactMessageViewModal .rp-contact-view-intro,
-    .rp-staff-ui #contactMessageViewModal :is(.rp-contact-view-content, .rp-contact-view-sender),
-    .rp-staff-ui #contactMessageViewModal .modal-footer {
-        padding-right: 1.2rem;
-        padding-left: 1.2rem;
+    .rp-staff-ui #contactMessageViewModal .rp-contact-view-content,
+    .rp-staff-ui #contactMessageViewModal .rp-contact-view-footer {
+        padding-right: 1.05rem;
+        padding-left: 1.05rem;
     }
+
+    .rp-staff-ui #contactMessageViewModal .rp-contact-view-sender-card {
+        margin-right: 1.05rem;
+        margin-left: 1.05rem;
+    }
+}
+
+/* Standalone contact message page (same visual language as the modal). */
+.rp-staff-ui .rp-contact-page-card {
+    --rp-contact-view-ink: #1f3b34;
+    --rp-contact-view-muted: #5f7b73;
+    --rp-contact-view-rule: #d7e8df;
+    --rp-contact-view-summary: linear-gradient(180deg, #eef8f2 0%, #f7fbf8 100%);
+    --rp-contact-view-panel: #f4faf6;
+    --rp-contact-view-link: #0F6B45;
+    --rp-contact-view-accent: #0F6B45;
+    max-width: 40rem;
+    padding: 0;
+    overflow: hidden;
+}
+
+.rp-staff-ui .rp-contact-page-card .rp-contact-view-intro {
+    padding: 1.25rem 1.35rem 1.15rem;
+    border-bottom: 1px solid var(--rp-contact-view-rule);
+    background: var(--rp-contact-view-summary);
+}
+
+.rp-staff-ui .rp-contact-page-card .rp-contact-view-eyebrow {
+    margin: 0 0 .4rem;
+    color: var(--rp-contact-view-muted);
+    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.rp-staff-ui .rp-contact-page-card .rp-contact-view-subject {
+    margin: 0;
+    color: var(--rp-contact-view-ink);
+    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    font-size: clamp(1.15rem, 2.2vw, 1.35rem);
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.rp-staff-ui .rp-contact-page-card .rp-contact-view-received {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    margin-top: .7rem;
+    color: var(--rp-contact-view-muted);
+    font-size: .8rem;
+}
+
+.rp-staff-ui .rp-contact-page-card .rp-contact-view-sender-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: .85rem 1rem;
+    align-items: center;
+    margin: 1.15rem 1.35rem 0;
+    padding: 1rem 1.05rem;
+    border: 1px solid var(--rp-contact-view-rule);
+    border-radius: .85rem;
+    background: var(--rp-contact-view-panel);
+}
+
+.rp-staff-ui .rp-contact-page-card .rp-contact-view-avatar {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #6fcf97 0%, #0F6B45 100%);
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.rp-staff-ui .rp-contact-page-card .rp-contact-view-name {
+    margin: 0 0 .15rem;
+    color: var(--rp-contact-view-ink);
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.rp-staff-ui .rp-contact-page-card .rp-contact-view-email {
+    color: var(--rp-contact-view-link);
+    font-size: .88rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.rp-staff-ui .rp-contact-page-card .rp-contact-view-phone-row {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: .35rem .75rem;
+    margin-top: .15rem;
+    padding-top: .85rem;
+    border-top: 1px solid var(--rp-contact-view-rule);
+    color: var(--rp-contact-view-ink);
+    font-size: .9rem;
+    font-weight: 600;
+}
+
+.rp-staff-ui .rp-contact-page-card .rp-contact-view-content {
+    padding: 1.2rem 1.35rem 1.4rem;
+}
+
+.rp-staff-ui .rp-contact-page-card .rp-contact-message-body {
+    margin: 0;
+    padding: 1rem 1.05rem;
+    border: 1px solid var(--rp-contact-view-rule);
+    border-radius: .75rem;
+    background: #fff;
+    color: var(--rp-contact-view-ink);
+    font-size: .95rem;
+    line-height: 1.7;
+    white-space: pre-wrap;
+}
+
+.rp-staff-ui .rp-contact-page-card > .d-flex {
+    padding: 0 1.35rem 1.25rem;
 }
 
 .rp-report-action-toggle {

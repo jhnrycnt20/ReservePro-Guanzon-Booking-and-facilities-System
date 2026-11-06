@@ -1557,8 +1557,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     return 'Only a Gmail address (@gmail.com) is accepted.';
                 }
                 const base = parts[0].split('+')[0];
-                if (base.length < 6 || base.length > 30) {
-                    return 'Gmail usernames must be 6–30 characters before @gmail.com.';
+                if (!base || base.length > 30) {
+                    return 'Enter a valid Gmail address (example@gmail.com).';
                 }
                 if (!/^[a-z0-9.]+$/.test(base)) {
                     return 'Gmail usernames may only use letters, numbers, and periods.';
@@ -1752,8 +1752,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const [local, domain] = value.toLowerCase().split('@');
                     const base = local.split('+')[0];
                     if (!['gmail.com', 'googlemail.com'].includes(domain)) return 'Only a Gmail address (@gmail.com) is accepted.';
-                    if (base.length < 6 || base.length > 30 || !/^[a-z0-9.]+$/.test(base) || base.startsWith('.') || base.endsWith('.') || base.includes('..')) {
-                        return 'Enter a valid Gmail username (6–30 letters, numbers, or periods).';
+                    if (!base || base.length > 30 || !/^[a-z0-9.]+$/.test(base) || base.startsWith('.') || base.endsWith('.') || base.includes('..')) {
+                        return 'Enter a valid Gmail address (example@gmail.com).';
                     }
                 }
             }
@@ -2575,8 +2575,10 @@ function initAvailabilityCalendar() {
         return;
     }
 
-    const occupiedUrl = form.dataset.occupiedUrl;
+    let occupiedUrl = form.dataset.occupiedUrl || '';
     const accommodationSelect = form.querySelector('[data-rp-capacity-select]');
+    const unitWrap = modalEl.querySelector('[data-rp-cal-unit-wrap]');
+    const unitSelect = modalEl.querySelector('[data-rp-cal-unit]');
     const checkInInput = form.querySelector('[data-stay-check-in]');
     const checkOutInput = form.querySelector('[data-stay-check-out]');
     const checkInDisplay = form.querySelector('[data-rp-date-display="check_in"]');
@@ -2587,7 +2589,69 @@ function initAvailabilityCalendar() {
     const applyBtn = modalEl.querySelector('[data-rp-cal-apply]');
     const prevBtn = calendarRoot.querySelector('[data-rp-cal-prev]');
     const nextBtn = calendarRoot.querySelector('[data-rp-cal-next]');
+    const proceedLink = document.querySelector('[data-rp-proceed-booking]');
     const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+    let unitOptions = [];
+    try {
+        unitOptions = JSON.parse(form.dataset.rpUnits || '[]');
+        if (!Array.isArray(unitOptions)) unitOptions = [];
+    } catch (error) {
+        unitOptions = [];
+    }
+
+    const findUnit = (id) => unitOptions.find((unit) => String(unit.id) === String(id));
+
+    const applySelectedUnit = (unitId, { reload = false } = {}) => {
+        const unit = findUnit(unitId) || unitOptions[0];
+        if (!unit) return;
+
+        if (unitSelect && String(unitSelect.value) !== String(unit.id)) {
+            unitSelect.value = String(unit.id);
+        }
+
+        if (unit.occupied_url) {
+            occupiedUrl = unit.occupied_url;
+            form.dataset.occupiedUrl = unit.occupied_url;
+        }
+        if (unit.availability_url) {
+            form.setAttribute('action', unit.availability_url);
+        }
+        form.dataset.rpSelectedUnit = String(unit.id);
+
+        if (proceedLink && unit.booking_url) {
+            const url = new URL(unit.booking_url, window.location.origin);
+            if (checkInInput?.value) url.searchParams.set('check_in', checkInInput.value);
+            if (checkOutInput?.value) url.searchParams.set('check_out', checkOutInput.value);
+            proceedLink.setAttribute('href', url.pathname + url.search);
+        }
+
+        if (reload) {
+            occupiedSet = new Set();
+            loadMonth();
+        }
+    };
+
+    const populateUnitSelect = () => {
+        if (!unitWrap || !unitSelect) return;
+        if (unitOptions.length < 2) {
+            unitWrap.classList.add('d-none');
+            return;
+        }
+
+        unitSelect.innerHTML = '';
+        unitOptions.forEach((unit) => {
+            const option = document.createElement('option');
+            option.value = String(unit.id);
+            option.textContent = unit.label ? `Room ${unit.label}` : (unit.name || unit.number);
+            unitSelect.appendChild(option);
+        });
+
+        const selected = form.dataset.rpSelectedUnit || unitOptions[0].id;
+        unitSelect.value = String(selected);
+        unitWrap.classList.remove('d-none');
+        applySelectedUnit(unitSelect.value);
+    };
 
     const pad = (n) => String(n).padStart(2, '0');
     const toYmd = (date) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
@@ -2635,7 +2699,10 @@ function initAvailabilityCalendar() {
 
     const fetchOccupied = async (year, month) => {
         const selectedAccommodation = accommodationSelect?.value || '';
-        const resolvedOccupiedUrl = occupiedUrl.replace('__ACCOMMODATION__', encodeURIComponent(selectedAccommodation));
+        const resolvedOccupiedUrl = (occupiedUrl || '').replace('__ACCOMMODATION__', encodeURIComponent(selectedAccommodation));
+        if (!resolvedOccupiedUrl || resolvedOccupiedUrl.includes('__ACCOMMODATION__')) {
+            return { occupied: [] };
+        }
         const url = new URL(resolvedOccupiedUrl, window.location.origin);
         url.searchParams.set('year', String(year));
         url.searchParams.set('month', String(month));
@@ -2803,12 +2870,17 @@ function initAvailabilityCalendar() {
         viewYear = base.getFullYear();
         viewMonth = base.getMonth() + 1;
 
+        populateUnitSelect();
         modal.show();
         loadMonth();
     };
 
     accommodationSelect?.addEventListener('change', () => {
         occupiedSet = new Set();
+    });
+
+    unitSelect?.addEventListener('change', () => {
+        applySelectedUnit(unitSelect.value, { reload: true });
     });
 
     prevBtn?.addEventListener('click', () => {

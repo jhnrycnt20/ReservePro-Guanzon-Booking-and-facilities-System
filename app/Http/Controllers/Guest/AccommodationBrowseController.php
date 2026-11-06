@@ -29,7 +29,8 @@ class AccommodationBrowseController extends Controller
 
         $query = Accommodation::query()
             ->with(['type', 'amenities'])
-            ->where('is_active', true);
+            ->where('is_active', true)
+            ->representatives();
 
         if ($request->filled('type')) {
             $query->where('accommodation_type_id', $request->integer('type'));
@@ -39,14 +40,29 @@ class AccommodationBrowseController extends Controller
             $checkIn = $request->input('check_in');
             $checkOut = $request->input('check_out');
 
-            $query->where(function ($q) use ($checkIn, $checkOut) {
-                $q->whereDoesntHave('bookings', function ($bookingQuery) use ($checkIn, $checkOut) {
+            // Keep a family card if any sibling unit is free for the selected dates.
+            $availableFamilyKeys = Accommodation::query()
+                ->where('is_active', true)
+                ->whereNotIn('status', ['maintenance', 'inactive'])
+                ->whereDoesntHave('bookings', function ($bookingQuery) use ($checkIn, $checkOut) {
                     $bookingQuery->where('paid_amount', '>', 0)
                         ->whereIn('status', ['pending', 'approved', 'checked_in'])
                         ->where('check_in_date', '<', $checkOut)
                         ->where('check_out_date', '>', $checkIn);
-                });
-            })->whereNotIn('status', ['maintenance', 'inactive']);
+                })
+                ->get(['id', 'number', 'accommodation_type_id', 'name'])
+                ->map(fn (Accommodation $unit) => $unit->familyKey())
+                ->unique()
+                ->values()
+                ->all();
+
+            $keepIds = (clone $query)
+                ->get(['id', 'number', 'accommodation_type_id', 'name'])
+                ->filter(fn (Accommodation $unit) => in_array($unit->familyKey(), $availableFamilyKeys, true))
+                ->pluck('id')
+                ->all();
+
+            $query->whereIn('id', $keepIds ?: [0]);
         }
 
         $accommodations = $query->orderBy('name')->paginate(12);
@@ -82,6 +98,22 @@ class AccommodationBrowseController extends Controller
 
         $accommodation->load(['type', 'amenities', 'pricing']);
 
+        $units = $accommodation->siblingUnits()->map(fn (Accommodation $unit) => [
+            'id' => $unit->id,
+            'number' => $unit->number,
+            'name' => $unit->name,
+            'label' => $unit->unitNumber() !== null
+                ? (string) $unit->unitNumber()
+                : $unit->number,
+            'occupied_url' => route('accommodations.occupied-dates', $unit),
+            'availability_url' => route('accommodations.availability', $unit),
+            'booking_url' => route('guest.bookings.create', [
+                'accommodation_id' => $unit->id,
+                'check_in' => $request->input('check_in'),
+                'check_out' => $request->input('check_out'),
+            ]),
+        ])->values();
+
         $available = null;
         if ($request->filled('check_in') && $request->filled('check_out')) {
             $available = $this->availabilityService->isAvailable(
@@ -91,7 +123,7 @@ class AccommodationBrowseController extends Controller
             );
         }
 
-        return view('accommodations.show', compact('accommodation', 'available'));
+        return view('accommodations.show', compact('accommodation', 'available', 'units'));
     }
 
     public function availability(Request $request, Accommodation $accommodation): View

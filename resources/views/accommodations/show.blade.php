@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', $accommodation->name)
+@section('title', $accommodation->baseDisplayName())
 
 @section('content')
 <div class="container rp-public-page-top pb-4">
@@ -57,9 +57,12 @@
                 </div>
             @endif
             <div class="rp-cottage-card-body">
-                <div class="rp-cottage-title">{{ $accommodation->name }}</div>
-                @php $typeName = $accommodation->accommodationType->name ?? $accommodation->type->name ?? null; @endphp
-                @if($typeName && strcasecmp($typeName, $accommodation->name) !== 0)
+                @php
+                    $displayName = $accommodation->baseDisplayName();
+                    $typeName = $accommodation->accommodationType->name ?? $accommodation->type->name ?? null;
+                @endphp
+                <div class="rp-cottage-title">{{ $displayName }}</div>
+                @if($typeName && strcasecmp($typeName, $displayName) !== 0)
                     <div class="rp-cottage-subtitle">{{ $typeName }}</div>
                 @endif
                 <div class="rp-cottage-row">
@@ -89,11 +92,14 @@
         @php
             $checkInDisplay = request('check_in') ? \Carbon\Carbon::parse(request('check_in'))->format('M j, Y') : '';
             $checkOutDisplay = request('check_out') ? \Carbon\Carbon::parse(request('check_out'))->format('M j, Y') : '';
+            $unitOptions = $units ?? collect();
         @endphp
         <div class="rp-avail-card">
             <form method="GET" action="{{ route('accommodations.availability', $accommodation) }}" id="rpAvailabilityForm"
                   data-rp-availability-form
-                  data-occupied-url="{{ route('accommodations.occupied-dates', $accommodation) }}">
+                  data-occupied-url="{{ route('accommodations.occupied-dates', $accommodation) }}"
+                  data-rp-units='@json($unitOptions)'
+                  data-rp-selected-unit="{{ $accommodation->id }}">
                 <div class="rp-avail-fields">
                     <div class="rp-avail-field">
                         <label class="rp-avail-label">Check-in</label>
@@ -121,12 +127,16 @@
             @isset($available)
                 @if($available)
                     <div class="rp-avail-message">
-                        Available for selected dates.
+                        Available for selected dates
+                        @if($accommodation->unitNumber())
+                            (Room {{ $accommodation->unitNumber() }}).
+                        @else
+                            .
+                        @endif
                     </div>
-                    {{-- TEMP: always shows Fill Reservation Form (login requirement bypassed for now, see routes/web.php) --}}
-                    <a href="{{ route('guest.bookings.create', ['accommodation_id' => $accommodation->id, 'check_in' => request('check_in'), 'check_out' => request('check_out')]) }}" class="rp-avail-btn-secondary">Proceed to Guest Information</a>
+                    <a href="{{ route('guest.bookings.create', ['accommodation_id' => $accommodation->id, 'check_in' => request('check_in'), 'check_out' => request('check_out')]) }}" class="rp-avail-btn-secondary" data-rp-proceed-booking>Proceed to Guest Information</a>
                 @else
-                    <div class="rp-avail-message rp-avail-message--warning">Not available. Choose another room or different dates.</div>
+                    <div class="rp-avail-message rp-avail-message--warning">Not available. Choose another room number or different dates.</div>
                 @endif
             @endisset
         </div>

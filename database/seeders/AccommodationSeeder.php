@@ -10,6 +10,8 @@ use Illuminate\Database\Seeder;
 
 class AccommodationSeeder extends Seeder
 {
+    private const UNITS_PER_LISTING = 5;
+
     public function run(): void
     {
         $this->call([
@@ -20,9 +22,9 @@ class AccommodationSeeder extends Seeder
         $amenities = Amenity::query()->pluck('id', 'name');
         $typeIds = AccommodationType::query()->pluck('id', 'slug');
 
-        $listings = [
+        $templates = [
             [
-                'number' => 'RM-AC-01',
+                'number_prefix' => 'RM-AC',
                 'name' => 'AC Room w/out Videoke',
                 'type' => 'room',
                 'capacity' => 4,
@@ -38,7 +40,7 @@ class AccommodationSeeder extends Seeder
                 'amenities' => ['Air Conditioning', 'Private Bathroom', 'Television', 'Wi-Fi'],
             ],
             [
-                'number' => 'RM-AC-VK',
+                'number_prefix' => 'RM-AC-VK',
                 'name' => 'AC Room with Videoke',
                 'type' => 'room',
                 'capacity' => 8,
@@ -54,7 +56,7 @@ class AccommodationSeeder extends Seeder
                 'amenities' => ['Air Conditioning', 'Private Bathroom', 'Television', 'Videoke', 'Wi-Fi'],
             ],
             [
-                'number' => 'BH-01',
+                'number_prefix' => 'BH',
                 'name' => 'Beach House',
                 'type' => 'beach-house',
                 'capacity' => 8,
@@ -64,7 +66,7 @@ class AccommodationSeeder extends Seeder
                 'amenities' => ['Private Bathroom', 'Television', 'Kitchenette', 'Parking'],
             ],
             [
-                'number' => 'SUITE-01',
+                'number_prefix' => 'SUITE',
                 'name' => 'Suite Room',
                 'type' => 'suite',
                 'capacity' => 5,
@@ -85,7 +87,7 @@ class AccommodationSeeder extends Seeder
                 'amenities' => ['Air Conditioning', 'Private Bathroom', 'Television', 'Wi-Fi', 'Parking'],
             ],
             [
-                'number' => 'VILLA-01',
+                'number_prefix' => 'VILLA',
                 'name' => 'Villa',
                 'type' => 'villa',
                 'capacity' => 15,
@@ -95,7 +97,7 @@ class AccommodationSeeder extends Seeder
                 'amenities' => ['Air Conditioning', 'Private Bathroom', 'Television', 'Kitchenette', 'Parking', 'Pool Access'],
             ],
             [
-                'number' => 'COT-NVK',
+                'number_prefix' => 'COT-NVK',
                 'name' => 'Open Cottage',
                 'type' => 'cottage',
                 'capacity' => 12,
@@ -112,7 +114,7 @@ class AccommodationSeeder extends Seeder
                 'amenities' => ['Parking', 'Pool Access'],
             ],
             [
-                'number' => 'COT-VK',
+                'number_prefix' => 'COT-VK',
                 'name' => 'Open Cottage with Videoke',
                 'type' => 'cottage',
                 'capacity' => 12,
@@ -129,7 +131,7 @@ class AccommodationSeeder extends Seeder
                 'amenities' => ['Videoke', 'Parking', 'Pool Access'],
             ],
             [
-                'number' => 'CAB-01',
+                'number_prefix' => 'CAB',
                 'name' => 'Cabana',
                 'type' => 'cabana',
                 'capacity' => 4,
@@ -150,7 +152,7 @@ class AccommodationSeeder extends Seeder
                 'amenities' => ['Pool Access', 'Parking', 'Air Conditioning', 'WiFi'],
             ],
             [
-                'number' => 'PAY-01',
+                'number_prefix' => 'PAY',
                 'name' => 'Payag',
                 'type' => 'payag',
                 'capacity' => 6,
@@ -160,7 +162,7 @@ class AccommodationSeeder extends Seeder
                 'amenities' => ['Parking', 'Pool Access'],
             ],
             [
-                'number' => 'TBL-01',
+                'number_prefix' => 'TBL',
                 'name' => 'Table',
                 'type' => 'table',
                 'capacity' => 4,
@@ -170,6 +172,17 @@ class AccommodationSeeder extends Seeder
                 'amenities' => ['Parking'],
             ],
         ];
+
+        $listings = [];
+        foreach ($templates as $template) {
+            for ($unit = 1; $unit <= self::UNITS_PER_LISTING; $unit++) {
+                $listings[] = [
+                    ...$template,
+                    'number' => sprintf('%s-%02d', $template['number_prefix'], $unit),
+                    'name' => $template['name'].' '.$unit,
+                ];
+            }
+        }
 
         $activeNumbers = collect($listings)->pluck('number')->all();
 

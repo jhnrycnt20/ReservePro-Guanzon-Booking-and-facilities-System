@@ -72,8 +72,9 @@
             @php
                 $statusValue = $item->status instanceof \BackedEnum ? $item->status->value : (string) $item->status;
                 $isMaintenance = $statusValue === 'maintenance';
+                $displayName = $item->baseDisplayName();
                 $typeName = $item->type->name ?? $item->accommodationType->name ?? null;
-                $showType = $typeName && strcasecmp($typeName, $item->name) !== 0;
+                $showType = $typeName && strcasecmp($typeName, $displayName) !== 0;
                 $showUrl = route('accommodations.show', array_filter([
                     'accommodation' => $item->id,
                     'check_in' => request('check_in'),
@@ -94,11 +95,11 @@
                     <a href="{{ $showUrl }}" class="rp-cottage-card">
                 @endif
                     <div class="rp-cottage-card-media">
-                        <img src="{{ $item->image_url }}" alt="{{ $item->name }}">
+                        <img src="{{ $item->image_url }}" alt="{{ $displayName }}">
                     </div>
                     <div class="rp-cottage-card-body">
                         <div class="rp-cottage-card-meta">
-                            <div class="rp-cottage-title">{{ $item->name }}</div>
+                            <div class="rp-cottage-title">{{ $displayName }}</div>
                             <div class="rp-cottage-subtitle{{ $showType ? '' : ' is-empty' }}">{{ $showType ? $typeName : '' }}</div>
                         </div>
                         <div class="rp-cottage-card-details">

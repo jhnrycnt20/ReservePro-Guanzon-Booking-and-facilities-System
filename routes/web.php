@@ -40,6 +40,7 @@ Route::get('/', function () {
     $featuredAccommodations = Accommodation::query()
         ->with('type')
         ->where('is_active', true)
+        ->representatives()
         ->orderBy('rate')
         ->take(3)
         ->get();

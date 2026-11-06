@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>403 — {{ config('app.name', 'ReservePro') }}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Cormorant+Garamond:wght@600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --rp-green: #0F6B45;
@@ -37,7 +37,7 @@
             box-shadow: 0 18px 40px rgba(15, 107, 69, .1);
         }
         .rp-403-code {
-            font-family: "Cormorant Garamond", Georgia, serif;
+            font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
             font-size: 3.5rem;
             line-height: 1;
             color: var(--rp-green);

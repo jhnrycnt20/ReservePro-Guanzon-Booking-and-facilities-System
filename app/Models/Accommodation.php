@@ -107,6 +107,79 @@ class Accommodation extends Model
         return $this->belongsToMany(Promo::class);
     }
 
+    /**
+     * Shared key for numbered units of the same product (e.g. CAB-01 / CAB-02 → CAB).
+     */
+    public function familyKey(): string
+    {
+        $number = trim((string) $this->number);
+        if ($number !== '' && preg_match('/^(.*)-(\d+)$/', $number, $matches)) {
+            return $matches[1];
+        }
+
+        return $number !== '' ? $number : 'acc-'.$this->getKey();
+    }
+
+    public function unitNumber(): ?int
+    {
+        if (preg_match('/-(\d+)$/', (string) $this->number, $matches)) {
+            return (int) $matches[1];
+        }
+
+        return null;
+    }
+
+    /**
+     * Card/title name without the unit suffix (Cabana 1 → Cabana).
+     */
+    public function baseDisplayName(): string
+    {
+        $name = trim((string) $this->name);
+        $stripped = preg_replace('/\s+\d+$/', '', $name);
+
+        return is_string($stripped) && $stripped !== '' ? $stripped : $name;
+    }
+
+    /**
+     * Active sibling units in the same family, ordered by unit number.
+     *
+     * @return \Illuminate\Support\Collection<int, self>
+     */
+    public function siblingUnits()
+    {
+        $family = $this->familyKey();
+
+        return static::query()
+            ->where('is_active', true)
+            ->where('accommodation_type_id', $this->accommodation_type_id)
+            ->get()
+            ->filter(fn (self $unit) => $unit->familyKey() === $family)
+            ->sortBy(fn (self $unit) => sprintf('%05d-%s', $unit->unitNumber() ?? 0, $unit->number))
+            ->values();
+    }
+
+    /**
+     * One representative row per product family (lowest unit number).
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<self>  $query
+     * @return \Illuminate\Database\Eloquent\Builder<self>
+     */
+    public function scopeRepresentatives($query)
+    {
+        $ids = static::query()
+            ->where('is_active', true)
+            ->get(['id', 'number', 'accommodation_type_id', 'name'])
+            ->groupBy(fn (self $unit) => $unit->familyKey())
+            ->map(function ($group) {
+                return $group->sortBy(fn (self $unit) => sprintf('%05d-%s', $unit->unitNumber() ?? 0, $unit->number))->first()?->id;
+            })
+            ->filter()
+            ->values()
+            ->all();
+
+        return $query->whereIn($query->getModel()->getQualifiedKeyName(), $ids ?: [0]);
+    }
+
     public function getImageUrlAttribute(): string
     {
         if ($this->image) {
