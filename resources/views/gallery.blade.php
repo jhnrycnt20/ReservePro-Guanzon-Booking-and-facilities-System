@@ -30,25 +30,24 @@
     <div class="container">
         <div class="rp-gallery-grid" id="rpGalleryGrid">
             @foreach ([
-                ['src' => asset('images/rooms/cabana/01-exterior-row.png'), 'title' => 'Cabana Row'],
-                ['src' => asset('images/rooms/cabana/02-exterior-unit.png'), 'title' => 'Cabana Exterior'],
-                ['src' => asset('images/rooms/cabana/03-exterior-porch.png'), 'title' => 'Cabana Porch'],
-                ['src' => asset('images/rooms/cabana/04-exterior-evening.png'), 'title' => 'Cabana Evening'],
-                ['src' => asset('images/rooms/cabana/05-bedroom.png'), 'title' => 'Cabana Bedroom'],
-                ['src' => asset('images/rooms/cabana/06-bedroom-ac.png'), 'title' => 'Cabana Suite'],
-                ['src' => asset('images/rooms/cabana/07-bedroom-towels.png'), 'title' => 'Cabana Interior'],
-                ['src' => asset('images/rooms/cabana/08-bathroom.png'), 'title' => 'Cabana Bathroom'],
-                ['src' => asset('images/rooms/cabana/09-bathroom-vanity.png'), 'title' => 'Cabana Vanity'],
-                ['src' => asset('images/rooms/cabana/10-outdoor-grill.png'), 'title' => 'Outdoor Grill Area'],
-                ['src' => asset('images/rooms/suite/01-exterior-row.png'), 'title' => 'Suite Room Exterior'],
-                ['src' => asset('images/rooms/suite/03-balcony-sea-view.png'), 'title' => 'Suite Sea View'],
-                ['src' => asset('images/rooms/suite/07-bedroom-sea-view.png'), 'title' => 'Suite Bedroom'],
-                ['src' => asset('images/rooms/suite/05-outdoor-dining.png'), 'title' => 'Suite Outdoor Dining'],
-                ['src' => asset('images/rooms/cottage/01-exterior-front.png'), 'title' => 'Open Cottage Exterior'],
-                ['src' => asset('images/rooms/cottage/03-interior-long-table.png'), 'title' => 'Open Cottage Dining'],
-                ['src' => asset('images/rooms/cottage/05-bamboo-lounge.png'), 'title' => 'Open Cottage Lounge'],
-                ['src' => asset('images/rooms/cottage/06-picnic-tables.png'), 'title' => 'Picnic Tables'],
-                ['src' => 'https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=1200&q=80', 'title' => 'The Pool'],
+                ['src' => asset('images/rooms/suite/Vivid Resort Suites Under Blue Skies.png'), 'title' => 'Resort Suites'],
+                ['src' => asset('images/rooms/suite/Resort Terrace Framing the Ocean.png'), 'title' => 'Ocean Terrace'],
+                ['src' => asset('images/rooms/suite/Coastal Mustard Porch Entrance.png'), 'title' => 'Suite Porch Entrance'],
+                ['src' => asset('images/rooms/suite/Coastal Bedroom with Ocean View.png'), 'title' => 'Ocean-view Bedroom'],
+                ['src' => asset('images/rooms/suite/Bright Modern Hotel Room with Navy Curtains.png'), 'title' => 'Modern Suite Room'],
+                ['src' => asset('images/rooms/suite/Bright Modern Beige-Tiled Bathroom.png'), 'title' => 'Suite Bathroom'],
+                ['src' => asset('images/rooms/cabana/Sunset Modern Bungalow Unit 4.png'), 'title' => 'Bungalow Unit 4'],
+                ['src' => asset('images/rooms/cabana/Modern Bungalow Row at Sunset.png'), 'title' => 'Bungalow Row'],
+                ['src' => asset('images/rooms/cabana/Warm Modern Hotel Bedroom.png'), 'title' => 'Cabana Bedroom'],
+                ['src' => asset('images/rooms/cabana/Modern Bedroom with Towel Stacks and Smart TV.png'), 'title' => 'Cabana Interior'],
+                ['src' => asset('images/rooms/cabana/Warm Modern Bathroom with Pink Shower Curtain.png'), 'title' => 'Cabana Bathroom'],
+                ['src' => asset('images/rooms/cabana/Modern Bamboo-Screen Outdoor Sink and Grill.png'), 'title' => 'Outdoor Sink and Grill'],
+                ['src' => asset('images/rooms/cottage/Tree-Lined Pavilion Walkway.png'), 'title' => 'Pavilion Walkway'],
+                ['src' => asset('images/rooms/cottage/Sunlit Picnic Pavilion Courtyard.png'), 'title' => 'Pavilion Courtyard'],
+                ['src' => asset('images/rooms/cottage/Resort Pavilion Dining Terrace.png'), 'title' => 'Pavilion Dining Terrace'],
+                ['src' => asset('images/rooms/ocean-view-room.png'), 'title' => 'Ocean-view Room'],
+                ['src' => asset('images/rooms/garden-cabin.png'), 'title' => 'Garden Cabin'],
+                ['src' => asset('images/rooms/blue-cabana.png'), 'title' => 'Blue Cabana'],
                 ['src' => asset('images/rooms/bamboo-lounge.png'), 'title' => 'Bamboo Lounge'],
             ] as $photo)
                 <div class="rp-gallery-item">
@@ -60,7 +59,7 @@
 </section>
 
 <div class="rp-gallery-banner">
-    <div class="rp-gallery-banner-bg" style="background-image: url('https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=1800&q=80');"></div>
+    <div class="rp-gallery-banner-bg" style="background-image: url('{{ asset('images/landing-hero.png') }}');"></div>
     <img class="rp-gallery-banner-logo" src="{{ asset('images/guanzon_navbar_transparent.png') }}?v={{ filemtime(public_path('images/guanzon_navbar_transparent.png')) }}" alt="Guanzon Resort">
 </div>
 @endsection

@@ -1,18 +1,25 @@
 <div class="modal fade" id="rpAdminReportModal{{ $report->id }}" tabindex="-1" aria-labelledby="rpAdminReportModal{{ $report->id }}Label" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+    @php
+        $status = $report->status instanceof \BackedEnum ? $report->status->value : (string) $report->status;
+        $statusLabel = str_replace('_', ' ', ucwords($status, '_'));
+    @endphp
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
         <div class="modal-content rp-admin-modal rp-admin-report-modal">
             <div class="modal-header">
                 <div class="rp-admin-report-header-copy">
                     <h2 class="modal-title" id="rpAdminReportModal{{ $report->id }}Label">Report details</h2>
-                    <span class="rp-admin-report-number">{{ $report->report_number }}</span>
+                    <div class="rp-admin-report-header-meta">
+                        <span class="rp-admin-report-number">{{ $report->report_number }}</span>
+                        <span class="rp-report-detail-status is-{{ $status }}">
+                            {{ $statusLabel }}
+                        </span>
+                    </div>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 @php
                     $reportType = $report->report_type instanceof \BackedEnum ? $report->report_type->value : $report->report_type;
-                    $status = $report->status instanceof \BackedEnum ? $report->status->value : (string) $report->status;
-                    $statusLabel = str_replace('_', ' ', ucwords($status, '_'));
                     $heading = match ($reportType) {
                         'broken_amenity' => 'Broken Amenity Report',
                         'complaint' => 'Complaint Report',
@@ -24,13 +31,6 @@
                     $bookingLabel = $report->booking
                         ? ($report->booking->short_number ?? $report->booking->booking_number)
                         : null;
-                    $statusIcon = match ($status) {
-                        'verified' => 'bi-shield-check',
-                        'in_progress' => 'bi-arrow-repeat',
-                        'resolved', 'closed' => 'bi-check-circle',
-                        'invalid' => 'bi-x-circle',
-                        default => 'bi-clock',
-                    };
                     $issueTitle = $report->title ?: \Illuminate\Support\Str::limit((string) $report->description, 80);
                     $actionLabels = [
                         'repair_broken_amenity' => 'Repair broken amenity',
@@ -53,10 +53,6 @@
                             </div>
                         </div>
                     </div>
-                    <span class="rp-report-detail-status is-{{ $status }}">
-                        <i class="bi {{ $statusIcon }}" aria-hidden="true"></i>
-                        {{ $statusLabel }}
-                    </span>
                 </div>
 
                 <div class="rp-report-detail-grid">

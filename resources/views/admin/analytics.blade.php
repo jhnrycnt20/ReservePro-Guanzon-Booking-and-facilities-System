@@ -18,33 +18,33 @@
 const months = @json($charts['months'] ?? []);
 const reservations = @json($charts['reservations'] ?? []);
 const revenue = @json($charts['revenue'] ?? []);
-const incidentTypes = @json($charts['incident_types'] ?? []);
-const incidentStatuses = @json($charts['incident_statuses'] ?? []);
+const makeBars = (id, label, data, currency = false) => {
+    const canvas = document.getElementById(id);
+    if (!canvas || !window.Chart) return;
+    new Chart(canvas, {
+        type: 'bar',
+        data: { labels: months, datasets: [{ label, data, backgroundColor: '#408c80', borderRadius: 5, maxBarThickness: 42 }] },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: ({ parsed }) => currency ? `₱${parsed.y.toLocaleString()}` : `${parsed.y.toLocaleString()} reservations` } }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: '#607681' }, border: { display: false } },
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#607681', precision: currency ? undefined : 0, callback: value => currency ? `₱${Number(value).toLocaleString()}` : value },
+                    grid: { color: '#e5eeeb' }, border: { display: false }
+                }
+            }
+        }
+    });
+};
 
-const makeLine = (id, label, data, color) => new Chart(document.getElementById(id), {
-    type: 'line',
-    data: { labels: months, datasets: [{ label, data, borderColor: color, tension: .3, fill: false }] },
-    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
-});
-
-makeLine('reservationsChart', 'Reservations', reservations, '#16a34a');
-makeLine('revenueChart', 'Revenue', revenue, '#1f7a4d');
-
-new Chart(document.getElementById('incidentTypeChart'), {
-    type: 'doughnut',
-    data: {
-        labels: Object.keys(incidentTypes),
-        datasets: [{ data: Object.values(incidentTypes), backgroundColor: ['#16a34a','#1f7a4d','#86efac','#14532d'] }]
-    }
-});
-
-new Chart(document.getElementById('incidentStatusChart'), {
-    type: 'bar',
-    data: {
-        labels: Object.keys(incidentStatuses),
-        datasets: [{ data: Object.values(incidentStatuses), backgroundColor: '#16a34a' }]
-    },
-    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
-});
+makeBars('reservationsChart', 'Reservations', reservations);
+makeBars('revenueChart', 'Verified revenue', revenue, true);
 </script>
 @endpush

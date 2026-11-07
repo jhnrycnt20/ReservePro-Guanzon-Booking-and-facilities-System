@@ -26,7 +26,17 @@
             </div>
             <a href="{{ route('security.incidents.index') }}" class="rp-staff-text-link">All reports <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
         </div>
-        <div class="rp-staff-chart-wrap"><canvas id="securityReportsChart" aria-label="Daily pending and reviewed reports chart" role="img"></canvas></div>
+        @if($chart['pending']->sum() + $chart['reviewed']->sum() > 0)
+            <div class="rp-staff-chart-wrap"><canvas id="securityReportsChart" aria-label="Daily pending and reviewed reports chart" role="img"></canvas></div>
+        @else
+            <div class="rp-staff-chart-empty">
+                <i class="bi bi-clipboard2-check" aria-hidden="true"></i>
+                <div>
+                    <strong>No reports filed this week</strong>
+                    <p>New report activity will appear here when guests submit incidents.</p>
+                </div>
+            </div>
+        @endif
     </section>
 
     <section class="rp-staff-panel" aria-labelledby="security-pending-title">

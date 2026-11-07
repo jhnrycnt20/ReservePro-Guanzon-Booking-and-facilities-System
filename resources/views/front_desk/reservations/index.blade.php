@@ -27,26 +27,32 @@
     </div>
 @endif
 
+<div class="rp-reservations-page">
 <div class="rp-resv-toolbar mb-3">
-    <div class="rp-resv-tabs" role="tablist" aria-label="Reservation filters">
+    <div class="rp-resv-toolbar-head">
+    <nav class="rp-resv-tabs" aria-label="Reservation filters">
         <a href="{{ route('front_desk.reservations.index', array_filter(['q' => request('q'), 'from' => $dateFrom, 'to' => $dateTo, 'tab' => 'all'])) }}"
            class="rp-resv-tab {{ $tab === 'all' ? 'is-active' : '' }}">All</a>
         <a href="{{ route('front_desk.reservations.index', array_filter(['q' => request('q'), 'from' => $dateFrom, 'to' => $dateTo, 'tab' => 'check_in'])) }}"
            class="rp-resv-tab {{ $tab === 'check_in' ? 'is-active' : '' }}">
-            <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> Check-in
+            Check-in
         </a>
         <a href="{{ route('front_desk.reservations.index', array_filter(['q' => request('q'), 'from' => $dateFrom, 'to' => $dateTo, 'tab' => 'check_out'])) }}"
            class="rp-resv-tab {{ $tab === 'check_out' ? 'is-active' : '' }}">
-            <i class="bi bi-box-arrow-right" aria-hidden="true"></i> Check-out
+            Check-out
         </a>
         <a href="{{ route('front_desk.reservations.index', array_filter(['q' => request('q'), 'from' => $dateFrom, 'to' => $dateTo, 'tab' => 'walk_in'])) }}"
            class="rp-resv-tab {{ $tab === 'walk_in' ? 'is-active' : '' }}">
-            <i class="bi bi-person-walking" aria-hidden="true"></i> Walk-in
+            Walk-ins
         </a>
         <a href="{{ route('front_desk.reservations.index', array_filter(['q' => request('q'), 'from' => $dateFrom, 'to' => $dateTo, 'tab' => 'logs'])) }}"
            class="rp-resv-tab {{ $tab === 'logs' ? 'is-active' : '' }}">
-            <i class="bi bi-clock-history" aria-hidden="true"></i> Logs
+            Logs
         </a>
+    </nav>
+    <button type="button" class="btn btn-rp-primary rp-resv-walkin-btn" data-bs-toggle="modal" data-bs-target="#rpWalkInModal">
+        <i class="bi bi-plus-lg" aria-hidden="true"></i> New walk-in
+    </button>
     </div>
 
     <form method="GET" class="rp-resv-search-form" data-rp-live-filter>
@@ -63,8 +69,7 @@
                 autocomplete="off"
             >
         </div>
-        <div class="rp-resv-tools">
-            <div class="rp-resv-date" data-rp-resv-date>
+        <div class="rp-resv-date" data-rp-resv-date>
                 <i class="bi bi-calendar3" aria-hidden="true"></i>
                 <button type="button" class="rp-resv-date-btn" data-rp-resv-date-toggle>
                     <span>{{ $dateLabel }}</span>
@@ -77,68 +82,27 @@
                     <input type="date" name="to" value="{{ $dateTo }}" class="form-control mb-2" data-rp-live-filter-change>
                     <a href="{{ route('front_desk.reservations.index', array_filter(['tab' => $tab, 'q' => request('q')])) }}" class="btn btn-rp-soft btn-sm w-100">Clear dates</a>
                 </div>
-            </div>
-            <button type="button" class="btn btn-rp-primary rp-resv-walkin-btn" data-bs-toggle="modal" data-bs-target="#rpWalkInModal">
-                <i class="bi bi-person-walking me-1" aria-hidden="true"></i> New Walk-in
-            </button>
         </div>
     </form>
 </div>
 
-<div class="rp-resv-stats mb-4">
-    <a href="{{ route('front_desk.reservations.index', ['tab' => 'all']) }}" class="rp-resv-stat is-total">
-        <div class="rp-resv-stat-icon"><i class="bi bi-calendar3"></i></div>
-        <div class="rp-resv-stat-body">
-            <div class="rp-resv-stat-label">Total Reservations</div>
-            <div class="rp-resv-stat-value">{{ number_format($stats['total']) }}</div>
-            <div class="rp-resv-stat-meta">Open stays in queue</div>
-        </div>
-        <i class="bi bi-chevron-right rp-resv-stat-arrow" aria-hidden="true"></i>
-    </a>
-    <a href="{{ route('front_desk.reservations.index', ['tab' => 'check_in']) }}" class="rp-resv-stat is-checkin">
-        <div class="rp-resv-stat-icon"><i class="bi bi-box-arrow-in-right"></i></div>
-        <div class="rp-resv-stat-body">
-            <div class="rp-resv-stat-label">Check-ins Today</div>
-            <div class="rp-resv-stat-value">{{ number_format($stats['check_ins_today']) }}</div>
-            <div class="rp-resv-stat-meta">{{ $stats['check_ins_ready'] }} ready · {{ $stats['check_ins_today_pending'] }} pending balance</div>
-        </div>
-        <i class="bi bi-chevron-right rp-resv-stat-arrow" aria-hidden="true"></i>
-    </a>
-    <a href="{{ route('front_desk.reservations.index', ['tab' => 'check_out']) }}" class="rp-resv-stat is-checkout">
-        <div class="rp-resv-stat-icon"><i class="bi bi-box-arrow-right"></i></div>
-        <div class="rp-resv-stat-body">
-            <div class="rp-resv-stat-label">Due for check-out</div>
-            <div class="rp-resv-stat-value">{{ number_format($stats['check_outs_today_due']) }}</div>
-            <div class="rp-resv-stat-meta">{{ $stats['check_outs_today'] }} scheduled today</div>
-        </div>
-        <i class="bi bi-chevron-right rp-resv-stat-arrow" aria-hidden="true"></i>
-    </a>
-    <a href="{{ route('front_desk.reservations.index', ['tab' => 'walk_in']) }}" class="rp-resv-stat is-walkin">
-        <div class="rp-resv-stat-icon"><i class="bi bi-person"></i></div>
-        <div class="rp-resv-stat-body">
-            <div class="rp-resv-stat-label">Walk-ins Today</div>
-            <div class="rp-resv-stat-value">{{ number_format($stats['walk_ins_today']) }}</div>
-            <div class="rp-resv-stat-meta">Fully paid · today</div>
-        </div>
-        <i class="bi bi-chevron-right rp-resv-stat-arrow" aria-hidden="true"></i>
-    </a>
+<div class="rp-resv-overview" aria-label="Reservation queue summary">
+    <div><strong>{{ number_format($stats['total']) }}</strong><span>Open stays</span></div>
+    <div><strong>{{ number_format($stats['check_ins_ready']) }}</strong><span>Ready for check-in</span></div>
+    <div><strong>{{ number_format($stats['check_outs_today_due']) }}</strong><span>Due for check-out</span></div>
+    <div><strong>{{ number_format($stats['walk_ins_today']) }}</strong><span>Walk-ins today</span></div>
 </div>
 
-<div class="rp-resv-table-card d-none d-lg-block">
+<div class="rp-resv-table-card d-none d-xl-block">
     <div class="table-responsive">
         <table class="table align-middle rp-resv-table mb-0">
             <thead>
                 <tr>
-                    <th>Reservation ID</th>
-                    <th>Guest Name</th>
-                    <th>Room / Cottage</th>
-                    <th>Arrival</th>
-                    <th>Departure</th>
-                    <th>Guests</th>
-                    <th>Payment Status</th>
-                    <th>Reservation Status</th>
-                    <th>Source</th>
-                    <th class="text-end">Actions</th>
+                    <th scope="col">Guest &amp; booking</th>
+                    <th scope="col">Stay</th>
+                    <th scope="col">Dates</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" class="text-end">Next step</th>
                 </tr>
             </thead>
             <tbody>
@@ -185,47 +149,26 @@
                         $checkOutDisplay = $booking->checkOut?->checked_out_at;
                     @endphp
                     <tr>
-                        <td><span class="rp-resv-id">{{ $booking->short_number }}</span></td>
                         <td>
                             <div class="rp-resv-guest-name">{{ $guestName }}</div>
-                            <div class="rp-resv-guest-phone">{{ $guestPhone }}</div>
+                            <div class="rp-resv-id">{{ $booking->short_number }}</div>
                         </td>
                         <td>
                             <div class="rp-resv-room-name">{{ $booking->accommodation?->name ?? '—' }}</div>
-                            <div class="rp-resv-room-code">{{ $booking->accommodation?->number ?? '—' }}</div>
+                            <div class="rp-resv-room-code">{{ $booking->accommodation?->number ?? '—' }} · {{ $booking->number_of_guests ?? (($booking->adults ?? 0) + ($booking->children ?? 0)) ?: '—' }} guests · {{ $booking->is_walk_in ? 'Walk-in' : 'Online' }}</div>
+                        </td>
+                        <td class="rp-resv-dates-cell">
+                            <div><span>Arrive</span><strong>{{ $booking->check_in_date->format('M j, Y') }}</strong></div>
+                            <div><span>Leave</span><strong>{{ $booking->check_out_date->format('M j, Y') }}</strong></div>
+                            @if($checkInDisplay)<small>Arrived {{ $checkInDisplay->format('M j, g:i A') }}</small>@endif
+                            @if($checkOutDisplay)<small>Left {{ $checkOutDisplay->format('M j, g:i A') }}</small>@endif
                         </td>
                         <td>
-                            <div class="rp-resv-date-main">{{ $booking->check_in_date->format('M j, Y') }}</div>
-                            <div class="rp-resv-date-sub">Planned {{ $checkInTime }}</div>
-                            @if($checkInDisplay)
-                                <div class="rp-resv-date-actual">
-                                    Arrived {{ $checkInDisplay->format('M j, g:i A') }}
-                                </div>
-                            @endif
-                        </td>
-                        <td>
-                            <div class="rp-resv-date-main">{{ $booking->check_out_date->format('M j, Y') }}</div>
-                            <div class="rp-resv-date-sub">
-                                Planned {{ $checkOutTime }}
-                                @if($checkOutDue && ! $checkOutDisplay)
-                                    · <span class="rp-resv-due">Due now</span>
-                                @endif
-                            </div>
-                            @if($checkOutDisplay)
-                                <div class="rp-resv-date-actual">
-                                    Left {{ $checkOutDisplay->format('M j, g:i A') }}
-                                </div>
-                            @endif
-                        </td>
-                        <td>{{ $booking->number_of_guests ?? (($booking->adults ?? 0) + ($booking->children ?? 0)) ?: '—' }}</td>
-                        <td><span class="rp-resv-pill is-pay-{{ $paymentKey }}">{{ $paymentLabel }}</span></td>
-                        <td>
-                            <span class="rp-resv-pill is-status-{{ $resStatus }}">{{ $resLabel }}</span>
+                            <div class="rp-resv-row-status"><span class="rp-resv-pill is-status-{{ $resStatus }}">{{ $resLabel }}</span><span class="rp-resv-pill is-pay-{{ $paymentKey }}">{{ $paymentLabel }}</span></div>
                             @if($checkOutDue)
-                                <span class="rp-resv-pill is-due ms-1">Due now</span>
+                                <span class="rp-resv-due">Due now</span>
                             @endif
                         </td>
-                        <td>{{ $booking->is_walk_in ? 'Walk-in' : 'Online' }}</td>
                         <td class="text-end text-nowrap">
                             <div class="rp-resv-actions">
                                 @if($canCollectBalance)
@@ -242,7 +185,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="10" class="text-muted py-4 text-center">
+                        <td colspan="5" class="text-muted py-4 text-center">
                             @if($tab === 'logs')
                                 No check-in or check-out logs yet.
                             @elseif($tab === 'check_out')
@@ -288,7 +231,7 @@
 </div>
 
 {{-- Mobile cards --}}
-<div class="d-lg-none">
+<div class="d-xl-none">
     @forelse($bookings as $booking)
         @php
             $statusValue = $booking->status instanceof \BackedEnum ? $booking->status->value : (string) $booking->status;
@@ -368,6 +311,7 @@
             @endif
         </div>
     @endif
+</div>
 </div>
 {{-- Action modals --}}
 @foreach($bookings as $booking)

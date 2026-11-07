@@ -6137,6 +6137,12 @@ body.rp-login-modal-open .rp-page-blur-overlay {
 
 .rp-offers-section {
     position: relative;
+    --rp-font: "Plus Jakarta Sans", system-ui, sans-serif;
+    --rp-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+}
+
+.rp-offers-section .container {
+    max-width: 1320px;
 }
 
 .rp-offers-next-btn {
@@ -6163,13 +6169,13 @@ body.rp-login-modal-open .rp-page-blur-overlay {
 
 .rp-offer-row {
     display: flex;
-    gap: 3rem;
+    gap: 2.5rem;
     align-items: center;
     padding: 3rem 0;
     border-bottom: 1px solid var(--rp-border);
     opacity: 0;
     transform: translateY(20px);
-    transition: opacity .5s ease, transform .5s ease;
+    transition: opacity 220ms cubic-bezier(.23, 1, .32, 1), transform 220ms cubic-bezier(.23, 1, .32, 1);
 }
 
 .rp-offer-row.is-visible {
@@ -6189,58 +6195,34 @@ body.rp-login-modal-open .rp-page-blur-overlay {
 .rp-offer-row-media {
     position: relative;
     flex: 0 0 auto;
-    width: 55%;
-    max-width: 520px;
+    width: 60%;
+    max-width: 650px;
     border-radius: .75rem;
     overflow: hidden;
     box-shadow: 0 16px 32px rgba(22, 53, 40, .12);
-    transition: box-shadow .3s ease;
-}
-
-.rp-offer-badge {
-    position: absolute;
-    top: .85rem;
-    left: .85rem;
-    z-index: 1;
-    padding: .35rem .7rem;
-    border-radius: .4rem;
-    background: rgba(15, 107, 69, .92);
-    color: #fff;
-    font-family: var(--rp-font);
-    font-size: .72rem;
-    font-weight: 700;
-    letter-spacing: .08em;
-    text-transform: uppercase;
+    transition: box-shadow 180ms ease;
 }
 
 .rp-offer-row-media img {
     width: 100%;
-    height: 380px;
+    height: 430px;
     object-fit: cover;
     display: block;
-    transition: transform .5s ease;
-}
-
-.rp-offer-code-hint {
-    margin: .85rem 0 0;
-    max-width: 32rem;
-    font-family: var(--rp-font);
-    font-size: .82rem;
-    line-height: 1.45;
-    color: var(--rp-muted);
-    font-style: italic;
+    transition: transform 220ms cubic-bezier(.23, 1, .32, 1);
 }
 
 .rp-offer-empty {
     padding: 1.5rem 0 2rem;
 }
 
-.rp-offer-row:hover .rp-offer-row-media {
-    box-shadow: 0 22px 40px rgba(22, 53, 40, .18);
-}
+@media (hover: hover) and (pointer: fine) {
+    .rp-offer-row:hover .rp-offer-row-media {
+        box-shadow: 0 20px 38px rgba(22, 53, 40, .16);
+    }
 
-.rp-offer-row:hover .rp-offer-row-media img {
-    transform: scale(1.05);
+    .rp-offer-row:hover .rp-offer-row-media img {
+        transform: scale(1.025);
+    }
 }
 
 .rp-offer-row-content {
@@ -6251,19 +6233,48 @@ body.rp-login-modal-open .rp-page-blur-overlay {
 .rp-offer-row-title {
     font-family: var(--rp-display);
     font-weight: 600;
-    font-size: 1.85rem;
-    letter-spacing: .5px;
-    text-transform: uppercase;
-    color: #0F6B45;
-    margin: 0 0 .9rem;
+    font-size: clamp(2rem, 2.7vw, 2.6rem);
+    line-height: 1;
+    letter-spacing: -.02em;
+    text-transform: none;
+    color: #123f31;
+    margin: 0 0 .8rem;
+    text-wrap: balance;
 }
 
-.rp-offer-row-title-line {
-    display: block;
-    width: 26px;
-    height: 2px;
-    background: #0F6B45;
-    margin-bottom: 1rem;
+.rp-offer-price-row {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: .4rem .65rem;
+    margin-bottom: .4rem;
+    font-family: var(--rp-font);
+}
+
+.rp-offer-price-row strong {
+    color: #0F6B45;
+    font-size: 1.55rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.rp-offer-price-row del {
+    color: var(--rp-muted);
+    font-size: .85rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.rp-offer-price-row span {
+    color: #0F6B45;
+    font-size: .78rem;
+    font-weight: 700;
+}
+
+.rp-offer-capacity {
+    margin: 0;
+    color: var(--rp-muted);
+    font-family: var(--rp-font);
+    font-size: .88rem;
 }
 
 .rp-offer-row-desc {
@@ -6280,9 +6291,9 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     list-style: none;
     margin: 1rem 0 0;
     padding: 0;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: .35rem .85rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem 1rem;
     max-width: 32rem;
 }
 
@@ -6308,20 +6319,49 @@ body.rp-login-modal-open .rp-page-blur-overlay {
 
 .rp-offer-cta {
     display: inline-flex;
-    margin-top: 1.1rem;
+    align-items: center;
+    gap: .65rem;
+    min-height: 2.4rem;
+    margin-top: 1.2rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
     font-family: var(--rp-font);
-    font-weight: 600;
-    font-size: .82rem;
-    letter-spacing: .08em;
-    text-transform: uppercase;
+    font-weight: 700;
+    font-size: .86rem;
+    letter-spacing: 0;
+    text-transform: none;
     text-decoration: none;
     color: #0F6B45;
-    border-bottom: 1px solid currentColor;
-    padding-bottom: .15rem;
+    transition: color 160ms ease, transform 160ms cubic-bezier(.23, 1, .32, 1);
 }
 
-.rp-offer-cta:hover {
-    color: var(--rp-accent);
+.rp-offer-cta span {
+    padding-bottom: .18rem;
+    border-bottom: 1px solid currentColor;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .rp-offer-cta:hover {
+        color: #083f2b;
+    }
+}
+
+.rp-offer-cta:active {
+    transform: scale(.97);
+}
+
+.rp-offer-cta:focus-visible {
+    outline: 3px solid rgba(15, 107, 69, .24);
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rp-offer-cta {
+        transition: none;
+    }
 }
 
 @media (max-width: 575.98px) {
@@ -6426,11 +6466,16 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     .rp-offer-row {
         flex-direction: column;
         align-items: flex-start;
+        gap: 1.5rem;
     }
 
     .rp-offer-row-media {
         width: 100%;
         max-width: none;
+    }
+
+    .rp-offer-row-media img {
+        height: clamp(20rem, 55vw, 27rem);
     }
 }
 
@@ -6443,6 +6488,17 @@ body.rp-login-modal-open .rp-page-blur-overlay {
 
     .rp-offers-next-btn:hover {
         transform: none;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .rp-offer-row-media img {
+        height: auto;
+        aspect-ratio: 4 / 3;
+    }
+
+    .rp-offer-perks {
+        grid-template-columns: minmax(0, 1fr);
     }
 }
 
@@ -7755,7 +7811,7 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     color: #fff;
     background:
         linear-gradient(180deg, rgba(0, 0, 0, .4) 0%, rgba(0, 0, 0, 0) 28%, rgba(0, 0, 0, .6) 100%),
-        url('../images/rooms/cabana/04-exterior-evening.png') center / cover no-repeat;
+        url('../images/rooms/cabana/Modern Bungalow Row at Sunset.png') center / cover no-repeat;
 }
 
 .rp-dl-status {

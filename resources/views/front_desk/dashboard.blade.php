@@ -26,7 +26,17 @@
             </div>
             <a href="{{ route('front_desk.reservations.index') }}" class="rp-staff-text-link">Reservations <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
         </div>
-        <div class="rp-staff-chart-wrap"><canvas id="deskStayChart" aria-label="Daily check-ins and check-outs chart" role="img"></canvas></div>
+        @if($chart['checkins']->sum() + $chart['checkouts']->sum() > 0)
+            <div class="rp-staff-chart-wrap"><canvas id="deskStayChart" aria-label="Daily check-ins and check-outs chart" role="img"></canvas></div>
+        @else
+            <div class="rp-staff-chart-empty">
+                <i class="bi bi-calendar2-week" aria-hidden="true"></i>
+                <div>
+                    <strong>No scheduled arrivals or departures this week</strong>
+                    <p>New check-ins and check-outs will appear here as stays are scheduled.</p>
+                </div>
+            </div>
+        @endif
     </section>
 
     <div class="rp-staff-columns">

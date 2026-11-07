@@ -145,7 +145,7 @@ class AccommodationController extends Controller
                 ? ['nullable', 'string']
                 : ['required', 'in:'.implode(',', \App\Enums\AccommodationStatus::manualValues())],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120', 'dimensions:min_width=800,min_height=600'],
-            'gallery' => ['nullable', 'array', 'max:20'],
+            'gallery' => ['nullable', 'array', 'max:6'],
             'gallery.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120', 'dimensions:min_width=400,min_height=300'],
             'remove_gallery' => ['nullable', 'array'],
             'remove_gallery.*' => ['string', 'distinct', Rule::in($id ? (Accommodation::query()->find($id)?->gallery ?? []) : [])],
@@ -162,9 +162,9 @@ class AccommodationController extends Controller
 
         $remainingGallery = count($id ? (Accommodation::query()->find($id)?->gallery ?? []) : [])
             - count($data['remove_gallery'] ?? []);
-        if ($remainingGallery + count($data['gallery'] ?? []) > 20) {
+        if ($remainingGallery + count($data['gallery'] ?? []) > 6) {
             throw ValidationException::withMessages([
-                'gallery' => 'An accommodation can have no more than 20 gallery images.',
+                'gallery' => 'An accommodation can have no more than 6 gallery images.',
             ]);
         }
 

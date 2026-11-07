@@ -4,7 +4,7 @@
 @section('theme', 'admin')
 @section('role_label', 'Admin')
 @section('page_title', 'Welcome back, ' . strtok(auth()->user()->name, ' '))
-@section('page_subtitle', 'A live overview of reservations, revenue, and resort operations.')
+@section('page_subtitle', 'Reservations, revenue, and resort operations at a glance.')
 @section('sidebar')
     @include('partials.sidebar-admin')
 @endsection

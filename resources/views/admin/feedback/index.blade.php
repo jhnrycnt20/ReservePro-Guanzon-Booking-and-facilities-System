@@ -9,13 +9,13 @@
 @endsection
 
 @section('content')
-<div class="rp-card rp-feedback-summary mb-3">
-    <div class="d-flex align-items-center gap-3">
-        <div class="rp-feedback-summary-value">{{ number_format($average ?? 0, 2) }}</div>
-        <div class="text-muted">Average rating across all feedback</div>
+<div class="rp-feedback-toolbar">
+    <div class="rp-feedback-average" aria-label="Average rating {{ number_format($average ?? 0, 2) }} out of 5">
+        <span>Average rating</span>
+        <strong class="rp-feedback-summary-value">{{ number_format($average ?? 0, 2) }}</strong>
+        <span class="rp-feedback-average-scale">/ 5</span>
     </div>
-</div>
-@include('partials.list-filters', [
+    @include('partials.list-filters', [
     'filters' => [
         [
             'name' => 'rating',
@@ -33,7 +33,8 @@
     ],
     'searchPlaceholder' => 'Guest, Booking Number, or Comment',
     'clearUrl' => route('admin.feedback.index'),
-])
+    ])
+</div>
 <div class="rp-card rp-admin-list-card">
     <div class="table-responsive">
         <table class="table align-middle rp-admin-list-table rp-admin-list-table--feedback">

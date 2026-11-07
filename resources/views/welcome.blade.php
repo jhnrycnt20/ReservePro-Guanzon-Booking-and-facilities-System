@@ -41,23 +41,23 @@
                 <div class="rp-plan-slider" id="rpPlanSlider">
                     <div class="rp-plan-track">
                         <div class="rp-plan-card">
-                            <img src="{{ asset('images/rooms/cottage/01-exterior-front.png') }}" alt="Guanzon Resort cottage" draggable="false">
+                            <img src="{{ asset('images/rooms/cottage/Tree-Lined Pavilion Walkway.png') }}" alt="Tree-lined walkway to the Guanzon Resort cottage pavilion" draggable="false">
                             <div class="rp-plan-card-title">Cottage</div>
                         </div>
                         <div class="rp-plan-card rp-plan-card-offset">
-                            <img src="{{ asset('images/landing-hero.png') }}" alt="Guanzon Resort beach" draggable="false">
+                            <img src="{{ asset('images/landing-hero.png') }}" alt="Guanzon Resort beachfront" draggable="false">
                             <div class="rp-plan-card-title">Beach</div>
                         </div>
                         <div class="rp-plan-card">
-                            <img src="{{ asset('images/rooms/suite/07-bedroom-sea-view.png') }}" alt="Guanzon Resort room" draggable="false">
+                            <img src="{{ asset('images/rooms/suite/Coastal Bedroom with Ocean View.png') }}" alt="Guanzon Resort coastal bedroom with an ocean view" draggable="false">
                             <div class="rp-plan-card-title">Room</div>
                         </div>
                         <div class="rp-plan-card rp-plan-card-offset">
-                            <img src="{{ asset('images/rooms/suite/05-outdoor-dining.png') }}" alt="Guanzon Resort dining" draggable="false">
+                            <img src="{{ asset('images/rooms/cottage/Resort Pavilion Dining Terrace.png') }}" alt="Guanzon Resort pavilion dining terrace" draggable="false">
                             <div class="rp-plan-card-title">Dining</div>
                         </div>
                         <div class="rp-plan-card">
-                            <img src="{{ asset('images/rooms/cabana/01-exterior-row.png') }}" alt="Guanzon Resort cabana" draggable="false">
+                            <img src="{{ asset('images/rooms/cabana/Sunset Modern Bungalow Unit 4.png') }}" alt="Guanzon Resort cabana unit 4 at sunset" draggable="false">
                             <div class="rp-plan-card-title">Cabana</div>
                         </div>
                     </div>

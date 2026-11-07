@@ -27,12 +27,15 @@
                     <div class="rp-offer-row">
                         <div class="rp-offer-row-media">
                             <img src="{{ $offer['image'] }}" alt="{{ $offer['title'] }}" loading="lazy">
-                            <span class="rp-offer-badge">Promo rate</span>
                         </div>
                         <div class="rp-offer-row-content">
                             <h2 class="rp-offer-row-title">{{ $offer['title'] }}</h2>
-                            <span class="rp-offer-row-title-line"></span>
-                            <p class="rp-offer-row-desc">{{ $offer['description'] }}</p>
+                            <div class="rp-offer-price-row">
+                                <strong>{{ $offer['promo_rate'] }}</strong>
+                                <del>{{ $offer['regular_rate'] }}</del>
+                                <span>{{ $offer['discount_label'] }}</span>
+                            </div>
+                            <p class="rp-offer-capacity">Good for {{ $offer['capacity'] }} {{ (int) $offer['capacity'] === 1 ? 'guest' : 'guests' }}</p>
                             @if(!empty($offer['perks']))
                                 <ul class="rp-offer-perks">
                                     @foreach($offer['perks'] as $perk)
@@ -40,9 +43,10 @@
                                     @endforeach
                                 </ul>
                             @endif
-                            <p class="rp-offer-code-hint">Promo codes are private — selected guests enter theirs at booking.</p>
                             @if(!empty($offer['cta']))
-                                <a href="{{ $offer['cta'] }}" class="rp-offer-cta">{{ $offer['cta_label'] ?? 'Learn more' }}</a>
+                                <a href="{{ $offer['cta'] }}" class="rp-offer-cta">
+                                    <span>View room</span>
+                                </a>
                             @endif
                         </div>
                     </div>
@@ -68,7 +72,7 @@
                             'Television',
                             'Wi-Fi',
                         ],
-                        'image' => asset('images/rooms/cabana/06-bedroom-ac.png'),
+                        'image' => asset('images/rooms/cabana/Warm Modern Hotel Bedroom.png'),
                         'cta' => route('accommodations.browse', [
                             'type' => \App\Models\AccommodationType::query()->where('slug', 'room')->value('id'),
                             'from' => 'offers',
@@ -93,7 +97,7 @@
                             'No Corkage on foods and drinks',
                             'Sea View',
                         ],
-                        'image' => asset('images/offers/suite-promo.png'),
+                        'image' => asset('images/rooms/suite/Coastal Bedroom with Ocean View.png'),
                         'cta' => route('accommodations.browse', [
                             'type' => \App\Models\AccommodationType::query()->where('slug', 'suite')->value('id'),
                             'from' => 'offers',
@@ -111,7 +115,7 @@
                             'Tables and chairs',
                             'Outdoor resort setting',
                         ],
-                        'image' => asset('images/offers/open-cottage-promo.png'),
+                        'image' => asset('images/rooms/cottage/Resort Pavilion Dining Terrace.png'),
                         'cta' => route('accommodations.browse', [
                             'type' => \App\Models\AccommodationType::query()->where('slug', 'cottage')->value('id'),
                             'from' => 'offers',
@@ -125,17 +129,18 @@
                         </div>
                         <div class="rp-offer-row-content">
                             <h2 class="rp-offer-row-title">{{ $offer['title'] }}</h2>
-                            <span class="rp-offer-row-title-line"></span>
                             <p class="rp-offer-row-desc">{{ $offer['description'] }}</p>
                             @if(!empty($offer['perks']))
                                 <ul class="rp-offer-perks">
-                                    @foreach($offer['perks'] as $perk)
+                                    @foreach(collect($offer['perks'])->take(3) as $perk)
                                         <li>{{ $perk }}</li>
                                     @endforeach
                                 </ul>
                             @endif
                             @if(!empty($offer['cta']))
-                                <a href="{{ $offer['cta'] }}" class="rp-offer-cta">{{ $offer['cta_label'] ?? 'Learn more' }}</a>
+                                <a href="{{ $offer['cta'] }}" class="rp-offer-cta">
+                                    <span>{{ $offer['cta_label'] ?? 'View room' }}</span>
+                                </a>
                             @endif
                         </div>
                     </div>
@@ -144,12 +149,12 @@
         </div>
     </div>
     <button type="button" class="rp-offers-next-btn" id="rpOffersNextBtn" aria-label="Show next offers">
-        <i class="bi bi-arrow-right"></i>
+        <i class="bi bi-arrow-right" aria-hidden="true"></i>
     </button>
 </section>
 
 <div class="rp-gallery-banner">
-    <div class="rp-gallery-banner-bg" style="background-image: url('{{ asset('images/offers/cabana-promo.png') }}');"></div>
+    <div class="rp-gallery-banner-bg" style="background-image: url('{{ asset('images/landing-hero.png') }}');"></div>
     <img class="rp-gallery-banner-logo" src="{{ asset('images/guanzon_navbar_transparent.png') }}?v={{ filemtime(public_path('images/guanzon_navbar_transparent.png')) }}" alt="Guanzon Resort">
 </div>
 @endsection

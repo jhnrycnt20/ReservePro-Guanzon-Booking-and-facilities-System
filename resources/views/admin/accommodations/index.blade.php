@@ -230,13 +230,13 @@
 @foreach($accommodations as $item)
     @php
         $statusValue = $item->status instanceof \BackedEnum ? $item->status->value : (string) $item->status;
-        $galleryUrls = collect($item->gallery_urls)->take(5);
+        $galleryUrls = collect($item->gallery_urls)->take(6);
         $selectedAmenities = collect(old('_modal') === 'acc_edit_'.$item->id ? old('amenities', []) : $item->amenities->pluck('id')->all());
     @endphp
 
     {{-- View --}}
     <div class="modal fade" id="rpAccViewModal{{ $item->id }}" tabindex="-1" aria-labelledby="rpAccViewModalLabel{{ $item->id }}" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable rp-acc-view-dialog">
             <div class="modal-content rp-admin-modal rp-acc-view-modal">
                 <div class="modal-header">
                     <div class="rp-acc-view-header-title">
@@ -249,6 +249,43 @@
                 </div>
                 <div class="modal-body">
                     <div class="rp-acc-view-card">
+                        <div class="rp-acc-view-gallery">
+                            @if($galleryUrls->isEmpty())
+                                <div class="rp-acc-view-empty-photo">
+                                    <i class="bi bi-image" aria-hidden="true"></i>
+                                    <span>No images uploaded</span>
+                                </div>
+                            @else
+                                <div id="rpAccGallery{{ $item->id }}" class="carousel slide rp-acc-carousel {{ $galleryUrls->count() > 1 ? 'has-thumbnails' : '' }}" data-bs-touch="true" data-bs-interval="false" aria-label="{{ $item->name }} photo gallery">
+                                    <div class="carousel-inner">
+                                        @foreach($galleryUrls as $imageUrl)
+                                            <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
+                                                <button type="button" class="rp-acc-gallery-hit" data-rp-lightbox="{{ $imageUrl }}" aria-label="View {{ $item->name }} photo {{ $loop->iteration }} full size">
+                                                    <img src="{{ $imageUrl }}" alt="" class="rp-acc-carousel-backdrop" aria-hidden="true">
+                                                    <img src="{{ $imageUrl }}" alt="{{ $item->name }} photo {{ $loop->iteration }}" class="rp-accommodation-gallery-main">
+                                                </button>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    @if($galleryUrls->count() > 1)
+                                        <button class="carousel-control-prev" type="button" data-bs-target="#rpAccGallery{{ $item->id }}" data-bs-slide="prev" aria-label="Previous photo">
+                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        </button>
+                                        <button class="carousel-control-next" type="button" data-bs-target="#rpAccGallery{{ $item->id }}" data-bs-slide="next" aria-label="Next photo">
+                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        </button>
+                                        <div class="carousel-indicators rp-acc-carousel-indicators">
+                                            @foreach($galleryUrls as $imageUrl)
+                                                <button type="button" data-bs-target="#rpAccGallery{{ $item->id }}" data-bs-slide-to="{{ $loop->index }}" class="{{ $loop->first ? 'active' : '' }}" @if($loop->first) aria-current="true" @endif aria-label="Show photo {{ $loop->iteration }}">
+                                                    <img src="{{ $imageUrl }}" alt="">
+                                                </button>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
+
                         <div class="rp-acc-view-heading">
                             <div>
                                 <div class="rp-acc-view-meta">{{ $item->type->name ?? 'Accommodation' }} · No. {{ $item->number }}</div>
@@ -260,72 +297,33 @@
                             </div>
                         </div>
 
-                        <div class="rp-acc-view-layout">
-                            <div class="rp-acc-view-gallery">
-                                @if($galleryUrls->isEmpty())
-                                    <div class="rp-acc-view-empty-photo">
-                                        <i class="bi bi-image" aria-hidden="true"></i>
-                                        <span>No images uploaded</span>
-                                    </div>
-                                @else
-                                    <div id="rpAccGallery{{ $item->id }}" class="carousel slide rp-acc-carousel" data-bs-touch="true" data-bs-interval="false" aria-label="{{ $item->name }} photo gallery">
-                                        <div class="carousel-inner">
-                                            @foreach($galleryUrls as $imageUrl)
-                                                <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
-                                                    <button type="button" class="rp-acc-gallery-hit" data-rp-lightbox="{{ $imageUrl }}" aria-label="View {{ $item->name }} photo {{ $loop->iteration }} full size">
-                                                        <img src="{{ $imageUrl }}" alt="" class="rp-acc-carousel-backdrop" aria-hidden="true">
-                                                        <img src="{{ $imageUrl }}" alt="{{ $item->name }} photo {{ $loop->iteration }}" class="rp-accommodation-gallery-main">
-                                                    </button>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                        @if($galleryUrls->count() > 1)
-                                            <button class="carousel-control-prev" type="button" data-bs-target="#rpAccGallery{{ $item->id }}" data-bs-slide="prev" aria-label="Previous photo">
-                                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                            </button>
-                                            <button class="carousel-control-next" type="button" data-bs-target="#rpAccGallery{{ $item->id }}" data-bs-slide="next" aria-label="Next photo">
-                                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                            </button>
-                                            <div class="carousel-indicators rp-acc-carousel-indicators">
-                                                @foreach($galleryUrls as $imageUrl)
-                                                    <button type="button" data-bs-target="#rpAccGallery{{ $item->id }}" data-bs-slide-to="{{ $loop->index }}" class="{{ $loop->first ? 'active' : '' }}" @if($loop->first) aria-current="true" @endif aria-label="Show photo {{ $loop->iteration }}">
-                                                        <img src="{{ $imageUrl }}" alt="">
-                                                    </button>
-                                                @endforeach
-                                            </div>
-                                        @endif
-                                    </div>
-                                @endif
-                            </div>
-
-                            <div class="rp-acc-view-details">
-                                <div class="rp-acc-view-facts">
-                                    <div class="rp-acc-view-fact">
-                                        <span class="rp-acc-view-fact-icon"><i class="bi bi-people" aria-hidden="true"></i></span>
-                                        <div><span>Capacity</span><strong>{{ $item->capacity }} {{ (int) $item->capacity === 1 ? 'guest' : 'guests' }}</strong></div>
-                                    </div>
-                                    <div class="rp-acc-view-fact">
-                                        <span class="rp-acc-view-fact-icon"><i class="bi bi-cash-stack" aria-hidden="true"></i></span>
-                                        <div><span>Rate</span><strong>₱{{ number_format((float) $item->rate, 2) }}</strong></div>
-                                    </div>
+                        <div class="rp-acc-view-details">
+                            <div class="rp-acc-view-facts">
+                                <div class="rp-acc-view-fact">
+                                    <span class="rp-acc-view-fact-icon"><i class="bi bi-people" aria-hidden="true"></i></span>
+                                    <div><span>Capacity</span><strong>{{ $item->capacity }} {{ (int) $item->capacity === 1 ? 'guest' : 'guests' }}</strong></div>
                                 </div>
-
-                                <section class="rp-acc-view-section">
-                                    <h3><i class="bi bi-card-text" aria-hidden="true"></i>Description</h3>
-                                    <p>{{ $item->description ?: 'No description provided.' }}</p>
-                                </section>
-
-                                <section class="rp-acc-view-section">
-                                    <h3><i class="bi bi-stars" aria-hidden="true"></i>Amenities</h3>
-                                    <div class="rp-acc-view-amenities">
-                                        @forelse($item->amenities as $amenity)
-                                            <span><i class="bi bi-check2" aria-hidden="true"></i>{{ $amenity->name }}</span>
-                                        @empty
-                                            <p>No amenities listed.</p>
-                                        @endforelse
-                                    </div>
-                                </section>
+                                <div class="rp-acc-view-fact">
+                                    <span class="rp-acc-view-fact-icon"><i class="bi bi-cash-stack" aria-hidden="true"></i></span>
+                                    <div><span>Rate</span><strong>₱{{ number_format((float) $item->rate, 2) }}</strong></div>
+                                </div>
                             </div>
+
+                            <section class="rp-acc-view-section">
+                                <h3><i class="bi bi-card-text" aria-hidden="true"></i>Description</h3>
+                                <p>{{ $item->description ?: 'No description provided.' }}</p>
+                            </section>
+
+                            <section class="rp-acc-view-section">
+                                <h3><i class="bi bi-stars" aria-hidden="true"></i>Amenities</h3>
+                                <div class="rp-acc-view-amenities">
+                                    @forelse($item->amenities as $amenity)
+                                        <span><i class="bi bi-check2" aria-hidden="true"></i>{{ $amenity->name }}</span>
+                                    @empty
+                                        <p>No amenities listed.</p>
+                                    @endforelse
+                                </div>
+                            </section>
                         </div>
                     </div>
                 </div>

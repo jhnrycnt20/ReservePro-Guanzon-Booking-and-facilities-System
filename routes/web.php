@@ -95,25 +95,15 @@ Route::get('/offers', function () {
 
             $rate = (float) $room->rate;
             $promoRate = $promo->discountedRate($rate);
-            $perks = $room->amenities->pluck('name')->take(8)->values()->all();
-            if ($perks === []) {
-                $perks = array_filter([
-                    'Up to '.rtrim(rtrim(number_format($percent, 2), '0'), '.').'% off selected stays',
-                    'Capacity '.$room->capacity.' guests',
-                    $room->type?->name ? ($room->type->name.' stay') : null,
-                ]);
-            }
+            $perks = $room->amenities->pluck('name')->take(3)->values()->all();
 
             $promoOffers->put($key, [
                 'title' => $room->name,
-                'description' => filled($promo->name)
-                    ? $promo->name.' — special rate for selected guests.'
-                    : 'Special rate for selected guests. Enter your private promo code when booking.',
-                'perks' => array_values(array_unique(array_merge([
-                    'Regular rate ₱'.number_format($rate, 0),
-                    'Promo rate ₱'.number_format($promoRate, 0).' ('.rtrim(rtrim(number_format($percent, 2), '0'), '.').'% off)',
-                    'Good for '.$room->capacity.' guests',
-                ], $perks))),
+                'regular_rate' => '₱'.number_format($rate, 0),
+                'promo_rate' => '₱'.number_format($promoRate, 0),
+                'discount_label' => rtrim(rtrim(number_format($percent, 2), '0'), '.').'% off',
+                'capacity' => $room->capacity,
+                'perks' => $perks,
                 'image' => $room->image_url,
                 'cta' => route('accommodations.show', ['accommodation' => $room->id, 'from' => 'offers']),
                 'cta_label' => 'View '.$room->name,

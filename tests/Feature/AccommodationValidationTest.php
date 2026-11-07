@@ -124,7 +124,7 @@ class AccommodationValidationTest extends TestCase
         $type = AccommodationType::query()->create(['name' => 'Cabin', 'slug' => 'cabin']);
         $accommodation = Accommodation::query()->create([
             ...$this->payload($type),
-            'gallery' => array_map(fn ($index) => "accommodations/photo-{$index}.jpg", range(1, 20)),
+            'gallery' => array_map(fn ($index) => "accommodations/photo-{$index}.jpg", range(1, 6)),
         ]);
 
         $this->actingAs($admin)->put(route('admin.accommodations.update', $accommodation), $this->payload($type, [
@@ -136,6 +136,6 @@ class AccommodationValidationTest extends TestCase
             'remove_gallery' => ['accommodations/photo-1.jpg'],
         ]))->assertSessionHasNoErrors();
 
-        $this->assertCount(20, $accommodation->fresh()->gallery);
+        $this->assertCount(6, $accommodation->fresh()->gallery);
     }
 }

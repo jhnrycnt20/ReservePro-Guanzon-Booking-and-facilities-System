@@ -189,6 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     visibleRows.forEach((row) => row.classList.add('is-visible'));
                 });
             });
+
         };
 
         offersNextBtn.addEventListener('click', () => {
