@@ -130,8 +130,6 @@ Route::post('/contact', [ContactController::class, 'store'])
     ->middleware('throttle:5,1')
     ->name('contact.store');
 
-Route::get('/feedback', [GuestFeedbackController::class, 'publicIndex'])->name('feedback.index');
-
 Route::post('/webhooks/paymongo', [PayMongoWebhookController::class, 'handle'])->name('webhooks.paymongo');
 
 Route::get('/privacy-policy', function () {

@@ -106,13 +106,6 @@
                   data-rp-selected-unit="{{ $accommodation->id }}"
                   data-rp-family="{{ $accommodation->familyKey() }}">
                 <input type="hidden" name="accommodation_id" value="{{ $accommodation->id }}" data-rp-selected-accommodation>
-                @if($errors->has('check_in') || $errors->has('check_out'))
-                    <div class="rp-date-validation-message is-visible" data-rp-date-error role="alert">
-                        {{ $errors->first('check_in') ?: $errors->first('check_out') }}
-                    </div>
-                @else
-                    <div class="rp-date-validation-message" data-rp-date-error role="alert" aria-live="assertive" hidden></div>
-                @endif
                 <div class="rp-avail-fields">
                     <div class="rp-avail-field">
                         <label class="rp-avail-label">Check-in</label>
@@ -144,13 +137,9 @@
 @include('partials.availability-calendar')
 
 @if(count($accommodation->gallery_urls) > 0)
-<div class="modal fade" id="rpAccommodationLightbox" tabindex="-1" aria-labelledby="rpAccommodationLightboxLabel" aria-hidden="true">
+<div class="modal fade" id="rpAccommodationLightbox" tabindex="-1" aria-label="Accommodation photo gallery" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered rp-lightbox-dialog">
         <div class="modal-content rp-lightbox-modal">
-            <div class="modal-header border-0">
-                <h2 class="modal-title rp-lightbox-title" id="rpAccommodationLightboxLabel">{{ $accommodation->name }}</h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
             <div class="modal-body">
                 <div class="rp-lightbox-stage" id="rpLightboxStage" style="--rp-lightbox-bg: url('{{ $accommodation->image_url }}');">
                     @if(count($accommodation->gallery_urls) > 1)
@@ -163,9 +152,18 @@
                         <button type="button" class="rp-lightbox-nav rp-lightbox-next" data-rp-lightbox-next aria-label="Next photo">
                             <i class="bi bi-chevron-right"></i>
                         </button>
-                        <span class="rp-lightbox-counter" id="rpLightboxCounter">1 / {{ count($accommodation->gallery_urls) }}</span>
                     @endif
+                    <span class="rp-lightbox-counter" id="rpLightboxCounter">1 / {{ count($accommodation->gallery_urls) }}</span>
                 </div>
+                @if(count($accommodation->gallery_urls) > 1)
+                    <div class="rp-lightbox-thumbnails" aria-label="Choose a photo">
+                        @foreach($accommodation->gallery_urls as $index => $url)
+                            <button type="button" class="rp-lightbox-thumb {{ $index === 0 ? 'is-active' : '' }}" data-rp-lightbox-thumb="{{ $index }}" aria-label="Show photo {{ $index + 1 }}" aria-pressed="{{ $index === 0 ? 'true' : 'false' }}">
+                                <img src="{{ $url }}" alt="">
+                            </button>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -184,12 +182,25 @@
     const lightboxImage = document.getElementById('rpLightboxImage');
     const lightboxStage = document.getElementById('rpLightboxStage');
     const counterEl = document.getElementById('rpLightboxCounter');
+    const lightboxThumbs = Array.from(lightboxEl?.querySelectorAll('[data-rp-lightbox-thumb]') || []);
     let index = 0;
 
     const setActiveThumb = (activeIndex) => {
         document.querySelectorAll('[data-rp-lightbox-index]').forEach((thumb) => {
             const thumbIndex = Number(thumb.dataset.rpLightboxIndex);
             thumb.classList.toggle('is-active', thumbIndex === activeIndex);
+        });
+        lightboxThumbs.forEach((thumb) => {
+            const isActive = Number(thumb.dataset.rpLightboxThumb) === activeIndex;
+            thumb.classList.toggle('is-active', isActive);
+            thumb.setAttribute('aria-pressed', String(isActive));
+            if (isActive) {
+                thumb.scrollIntoView({
+                    block: 'nearest',
+                    inline: 'nearest',
+                    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+                });
+            }
         });
         document.querySelector(`.rp-accommodation-gallery-thumb[data-rp-lightbox-index="${activeIndex}"]`)
             ?.scrollIntoView({
@@ -229,6 +240,9 @@
 
     document.querySelector('[data-rp-lightbox-prev]')?.addEventListener('click', () => showImage(index - 1));
     document.querySelector('[data-rp-lightbox-next]')?.addEventListener('click', () => showImage(index + 1));
+    lightboxThumbs.forEach((thumb) => {
+        thumb.addEventListener('click', () => showImage(Number(thumb.dataset.rpLightboxThumb)));
+    });
 
     document.addEventListener('keydown', (event) => {
         if (!lightboxEl?.classList.contains('show')) return;
@@ -251,34 +265,21 @@
     const checkOut = form.querySelector('[data-stay-check-out]');
     const checkInDisplay = form.querySelector('[data-rp-date-display="check_in"]');
     const checkOutDisplay = form.querySelector('[data-rp-date-display="check_out"]');
-    const errorBox = form.querySelector('[data-rp-date-error]');
     const fields = [checkInDisplay, checkOutDisplay].filter(Boolean);
 
     const validateDates = () => {
         const start = checkIn?.value || '';
         const end = checkOut?.value || '';
-        let message = '';
-
-        if (!start || !end) {
-            message = 'Choose both check-in and check-out dates to continue.';
-        } else if (end <= start) {
-            message = 'Check-out must be later than check-in.';
-        }
-
-        if (errorBox) {
-            errorBox.textContent = message;
-            errorBox.hidden = !message;
-            errorBox.classList.toggle('is-visible', Boolean(message));
-        }
+        const datesInvalid = !start || !end || end <= start;
 
         fields.forEach((field, index) => {
             const missing = index === 0 ? !start : !end;
             const invalid = missing || (Boolean(start && end) && end <= start);
-            field.setAttribute('aria-invalid', String(Boolean(message && invalid)));
-            field.closest('.rp-avail-input-wrap')?.classList.toggle('is-date-invalid', Boolean(message && invalid));
+            field.setAttribute('aria-invalid', String(Boolean(datesInvalid && invalid)));
+            field.closest('.rp-avail-input-wrap')?.classList.toggle('is-date-invalid', Boolean(datesInvalid && invalid));
         });
 
-        return !message;
+        return !datesInvalid;
     };
 
     form.addEventListener('submit', (event) => {

@@ -24,7 +24,9 @@
                 <div class="rp-reservation-gallery" data-rp-booking-gallery>
                     <div class="rp-reservation-gallery-main">
                         <img src="{{ $booking->accommodation->image_url }}" alt="{{ $booking->accommodation->name }}" data-rp-reservation-main>
-                        <span class="rp-reservation-photo-mark" aria-hidden="true"><i class="bi bi-bookmark"></i></span>
+                        <button type="button" class="rp-reservation-photo-mark" data-rp-reservation-lightbox-open aria-label="Open photo gallery">
+                            <i class="bi bi-arrows-fullscreen" aria-hidden="true"></i>
+                        </button>
                     </div>
                     @if(count($bookingGallery) > 1)
                         <div class="rp-reservation-gallery-rail" aria-label="More accommodation photos">
@@ -114,6 +116,38 @@
                     @endif
                 </div>
             </section>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade rp-reservation-lightbox" id="rpReservationLightbox" tabindex="-1" aria-label="Reservation photo gallery" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered rp-lightbox-dialog">
+        <div class="modal-content rp-lightbox-modal">
+            <div class="modal-body">
+                <div class="rp-lightbox-stage" data-rp-reservation-lightbox-stage>
+                    @if(count($bookingGallery) > 1)
+                        <button type="button" class="rp-lightbox-nav rp-lightbox-prev" data-rp-reservation-lightbox-prev aria-label="Previous photo">
+                            <i class="bi bi-chevron-left" aria-hidden="true"></i>
+                        </button>
+                    @endif
+                    <img src="{{ $booking->accommodation->image_url }}" alt="{{ $booking->accommodation->name }}" class="rp-lightbox-image" data-rp-reservation-lightbox-image>
+                    @if(count($bookingGallery) > 1)
+                        <button type="button" class="rp-lightbox-nav rp-lightbox-next" data-rp-reservation-lightbox-next aria-label="Next photo">
+                            <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                        </button>
+                    @endif
+                    <span class="rp-lightbox-counter" data-rp-reservation-lightbox-counter>1 / {{ max(1, count($bookingGallery)) }}</span>
+                </div>
+                @if(count($bookingGallery) > 1)
+                    <div class="rp-lightbox-thumbnails" aria-label="Choose a reservation photo">
+                        @foreach($bookingGallery as $index => $photoUrl)
+                            <button type="button" class="rp-lightbox-thumb {{ $index === 0 ? 'is-active' : '' }}" data-rp-reservation-lightbox-thumb="{{ $index }}" aria-label="Show photo {{ $index + 1 }}" aria-pressed="{{ $index === 0 ? 'true' : 'false' }}">
+                                <img src="{{ $photoUrl }}" alt="">
+                            </button>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
 </div>

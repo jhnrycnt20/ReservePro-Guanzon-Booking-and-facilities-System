@@ -5,35 +5,25 @@
 @section('content')
 @php
     $hasBookings = $bookings->total() > 0;
-    $hasFilter = filled(request('status')) || filled(request('q'));
+    $hasFilter = filled(request('payment_status'));
 @endphp
-<div class="container rp-public-page-top pb-4">
+<div class="container rp-public-page-top rp-reservations-index pb-4">
     @if(session('error'))
         <div class="alert alert-warning border-0 shadow-sm mb-3">{{ session('error') }}</div>
     @endif
-    <div class="rp-page-intro d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div class="rp-reservations-heading">
         <h1 class="rp-page-intro-title mb-0">My Reservations</h1>
         @if($hasBookings || $hasFilter)
-            @include('partials.list-filters', [
-                'filters' => [
-                    [
-                        'name' => 'status',
-                        'label' => 'Status',
-                        'empty' => 'All statuses',
-                        'value' => request('status'),
-                        'options' => [
-                            'pending' => 'Pending',
-                            'approved' => 'Approved',
-                            'rejected' => 'Rejected',
-                            'cancelled' => 'Cancelled',
-                            'checked_in' => 'Checked in',
-                            'checked_out' => 'Checked out',
-                        ],
-                    ],
-                ],
-                'searchPlaceholder' => 'Booking Number or Room Name',
-                'clearUrl' => route('guest.bookings.index'),
-            ])
+            <form method="GET" action="{{ route('guest.bookings.index') }}" class="rp-reservations-filter">
+                <label class="visually-hidden" for="reservationPaymentFilter">Filter reservations by payment</label>
+                <select id="reservationPaymentFilter" name="payment_status" class="form-select" onchange="this.form.submit()">
+                    <option value="">All reservations</option>
+                    <option value="paid" @selected(request('payment_status') === 'paid')>Paid</option>
+                    <option value="unpaid" @selected(request('payment_status') === 'unpaid')>Unpaid</option>
+                    <option value="partially_paid" @selected(request('payment_status') === 'partially_paid')>Partially paid</option>
+                    <option value="cancelled" @selected(request('payment_status') === 'cancelled')>Cancelled</option>
+                </select>
+            </form>
         @endif
     </div>
 
@@ -43,9 +33,11 @@
                 $paidAmount = (float) $booking->paid_amount;
                 $isUnpaid = $paidAmount <= 0.009;
                 $isPartial = ! $isUnpaid && ((float) $booking->remaining_balance) > 0.009;
-                $paymentLabel = $isUnpaid ? 'Unpaid' : ($isPartial ? 'Partially paid' : 'Paid');
+                $bookingStatus = $booking->status instanceof \BackedEnum ? $booking->status->value : (string) $booking->status;
+                $isCancelled = $bookingStatus === 'cancelled';
+                $paymentLabel = $isCancelled ? 'Cancelled' : ($isUnpaid ? 'Unpaid' : ($isPartial ? 'Partially paid' : 'Paid'));
             @endphp
-            <a href="{{ route('guest.bookings.show', $booking) }}" class="rp-booking-list-item {{ $isUnpaid ? 'is-unpaid' : '' }}">
+            <a href="{{ route('guest.bookings.show', $booking) }}" class="rp-booking-list-item {{ $isUnpaid && ! $isCancelled ? 'is-unpaid' : '' }} {{ $isCancelled ? 'is-cancelled' : '' }}">
                 <div class="rp-booking-list-media">
                     @if($booking->accommodation)
                         <img src="{{ $booking->accommodation->image_url }}" alt="{{ $booking->accommodation->name }}">
@@ -58,8 +50,8 @@
                         <div>
                             <div class="rp-booking-list-title">{{ $booking->accommodation->name ?? 'Reservation' }}</div>
                             <div class="rp-booking-list-meta">
-                                <span class="rp-booking-list-code">{{ $booking->short_number }}</span>
-                                <span class="rp-booking-pay-badge {{ $isUnpaid ? 'is-unpaid' : ($isPartial ? 'is-partial' : 'is-paid') }}">{{ $paymentLabel }}</span>
+                                <span class="rp-booking-list-code">{{ $booking->accommodation->type->name ?? 'Accommodation' }} · {{ $booking->short_number }}</span>
+                                <span class="rp-booking-pay-badge {{ $isCancelled ? 'is-cancelled' : ($isUnpaid ? 'is-unpaid' : ($isPartial ? 'is-partial' : 'is-paid')) }}">{{ $paymentLabel }}</span>
                             </div>
                             <div class="rp-booking-list-dates">
                                 <div class="rp-booking-list-date-block">
@@ -74,7 +66,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="rp-booking-list-arrow"><i class="bi bi-chevron-right"></i></div>
+                <div class="rp-booking-list-action">
+                    <strong class="rp-booking-list-price">₱{{ number_format((float) $booking->total_amount, 2) }}</strong>
+                    <span class="rp-booking-list-view">View Details <i class="bi bi-arrow-right" aria-hidden="true"></i></span>
+                </div>
             </a>
         @empty
             <div class="rp-booking-empty">
@@ -87,6 +82,10 @@
             </div>
         @endforelse
     </div>
+
+    @if($bookings->total() > 0)
+        <p class="rp-reservations-count">Showing {{ $bookings->firstItem() }}–{{ $bookings->lastItem() }} of {{ $bookings->total() }} reservations</p>
+    @endif
 
     @if($bookings->hasPages())
         <div class="rp-simple-pagination mt-4">

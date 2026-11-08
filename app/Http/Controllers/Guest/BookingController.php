@@ -26,7 +26,7 @@ class BookingController extends Controller
         // Include unpaid (paid_amount = 0) reservations so guests can still open and pay.
         $query = Booking::query()
             ->with([
-                'accommodation' => fn ($q) => $q->withTrashed(),
+                'accommodation' => fn ($q) => $q->withTrashed()->with('type'),
                 'payments',
             ])
             ->when(
@@ -36,8 +36,15 @@ class BookingController extends Controller
             )
             ->latest();
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->input('status'));
+        if ($request->input('payment_status') === 'paid') {
+            $query->where('remaining_balance', '<=', 0.009);
+        } elseif ($request->input('payment_status') === 'unpaid') {
+            $query->where('paid_amount', '<=', 0.009);
+        } elseif ($request->input('payment_status') === 'partially_paid') {
+            $query->where('paid_amount', '>', 0.009)
+                ->where('remaining_balance', '>', 0.009);
+        } elseif ($request->input('payment_status') === 'cancelled') {
+            $query->where('status', 'cancelled');
         }
 
         if ($request->filled('q')) {

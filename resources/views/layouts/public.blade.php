@@ -44,8 +44,8 @@
                                 <li><a class="dropdown-item" href="{{ route('profile.edit') }}"><i class="bi bi-person me-2" aria-hidden="true"></i>My account</a></li>
                                 @if(auth()->user()?->isGuestRole())
                                     <li><a class="dropdown-item" href="{{ route('guest.bookings.index') }}"><i class="bi bi-calendar-check me-2" aria-hidden="true"></i>Reservations</a></li>
+                                    <li><button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#rpWriteFeedbackModal"><i class="bi bi-chat-square-text me-2" aria-hidden="true"></i>Write Feedback</button></li>
                                 @endif
-                                <li><a class="dropdown-item" href="{{ route('feedback.index') }}"><i class="bi bi-chat-left-text me-2" aria-hidden="true"></i>Feedback</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item rp-logout-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rpNavDesktopLogoutForm').submit();"><i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>Sign out</a></li>
                             </ul>
@@ -146,6 +146,9 @@
     @include('partials.notice-modal')
     @auth
         @include('partials.modals.profile-modal')
+        @if(auth()->user()?->isGuestRole())
+            @include('partials.guest-feedback-modal')
+        @endif
     @endauth
     @guest
         @include('partials.login-modal')
@@ -164,6 +167,9 @@
             if (noticeEl) {
                 const titleEl = noticeEl.querySelector('#rpNoticeModalLabel');
                 const messageEl = noticeEl.querySelector('[data-rp-notice-message]');
+                const iconEl = noticeEl.querySelector('[data-rp-notice-icon]');
+                noticeEl.classList.add('is-success');
+                if (iconEl) iconEl.innerHTML = '<i class="bi bi-check-lg"></i>';
                 if (titleEl) titleEl.textContent = 'Success';
                 if (messageEl) messageEl.textContent = successPopup;
                 window.bootstrap.Modal.getOrCreateInstance(noticeEl).show();
@@ -174,6 +180,7 @@
         const map = {
             profile: 'rpProfileModal',
             profile_password: 'rpProfileModal',
+            feedback: 'rpWriteFeedbackModal',
         };
         const targetId = map[openModal] || null;
         if (!targetId || !window.bootstrap?.Modal) return;

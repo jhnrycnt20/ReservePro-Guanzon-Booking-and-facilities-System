@@ -30,6 +30,54 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
         });
+
+        const openLightbox = gallery.querySelector('[data-rp-reservation-lightbox-open]');
+        const lightbox = document.getElementById('rpReservationLightbox');
+        const lightboxImage = lightbox?.querySelector('[data-rp-reservation-lightbox-image]');
+        const lightboxStage = lightbox?.querySelector('[data-rp-reservation-lightbox-stage]');
+        const lightboxCounter = lightbox?.querySelector('[data-rp-reservation-lightbox-counter]');
+        const lightboxThumbs = Array.from(lightbox?.querySelectorAll('[data-rp-reservation-lightbox-thumb]') || []);
+        const images = thumbnails.map((thumbnail) => thumbnail.dataset.rpReservationPhoto).filter(Boolean);
+        if (images.length === 0 && mainImage?.src) images.push(mainImage.src);
+        let lightboxIndex = 0;
+
+        const showLightboxImage = (nextIndex) => {
+            if (!images.length) return;
+            lightboxIndex = (nextIndex + images.length) % images.length;
+            const source = images[lightboxIndex];
+            if (lightboxImage) lightboxImage.src = source;
+            lightboxStage?.style.setProperty('--rp-lightbox-bg', `url("${source}")`);
+            if (lightboxCounter) lightboxCounter.textContent = `${lightboxIndex + 1} / ${images.length}`;
+            lightboxThumbs.forEach((thumbnail) => {
+                const isActive = Number(thumbnail.dataset.rpReservationLightboxThumb) === lightboxIndex;
+                thumbnail.classList.toggle('is-active', isActive);
+                thumbnail.setAttribute('aria-pressed', String(isActive));
+                if (isActive) {
+                    thumbnail.scrollIntoView({
+                        block: 'nearest',
+                        inline: 'nearest',
+                        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+                    });
+                }
+            });
+        };
+
+        openLightbox?.addEventListener('click', () => {
+            const selectedIndex = thumbnails.findIndex((thumbnail) => thumbnail.classList.contains('is-active'));
+            showLightboxImage(selectedIndex >= 0 ? selectedIndex : 0);
+            if (lightbox && window.bootstrap?.Modal) {
+                window.bootstrap.Modal.getOrCreateInstance(lightbox).show();
+            }
+        });
+        lightbox?.querySelector('[data-rp-reservation-lightbox-prev]')?.addEventListener('click', () => showLightboxImage(lightboxIndex - 1));
+        lightbox?.querySelector('[data-rp-reservation-lightbox-next]')?.addEventListener('click', () => showLightboxImage(lightboxIndex + 1));
+        lightboxThumbs.forEach((thumbnail) => {
+            thumbnail.addEventListener('click', () => showLightboxImage(Number(thumbnail.dataset.rpReservationLightboxThumb)));
+        });
+        lightbox?.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowLeft') showLightboxImage(lightboxIndex - 1);
+            if (event.key === 'ArrowRight') showLightboxImage(lightboxIndex + 1);
+        });
     });
 
     const themeToggle = document.querySelector('[data-rp-theme-toggle]');
@@ -1240,6 +1288,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const titleEl = noticeModalEl.querySelector('#rpNoticeModalLabel');
         const messageEl = noticeModalEl.querySelector('[data-rp-notice-message]');
+        const iconEl = noticeModalEl.querySelector('[data-rp-notice-icon]');
+        const isSuccess = String(title).toLowerCase() === 'success';
+        noticeModalEl.classList.toggle('is-success', isSuccess);
+        if (iconEl) iconEl.innerHTML = isSuccess ? '<i class="bi bi-check-lg"></i>' : '<i class="bi bi-info-lg"></i>';
         if (titleEl) titleEl.textContent = title;
         if (messageEl) messageEl.textContent = message;
         bootstrap.Modal.getOrCreateInstance(noticeModalEl).show();

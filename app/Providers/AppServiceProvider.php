@@ -82,5 +82,22 @@ class AppServiceProvider extends ServiceProvider
 
             $view->with('resortSettings', $resortSettings);
         });
+
+        view()->composer('partials.guest-feedback-modal', function ($view) {
+            $guestId = auth()->user()?->guest?->id;
+            $stays = $guestId
+                ? \App\Models\Booking::query()
+                    ->where('guest_id', $guestId)
+                    ->where('status', \App\Enums\BookingStatus::CheckedOut->value)
+                    ->with(['accommodation' => fn ($query) => $query->withTrashed()])
+                    ->latest('check_out_date')
+                    ->get(['id', 'accommodation_id', 'check_out_date'])
+                    ->filter(fn ($booking) => $booking->accommodation)
+                    ->unique('accommodation_id')
+                    ->values()
+                : collect();
+
+            $view->with('feedbackStays', $stays);
+        });
     }
 }

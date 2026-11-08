@@ -9,24 +9,11 @@ use App\Models\Booking;
 use App\Models\Feedback;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class FeedbackController extends Controller
 {
-    /** Public: browse all guest feedback without signing in. */
-    public function publicIndex(Request $request): View
-    {
-        $feedback = Feedback::query()
-            ->with(['guest.user', 'accommodation', 'booking.accommodation'])
-            ->latest()
-            ->paginate(12);
-
-        $average = round((float) Feedback::query()->avg('rating'), 1);
-        $count = Feedback::query()->count();
-
-        return view('feedback.index', compact('feedback', 'average', 'count'));
-    }
-
     public function index(Request $request): View
     {
         $user = $request->user();
@@ -126,15 +113,26 @@ class FeedbackController extends Controller
                 ->with('success', 'Thank you for your feedback.');
         }
 
-        $data = $request->validate([
+        $isFeedbackModal = $request->input('_modal') === 'feedback';
+        $accommodationRule = $isFeedbackModal
+            ? Rule::exists('bookings', 'accommodation_id')
+                ->where('guest_id', $guest->id)
+                ->where('status', BookingStatus::CheckedOut->value)
+            : 'exists:accommodations,id';
+
+        $rules = [
             'scope' => ['required', 'in:resort,room'],
-            'accommodation_id' => ['nullable', 'required_if:scope,room', 'exists:accommodations,id'],
+            'accommodation_id' => ['nullable', 'required_if:scope,room', $accommodationRule],
             'rating' => ['required', 'integer', 'min:1', 'max:5'],
             'comment' => ['required', 'string', 'min:5', 'max:2000'],
-        ], [
+        ];
+        $messages = [
             'comment.required' => 'Please write your review.',
             'comment.min' => 'Please write a slightly longer review.',
-        ]);
+        ];
+        $data = $isFeedbackModal
+            ? $request->validateWithBag('feedback', $rules, $messages)
+            : $request->validate($rules, $messages);
 
         Feedback::query()->create([
             'booking_id' => null,
@@ -145,8 +143,8 @@ class FeedbackController extends Controller
             'comment' => $data['comment'] ?? null,
         ]);
 
-        return redirect()
-            ->route('guest.feedback.index')
-            ->with('success', 'Thank you for your feedback.');
+        return $isFeedbackModal
+            ? back()->with('success_popup', 'Thank you for your feedback.')
+            : back()->with('success', 'Thank you for your feedback.');
     }
 }

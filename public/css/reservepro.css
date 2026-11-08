@@ -2401,31 +2401,34 @@ body.rp-body .container > .row,
 }
 
 .rp-lightbox-dialog {
-    max-width: 920px;
+    width: min(1100px, calc(100vw - 2rem));
+    max-width: 1100px;
 }
 
 .rp-lightbox-modal {
     background: #fff;
-    border: 0;
-    border-radius: 1.1rem;
+    border: 1px solid #dce9e2;
+    border-radius: 1rem;
     overflow: hidden;
-    box-shadow: 0 30px 70px rgba(15, 30, 25, .3);
+    box-shadow: 0 28px 80px rgba(15, 30, 25, .24);
 }
 
 .rp-lightbox-modal .modal-header {
-    padding: 1.1rem 1.4rem .9rem;
+    align-items: center;
+    padding: .55rem .8rem;
+    border-bottom: 1px solid #edf2ef;
 }
 
 .rp-lightbox-modal .modal-body {
-    padding: 0 1.4rem 1.4rem;
+    padding: 1rem 1.25rem 1.2rem;
 }
 
 .rp-lightbox-title {
     margin: 0;
-    font-family: var(--rp-display);
-    font-size: 1.6rem;
-    font-weight: 600;
-    color: #2B4A3E;
+    color: #203d34;
+    font-family: var(--rp-font);
+    font-size: 1.12rem;
+    font-weight: 650;
 }
 
 .rp-lightbox-stage {
@@ -2433,28 +2436,24 @@ body.rp-body .container > .row,
     display: flex;
     align-items: center;
     justify-content: center;
-    height: min(64vh, 560px);
+    height: min(68vh, 680px);
     overflow: hidden;
-    border-radius: .8rem;
-    background: #eef1f0;
+    border-radius: .75rem;
+    background: #f1f5f2;
     isolation: isolate;
 }
 
 .rp-lightbox-stage::before {
-    content: '';
-    position: absolute;
-    inset: -30px;
-    background: var(--rp-lightbox-bg, none) center / cover no-repeat;
-    filter: blur(26px);
-    opacity: .5;
-    z-index: 0;
+    content: none;
 }
 
 .rp-lightbox-image {
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
+    position: relative;
+    z-index: 1;
 }
 
 .rp-lightbox-nav {
@@ -2465,20 +2464,24 @@ body.rp-body .container > .row,
     height: 44px;
     border: 0;
     border-radius: 999px;
-    background: #fff;
+    background: rgba(255,255,255,.96);
     color: #1f2937;
-    box-shadow: 0 4px 14px rgba(15, 30, 25, .22);
+    box-shadow: 0 3px 12px rgba(15, 30, 25, .16);
     display: grid;
     place-items: center;
     font-size: 1.2rem;
     cursor: pointer;
     z-index: 2;
-    transition: box-shadow .2s ease;
+    transition: box-shadow 160ms ease-out, transform 160ms ease-out, background-color 160ms ease-out;
 }
 
 .rp-lightbox-nav:hover {
-    box-shadow: 0 6px 18px rgba(15, 30, 25, .32);
+    transform: translateY(-50%) scale(1.04);
+    background: #fff;
+    box-shadow: 0 6px 18px rgba(15, 30, 25, .22);
 }
+
+.rp-lightbox-nav:active { transform: translateY(-50%) scale(.97); }
 
 .rp-lightbox-prev {
     left: .9rem;
@@ -2504,18 +2507,45 @@ body.rp-body .container > .row,
     z-index: 2;
 }
 
+.rp-lightbox-thumbnails {
+    display: flex;
+    gap: .55rem;
+    margin-top: .8rem;
+    padding: .15rem .1rem .3rem;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #b8d2c3 transparent;
+}
+.rp-lightbox-thumb {
+    flex: 0 0 88px;
+    width: 88px;
+    height: 60px;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid #dce9e2;
+    border-radius: .5rem;
+    background: #f1f5f2;
+    cursor: pointer;
+    transition: border-color 150ms ease-out, opacity 150ms ease-out, transform 150ms ease-out;
+}
+.rp-lightbox-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.rp-lightbox-thumb:not(.is-active) { opacity: .72; }
+.rp-lightbox-thumb.is-active { border: 2px solid #176b4c; opacity: 1; }
+.rp-lightbox-thumb:hover { opacity: 1; }
+.rp-lightbox-thumb:active { transform: scale(.97); }
+.rp-lightbox-thumb:focus-visible { outline: 3px solid rgba(23,107,76,.2); outline-offset: 2px; }
+
 @media (max-width: 575.98px) {
     .rp-lightbox-modal .modal-header {
-        padding: .9rem 1rem .7rem;
+        padding: .45rem .65rem;
     }
 
     .rp-lightbox-modal .modal-body {
-        padding: 0 1rem 1rem;
+        padding: .75rem .75rem .9rem;
     }
 
-    .rp-lightbox-title {
-        font-size: 1.35rem;
-    }
+    .rp-lightbox-stage { height: min(62vh, 520px); }
+    .rp-lightbox-thumb { flex-basis: 76px; width: 76px; height: 54px; }
 }
 
 .rp-accommodation-gallery {
@@ -5786,6 +5816,12 @@ body.rp-page-booknow #rpBrowseFilters .rp-avail-input {
     font-size: 14px;
     line-height: 1.6;
     color: var(--rp-muted);
+}
+
+.rp-cottages-section .rp-cottage-desc {
+    -webkit-line-clamp: 2;
+    line-height: 1.5;
+    margin-bottom: .85rem;
 }
 
 .rp-cottage-book {
@@ -11773,7 +11809,12 @@ body.rp-page-booknow .rp-cottage-grid .rp-cottage-card-action {
     border-radius: .55rem;
     background: rgba(0,0,0,.68);
     color: #fff;
+    padding: 0;
+    cursor: pointer;
+    transition: background-color 150ms ease, transform 150ms ease;
 }
+.rp-page-reservation-detail .rp-reservation-photo-mark:hover { background: rgba(17,49,37,.92); transform: scale(1.04); }
+.rp-page-reservation-detail .rp-reservation-photo-mark:focus-visible { outline: 3px solid rgba(255,255,255,.8); outline-offset: 2px; }
 
 .rp-page-reservation-detail .rp-reservation-gallery-rail { gap: .4rem; padding: .4rem 0 .1rem; }
 .rp-page-reservation-detail .rp-reservation-gallery-thumb { border-color: #303030; border-radius: .5rem; background: #202020; }
@@ -12070,3 +12111,171 @@ body.rp-page-booknow .rp-cottage-grid .rp-cottage-card-action {
 }
 
 .rp-page-payment-create .rp-payment-promo .rp-btn-check-availability:active { transform: scale(.98); }
+
+/* Compact guest reservation list */
+.rp-reservations-index { max-width: 1020px; }
+.rp-reservations-heading { display: grid; gap: .75rem; margin-bottom: 1rem; }
+.rp-reservations-heading .rp-page-intro-title { color: #203d34; font-size: 1.55rem; font-weight: 700; }
+.rp-reservations-filter { width: 100%; }
+.rp-reservations-filter .form-select {
+    min-height: 48px;
+    border: 1px solid #d6e1dc;
+    border-radius: .65rem;
+    background-color: #fff;
+    color: #304941;
+    font-size: .98rem;
+    box-shadow: none;
+}
+.rp-reservations-filter .form-select:focus { border-color: #82b99b; box-shadow: 0 0 0 .18rem rgba(23, 107, 76, .1); }
+.rp-reservations-index .rp-booking-list { gap: .8rem; }
+.rp-reservations-index .rp-booking-list-item {
+    min-height: 142px;
+    gap: 1rem;
+    padding: .8rem;
+    border-color: #dce9e2;
+    border-radius: .75rem;
+    box-shadow: none;
+}
+.rp-reservations-index .rp-booking-list-item:hover { transform: translateY(-1px); border-color: #a7d8be; box-shadow: 0 5px 16px rgba(25, 57, 46, .07); }
+.rp-reservations-index .rp-booking-list-media { width: 112px; height: 112px; border-radius: .7rem; }
+.rp-reservations-index .rp-booking-list-title { color: #203d34; font-size: 1.08rem; line-height: 1.3; }
+.rp-reservations-index .rp-booking-list-meta { gap: .5rem; margin-top: .3rem; }
+.rp-reservations-index .rp-booking-list-code { color: #647d72; font-size: .84rem; font-weight: 500; }
+.rp-reservations-index .rp-booking-pay-badge { padding: .2rem .55rem; font-size: .72rem; letter-spacing: 0; text-transform: none; }
+.rp-reservations-index .rp-booking-pay-badge.is-unpaid { background: #fff2e8; color: #a34b13; }
+.rp-reservations-index .rp-booking-pay-badge.is-partial { background: #edf5fc; color: #33628b; }
+.rp-reservations-index .rp-booking-pay-badge.is-paid { background: #e8f6ee; color: #176b4c; }
+.rp-reservations-index .rp-booking-pay-badge.is-cancelled { background: #fff0ef; color: #a63c36; }
+.rp-reservations-index .rp-booking-list-item.is-cancelled { border-color: #efd7d5; }
+.rp-reservations-index .rp-booking-list-item.is-cancelled:hover { border-color: #dfaaa5; }
+.rp-reservations-index .rp-booking-list-dates { gap: 1.5rem; margin-top: .5rem; }
+.rp-reservations-index .rp-booking-list-date-label { font-size: .68rem; letter-spacing: .02em; }
+.rp-reservations-index .rp-booking-list-date-value { margin-top: .08rem; color: #304941; font-size: .88rem; font-weight: 500; }
+.rp-reservations-index .rp-booking-list-action { display: grid; flex: 0 0 auto; justify-items: end; gap: .6rem; margin-left: auto; }
+.rp-reservations-index .rp-booking-list-price { color: #203d34; font-size: .9rem; white-space: nowrap; }
+.rp-reservations-index .rp-booking-list-view { display: inline-flex; align-items: center; gap: .35rem; padding: .35rem .7rem; border: 1px solid #d6e1dc; border-radius: 999px; color: #526a61; font-size: .78rem; white-space: nowrap; }
+.rp-reservations-index .rp-booking-list-item:hover .rp-booking-list-view { border-color: #a7d8be; color: #176b4c; }
+.rp-reservations-count { margin: .75rem 0 0; color: #71847c; font-size: .7rem; }
+
+@media (max-width: 575px) {
+    .rp-reservations-index .rp-booking-list-item { flex-wrap: nowrap; align-items: center; }
+    .rp-reservations-index .rp-booking-list-media { width: 82px; height: 82px; }
+    .rp-reservations-index .rp-booking-list-dates { gap: .8rem; }
+    .rp-reservations-index .rp-booking-list-date-value { font-size: .76rem; }
+    .rp-reservations-index .rp-booking-list-action { gap: .35rem; }
+    .rp-reservations-index .rp-booking-list-view { padding: .28rem .5rem; font-size: .68rem; }
+}
+
+@media (max-width: 380px) {
+    .rp-reservations-index .rp-booking-list-item { gap: .5rem; padding: .5rem; }
+    .rp-reservations-index .rp-booking-list-media { width: 58px; height: 58px; }
+    .rp-reservations-index .rp-booking-list-meta { gap: .25rem; }
+    .rp-reservations-index .rp-booking-list-code { font-size: .64rem; }
+    .rp-reservations-index .rp-booking-list-action { max-width: 78px; }
+    .rp-reservations-index .rp-booking-list-view { gap: .15rem; font-size: .56rem; }
+}
+
+/* Shared confirmation dialog */
+.rp-confirmation-modal .modal-dialog { max-width: 500px; padding-inline: .75rem; }
+.rp-confirmation-modal .modal-content {
+    overflow: hidden;
+    border: 1px solid #dce9e2;
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0 20px 60px rgba(25, 57, 46, .18);
+    color: #203d34;
+}
+.rp-confirmation-modal .modal-header { padding: 1.1rem 1.25rem .35rem; }
+.rp-confirmation-modal .modal-title { color: #203d34; font-size: 1.15rem; font-weight: 650; }
+.rp-confirmation-modal .btn-close { opacity: .55; }
+.rp-confirmation-modal .btn-close:hover { opacity: .85; }
+.rp-confirmation-modal .modal-body { padding: .45rem 1.25rem 1.2rem; color: #526a61; font-size: .95rem; }
+.rp-confirmation-modal .modal-footer { gap: .55rem; padding: 0 1.25rem 1.15rem; }
+.rp-confirmation-modal .rp-confirmation-cancel,
+.rp-confirmation-modal .rp-confirmation-accept {
+    min-width: 88px;
+    min-height: 42px;
+    padding: .55rem .95rem;
+    border-radius: .6rem;
+    font-size: .88rem;
+    font-weight: 600;
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms ease;
+}
+.rp-confirmation-modal .rp-confirmation-cancel { border: 1px solid #dce9e2; background: #f0f6f2; color: #526a61; }
+.rp-confirmation-modal .rp-confirmation-cancel:hover,
+.rp-confirmation-modal .rp-confirmation-cancel:focus-visible { border-color: #cbded2; background: #e7f1eb; color: #304941; }
+.rp-confirmation-modal .rp-confirmation-accept { border: 1px solid #0f6b45; background: #0f6b45; color: #fff; }
+.rp-confirmation-modal .rp-confirmation-accept:hover,
+.rp-confirmation-modal .rp-confirmation-accept:focus-visible { border-color: #0b5638; background: #0b5638; color: #fff; }
+.rp-confirmation-modal .rp-confirmation-cancel:active,
+.rp-confirmation-modal .rp-confirmation-accept:active { transform: scale(.98); }
+.rp-confirmation-modal .rp-confirmation-cancel:focus-visible,
+.rp-confirmation-modal .rp-confirmation-accept:focus-visible { outline: 3px solid rgba(15, 107, 69, .18); outline-offset: 2px; }
+
+.rp-feedback-compose-modal .modal-dialog { max-width: 540px; padding-inline: .75rem; }
+.rp-feedback-compose-modal .modal-content { overflow: hidden; border: 1px solid #dce9e2; border-radius: 1rem; background: #fff; box-shadow: 0 24px 70px rgba(25,57,46,.2); color: #203d34; }
+.rp-feedback-compose-modal .modal-header { align-items: flex-start; padding: 1.2rem 1.35rem .9rem; border-bottom: 1px solid #e8efeb; }
+.rp-feedback-compose-eyebrow { color: #648074; font-size: .66rem; font-weight: 700; letter-spacing: .13em; }
+.rp-feedback-compose-modal .modal-title { margin-top: .2rem; color: #203d34; font-size: 1.2rem; font-weight: 700; }
+.rp-feedback-compose-intro { margin: .25rem 0 0; color: #71847c; font-size: .84rem; }
+.rp-feedback-compose-modal .modal-body { display: grid; gap: 1.1rem; padding: 1.2rem 1.35rem; }
+.rp-feedback-compose-guest { display: flex; align-items: center; gap: .55rem; color: #526a61; font-size: .84rem; }
+.rp-feedback-compose-guest i { color: #176b4c; font-size: 1rem; }
+.rp-feedback-compose-field .form-label { margin-bottom: .45rem; color: #304941; font-size: .84rem; font-weight: 600; }
+.rp-feedback-compose-field .form-control { border-color: #d6e1dc; border-radius: .65rem; color: #263b39; font-size: .88rem; }
+.rp-feedback-compose-field .form-control:focus { border-color: #82b99b; box-shadow: 0 0 0 .18rem rgba(23,107,76,.1); }
+.rp-feedback-compose-modal .modal-footer { gap: .55rem; padding: .85rem 1.35rem 1.15rem; border-top: 1px solid #e8efeb; }
+.rp-feedback-compose-cancel,
+.rp-feedback-compose-submit { min-height: 42px; padding: .55rem .95rem; border-radius: .6rem; font-size: .84rem; font-weight: 600; transition: background-color 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out, transform 150ms ease-out; }
+.rp-feedback-compose-cancel { border: 1px solid #dce9e2; background: #f0f6f2; color: #526a61; }
+.rp-feedback-compose-cancel:hover { border-color: #cbded2; background: #e7f1eb; color: #304941; }
+.rp-feedback-compose-submit { border: 1px solid #0f6b45; background: #0f6b45; color: #fff; }
+.rp-feedback-compose-submit:hover { border-color: #0b5638; background: #0b5638; color: #fff; }
+.rp-feedback-compose-cancel:active,
+.rp-feedback-compose-submit:active { transform: scale(.98); }
+
+@media (max-width: 575.98px) {
+    .rp-feedback-compose-modal .modal-header { padding: 1rem 1rem .8rem; }
+    .rp-feedback-compose-modal .modal-body { padding: 1rem; }
+    .rp-feedback-compose-modal .modal-footer { padding: .75rem 1rem 1rem; }
+}
+
+/* Shared success / notice dialog */
+.rp-notice-modal .modal-dialog { max-width: 430px; padding-inline: .75rem; }
+.rp-notice-modal .modal-content {
+    overflow: hidden;
+    border: 1px solid #dce9e2;
+    border-radius: 1rem;
+    background: #fff;
+    color: #203d34;
+    box-shadow: 0 24px 70px rgba(25, 57, 46, .2);
+}
+.rp-notice-modal .modal-header { min-height: 2.6rem; padding: .75rem .85rem 0; }
+.rp-notice-modal .btn-close { opacity: .42; transform: scale(.86); }
+.rp-notice-modal .btn-close:hover { opacity: .75; }
+.rp-notice-modal .modal-body { display: flex; flex-direction: column; align-items: center; padding: .25rem 2rem .75rem; text-align: center; }
+.rp-notice-modal .rp-notice-icon {
+    display: grid;
+    width: 3.5rem;
+    height: 3.5rem;
+    place-items: center;
+    margin: .1rem 0 1rem;
+    border: 1px solid #d3e9dc;
+    border-radius: 50%;
+    background: #edf7f1;
+    color: #0f6b45;
+    font-size: 1.55rem;
+}
+.rp-notice-modal .modal-title { margin: 0; color: #203d34; font-size: 1.25rem; font-weight: 700; letter-spacing: -.02em; }
+.rp-notice-modal .rp-notice-message { max-width: 31ch; margin: .45rem 0 0; color: #687e74; font-size: .94rem; line-height: 1.55; }
+.rp-notice-modal .modal-footer { justify-content: center; padding: .35rem 1.5rem 1.35rem; }
+.rp-notice-modal .rp-notice-dismiss { min-width: 112px; min-height: 42px; padding: .55rem 1rem; border: 1px solid #0f6b45; border-radius: .6rem; background: #0f6b45; color: #fff; font-size: .88rem; font-weight: 600; transition: background-color 150ms ease, border-color 150ms ease, transform 150ms ease; }
+.rp-notice-modal .rp-notice-dismiss:hover,
+.rp-notice-modal .rp-notice-dismiss:focus-visible { border-color: #0b5638; background: #0b5638; color: #fff; }
+.rp-notice-modal .rp-notice-dismiss:active { transform: scale(.98); }
+.rp-notice-modal .rp-notice-dismiss:focus-visible { outline: 3px solid rgba(15, 107, 69, .18); outline-offset: 2px; }
+.rp-notice-modal.is-success .rp-notice-icon { border-color: #cde6d7; background: #eaf6ef; color: #0f6b45; }
+@media (max-width: 575.98px) {
+    .rp-notice-modal .modal-body { padding-inline: 1.25rem; }
+    .rp-notice-modal .modal-footer { padding-bottom: 1.1rem; }
+}

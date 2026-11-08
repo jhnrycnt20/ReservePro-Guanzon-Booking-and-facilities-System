@@ -203,6 +203,9 @@
             if (noticeEl) {
                 const titleEl = noticeEl.querySelector('#rpNoticeModalLabel');
                 const messageEl = noticeEl.querySelector('[data-rp-notice-message]');
+                const iconEl = noticeEl.querySelector('[data-rp-notice-icon]');
+                noticeEl.classList.add('is-success');
+                if (iconEl) iconEl.innerHTML = '<i class="bi bi-check-lg"></i>';
                 if (titleEl) titleEl.textContent = 'Success';
                 if (messageEl) messageEl.textContent = successPopup;
                 window.bootstrap.Modal.getOrCreateInstance(noticeEl).show();
