@@ -23,7 +23,7 @@
                 <label class="form-label">Number</label>
                 <select name="number" class="form-select" required>
                     <option value="" disabled @selected(old('number') === null)>Select a number</option>
-                    @foreach(range(1, 10) as $number)
+                    @foreach(range(1, 50) as $number)
                         <option value="{{ $number }}" @selected((string) old('number') === (string) $number)>{{ $number }}</option>
                     @endforeach
                 </select>

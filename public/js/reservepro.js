@@ -2592,6 +2592,22 @@ function initAvailabilityCalendar() {
     const nextBtn = calendarRoot.querySelector('[data-rp-cal-next]');
     const proceedLink = document.querySelector('[data-rp-proceed-booking]');
     const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    const mapRoots = [
+        ...modalEl.querySelectorAll('[data-rp-resort-map]'),
+        ...document.querySelectorAll('.rp-resort-map-page [data-rp-resort-map]'),
+    ];
+
+    const familyToZone = (family) => {
+        const key = String(family || '');
+        if (key === 'CAB') return 'cabana';
+        if (key === 'BH') return 'beach';
+        if (key === 'VILLA') return 'villa';
+        if (key === 'COT' || key === 'COT-NVK' || key === 'COT-VK') return 'cottage';
+        if (key === 'SUITE') return 'suite';
+        if (key === 'PAY') return 'payag';
+        if (key === 'RM-AC' || key === 'RM-AC-VK') return 'ac';
+        return '';
+    };
 
     let unitOptions = [];
     try {
@@ -2602,6 +2618,44 @@ function initAvailabilityCalendar() {
     }
 
     const findUnit = (id) => unitOptions.find((unit) => String(unit.id) === String(id));
+    const findUnitByLabel = (label) => unitOptions.find((unit) => String(unit.label) === String(label));
+
+    const syncResortMaps = (selectedUnitId) => {
+        if (!mapRoots.length) return;
+
+        const selected = findUnit(selectedUnitId) || unitOptions[0] || null;
+        const family = selected?.family || form.dataset.rpFamily || '';
+        const activeZone = familyToZone(family);
+        const selectableLabels = new Set(unitOptions.map((unit) => String(unit.label)));
+        const selectedLabel = selected ? String(selected.label) : '';
+
+        mapRoots.forEach((root) => {
+            const hint = root.querySelector('[data-rp-map-hint]');
+            if (hint) {
+                hint.textContent = selectedLabel
+                    ? `Selected room ${selectedLabel}. Tap another numbered room to switch.`
+                    : 'Select a numbered room for this accommodation type.';
+            }
+
+            root.querySelectorAll('[data-map-zone]').forEach((zoneEl) => {
+                if (!zoneEl.classList.contains('rp-map-zone')) return;
+                zoneEl.classList.toggle('is-active', activeZone !== '' && zoneEl.dataset.mapZone === activeZone);
+            });
+
+            root.querySelectorAll('.rp-map-room').forEach((roomBtn) => {
+                const label = String(roomBtn.dataset.mapLabel || '');
+                const zone = String(roomBtn.dataset.mapZone || '');
+                const selectable = selectableLabels.has(label) && (!activeZone || zone === activeZone);
+                const isSelected = selectable && label === selectedLabel;
+
+                roomBtn.classList.toggle('is-selectable', selectable);
+                roomBtn.classList.toggle('is-selected', isSelected);
+                roomBtn.classList.toggle('is-locked', activeZone !== '' && zone === activeZone && !selectable);
+                roomBtn.disabled = !selectable;
+                roomBtn.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+            });
+        });
+    };
 
     const applySelectedUnit = (unitId, { reload = false } = {}) => {
         const unit = findUnit(unitId) || unitOptions[0];
@@ -2619,6 +2673,9 @@ function initAvailabilityCalendar() {
             form.setAttribute('action', unit.availability_url);
         }
         form.dataset.rpSelectedUnit = String(unit.id);
+        if (unit.family) {
+            form.dataset.rpFamily = unit.family;
+        }
 
         if (proceedLink && unit.booking_url) {
             const url = new URL(unit.booking_url, window.location.origin);
@@ -2626,6 +2683,8 @@ function initAvailabilityCalendar() {
             if (checkOutInput?.value) url.searchParams.set('check_out', checkOutInput.value);
             proceedLink.setAttribute('href', url.pathname + url.search);
         }
+
+        syncResortMaps(unit.id);
 
         if (reload) {
             occupiedSet = new Set();
@@ -2637,6 +2696,7 @@ function initAvailabilityCalendar() {
         if (!unitWrap || !unitSelect) return;
         if (unitOptions.length < 2) {
             unitWrap.classList.add('d-none');
+            applySelectedUnit(form.dataset.rpSelectedUnit || unitOptions[0]?.id);
             return;
         }
 
@@ -2653,6 +2713,308 @@ function initAvailabilityCalendar() {
         unitWrap.classList.remove('d-none');
         applySelectedUnit(unitSelect.value);
     };
+
+    const onMapRoomClick = (event) => {
+        const roomBtn = event.target.closest('.rp-map-room');
+        if (!roomBtn || roomBtn.disabled) return;
+        const unit = findUnitByLabel(roomBtn.dataset.mapLabel);
+        if (!unit) return;
+        applySelectedUnit(unit.id, { reload: true });
+    };
+
+    mapRoots.forEach((root) => {
+        root.addEventListener('click', onMapRoomClick);
+    });
+
+    const initMapViewport = (root) => {
+        const canvas = root.querySelector('[data-rp-map-canvas]') || root.querySelector('.rp-resort-map-canvas');
+        if (!canvas || canvas.dataset.rpMapPanReady === '1') return;
+        canvas.dataset.rpMapPanReady = '1';
+
+        const board = canvas.querySelector('[data-rp-map-board]') || canvas.querySelector('.rp-map-board');
+        const space = canvas.querySelector('[data-rp-map-zoom-space]');
+        const zoomInBtn = root.querySelector('[data-rp-map-zoom-in]');
+        const zoomOutBtn = root.querySelector('[data-rp-map-zoom-out]');
+        const zoomResetBtn = root.querySelector('[data-rp-map-zoom-reset]');
+        const zoomLabel = root.querySelector('[data-rp-map-zoom-label]');
+        if (!board || !space) return;
+
+        const MIN_ZOOM = 0.55;
+        const MAX_ZOOM = 2;
+        const ZOOM_STEP = 0.15;
+        let zoom = 1;
+        let baseWidth = 0;
+        let baseHeight = 0;
+        let dragging = false;
+        let moved = false;
+        let startX = 0;
+        let startY = 0;
+        let scrollLeft = 0;
+        let scrollTop = 0;
+        let pinchStartDist = 0;
+        let pinchStartZoom = 1;
+        const activePointers = new Map();
+
+        const clampZoom = (value) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, value));
+
+        const measureBase = () => {
+            const prevTransform = board.style.transform;
+            const prevMarginRight = board.style.marginRight;
+            const prevMarginBottom = board.style.marginBottom;
+
+            board.style.transform = 'none';
+            board.style.marginRight = '0';
+            board.style.marginBottom = '0';
+
+            baseWidth = Math.ceil(Math.max(board.scrollWidth, board.offsetWidth));
+            baseHeight = Math.ceil(Math.max(board.scrollHeight, board.offsetHeight));
+
+            board.style.transform = prevTransform;
+            board.style.marginRight = prevMarginRight;
+            board.style.marginBottom = prevMarginBottom;
+        };
+
+        const paintZoom = () => {
+            board.style.transformOrigin = '0 0';
+            board.style.transform = zoom === 1 ? 'none' : `scale(${zoom})`;
+            board.style.marginRight = zoom === 1 ? '0' : `${Math.max(0, Math.ceil(baseWidth * (zoom - 1)))}px`;
+            board.style.marginBottom = zoom === 1 ? '0' : `${Math.max(0, Math.ceil(baseHeight * (zoom - 1)))}px`;
+            space.style.width = 'max-content';
+            space.style.height = 'max-content';
+            space.style.zoom = '';
+            space.style.transform = 'none';
+        };
+
+        const syncZoomChrome = () => {
+            if (zoomLabel) zoomLabel.textContent = `${Math.round(zoom * 100)}%`;
+            if (zoomOutBtn) zoomOutBtn.disabled = zoom <= MIN_ZOOM + 0.001;
+            if (zoomInBtn) zoomInBtn.disabled = zoom >= MAX_ZOOM - 0.001;
+        };
+
+        const applyZoom = (nextZoom, focusClientX, focusClientY, { force = false, preserveScroll = false } = {}) => {
+            measureBase();
+            if (!baseWidth || !baseHeight) return;
+
+            const clamped = clampZoom(Number(nextZoom.toFixed(3)));
+            const changed = Math.abs(clamped - zoom) >= 0.001;
+            if (!changed && !force) {
+                syncZoomChrome();
+                return;
+            }
+
+            const prevScrollLeft = canvas.scrollLeft;
+            const prevScrollTop = canvas.scrollTop;
+            const rect = canvas.getBoundingClientRect();
+            const focusX = Number.isFinite(focusClientX) ? focusClientX : rect.left + rect.width / 2;
+            const focusY = Number.isFinite(focusClientY) ? focusClientY : rect.top + rect.height / 2;
+            const offsetX = Math.min(Math.max(focusX - rect.left, 0), rect.width);
+            const offsetY = Math.min(Math.max(focusY - rect.top, 0), rect.height);
+            const contentX = (prevScrollLeft + offsetX) / zoom;
+            const contentY = (prevScrollTop + offsetY) / zoom;
+
+            zoom = clamped;
+            paintZoom();
+
+            if (preserveScroll || !changed) {
+                canvas.scrollLeft = prevScrollLeft;
+                canvas.scrollTop = prevScrollTop;
+            } else {
+                canvas.scrollLeft = Math.max(0, contentX * zoom - offsetX);
+                canvas.scrollTop = Math.max(0, contentY * zoom - offsetY);
+            }
+            syncZoomChrome();
+        };
+
+        const bumpZoom = (delta, focusClientX, focusClientY) => {
+            applyZoom(zoom + delta, focusClientX, focusClientY);
+        };
+
+        const pointerDistance = () => {
+            if (activePointers.size < 2) return 0;
+            const points = [...activePointers.values()];
+            const dx = points[0].x - points[1].x;
+            const dy = points[0].y - points[1].y;
+            return Math.hypot(dx, dy);
+        };
+
+        const pointerMidpoint = () => {
+            const points = [...activePointers.values()];
+            return {
+                x: (points[0].x + points[1].x) / 2,
+                y: (points[0].y + points[1].y) / 2,
+            };
+        };
+
+        const onPointerDown = (event) => {
+            if (event.target.closest('.rp-map-zoom-btn, [data-rp-map-zoom-bar]')) return;
+            if (event.button !== undefined && event.button !== 0) return;
+
+            activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+            if (activePointers.size === 2) {
+                dragging = false;
+                canvas.classList.remove('is-dragging');
+                pinchStartDist = pointerDistance();
+                pinchStartZoom = zoom;
+                moved = true;
+                return;
+            }
+
+            dragging = true;
+            moved = false;
+            startX = event.clientX;
+            startY = event.clientY;
+            scrollLeft = canvas.scrollLeft;
+            scrollTop = canvas.scrollTop;
+            canvas.classList.add('is-dragging');
+            try {
+                canvas.setPointerCapture?.(event.pointerId);
+            } catch (error) {
+                /* ignore */
+            }
+        };
+
+        const onPointerMove = (event) => {
+            if (activePointers.has(event.pointerId)) {
+                activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+            }
+
+            if (activePointers.size >= 2 && pinchStartDist > 0) {
+                const mid = pointerMidpoint();
+                const dist = pointerDistance();
+                if (dist > 0) {
+                    applyZoom(pinchStartZoom * (dist / pinchStartDist), mid.x, mid.y);
+                }
+                return;
+            }
+
+            if (!dragging) return;
+            const dx = event.clientX - startX;
+            const dy = event.clientY - startY;
+            if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+                moved = true;
+            }
+            canvas.scrollLeft = scrollLeft - dx;
+            canvas.scrollTop = scrollTop - dy;
+        };
+
+        const onPointerUp = (event) => {
+            activePointers.delete(event.pointerId);
+            if (activePointers.size < 2) {
+                pinchStartDist = 0;
+            }
+            if (activePointers.size === 1) {
+                const remaining = [...activePointers.values()][0];
+                dragging = true;
+                moved = true;
+                startX = remaining.x;
+                startY = remaining.y;
+                scrollLeft = canvas.scrollLeft;
+                scrollTop = canvas.scrollTop;
+                canvas.classList.add('is-dragging');
+                return;
+            }
+            if (!dragging && activePointers.size === 0) {
+                canvas.classList.remove('is-dragging');
+                if (moved) {
+                    canvas.dataset.rpMapSuppressClick = '1';
+                    window.setTimeout(() => {
+                        delete canvas.dataset.rpMapSuppressClick;
+                    }, 0);
+                }
+                return;
+            }
+            if (!dragging) return;
+            dragging = false;
+            canvas.classList.remove('is-dragging');
+            try {
+                canvas.releasePointerCapture?.(event.pointerId);
+            } catch (error) {
+                /* ignore */
+            }
+            if (moved) {
+                canvas.dataset.rpMapSuppressClick = '1';
+                window.setTimeout(() => {
+                    delete canvas.dataset.rpMapSuppressClick;
+                }, 0);
+            }
+        };
+
+        canvas.addEventListener('pointerdown', onPointerDown);
+        canvas.addEventListener('pointermove', onPointerMove);
+        canvas.addEventListener('pointerup', onPointerUp);
+        canvas.addEventListener('pointercancel', onPointerUp);
+        canvas.addEventListener('click', (event) => {
+            if (canvas.dataset.rpMapSuppressClick === '1') {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        }, true);
+
+        canvas.addEventListener('wheel', (event) => {
+            if (!(event.ctrlKey || event.metaKey)) return;
+            event.preventDefault();
+            const direction = event.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP;
+            bumpZoom(direction, event.clientX, event.clientY);
+        }, { passive: false });
+
+        zoomInBtn?.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            bumpZoom(ZOOM_STEP);
+        });
+        zoomOutBtn?.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            bumpZoom(-ZOOM_STEP);
+        });
+        zoomResetBtn?.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            applyZoom(1, undefined, undefined, { force: true });
+            canvas.scrollLeft = 0;
+            canvas.scrollTop = 0;
+        });
+
+        const refreshViewport = ({ resetScroll = false } = {}) => {
+            measureBase();
+            applyZoom(zoom, undefined, undefined, { force: true, preserveScroll: !resetScroll });
+            if (resetScroll) {
+                canvas.scrollLeft = 0;
+                canvas.scrollTop = 0;
+            }
+        };
+
+        refreshViewport({ resetScroll: true });
+
+        if (typeof ResizeObserver !== 'undefined') {
+            let frame = 0;
+            const observer = new ResizeObserver(() => {
+                if (frame) return;
+                frame = window.requestAnimationFrame(() => {
+                    frame = 0;
+                    refreshViewport({ resetScroll: false });
+                });
+            });
+            observer.observe(board);
+        }
+
+        root._rpMapRefreshViewport = () => refreshViewport({ resetScroll: false });
+    };
+
+    mapRoots.forEach((root) => initMapViewport(root));
+    modalEl?.addEventListener('shown.bs.modal', () => {
+        window.requestAnimationFrame(() => {
+            mapRoots.forEach((root) => {
+                root._rpMapRefreshViewport?.();
+                const canvas = root.querySelector('[data-rp-map-canvas]');
+                if (canvas) {
+                    canvas.scrollLeft = 0;
+                    canvas.scrollTop = 0;
+                }
+            });
+        });
+    });
 
     const pad = (n) => String(n).padStart(2, '0');
     const toYmd = (date) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
@@ -2883,6 +3245,9 @@ function initAvailabilityCalendar() {
     unitSelect?.addEventListener('change', () => {
         applySelectedUnit(unitSelect.value, { reload: true });
     });
+
+    // Paint the page map immediately so guests see selectable rooms before opening the calendar.
+    syncResortMaps(form.dataset.rpSelectedUnit || unitOptions[0]?.id);
 
     prevBtn?.addEventListener('click', () => {
         viewMonth -= 1;

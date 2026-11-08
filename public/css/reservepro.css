@@ -7097,6 +7097,690 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     box-shadow: 0 10px 30px rgba(15, 107, 69, 0.12);
 }
 
+.rp-availability-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(18rem, .9fr);
+    gap: 1.15rem;
+    align-items: start;
+}
+
+.rp-availability-map-pane,
+.rp-availability-calendar-pane {
+    min-width: 0;
+}
+
+.rp-availability-map-pane .rp-resort-map,
+.rp-resort-map-page .rp-resort-map {
+    max-width: 100%;
+}
+
+@media (max-width: 991.98px) {
+    .rp-availability-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* —— Guanzon resort map —— */
+.rp-resort-map {
+    --rp-map-ink: #1f3b34;
+    --rp-map-muted: #6a837a;
+    --rp-map-line: #d7e8df;
+    --rp-map-surface: #f7fbf8;
+    --rp-map-zone: #ffffff;
+    --rp-map-room: #eef6f1;
+    --rp-map-room-ink: #2b4a3e;
+    --rp-map-accent: #0F6B45;
+    --rp-map-accent-soft: #e4f6ec;
+    border: 1px solid var(--rp-map-line);
+    border-radius: 1rem;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, .92), rgba(247, 251, 248, .98)),
+        repeating-linear-gradient(0deg, transparent, transparent 23px, rgba(15, 107, 69, .035) 24px),
+        repeating-linear-gradient(90deg, transparent, transparent 23px, rgba(15, 107, 69, .035) 24px);
+    overflow: visible;
+}
+
+.rp-resort-map-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: .85rem 1.25rem;
+    padding: 1rem 1.15rem .85rem;
+    border-bottom: 1px solid var(--rp-map-line);
+    background: rgba(255, 255, 255, .72);
+}
+
+.rp-resort-map-kicker {
+    margin: 0 0 .15rem;
+    color: var(--rp-map-accent);
+    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.rp-resort-map-title {
+    margin: 0;
+    color: var(--rp-map-ink);
+    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.rp-resort-map-hint {
+    margin: .3rem 0 0;
+    color: var(--rp-map-muted);
+    font-size: .82rem;
+    line-height: 1.4;
+}
+
+.rp-resort-map-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .55rem .9rem;
+    color: var(--rp-map-muted);
+    font-size: .75rem;
+    font-weight: 600;
+}
+
+.rp-map-legend-dot {
+    display: inline-block;
+    width: .65rem;
+    height: .65rem;
+    margin-right: .3rem;
+    border-radius: .2rem;
+    vertical-align: -.05rem;
+    background: #d9e5df;
+}
+
+.rp-map-legend-dot.is-selectable {
+    background: var(--rp-map-accent-soft);
+    box-shadow: inset 0 0 0 1px #9dceb4;
+}
+
+.rp-map-legend-dot.is-selected {
+    background: var(--rp-map-accent);
+}
+
+.rp-map-legend-dot.is-other {
+    background: #edf1ef;
+}
+
+.rp-resort-map-toolbar-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: .55rem;
+}
+
+.rp-resort-map-canvas {
+    position: relative;
+    max-width: 100%;
+    height: min(70vh, 42rem);
+    max-height: min(70vh, 42rem);
+    padding: .9rem 1rem 2.5rem;
+    overflow: scroll;
+    overscroll-behavior: contain;
+    cursor: grab;
+    touch-action: none;
+    scrollbar-gutter: stable;
+    -webkit-overflow-scrolling: touch;
+}
+
+.rp-resort-map-canvas.is-dragging {
+    cursor: grabbing;
+    user-select: none;
+}
+
+.rp-resort-map-canvas.is-dragging .rp-map-room {
+    pointer-events: none;
+}
+
+.rp-resort-map-zoom-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: .28rem;
+    padding: .28rem;
+    border: 1px solid var(--rp-map-line);
+    border-radius: .75rem;
+    background: #ffffff;
+    box-shadow: 0 8px 18px rgba(31, 59, 52, .06);
+    width: fit-content;
+}
+
+.rp-map-zoom-btn {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+    height: 1.85rem;
+    padding: 0 .55rem;
+    border: 1px solid transparent;
+    border-radius: .55rem;
+    background: #f4f8f6;
+    color: #1f3b34;
+    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    font-size: .72rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+
+.rp-map-zoom-btn:hover:not(:disabled),
+.rp-map-zoom-btn:focus-visible:not(:disabled) {
+    background: #e7f4ec;
+    border-color: #9dceb4;
+    color: var(--rp-map-accent);
+    outline: none;
+}
+
+.rp-map-zoom-btn:disabled {
+    opacity: .45;
+    cursor: default;
+}
+
+.rp-map-zoom-btn--reset {
+    background: transparent;
+    color: var(--rp-map-muted);
+}
+
+.rp-map-zoom-label {
+    min-width: 3.1rem;
+    color: var(--rp-map-muted);
+    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    text-align: center;
+}
+
+.rp-resort-map-pan-hint {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    margin: 0 0 .55rem;
+    padding: .28rem .55rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .92);
+    border: 1px solid var(--rp-map-line);
+    color: var(--rp-map-muted);
+    font-size: .72rem;
+    font-weight: 600;
+    pointer-events: none;
+    width: fit-content;
+}
+
+.rp-map-zoom-space {
+    position: relative;
+    display: block;
+    overflow: visible;
+    width: max-content;
+    height: max-content;
+    min-width: max-content;
+    min-height: max-content;
+}
+
+/* Board layout copied from the Guanzon sketch photo. */
+.rp-map-board {
+    position: relative;
+    display: block;
+    width: max-content;
+    min-width: max-content;
+    height: max-content;
+    min-height: max-content;
+    transform-origin: 0 0;
+}
+
+.rp-map-scroll-pad {
+    width: 1px;
+    height: 3.5rem;
+    pointer-events: none;
+}
+
+.rp-map-sketch {
+    display: grid;
+    grid-template-columns: max-content 1.7rem max-content;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+        "ac-left entrance main"
+        "suite   entrance main";
+    column-gap: 1.15rem;
+    row-gap: .7rem;
+    align-items: start;
+    width: max-content;
+    overflow: visible;
+}
+
+.rp-map-sketch-ac-left { grid-area: ac-left; }
+.rp-map-sketch-entrance { grid-area: entrance; }
+.rp-map-sketch-main { grid-area: main; }
+.rp-map-sketch-suite { grid-area: suite; }
+
+.rp-map-sketch-entrance {
+    position: relative;
+    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: .45rem;
+    min-height: 100%;
+    margin-left: -.35rem;
+    margin-right: .55rem;
+    padding-top: .15rem;
+}
+
+.rp-map-sketch-suite {
+    position: relative;
+    z-index: 3;
+    justify-self: start;
+}
+
+.rp-map-entrance-label {
+    color: var(--rp-map-accent);
+    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    font-size: .62rem;
+    font-weight: 700;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.rp-map-entrance-path {
+    flex: 1 1 auto;
+    width: .55rem;
+    min-height: 22rem;
+    border-radius: 999px;
+    background:
+        linear-gradient(180deg, #9ad4b4 0%, #0F6B45 18%, #6fcf97 50%, #0F6B45 82%, #9ad4b4 100%);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .25);
+}
+
+.rp-map-sketch-main,
+.rp-map-sketch-ac-left {
+    display: grid;
+    gap: .65rem;
+    width: max-content;
+    min-width: max-content;
+    justify-items: start;
+    overflow: visible;
+}
+
+.rp-map-zone--ac-top {
+    width: max-content;
+    max-width: max-content;
+    justify-self: start;
+}
+
+.rp-map-sketch-main-mid {
+    display: grid;
+    grid-template-columns: max-content max-content max-content;
+    gap: .85rem;
+    align-items: start;
+    width: max-content;
+}
+
+.rp-map-sketch-main-mid > .rp-map-zone[data-map-zone="cabana"] {
+    width: max-content;
+    min-width: max-content;
+    max-width: none;
+    margin-top: 3.25rem;
+}
+
+.rp-map-sketch-main-mid > .rp-map-zone[data-map-zone="ac"] {
+    width: max-content;
+    min-width: max-content;
+    max-width: none;
+}
+
+.rp-map-sketch-main-mid > .rp-map-zone[data-map-zone="ac"]:not(.rp-map-zone--ac-mid-right) {
+    min-width: 4.8rem;
+}
+
+.rp-map-zone--ac-mid-right {
+    align-self: center;
+}
+
+.rp-map-ac-right {
+    display: grid;
+    grid-template-columns: max-content max-content;
+    gap: .4rem .5rem;
+    align-items: end;
+    width: max-content;
+}
+
+.rp-map-ac-right-side {
+    align-items: center;
+}
+
+.rp-map-ac-right-row {
+    align-items: flex-end;
+}
+
+.rp-map-sketch-main-bottom {
+    display: grid;
+    grid-template-columns: max-content max-content max-content max-content;
+    gap: .55rem;
+    align-items: start;
+    width: max-content;
+    overflow: visible;
+}
+
+.rp-map-sketch-suite .rp-map-zone {
+    position: relative;
+    z-index: 3;
+    width: max-content;
+    min-width: 14.5rem;
+    max-width: none;
+}
+
+.rp-map-zone {
+    position: relative;
+    height: auto;
+    min-width: 0;
+    padding: .6rem .65rem .7rem;
+    border: 1px solid var(--rp-map-line);
+    border-radius: .85rem;
+    background: var(--rp-map-zone);
+    box-shadow: 0 8px 18px rgba(31, 59, 52, .04);
+    transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+}
+
+
+.rp-map-zone.is-active {
+    border-color: #9dceb4;
+    background: linear-gradient(180deg, #f4fbf7, #ffffff);
+    box-shadow: 0 10px 24px rgba(15, 107, 69, .08);
+}
+
+.rp-map-zone-label {
+    margin-bottom: .5rem;
+    color: var(--rp-map-muted);
+    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    font-size: .62rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.rp-map-rooms {
+    display: flex;
+    gap: .34rem;
+}
+
+.rp-map-rooms--row { flex-wrap: wrap; }
+.rp-map-rooms--nowrap { flex-wrap: nowrap; }
+.rp-map-rooms--col {
+    flex-direction: column;
+    align-items: stretch;
+    gap: .3rem;
+}
+.rp-map-rooms--wrap { flex-wrap: wrap; }
+.rp-map-rooms--grid2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .34rem;
+}
+.rp-map-rooms--row + .rp-map-rooms--row { margin-top: .34rem; }
+.rp-map-rooms--suite {
+    flex-direction: row;
+    direction: ltr;
+    gap: .4rem;
+}
+
+.rp-map-payag {
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+    gap: .15rem .42rem;
+    justify-content: start;
+    align-items: start;
+    width: max-content;
+}
+
+.rp-map-zone[data-map-zone="payag"] {
+    overflow: visible;
+    width: max-content;
+    max-width: none;
+    height: auto !important;
+    max-height: none !important;
+    min-height: max-content;
+    padding: .55rem .55rem .8rem;
+    align-self: start;
+}
+
+.rp-map-rooms--payag {
+    gap: .14rem;
+}
+
+.rp-map-zone[data-map-zone="payag"] .rp-map-room {
+    min-width: 1.7rem;
+    min-height: 0;
+}
+
+.rp-map-zone[data-map-zone="payag"] .rp-map-room--hut .rp-map-room-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.rp-map-zone[data-map-zone="payag"] .rp-map-room-tag {
+    font-size: .52rem;
+}
+
+.rp-map-room {
+    --rp-room-fill: #f4f6f5;
+    --rp-room-edge: #9aa8a1;
+    --rp-room-roof: #b7c2bc;
+    --rp-room-ink: #5f6f68;
+    appearance: none;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .18rem;
+    min-width: 2rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--rp-room-ink);
+    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    cursor: default;
+    transition: transform .15s ease;
+}
+
+.rp-map-room-icon {
+    position: relative;
+    display: block;
+    width: 1.7rem;
+    height: 1.15rem;
+    border: 1.5px solid var(--rp-room-edge);
+    border-radius: .18rem;
+    background: var(--rp-room-fill);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .35);
+}
+
+.rp-map-room-icon::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: -.34rem;
+    width: 0;
+    height: 0;
+    border-left: .95rem solid transparent;
+    border-right: .95rem solid transparent;
+    border-bottom: .34rem solid var(--rp-room-roof);
+    transform: translateX(-50%);
+}
+
+.rp-map-room-icon::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: .14rem;
+    width: .32rem;
+    height: .38rem;
+    border: 1.25px solid var(--rp-room-edge);
+    border-bottom: 0;
+    border-radius: .08rem .08rem 0 0;
+    background: rgba(255, 255, 255, .55);
+    transform: translateX(-50%);
+}
+
+.rp-map-room-tag {
+    font-size: .58rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.rp-map-room--bar { min-width: 2.45rem; }
+.rp-map-room--bar .rp-map-room-icon {
+    width: 2.35rem;
+    height: .78rem;
+    border-radius: .14rem;
+}
+.rp-map-room--bar .rp-map-room-icon::before,
+.rp-map-room--bar .rp-map-room-icon::after { display: none; }
+
+.rp-map-room--cabin .rp-map-room-icon {
+    width: 1.65rem;
+    height: 1.05rem;
+}
+
+.rp-map-room--house .rp-map-room-icon {
+    width: 2.2rem;
+    height: 1.35rem;
+}
+.rp-map-room--house .rp-map-room-icon::before {
+    border-left-width: 1.2rem;
+    border-right-width: 1.2rem;
+    border-bottom-width: .4rem;
+    top: -.4rem;
+}
+
+.rp-map-room--hut .rp-map-room-icon {
+    width: 1.45rem;
+    height: 1.45rem;
+    border-radius: 999px;
+}
+.rp-map-room--hut .rp-map-room-icon::before {
+    top: -.2rem;
+    width: .55rem;
+    height: .55rem;
+    border: 1.5px solid var(--rp-room-edge);
+    border-radius: 999px;
+    background: var(--rp-room-roof);
+}
+.rp-map-room--hut .rp-map-room-icon::after {
+    width: .28rem;
+    height: .28rem;
+    border-radius: 999px;
+    bottom: .22rem;
+}
+
+.rp-map-room.is-selectable {
+    --rp-room-fill: #e8f7ef;
+    --rp-room-edge: #7db894;
+    --rp-room-roof: #9dceb4;
+    --rp-room-ink: #1f3b34;
+    cursor: pointer;
+}
+.rp-map-room.is-selectable:hover,
+.rp-map-room.is-selectable:focus-visible {
+    outline: none;
+    transform: translateY(-1px);
+}
+.rp-map-room.is-selectable:hover .rp-map-room-icon,
+.rp-map-room.is-selectable:focus-visible .rp-map-room-icon {
+    border-color: var(--rp-map-accent);
+    box-shadow: 0 6px 12px rgba(15, 107, 69, .14);
+}
+
+.rp-map-room.is-selected {
+    --rp-room-fill: #0F6B45;
+    --rp-room-edge: #0a4f33;
+    --rp-room-roof: #0c5a3a;
+    --rp-room-ink: #0F6B45;
+    cursor: pointer;
+}
+.rp-map-room.is-selected .rp-map-room-tag {
+    color: var(--rp-map-accent);
+    font-weight: 800;
+}
+.rp-map-room.is-selected .rp-map-room-icon::after {
+    background: rgba(255, 255, 255, .35);
+    border-color: rgba(255, 255, 255, .45);
+}
+.rp-map-room.is-locked { opacity: .48; }
+
+.rp-resort-map--compact .rp-resort-map-toolbar { padding: .85rem .95rem .7rem; }
+.rp-resort-map--compact .rp-resort-map-canvas {
+    height: min(62vh, 34rem);
+    max-height: min(62vh, 34rem);
+    padding: .7rem .8rem 2.25rem;
+}
+.rp-resort-map--compact .rp-map-board { width: max-content; min-width: max-content; }
+.rp-resort-map--compact .rp-map-entrance-path { min-height: 18rem; }
+.rp-resort-map--compact .rp-map-room-tag { font-size: .54rem; }
+.rp-resort-map--compact .rp-map-room--cabin .rp-map-room-icon { width: 1.45rem; height: .95rem; }
+.rp-resort-map--compact .rp-map-room--bar .rp-map-room-icon { width: 2.05rem; height: .68rem; }
+.rp-resort-map-page .rp-resort-map { margin-top: .25rem; }
+
+@media (max-width: 767.98px) {
+    .rp-resort-map-toolbar-side {
+        align-items: stretch;
+        width: 100%;
+    }
+    .rp-resort-map-zoom-bar {
+        width: 100%;
+        justify-content: center;
+    }
+    .rp-map-board {
+        width: max-content;
+        min-width: max-content;
+    }
+    .rp-map-sketch,
+    .rp-map-sketch-main,
+    .rp-map-sketch-ac-left,
+    .rp-map-sketch-main-mid,
+    .rp-map-sketch-main-bottom {
+        width: 100%;
+        min-width: 0;
+    }
+    .rp-map-sketch {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            "entrance"
+            "ac-left"
+            "main"
+            "suite";
+    }
+    .rp-map-entrance-path { width: 100%; min-height: .45rem; }
+    .rp-map-sketch-main-mid,
+    .rp-map-sketch-main-bottom { grid-template-columns: minmax(0, 1fr); }
+    .rp-map-ac-right {
+        grid-template-columns: max-content minmax(0, 1fr);
+        width: 100%;
+    }
+    .rp-map-ac-right-row {
+        flex-wrap: wrap;
+    }
+    .rp-map-sketch-main-mid > .rp-map-zone[data-map-zone="cabana"],
+    .rp-map-sketch-main-mid > .rp-map-zone[data-map-zone="ac"] {
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+    }
+    .rp-map-sketch-suite .rp-map-zone { width: 100%; min-width: 0; }
+    .rp-map-rooms--suite { flex-wrap: nowrap; overflow-x: auto; }
+}
+
 .modal-content.rp-availability-modal .btn.btn-rp-primary {
     background: linear-gradient(135deg, #6fcf97 0%, #0F6B45 100%);
     border-color: transparent;

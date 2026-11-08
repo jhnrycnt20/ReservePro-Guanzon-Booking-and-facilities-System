@@ -24,8 +24,8 @@
                 <label class="form-label">Number</label>
                 @php $selectedNumber = old('number', $accommodation->number); @endphp
                 <select name="number" class="form-select" required>
-                    <option value="" disabled @selected(! in_array((int) $selectedNumber, range(1, 10), true))>Select a number</option>
-                    @foreach(range(1, 10) as $number)
+                    <option value="" disabled @selected(! in_array((int) $selectedNumber, range(1, 50), true))>Select a number</option>
+                    @foreach(range(1, 50) as $number)
                         <option value="{{ $number }}" @selected((string) $selectedNumber === (string) $number)>{{ $number }}</option>
                     @endforeach
                 </select>

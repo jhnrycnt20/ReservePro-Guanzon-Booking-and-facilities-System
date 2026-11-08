@@ -99,7 +99,8 @@
                   data-rp-availability-form
                   data-occupied-url="{{ route('accommodations.occupied-dates', $accommodation) }}"
                   data-rp-units='@json($unitOptions)'
-                  data-rp-selected-unit="{{ $accommodation->id }}">
+                  data-rp-selected-unit="{{ $accommodation->id }}"
+                  data-rp-family="{{ $accommodation->familyKey() }}">
                 <div class="rp-avail-fields">
                     <div class="rp-avail-field">
                         <label class="rp-avail-label">Check-in</label>

@@ -125,7 +125,7 @@
                             <label class="form-label">Number</label>
                             <select name="number" class="form-select" required>
                                 <option value="" disabled @selected(old('_modal') !== 'acc_create' || old('number') === null)>Select a number</option>
-                                @foreach(range(1, 10) as $number)
+                                @foreach(range(1, 50) as $number)
                                     <option value="{{ $number }}" @selected(old('_modal') === 'acc_create' && (string) old('number') === (string) $number)>{{ $number }}</option>
                                 @endforeach
                             </select>
@@ -362,8 +362,8 @@
                                 <label class="form-label">Number</label>
                                 @php $selectedNumber = old('_modal') === 'acc_edit_'.$item->id ? old('number') : $item->number; @endphp
                                 <select name="number" class="form-select" required>
-                                    <option value="" disabled @selected(! in_array((int) $selectedNumber, range(1, 10), true))>Select a number</option>
-                                    @foreach(range(1, 10) as $number)
+                                    <option value="" disabled @selected(! in_array((int) $selectedNumber, range(1, 50), true))>Select a number</option>
+                                    @foreach(range(1, 50) as $number)
                                         <option value="{{ $number }}" @selected((string) $selectedNumber === (string) $number)>{{ $number }}</option>
                                     @endforeach
                                 </select>

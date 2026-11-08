@@ -10,8 +10,6 @@ use Illuminate\Database\Seeder;
 
 class AccommodationSeeder extends Seeder
 {
-    private const UNITS_PER_LISTING = 5;
-
     public function run(): void
     {
         $this->call([
@@ -22,11 +20,17 @@ class AccommodationSeeder extends Seeder
         $amenities = Amenity::query()->pluck('id', 'name');
         $typeIds = AccommodationType::query()->pluck('id', 'slug');
 
+        // Guanzon Beach real inventory (room / unit counts).
+        // AC rooms 1–44: without-videoke rooms are the listed numbers; the rest have videoke.
+        $acWithoutVideoke = [3, 5, 7, 9, 12, 16, 18, 20, 22, 24, 26, 28, 29, ...range(30, 44)];
+        $acWithVideoke = array_values(array_diff(range(1, 44), $acWithoutVideoke));
+
         $templates = [
             [
                 'number_prefix' => 'RM-AC',
                 'name' => 'AC Room w/out Videoke',
                 'type' => 'room',
+                'units' => $acWithoutVideoke,
                 'capacity' => 4,
                 'rate' => 1500,
                 'image' => 'images/rooms/cabana/Warm Modern Hotel Bedroom.png',
@@ -41,6 +45,7 @@ class AccommodationSeeder extends Seeder
                 'number_prefix' => 'RM-AC-VK',
                 'name' => 'AC Room with Videoke',
                 'type' => 'room',
+                'units' => $acWithVideoke,
                 'capacity' => 8,
                 'rate' => 2500,
                 'image' => 'images/rooms/suite/Bright Modern Hotel Room with Navy Curtains.png',
@@ -57,6 +62,7 @@ class AccommodationSeeder extends Seeder
                 'number_prefix' => 'BH',
                 'name' => 'Beach House',
                 'type' => 'beach-house',
+                'units' => range(1, 2),
                 'capacity' => 8,
                 'rate' => 4500,
                 'image' => 'images/rooms/blue-cabana.png',
@@ -67,6 +73,7 @@ class AccommodationSeeder extends Seeder
                 'number_prefix' => 'SUITE',
                 'name' => 'Suite Room',
                 'type' => 'suite',
+                'units' => range(1, 5),
                 'capacity' => 5,
                 'rate' => 2500,
                 'image' => 'images/rooms/suite/Vivid Resort Suites Under Blue Skies.png',
@@ -84,6 +91,7 @@ class AccommodationSeeder extends Seeder
                 'number_prefix' => 'VILLA',
                 'name' => 'Villa',
                 'type' => 'villa',
+                'units' => range(1, 4),
                 'capacity' => 15,
                 'rate' => 8000,
                 'image' => 'images/rooms/garden-cabin.png',
@@ -91,9 +99,10 @@ class AccommodationSeeder extends Seeder
                 'amenities' => ['Air Conditioning', 'Private Bathroom', 'Television', 'Kitchenette', 'Parking', 'Pool Access'],
             ],
             [
-                'number_prefix' => 'COT-NVK',
+                'number_prefix' => 'COT',
                 'name' => 'Open Cottage',
                 'type' => 'cottage',
+                'units' => range(1, 28),
                 'capacity' => 12,
                 'rate' => 1700,
                 'image' => 'images/rooms/cottage/Tree-Lined Pavilion Walkway.png',
@@ -108,6 +117,7 @@ class AccommodationSeeder extends Seeder
                 'number_prefix' => 'COT-VK',
                 'name' => 'Open Cottage with Videoke',
                 'type' => 'cottage',
+                'units' => range(1, 5),
                 'capacity' => 12,
                 'rate' => 2700,
                 'image' => 'images/rooms/cottage/Tree-Lined Pavilion Walkway.png',
@@ -122,6 +132,7 @@ class AccommodationSeeder extends Seeder
                 'number_prefix' => 'CAB',
                 'name' => 'Cabana',
                 'type' => 'cabana',
+                'units' => range(1, 20),
                 'capacity' => 4,
                 'rate' => 2500,
                 'image' => 'images/rooms/cabana/Sunset Modern Bungalow Unit 4.png',
@@ -139,6 +150,7 @@ class AccommodationSeeder extends Seeder
                 'number_prefix' => 'PAY',
                 'name' => 'Payag',
                 'type' => 'payag',
+                'units' => range(1, 14),
                 'capacity' => 6,
                 'rate' => 850,
                 'image' => 'images/rooms/cottage/Sunlit Picnic Pavilion Courtyard.png',
@@ -149,6 +161,7 @@ class AccommodationSeeder extends Seeder
                 'number_prefix' => 'TBL',
                 'name' => 'Table',
                 'type' => 'table',
+                'units' => range(1, 10),
                 'capacity' => 4,
                 'rate' => 500,
                 'image' => 'images/rooms/cottage/Resort Pavilion Dining Terrace.png',
@@ -159,11 +172,13 @@ class AccommodationSeeder extends Seeder
 
         $listings = [];
         foreach ($templates as $template) {
-            for ($unit = 1; $unit <= self::UNITS_PER_LISTING; $unit++) {
+            foreach ($template['units'] as $unit) {
+                $unitNumber = (int) $unit;
                 $listings[] = [
                     ...$template,
-                    'number' => sprintf('%s-%02d', $template['number_prefix'], $unit),
-                    'name' => $template['name'].' '.$unit,
+                    'number' => sprintf('%s-%02d', $template['number_prefix'], $unitNumber),
+                    'name' => $template['name'].' '.$unitNumber,
+                    'unit' => $unitNumber,
                 ];
             }
         }

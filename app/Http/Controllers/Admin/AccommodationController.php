@@ -137,7 +137,7 @@ class AccommodationController extends Controller
         $data = $request->validate([
             'accommodation_type_id' => ['required', 'exists:accommodation_types,id'],
             'name' => ['required', 'string', 'max:255'],
-            'number' => ['required', 'integer', 'between:1,10', Rule::unique('accommodations', 'number')->ignore($id)],
+            'number' => ['required', 'integer', 'between:1,50', Rule::unique('accommodations', 'number')->ignore($id)],
             'description' => ['nullable', 'string'],
             'capacity' => ['required', 'integer', 'min:1', 'max:50'],
             'rate' => ['required', 'numeric', $request->boolean('is_active', true) ? 'min:0.01' : 'min:0', 'max:999999.99', 'decimal:0,2'],
@@ -153,8 +153,8 @@ class AccommodationController extends Controller
             'amenities.*' => ['integer', 'distinct', 'exists:amenities,id'],
             'is_active' => ['required', 'boolean'],
         ], [
-            'number.integer' => 'Select an accommodation number from 1 to 10.',
-            'number.between' => 'Select an accommodation number from 1 to 10.',
+            'number.integer' => 'Select an accommodation number from 1 to 50.',
+            'number.between' => 'Select an accommodation number from 1 to 50.',
             'rate.min' => 'The rate must be non-negative, and an active listing needs at least ₱0.01.',
             'image.dimensions' => 'The cover image must be at least 800 × 600 pixels.',
             'gallery.*.dimensions' => 'Each gallery image must be at least 400 × 300 pixels.',

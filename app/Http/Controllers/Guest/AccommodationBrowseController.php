@@ -102,6 +102,7 @@ class AccommodationBrowseController extends Controller
             'id' => $unit->id,
             'number' => $unit->number,
             'name' => $unit->name,
+            'family' => $unit->familyKey(),
             'label' => $unit->unitNumber() !== null
                 ? (string) $unit->unitNumber()
                 : $unit->number,
