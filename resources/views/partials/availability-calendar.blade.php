@@ -3,10 +3,8 @@
         <div class="modal-content rp-availability-modal">
             <div class="modal-header border-0 pb-0">
                 <div>
-                    <h2 class="modal-title h5 mb-1" id="rpAvailabilityModalLabel">Select room &amp; dates</h2>
-                    <p class="text-muted small mb-0">Pick a numbered room on the map, then choose available dates. Red dates are occupied.</p>
+                    <h2 class="visually-hidden" id="rpAvailabilityModalLabel">Choose your room and dates</h2>
                 </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body pt-3">
                 <div class="rp-availability-layout">
@@ -15,6 +13,10 @@
                     </div>
 
                     <div class="rp-availability-calendar-pane">
+                        <div class="rp-availability-calendar-heading">
+                            <span><i class="bi bi-calendar3" aria-hidden="true"></i></span>
+                            <div><strong>Choose your dates</strong></div>
+                        </div>
                         <div class="rp-availability-legend mb-3">
                             <span><i class="rp-legend-dot rp-legend-available"></i> Available</span>
                             <span><i class="rp-legend-dot rp-legend-occupied"></i> Occupied</span>

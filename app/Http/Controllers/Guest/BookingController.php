@@ -6,9 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Guest\StoreBookingRequest;
 use App\Models\Accommodation;
 use App\Models\Booking;
-use App\Notifications\StaffNewReservationNotification;
 use App\Services\BookingService;
-use App\Services\NotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -18,7 +16,6 @@ class BookingController extends Controller
 {
     public function __construct(
         protected BookingService $bookingService,
-        protected NotificationService $notificationService,
     ) {
     }
 
@@ -62,9 +59,19 @@ class BookingController extends Controller
     {
         $request->validate([
             'accommodation_id' => ['required', 'exists:accommodations,id'],
+            'check_in' => ['required', 'date_format:Y-m-d', 'after_or_equal:today'],
+            'check_out' => ['required', 'date_format:Y-m-d', 'after:check_in'],
         ]);
 
         $accommodation = Accommodation::query()->with('type')->findOrFail($request->integer('accommodation_id'));
+        $storedDraft = $request->session()->get('guest_booking_draft');
+        $bookingDraft = is_array($storedDraft)
+            && (int) ($storedDraft['user_id'] ?? 0) === (int) $request->user()->id
+            && (int) data_get($storedDraft, 'data.accommodation_id') === (int) $accommodation->id
+            && data_get($storedDraft, 'data.check_in_date') === $request->query('check_in')
+            && data_get($storedDraft, 'data.check_out_date') === $request->query('check_out')
+                ? $storedDraft['data']
+                : [];
 
         $status = $accommodation->status instanceof \BackedEnum
             ? $accommodation->status->value
@@ -80,29 +87,20 @@ class BookingController extends Controller
             'accommodation' => $accommodation,
             'checkIn' => $request->query('check_in'),
             'checkOut' => $request->query('check_out'),
+            'bookingDraft' => $bookingDraft,
         ]);
     }
 
     public function store(StoreBookingRequest $request): RedirectResponse
     {
-        $guest = $request->user()->guest;
-        abort_unless($guest, 403, 'Guest profile required.');
-
-        $booking = $this->bookingService->createReservation(
-            $request->validated(),
-            $guest,
-            $request->user()
-        );
-
-        try {
-            $this->notificationService->notifyFrontDesk(new StaffNewReservationNotification($booking));
-        } catch (\Throwable) {
-            // Booking is already saved; staff notification must not block payment.
-        }
+        abort_unless($request->user()->guest, 403, 'Guest profile required.');
+        $request->session()->put('guest_booking_draft', [
+            'user_id' => $request->user()->id,
+            'data' => $request->validated(),
+        ]);
 
         return redirect()
-            ->route('guest.payments.create', $booking)
-            ->with('success', 'Reservation created. Complete your payment to confirm the stay.');
+            ->route('guest.payments.draft');
     }
 
     public function show(Request $request, Booking $booking): View

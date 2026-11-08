@@ -33,7 +33,7 @@
     @endif
 
     <div class="rp-card mb-4" id="rpBrowseFilters">
-        <form method="GET" action="{{ route('accommodations.browse') }}" class="row g-3 align-items-end" data-rp-availability-form>
+        <form method="GET" action="{{ route('accommodations.browse') }}" class="row g-3 align-items-end" data-rp-availability-form data-rp-browse-availability-form>
             <div class="col-md-3">
                 <label class="form-label">Type</label>
                 <select name="type" class="form-select">
@@ -63,6 +63,7 @@
                 <button type="submit" class="rp-btn-check-availability">Check Availability</button>
             </div>
         </form>
+        <div class="alert alert-warning d-none mt-3 mb-0" role="alert" data-rp-browse-error></div>
     </div>
 
     @include('partials.availability-calendar')
@@ -111,11 +112,8 @@
                                 <span>Max guests</span>
                                 <span>{{ $item->capacity }}</span>
                             </div>
-                            <div class="rp-cottage-row">
-                                <span>Status</span>
-                                <span>{{ ucfirst($statusValue) }}</span>
-                            </div>
                         </div>
+                        <span class="rp-cottage-card-action">View details <i class="bi bi-arrow-right" aria-hidden="true"></i></span>
                     </div>
                 </a>
             </div>
@@ -125,7 +123,7 @@
     </div>
 
     @if(isset($accommodations) && method_exists($accommodations, 'links'))
-        <div class="mt-4">{{ $accommodations->withQueryString()->links() }}</div>
+        <div class="mt-4" id="rpBrowsePagination">{{ $accommodations->withQueryString()->links() }}</div>
     @endif
 </div>
 @endsection

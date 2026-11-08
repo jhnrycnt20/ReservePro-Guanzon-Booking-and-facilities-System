@@ -77,7 +77,6 @@ class Accommodation extends Model
 
         return $this->bookings()
             ->whereIn('status', [
-                BookingStatus::Pending,
                 BookingStatus::Approved,
                 BookingStatus::CheckedIn,
             ])

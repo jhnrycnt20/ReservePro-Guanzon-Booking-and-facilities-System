@@ -100,6 +100,16 @@
             font-size: .82rem;
             margin: 0;
         }
+        .rp-receipt-demo-notice {
+            margin: 0 0 1rem;
+            padding: .7rem .8rem;
+            border: 1px solid #cfe5d8;
+            border-radius: 10px;
+            background: #f0f8f3;
+            color: #176b4c;
+            font-size: .8rem;
+            line-height: 1.45;
+        }
         @media print {
             body { background: #fff; padding: 0; }
             .no-print { display: none !important; }
@@ -140,10 +150,14 @@
         <div class="rp-receipt-brand">{{ $resortSettings['resort_name'] ?? 'Guanzon Beach' }}</div>
         <div class="rp-receipt-meta">Payment receipt</div>
 
+        @if($payment->gateway === 'demo')
+            <div class="rp-receipt-demo-notice"><strong>Sample payment only.</strong> No real GCash transaction or charge was made.</div>
+        @endif
+
         <hr class="rp-receipt-divider">
 
         <div class="rp-receipt-amount">₱{{ number_format($payment->amount, 2) }}</div>
-        <div class="rp-receipt-meta" style="text-align:center;margin-bottom:.75rem;">Verified payment</div>
+        <div class="rp-receipt-meta" style="text-align:center;margin-bottom:.75rem;">{{ $payment->gateway === 'demo' ? 'Sample success' : 'Verified payment' }}</div>
 
         @if($isPartial)
             <div style="background:#f7f4ea;border:1px solid #ead9a8;border-radius:12px;padding:.75rem .85rem;margin:0 0 .9rem;">

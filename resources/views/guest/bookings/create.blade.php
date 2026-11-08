@@ -1,23 +1,27 @@
 @extends('layouts.public')
 
 @section('title', 'Reservation Form')
+@section('body_class', 'rp-page-guest-booking-create')
 
 @section('content')
-<div class="container rp-public-page-top pb-4">
+<div class="container rp-public-page-top rp-guest-booking-page pb-4">
 
 <a href="{{ route('accommodations.show', ['accommodation' => $accommodation->id, 'check_in' => $checkIn ?? request('check_in'), 'check_out' => $checkOut ?? request('check_out')]) }}" class="rp-back-link"><i class="bi bi-arrow-left"></i> Back</a>
 
-@include('partials.booking-tracker', ['activeStep' => 'guest'])
-
 <div class="row g-4">
-    <div class="col-lg-8">
-        <div class="rp-flow-card">
+    <div class="col-lg-12">
+        <div class="rp-flow-card rp-guest-booking-form-card">
             @php
-                $checkInRaw = old('check_in_date', $checkIn ?? request('check_in'));
-                $checkOutRaw = old('check_out_date', $checkOut ?? request('check_out'));
+                $checkInRaw = old('check_in_date', $bookingDraft['check_in_date'] ?? $checkIn ?? request('check_in'));
+                $checkOutRaw = old('check_out_date', $bookingDraft['check_out_date'] ?? $checkOut ?? request('check_out'));
                 $checkInDisplay = $checkInRaw ? \Carbon\Carbon::parse($checkInRaw)->format('M j, Y') : '';
                 $checkOutDisplay = $checkOutRaw ? \Carbon\Carbon::parse($checkOutRaw)->format('M j, Y') : '';
             @endphp
+            <div class="rp-guest-form-heading">
+                <div>
+                    <h1>Guest information</h1>
+                </div>
+            </div>
             <form method="POST" action="{{ route('guest.bookings.store') }}" data-rp-availability-form data-occupied-url="{{ route('accommodations.occupied-dates', $accommodation) }}" data-rp-no-auto-submit>
                 @csrf
                 <input type="hidden" name="accommodation_id" value="{{ $accommodation->id }}">
@@ -36,17 +40,17 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label">Guest name</label>
-                        <input type="text" name="guest_name" class="form-control @error('guest_name') is-invalid @enderror" value="{{ old('guest_name', auth()->user()->name ?? '') }}" required>
+                        <input type="text" name="guest_name" class="form-control @error('guest_name') is-invalid @enderror" value="{{ old('guest_name', $bookingDraft['guest_name'] ?? auth()->user()->name ?? '') }}" required>
                         @error('guest_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Contact number</label>
-                        <input type="text" name="contact_number" class="form-control @error('contact_number') is-invalid @enderror" value="{{ old('contact_number', auth()->user()->phone ?? '') }}" required>
+                        <input type="text" name="contact_number" class="form-control @error('contact_number') is-invalid @enderror" value="{{ old('contact_number', $bookingDraft['contact_number'] ?? auth()->user()->phone ?? '') }}" required>
                         @error('contact_number')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', auth()->user()->email ?? '') }}" required>
+                        <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', $bookingDraft['email'] ?? auth()->user()->email ?? '') }}" required>
                         @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-6">
@@ -71,40 +75,31 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Adults</label>
-                        <input type="number" min="1" max="{{ $accommodation->capacity }}" name="adults" class="form-control @error('adults') is-invalid @enderror" value="{{ old('adults', 1) }}" data-rp-guest-adults required>
+                        <input type="number" min="1" max="{{ $accommodation->capacity }}" name="adults" class="form-control @error('adults') is-invalid @enderror" value="{{ old('adults', $bookingDraft['adults'] ?? 1) }}" data-rp-guest-adults required>
                         @error('adults')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Children</label>
-                        <input type="number" min="0" max="{{ $accommodation->capacity }}" name="children" class="form-control @error('children') is-invalid @enderror" value="{{ old('children', 0) }}" data-rp-guest-children>
+                        <input type="number" min="0" max="{{ $accommodation->capacity }}" name="children" class="form-control @error('children') is-invalid @enderror" value="{{ old('children', $bookingDraft['children'] ?? 0) }}" data-rp-guest-children>
                         @error('children')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Number of guests</label>
-                        <input type="number" min="1" max="{{ $accommodation->capacity }}" name="number_of_guests" class="form-control" value="{{ old('number_of_guests', (int) old('adults', 1) + (int) old('children', 0)) }}" data-rp-guest-total data-rp-capacity="{{ $accommodation->capacity }}" readonly required>
+                        <input type="number" min="1" max="{{ $accommodation->capacity }}" name="number_of_guests" class="form-control" value="{{ old('number_of_guests', $bookingDraft['number_of_guests'] ?? ((int) old('adults', 1) + (int) old('children', 0))) }}" data-rp-guest-total data-rp-capacity="{{ $accommodation->capacity }}" readonly required>
                         <div class="form-text">Max capacity: {{ $accommodation->capacity }} (adults + children)</div>
                         <div class="text-danger small d-none" data-rp-capacity-error>Total guests cannot exceed capacity.</div>
                     </div>
                     <div class="col-12">
                         <label class="form-label">Special requests</label>
-                        <textarea name="special_requests" class="form-control" rows="3">{{ old('special_requests') }}</textarea>
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label" for="promoCode">Promo code (optional)</label>
-                        <div class="rp-promo-apply">
-                            <input type="text" id="promoCode" name="promo_code" class="form-control text-uppercase @error('promo_code') is-invalid @enderror" value="{{ old('promo_code') }}" placeholder="Enter code" maxlength="32" data-rp-promo-input data-rp-promo-validate-url="{{ route('guest.promos.validate') }}" data-rp-promo-accommodation="{{ $accommodation->id }}">
-                            <button type="button" class="rp-btn-check-availability rp-btn-check-availability--inline" data-rp-promo-check>Check</button>
-                        </div>
-                        @error('promo_code')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                        <div class="form-text" data-rp-promo-feedback>Check a code to see your discounted estimate.</div>
+                        <textarea name="special_requests" class="form-control" rows="3">{{ old('special_requests', $bookingDraft['special_requests'] ?? '') }}</textarea>
                     </div>
                 </div>
 
-                <div class="alert alert-info mt-3 mb-3">
+                <div class="alert alert-info rp-guest-estimate mt-3 mb-3">
                     Estimated total (client preview only): <strong data-calc-total data-calc-rate="{{ $accommodation->rate }}">—</strong>
                     <div class="small" data-rp-promo-estimate></div>
                     <div class="small">Final amount is calculated and stored by the server.</div>
@@ -117,15 +112,8 @@
                     </label>
                 </div>
 
-                <button type="submit" class="rp-avail-btn-primary mt-3">Submit Reservation</button>
+                <button type="submit" class="rp-avail-btn-primary rp-guest-submit-button mt-3">Proceed to Billing</button>
             </form>
-        </div>
-    </div>
-    <div class="col-lg-4">
-        <div class="rp-flow-card">
-            <h2 class="h5">{{ $accommodation->name }}</h2>
-            <p class="text-muted">{{ $accommodation->description }}</p>
-            <div><strong>₱{{ number_format($accommodation->rate, 2) }}</strong> / night</div>
         </div>
     </div>
 </div>

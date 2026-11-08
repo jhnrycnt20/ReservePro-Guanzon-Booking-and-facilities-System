@@ -32,29 +32,24 @@
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ route('gallery') }}">Gallery</a>
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ route('offers') }}">Offers</a>
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ route('contact') }}">Contact</a>
-                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('feedback.index') }}">Feedback</a>
                     <a class="rp-nav-link rp-nav-link-booknow" href="{{ route('accommodations.browse') }}">Book Now</a>
                     @guest
                         <a class="rp-nav-link" href="{{ route('login') }}" data-bs-toggle="modal" data-bs-target="#rpLoginModal">Login</a>
-                    @elseif(auth()->user()->hasRole('guest'))
+                    @else
                         <div class="dropdown rp-nav-account-dropdown">
-                            <a class="rp-nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">Account</a>
+                            <button class="rp-nav-link rp-nav-account-trigger dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Open account menu" title="Account" aria-expanded="false">
+                                <i class="bi bi-person-circle" aria-hidden="true"></i>
+                            </button>
                             <ul class="dropdown-menu dropdown-menu-end rp-nav-account-menu">
-                                <li><a class="dropdown-item" href="{{ route('guest.bookings.index') }}">My Reservations</a></li>
-                                <li><a class="dropdown-item" href="{{ route('guest.payments.index') }}">Payments</a></li>
-                                <li><a class="dropdown-item" href="{{ route('guest.incidents.index') }}">Reports</a></li>
-                                <li><a class="dropdown-item" href="{{ route('guest.feedback.index') }}">My Feedback</a></li>
-                                <li><a class="dropdown-item" href="#rpProfileModal" data-bs-toggle="modal" data-bs-target="#rpProfileModal">Manage Profile</a></li>
+                                <li><a class="dropdown-item" href="{{ route('profile.edit') }}"><i class="bi bi-person me-2" aria-hidden="true"></i>My account</a></li>
+                                @if(auth()->user()?->isGuestRole())
+                                    <li><a class="dropdown-item" href="{{ route('guest.bookings.index') }}"><i class="bi bi-calendar-check me-2" aria-hidden="true"></i>Reservations</a></li>
+                                @endif
+                                <li><a class="dropdown-item" href="{{ route('feedback.index') }}"><i class="bi bi-chat-left-text me-2" aria-hidden="true"></i>Feedback</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item rp-logout-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rpNavDesktopLogoutForm').submit();">Sign Out</a></li>
+                                <li><a class="dropdown-item rp-logout-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rpNavDesktopLogoutForm').submit();"><i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>Sign out</a></li>
                             </ul>
                         </div>
-                        <form id="rpNavDesktopLogoutForm" action="{{ route('logout') }}" method="POST" class="d-none">
-                            @csrf
-                        </form>
-                    @else
-                        <a class="rp-nav-link" href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
-                        <a class="rp-nav-link rp-logout-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rpNavDesktopLogoutForm').submit();">Sign Out</a>
                         <form id="rpNavDesktopLogoutForm" action="{{ route('logout') }}" method="POST" class="d-none">
                             @csrf
                         </form>
@@ -71,7 +66,6 @@
             <a href="{{ route('gallery') }}">Gallery</a>
             <a href="{{ route('offers') }}">Offers</a>
             <a href="{{ route('contact') }}">Contact</a>
-            <a href="{{ route('feedback.index') }}">Feedback</a>
             <a href="{{ route('accommodations.browse') }}">Book Now</a>
             @auth
                 @if(auth()->user()->hasRole('guest'))
@@ -119,7 +113,6 @@
                     <div class="rp-footer-links">
                         <a href="{{ url('/') }}">The Resort</a>
                         <a href="{{ route('gallery') }}">Gallery</a>
-                        <a href="{{ route('feedback.index') }}">Feedback</a>
                         <a href="{{ route('downloads') }}">Download App</a>
                         <a href="{{ route('contact') }}">Contact us</a>
                     </div>

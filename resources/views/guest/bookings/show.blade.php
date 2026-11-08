@@ -1,259 +1,166 @@
 @extends('layouts.public')
 
 @section('title', 'Reservation '.$booking->booking_number)
+@section('body_class', 'rp-page-reservation-detail')
 
 @section('content')
-<div class="container rp-public-page-top pb-4">
-<a href="{{ route('guest.bookings.index') }}" class="rp-back-link" data-rp-history-back><i class="bi bi-arrow-left"></i> Back</a>
+@php
+    $bookingStatus = $booking->status instanceof \BackedEnum ? $booking->status->value : (string) $booking->status;
+    $checkInTime = \Carbon\Carbon::createFromFormat('H:i', (string) config('resort.check_in_time', '14:00'))->format('g:i A');
+    $bookingGallery = $booking->accommodation->gallery_urls;
+    $nights = max(1, $booking->check_in_date->diffInDays($booking->check_out_date));
+    $discountAmount = (float) ($booking->discount_amount ?? 0);
+    $staySubtotal = (float) ($booking->original_amount ?? ((float) $booking->total_amount + $discountAmount));
+    $additionalCharges = max(0, (float) $booking->total_amount - max(0, $staySubtotal - $discountAmount));
+    $nightlyRate = $nights > 0 ? $staySubtotal / $nights : 0;
+@endphp
 
-<div class="rp-page-intro">
-    <h1 class="rp-page-intro-title">Reservation {{ $booking->short_number }}</h1>
-</div>
+<div class="container rp-public-page-top rp-reservation-page pb-5">
+    <a href="{{ route('guest.bookings.index') }}" class="rp-back-link"><i class="bi bi-arrow-left" aria-hidden="true"></i> Back to Reservations</a>
 
-@include('partials.booking-tracker', ['activeStep' => 'confirmation'])
-
-<div class="row g-4">
-    <div class="col-lg-8">
-        <div class="rp-cottage-card rp-cottage-card--static rp-booking-confirm-card mb-4">
-            <div class="rp-cottage-media">
-                <img src="{{ $booking->accommodation->image_url }}" alt="{{ $booking->accommodation->name }}">
-            </div>
-            <div class="rp-cottage-card-body">
-                <div class="rp-cottage-title">{{ $booking->accommodation->name }}</div>
-                <div class="rp-booking-list-dates mb-2">
-                    <div class="rp-booking-list-date-block">
-                        <span class="rp-booking-list-date-label">Check-in</span>
-                        <span class="rp-booking-list-date-value">{{ $booking->check_in_date->format('M d, Y') }}</span>
+    <div class="row g-4 rp-reservation-layout">
+        <div class="col-lg-6">
+            <section class="rp-reservation-stay-card" aria-label="Accommodation details">
+                <div class="rp-reservation-gallery" data-rp-booking-gallery>
+                    <div class="rp-reservation-gallery-main">
+                        <img src="{{ $booking->accommodation->image_url }}" alt="{{ $booking->accommodation->name }}" data-rp-reservation-main>
+                        <span class="rp-reservation-photo-mark" aria-hidden="true"><i class="bi bi-bookmark"></i></span>
                     </div>
-                    <div class="rp-booking-list-date-block">
-                        <span class="rp-booking-list-date-label">Check-out</span>
-                        <span class="rp-booking-list-date-value">{{ $booking->check_out_date->format('M d, Y') }}</span>
-                    </div>
-                </div>
-                <div class="rp-cottage-row">
-                    <span>Guests</span>
-                    <span>{{ $booking->number_of_guests }} ({{ $booking->adults }} adults, {{ $booking->children }} children)</span>
-                </div>
-                <div class="rp-cottage-row">
-                    <span>Total</span>
-                    <span>₱{{ number_format($booking->total_amount, 2) }}</span>
-                </div>
-                @if($booking->promo_code || ((float) $booking->discount_amount) > 0)
-                    <div class="rp-cottage-row">
-                        <span>Promo</span>
-                        <span>
-                            <code>{{ $booking->promo_code }}</code>
-                            @if($booking->discount_percent)
-                                ({{ rtrim(rtrim(number_format((float) $booking->discount_percent, 2), '0'), '.') }}% off)
-                            @endif
-                        </span>
-                    </div>
-                    <div class="rp-cottage-row">
-                        <span>You saved</span>
-                        <span>₱{{ number_format((float) $booking->discount_amount, 2) }}</span>
-                    </div>
-                @endif
-                <div class="rp-cottage-row">
-                    <span>Remaining balance</span>
-                    <span>₱{{ number_format($booking->remaining_balance, 2) }}</span>
-                </div>
-                @php
-                    $bookingStatus = $booking->status instanceof \BackedEnum ? $booking->status->value : (string) $booking->status;
-                    $isFullyPaid = ((float) $booking->remaining_balance) <= 0.009;
-                    $checkInTime = \Carbon\Carbon::createFromFormat('H:i', (string) config('resort.check_in_time', '14:00'))->format('g:i A');
-                @endphp
-                @if($isFullyPaid && $bookingStatus === 'approved')
-                    <div class="rp-checkin-ready-note mt-3">
-                        Fully paid. You can now check in on {{ $booking->check_in_date->format('M d, Y') }} at {{ $checkInTime }}.
-                    </div>
-                @elseif($isFullyPaid && $bookingStatus === 'checked_in')
-                    <div class="rp-checkin-ready-note mt-3">
-                        You are checked in. Enjoy your stay.
-                    </div>
-                @endif
-            </div>
-        </div>
-
-        @if($booking->special_requests || $booking->rejection_reason)
-            <div class="rp-flow-card mb-4">
-                @if($booking->special_requests)
-                    <h3 class="h6">Special requests</h3>
-                    <p class="mb-0">{{ $booking->special_requests }}</p>
-                @endif
-                @if($booking->rejection_reason)
-                    <div class="alert alert-danger {{ $booking->special_requests ? 'mt-3' : '' }} mb-0">Rejected: {{ $booking->rejection_reason }}</div>
-                @endif
-            </div>
-        @endif
-
-    </div>
-    <div class="col-lg-4">
-        <div class="rp-flow-card mb-3">
-            <div class="rp-booking-actions">
-            @if(in_array(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status), ['approved', 'checked_in']) && $booking->remaining_balance > 0)
-                <a href="{{ route('guest.payments.create', $booking) }}" class="rp-avail-btn-primary">Proceed to Payment</a>
-            @endif
-            @if(in_array(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status), ['pending', 'approved']))
-                <form method="POST" action="{{ route('guest.bookings.cancel', $booking) }}">
-                    @csrf
-                    <button type="submit" class="rp-avail-btn-secondary rp-avail-btn-secondary--danger" data-rp-confirm-click="Cancel this reservation?">Cancel Reservation</button>
-                </form>
-            @endif
-            @if(in_array(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status), ['approved', 'checked_in', 'checked_out']))
-                <a href="{{ route('guest.incidents.create', ['booking_id' => $booking->id]) }}" class="rp-avail-btn-secondary rp-avail-btn-secondary--danger">Report Issue</a>
-            @endif
-            @if(($booking->status instanceof \BackedEnum ? $booking->status->value : $booking->status) === 'checked_out' && !$booking->feedback)
-                <a href="{{ route('guest.feedback.create_booking', $booking) }}" class="rp-avail-btn-secondary">Leave Feedback</a>
-            @endif
-            </div>
-        </div>
-
-        <div class="rp-flow-card">
-            <h3 class="h6">Payments</h3>
-            @forelse($booking->payments as $payment)
-                @php
-                    $paymentStatus = $payment->status instanceof \BackedEnum ? $payment->status->value : $payment->status;
-                    $canDownloadReceipt = $paymentStatus === 'verified';
-                    $methodLabel = str_replace('_', ' ', ucfirst($payment->payment_method instanceof \BackedEnum ? $payment->payment_method->value : $payment->payment_method));
-                @endphp
-                <div class="rp-payment-mini">
-                    <div class="rp-payment-mini-top">
-                        <span class="rp-payment-mini-amount">₱{{ number_format($payment->amount, 2) }}</span>
-                        <x-status-badge :status="$payment->status" />
-                    </div>
-                    <div class="rp-payment-mini-meta">
-                        {{ $payment->payment_date?->format('M d, Y') }} &middot; {{ $methodLabel }}
-                    </div>
-                    @if($payment->reference_number)
-                        <div class="rp-payment-mini-receipt">Ref: {{ $payment->reference_number }}</div>
-                    @endif
-                    @if($payment->receipt_number)
-                        <div class="rp-payment-mini-receipt">Receipt: {{ $payment->receipt_number }}</div>
-                    @endif
-                    @if($canDownloadReceipt)
-                        @php
-                            $bookingTotal = (float) $booking->total_amount;
-                            $remainingBalance = (float) $booking->remaining_balance;
-                            $totalPaid = (float) $booking->paid_amount;
-                            $isPartial = $remainingBalance > 0.009;
-                            $paymentShare = $bookingTotal > 0
-                                ? round(((float) $payment->amount / $bookingTotal) * 100)
-                                : 0;
-                        @endphp
-                        <button
-                            type="button"
-                            class="rp-payment-download"
-                            data-bs-toggle="modal"
-                            data-bs-target="#rpGuestReceiptModal"
-                            data-receipt-number="{{ $payment->receipt_number ?? 'PAY-'.$payment->id }}"
-                            data-booking="{{ $booking->short_number ?? $booking->booking_number }}"
-                            data-guest="{{ $booking->guest_name ?? $booking->guest?->user?->name ?? auth()->user()->name }}"
-                            data-room="{{ $booking->accommodation->name ?? '—' }}"
-                            data-amount="₱{{ number_format($payment->amount, 2) }}"
-                            data-booking-total="₱{{ number_format($bookingTotal, 2) }}"
-                            data-total-paid="₱{{ number_format($totalPaid, 2) }}"
-                            data-remaining="₱{{ number_format(max(0, $remainingBalance), 2) }}"
-                            data-is-partial="{{ $isPartial ? '1' : '0' }}"
-                            data-payment-note="{{ $isPartial
-                                ? ($paymentShare >= 45 && $paymentShare <= 55
-                                    ? 'This is a 50% deposit payment. A remaining balance is still due before or on check-in.'
-                                    : 'This is a partial payment. A remaining balance is still due before or on check-in.')
-                                : 'Booking is fully paid. No remaining balance.' }}"
-                            data-method="{{ $methodLabel }}"
-                            data-reference="{{ $payment->reference_number ?? '—' }}"
-                            data-paid-on="{{ $payment->payment_date?->format('M d, Y g:i A') ?? '—' }}"
-                            data-verified="{{ $payment->verified_at?->format('M d, Y g:i A') ?? '—' }}"
-                        >
-                            <i class="bi bi-download" aria-hidden="true"></i>
-                            Download receipt
-                        </button>
-                    @endif
-                </div>
-            @empty
-                <p class="text-muted small mb-0">No payments recorded yet.</p>
-            @endforelse
-        </div>
-    </div>
-</div>
-</div>
-
-@if($booking->payments->contains(fn ($p) => ($p->status instanceof \BackedEnum ? $p->status->value : $p->status) === 'verified'))
-<div class="modal fade" id="rpGuestReceiptModal" tabindex="-1" aria-labelledby="rpGuestReceiptModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rp-receipt-modal">
-            <div class="modal-header border-0 pb-0">
-                <h2 class="modal-title h5" id="rpGuestReceiptModalLabel">Payment receipt</h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body pt-2">
-                <div class="rp-receipt-card" id="rpGuestReceiptPrint">
-                    <div class="rp-receipt-brand">{{ $resortSettings['resort_name'] ?? 'Guanzon Beach' }}</div>
-                    <div class="rp-receipt-meta">Payment receipt</div>
-                    <hr class="rp-receipt-divider">
-                    <div class="rp-receipt-amount" data-receipt-field="amount">₱0.00</div>
-                    <div class="rp-receipt-meta text-center mb-2">Verified payment</div>
-                    <div class="rp-receipt-balance-note d-none" data-receipt-partial-note>
-                        <div class="rp-receipt-balance-note-title" data-receipt-field="payment-note">
-                            This is a 50% deposit payment. A remaining balance is still due.
+                    @if(count($bookingGallery) > 1)
+                        <div class="rp-reservation-gallery-rail" aria-label="More accommodation photos">
+                            @foreach($bookingGallery as $index => $photoUrl)
+                                <button type="button" class="rp-reservation-gallery-thumb {{ $index === 0 ? 'is-active' : '' }}" data-rp-reservation-photo="{{ $photoUrl }}" aria-label="Show accommodation photo {{ $index + 1 }}" aria-pressed="{{ $index === 0 ? 'true' : 'false' }}">
+                                    <img src="{{ $photoUrl }}" alt="">
+                                </button>
+                            @endforeach
                         </div>
-                        <div class="rp-receipt-row mb-0"><span>Booking total</span><strong data-receipt-field="booking-total">—</strong></div>
-                        <div class="rp-receipt-row mb-0"><span>Total paid</span><strong data-receipt-field="total-paid">—</strong></div>
-                        <div class="rp-receipt-row mb-0"><span>Balance left</span><strong class="rp-receipt-balance-left" data-receipt-field="remaining">—</strong></div>
-                    </div>
-                    <div class="rp-receipt-row"><span>Receipt</span><strong data-receipt-field="receipt-number">—</strong></div>
-                    <div class="rp-receipt-row"><span>Booking</span><strong data-receipt-field="booking">—</strong></div>
-                    <div class="rp-receipt-row"><span>Guest</span><strong data-receipt-field="guest">—</strong></div>
-                    <div class="rp-receipt-row"><span>Room</span><strong data-receipt-field="room">—</strong></div>
-                    <div class="rp-receipt-row"><span>Method</span><strong data-receipt-field="method">—</strong></div>
-                    <div class="rp-receipt-row"><span>Reference</span><strong data-receipt-field="reference">—</strong></div>
-                    <div class="rp-receipt-row"><span>Paid on</span><strong data-receipt-field="paid-on">—</strong></div>
-                    <div class="rp-receipt-row"><span>Verified</span><strong data-receipt-field="verified">—</strong></div>
-                    <hr class="rp-receipt-divider">
-                    <p class="rp-receipt-thanks">Thank you for staying with us.</p>
+                    @endif
                 </div>
-            </div>
-            <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-rp-soft" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-rp-primary" data-rp-print-receipt="#rpGuestReceiptPrint">
-                    <i class="bi bi-download me-1" aria-hidden="true"></i>
-                    Save to Photos
+
+                @if($booking->special_requests || $booking->rejection_reason)
+                    <div class="rp-reservation-notes">
+                        @if($booking->special_requests)
+                            <h3>Special requests</h3>
+                            <p>{{ $booking->special_requests }}</p>
+                        @endif
+                        @if($booking->rejection_reason)
+                            <div class="alert alert-danger {{ $booking->special_requests ? 'mt-3' : '' }} mb-0">{{ $booking->rejection_reason }}</div>
+                        @endif
+                    </div>
+                @endif
+            </section>
+        </div>
+
+        <div class="col-lg-6">
+            <section class="rp-reservation-summary-card" aria-labelledby="rpReservationSummaryTitle">
+                <div class="rp-reservation-total">
+                    <div class="rp-reservation-title-amenities">
+                        <h2 id="rpReservationSummaryTitle">{{ $booking->accommodation->name }}</h2>
+                        <span class="rp-reservation-title-meta">{{ $booking->accommodation->type->name ?? 'Accommodation' }}@if(filled($booking->accommodation->number)) · Unit {{ $booking->accommodation->number }}@endif · {{ $booking->booking_number }}</span>
+                    </div>
+                </div>
+
+                <div class="rp-reservation-dates">
+                    <div class="rp-reservation-date-item">
+                        <span class="rp-reservation-date-icon"><i class="bi bi-calendar-check" aria-hidden="true"></i></span>
+                        <div><span>Check-in</span><strong>{{ $booking->check_in_date->format('M j, Y') }}</strong><small>From {{ $checkInTime }}</small></div>
+                    </div>
+                    <div class="rp-reservation-date-divider" aria-hidden="true"></div>
+                    <div class="rp-reservation-date-item">
+                        <span class="rp-reservation-date-icon"><i class="bi bi-calendar-check" aria-hidden="true"></i></span>
+                        <div><span>Check-out</span><strong>{{ $booking->check_out_date->format('M j, Y') }}</strong><small>By {{ \Carbon\Carbon::createFromFormat('H:i', (string) config('resort.check_out_time', '12:00'))->format('g:i A') }}</small></div>
+                    </div>
+                </div>
+
+                <div class="rp-reservation-guest-line">
+                    <span><i class="bi bi-people" aria-hidden="true"></i> Guests</span>
+                    <strong>{{ $booking->adults }} {{ \Illuminate\Support\Str::plural('adult', $booking->adults) }}{{ (int) $booking->children > 0 ? ', '.$booking->children.' '.\Illuminate\Support\Str::plural('child', $booking->children) : '' }}</strong>
+                </div>
+
+                <div class="rp-reservation-price-breakdown" aria-label="Price breakdown">
+                    <div><span>Stay (&#8369;{{ number_format($nightlyRate, 2) }} × {{ $nights }} {{ \Illuminate\Support\Str::plural('night', $nights) }})</span><strong>&#8369;{{ number_format($staySubtotal, 2) }}</strong></div>
+                    @if($discountAmount > 0)
+                        <div class="is-discount"><span>Discount{{ $booking->promo_code ? ' · '.$booking->promo_code : '' }}</span><strong>−&#8369;{{ number_format($discountAmount, 2) }}</strong></div>
+                    @endif
+                    @if($additionalCharges > 0.009)
+                        <div><span>Additional charges</span><strong>&#8369;{{ number_format($additionalCharges, 2) }}</strong></div>
+                    @endif
+                    <div class="is-total"><span>Total stay · {{ $nights }} {{ \Illuminate\Support\Str::plural('night', $nights) }}</span><strong>&#8369;{{ number_format((float) $booking->total_amount, 2) }}</strong></div>
+                    <div><span>Paid to date</span><strong>&#8369;{{ number_format((float) $booking->paid_amount, 2) }}</strong></div>
+                    <div class="is-balance"><span>Balance due</span><strong>&#8369;{{ number_format((float) $booking->remaining_balance, 2) }}</strong></div>
+                </div>
+
+                <button type="button" class="rp-transaction-history-trigger" data-bs-toggle="modal" data-bs-target="#rpTransactionHistoryModal">
+                    <i class="bi bi-clock-history" aria-hidden="true"></i>
+                    View transaction history
+                    <span>{{ $booking->payments->count() }}</span>
                 </button>
-            </div>
+
+                <div class="rp-reservation-actions">
+                    @if(in_array($bookingStatus, ['pending', 'approved', 'checked_in']) && (float) $booking->remaining_balance > 0.009)
+                        <a href="{{ route('guest.payments.create', ['booking' => $booking, 'fresh' => 1]) }}" class="rp-reservation-pay-button">Proceed to Billing</a>
+                    @endif
+                    @if(in_array($bookingStatus, ['pending', 'approved']))
+                        <form method="POST" action="{{ route('guest.bookings.cancel', $booking) }}">
+                            @csrf
+                            <button type="submit" class="rp-reservation-secondary-button is-danger" data-rp-confirm-click="Cancel this reservation?">Cancel Reservation</button>
+                        </form>
+                    @endif
+                    @if(in_array($bookingStatus, ['approved', 'checked_in', 'checked_out']))
+                        <a href="{{ route('guest.incidents.create', ['booking_id' => $booking->id]) }}" class="rp-reservation-secondary-button">Report an Issue</a>
+                    @endif
+                    @if($bookingStatus === 'checked_out' && !$booking->feedback)
+                        <a href="{{ route('guest.feedback.create_booking', $booking) }}" class="rp-reservation-secondary-button">Leave Feedback</a>
+                    @endif
+                </div>
+            </section>
         </div>
     </div>
 </div>
-@push('scripts')
-<script>
-document.getElementById('rpGuestReceiptModal')?.addEventListener('show.bs.modal', (event) => {
-    const button = event.relatedTarget;
-    const card = document.getElementById('rpGuestReceiptPrint');
-    if (!button || !card) return;
 
-    const setField = (name, value) => {
-        const el = card.querySelector(`[data-receipt-field="${name}"]`);
-        if (el) el.textContent = value || '—';
-    };
+<div class="modal fade rp-transaction-history-modal" id="rpTransactionHistoryModal" tabindex="-1" aria-labelledby="rpTransactionHistoryTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title" id="rpTransactionHistoryTitle">Transaction history</h2>
+                </div>
+            </div>
+            <div class="modal-body">
+                @forelse($booking->payments as $payment)
+                    @php
+                        $historyStatus = $payment->status instanceof \BackedEnum ? $payment->status->value : (string) $payment->status;
+                        $historyMethod = str_replace('_', ' ', ucfirst($payment->payment_method instanceof \BackedEnum ? $payment->payment_method->value : (string) $payment->payment_method));
+                    @endphp
+                    <article class="rp-transaction-history-item">
+                        <div class="rp-transaction-history-item-top">
+                            <div>
+                                <strong>&#8369;{{ number_format((float) $payment->amount, 2) }}</strong>
+                                <span>{{ $payment->payment_date?->format('M d, Y · g:i A') ?? 'Date unavailable' }}</span>
+                            </div>
+                        </div>
+                        <div class="rp-transaction-history-method"><i class="bi bi-wallet2" aria-hidden="true"></i>{{ $historyMethod }}</div>
+                        @if($payment->gateway === 'demo')
+                            <div class="rp-transaction-history-demo"><i class="bi bi-info-circle" aria-hidden="true"></i> Sample transaction · no real charge</div>
+                        @endif
+                        @if($payment->reference_number)
+                            <div class="rp-transaction-history-reference">Reference <span>{{ $payment->reference_number }}</span></div>
+                        @endif
+                        @if($payment->receipt_number)
+                            <div class="rp-transaction-history-reference">Receipt <span>{{ $payment->receipt_number }}</span></div>
+                        @endif
+                    </article>
+                @empty
+                    <div class="rp-transaction-history-empty">
+                        <span><i class="bi bi-receipt" aria-hidden="true"></i></span>
+                        <strong>No transactions yet</strong>
+                        <p>Payments for this reservation will appear here.</p>
+                    </div>
+                @endforelse
+            </div>
+            <div class="modal-footer"><button type="button" class="rp-transaction-history-close" data-bs-dismiss="modal">Close</button></div>
+        </div>
+    </div>
+</div>
 
-    setField('amount', button.dataset.amount);
-    setField('receipt-number', button.dataset.receiptNumber);
-    setField('booking', button.dataset.booking);
-    setField('guest', button.dataset.guest);
-    setField('room', button.dataset.room);
-    setField('method', button.dataset.method);
-    setField('reference', button.dataset.reference);
-    setField('paid-on', button.dataset.paidOn);
-    setField('verified', button.dataset.verified);
-    setField('booking-total', button.dataset.bookingTotal);
-    setField('total-paid', button.dataset.totalPaid);
-    setField('remaining', button.dataset.remaining);
-    setField('payment-note', button.dataset.paymentNote);
-
-    const partialNote = card.querySelector('[data-receipt-partial-note]');
-    if (partialNote) {
-        partialNote.classList.toggle('d-none', button.dataset.isPartial !== '1');
-    }
-});
-</script>
-@endpush
-@endif
 @endsection

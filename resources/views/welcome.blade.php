@@ -23,7 +23,7 @@
     <div class="container">
         <h2 class="rp-story-heading">Unwind in the Heart of Guanzon</h2>
         <div class="rp-story-text">
-            <p>Tucked along a quiet stretch of shoreline, Guanzon Resort was built for guests who want the pace of a getaway without giving up comfort. Rooms and cottages sit close enough to the water to catch the breeze, yet far enough from the road to stay peaceful, giving every stay a natural rhythm of rest.</p>
+            <p>Escape to Guanzon Beach Resort, where refreshing sea breezes and cozy cottages make every getaway a relaxing experience.</p>
         </div>
         <div class="rp-story-image">
             <img src="{{ asset('images/story-entrance.png') }}" alt="Guanzon Beach entrance">

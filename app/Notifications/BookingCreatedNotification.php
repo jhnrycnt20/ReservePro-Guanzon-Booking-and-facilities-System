@@ -22,10 +22,13 @@ class BookingCreatedNotification extends Notification
     public function toArray(object $notifiable): array
     {
         $num = $this->booking->booking_number;
+        $isPending = $this->booking->status === \App\Enums\BookingStatus::Pending;
 
         return [
-            'title' => 'Reservation confirmed',
-            'message' => sprintf('Your reservation %s is confirmed and reserved.', $num),
+            'title' => $isPending ? 'Payment required' : 'Reservation confirmed',
+            'message' => $isPending
+                ? sprintf('Your reservation %s is awaiting payment. Complete payment to confirm your stay.', $num)
+                : sprintf('Your reservation %s is confirmed and reserved.', $num),
             'type' => 'booking',
             'id' => $this->booking->id,
             'number' => $num,

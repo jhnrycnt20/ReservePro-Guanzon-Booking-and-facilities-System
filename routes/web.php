@@ -167,6 +167,12 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('/bookings', [GuestBookingController::class, 'index'])->name('bookings.index');
         Route::get('/bookings/create', [GuestBookingController::class, 'create'])->name('bookings.create');
         Route::post('/bookings', [GuestBookingController::class, 'store'])->name('bookings.store');
+        Route::get('/billing', [GuestPaymentController::class, 'createDraft'])->name('payments.draft');
+        Route::post('/billing', [GuestPaymentController::class, 'storeDraft'])->name('payments.store-draft');
+        Route::post('/billing/promo', [GuestPaymentController::class, 'applyDraftPromo'])->name('payments.apply-draft-promo');
+        if (app()->environment(['local', 'testing'])) {
+            Route::post('/billing/sample-success', [GuestPaymentController::class, 'sampleSuccessDraft'])->name('payments.sample-success-draft');
+        }
         Route::get('/bookings/{booking}', [GuestBookingController::class, 'show'])->name('bookings.show');
         Route::post('/bookings/{booking}/cancel', [GuestBookingController::class, 'cancel'])->name('bookings.cancel');
         Route::post('/bookings/{booking}/promo', [GuestBookingController::class, 'applyPromo'])->name('bookings.apply_promo');
@@ -176,6 +182,9 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('/payments/create/{booking}', [GuestPaymentController::class, 'create'])->name('payments.create');
         Route::get('/payments/{payment}', [GuestPaymentController::class, 'show'])->name('payments.show');
         Route::post('/payments/{booking}', [GuestPaymentController::class, 'store'])->name('payments.store');
+        if (app()->environment(['local', 'testing'])) {
+            Route::post('/payments/{booking}/sample-success', [GuestPaymentController::class, 'sampleSuccess'])->name('payments.sample-success');
+        }
         Route::get('/payments/{booking}/gcash/return', [GuestPaymentController::class, 'checkoutReturn'])->name('payments.gcash.return');
         Route::get('/payments/{payment}/receipt', [GuestPaymentController::class, 'receipt'])->name('payments.receipt');
 

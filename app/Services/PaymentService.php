@@ -3,11 +3,14 @@
 namespace App\Services;
 
 use App\Enums\PaymentStatus;
+use App\Enums\BookingStatus;
+use App\Enums\AccommodationStatus;
 use App\Models\Booking;
 use App\Models\Payment;
 use App\Models\User;
 use App\Notifications\PaymentRecordedNotification;
 use App\Notifications\PaymentVerifiedNotification;
+use App\Notifications\BookingApprovedNotification;
 use App\Notifications\StaffPaymentRecordedNotification;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -59,6 +62,36 @@ class PaymentService
             'paid_amount' => max(0, round($paid, 2)),
             'remaining_balance' => $remaining,
         ]);
+
+        $booking = $booking->fresh(['accommodation', 'guest.user']);
+
+        if ($booking->status === BookingStatus::Pending
+            && (float) $booking->paid_amount + 0.009 >= $this->depositAmount($booking)
+            && app(AvailabilityService::class)->isAvailable(
+                $booking->accommodation_id,
+                $booking->check_in_date,
+                $booking->check_out_date,
+                $booking->id
+            )) {
+            $old = $booking->toArray();
+            $booking->update([
+                'status' => BookingStatus::Approved,
+                'approved_at' => now(),
+            ]);
+
+            if ($booking->accommodation && $booking->accommodation->status === AccommodationStatus::Available) {
+                $booking->accommodation->update(['status' => AccommodationStatus::Reserved]);
+            }
+
+            $this->auditService->log('booking.payment_confirmed', $booking, $old, $booking->fresh()->toArray());
+
+            if ($booking->guest?->user) {
+                $this->notificationService->notify(
+                    $booking->guest->user,
+                    new BookingApprovedNotification($booking)
+                );
+            }
+        }
 
         return $booking->fresh();
     }

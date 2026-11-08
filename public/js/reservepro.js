@@ -1,4 +1,37 @@
+window.addEventListener('pageshow', (event) => {
+    if (event.persisted && document.body.classList.contains('rp-page-payment-create')) {
+        window.location.reload();
+    }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-rp-booking-gallery]').forEach((gallery) => {
+        const mainImage = gallery.querySelector('[data-rp-reservation-main]');
+        const thumbnails = Array.from(gallery.querySelectorAll('[data-rp-reservation-photo]'));
+        thumbnails.forEach((thumbnail) => {
+            thumbnail.addEventListener('click', () => {
+                if (!mainImage || thumbnail.classList.contains('is-active')) return;
+                const nextSource = thumbnail.dataset.rpReservationPhoto;
+                if (!nextSource) return;
+
+                mainImage.style.opacity = '0.7';
+                const nextImage = new Image();
+                nextImage.onload = () => {
+                    mainImage.src = nextSource;
+                    mainImage.style.opacity = '';
+                };
+                nextImage.onerror = () => { mainImage.style.opacity = ''; };
+                nextImage.src = nextSource;
+
+                thumbnails.forEach((item) => {
+                    const isActive = item === thumbnail;
+                    item.classList.toggle('is-active', isActive);
+                    item.setAttribute('aria-pressed', String(isActive));
+                });
+            });
+        });
+    });
+
     const themeToggle = document.querySelector('[data-rp-theme-toggle]');
     if (themeToggle) {
         const applyChartTheme = (dark) => {
@@ -142,6 +175,67 @@ document.addEventListener('DOMContentLoaded', () => {
     const galleryItems = document.querySelectorAll('#rpGalleryGrid .rp-gallery-item');
     const revealTargets = document.querySelectorAll('#rpGalleryGrid .rp-gallery-item, .rp-story-image');
 
+    const galleryGrid = document.getElementById('rpGalleryGrid');
+    if (galleryGrid) {
+        const viewer = document.createElement('div');
+        viewer.className = 'rp-gallery-viewer';
+        viewer.hidden = true;
+        viewer.innerHTML = `
+            <div class="rp-gallery-viewer-panel" role="dialog" aria-modal="true" aria-label="Gallery image">
+                <figure class="rp-gallery-viewer-figure">
+                    <img class="rp-gallery-viewer-image" alt="">
+                </figure>
+            </div>`;
+        document.body.appendChild(viewer);
+        const viewerImage = viewer.querySelector('.rp-gallery-viewer-image');
+        let lastTrigger = null;
+
+        const closeViewer = () => {
+            if (viewer.hidden) return;
+            viewer.classList.remove('is-open');
+            document.body.classList.remove('rp-gallery-viewer-open');
+            window.setTimeout(() => {
+                if (viewer.classList.contains('is-open')) return;
+                viewer.hidden = true;
+                viewerImage.removeAttribute('src');
+                lastTrigger?.focus();
+            }, 220);
+        };
+
+        const openViewer = (item) => {
+            const image = item.querySelector('img');
+            if (!image) return;
+            lastTrigger = item;
+            viewerImage.alt = image.alt || 'Gallery photo';
+            viewerImage.src = image.currentSrc || image.src;
+            viewer.hidden = false;
+            document.body.classList.add('rp-gallery-viewer-open');
+            requestAnimationFrame(() => {
+                viewer.classList.add('is-open');
+            });
+        };
+
+        galleryItems.forEach((item) => {
+            item.tabIndex = 0;
+            item.setAttribute('role', 'button');
+            item.setAttribute('aria-label', `View ${item.querySelector('img')?.alt || 'gallery photo'} full size`);
+            item.addEventListener('click', () => openViewer(item));
+            item.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    openViewer(item);
+                }
+            });
+        });
+
+        viewer.addEventListener('click', (event) => {
+            if (event.target === viewer) closeViewer();
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !viewer.hidden) closeViewer();
+        });
+    }
+
     if (revealTargets.length) {
         if ('IntersectionObserver' in window) {
             galleryItems.forEach((item, index) => {
@@ -224,6 +318,62 @@ document.addEventListener('DOMContentLoaded', () => {
             if (momentumId) cancelAnimationFrame(momentumId);
             momentumId = null;
         };
+
+        const planTrack = planSlider.querySelector('.rp-plan-track');
+        const originalCards = Array.from(planTrack?.children || []);
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        let autoScrollId = null;
+        let autoScrollLastTime = 0;
+        let isSliderVisible = true;
+
+        if (planTrack && originalCards.length) {
+            originalCards.forEach((card) => {
+                const clone = card.cloneNode(true);
+                clone.setAttribute('aria-hidden', 'true');
+                clone.inert = true;
+                planTrack.appendChild(clone);
+            });
+
+            const loopDistance = planTrack.children[originalCards.length].getBoundingClientRect().left
+                - originalCards[0].getBoundingClientRect().left;
+            const autoScroll = (time) => {
+                if (!autoScrollLastTime) autoScrollLastTime = time;
+                const elapsed = Math.min(time - autoScrollLastTime, 40);
+                autoScrollLastTime = time;
+
+                const paused = reducedMotion.matches || !isSliderVisible || isDown || momentumId
+                    || planSlider.matches(':hover, :focus-within') || document.hidden;
+                if (!paused) {
+                    planSlider.scrollLeft += elapsed * 0.026;
+                    if (planSlider.scrollLeft >= loopDistance) {
+                        planSlider.scrollLeft -= loopDistance;
+                    }
+                }
+                autoScrollId = requestAnimationFrame(autoScroll);
+            };
+
+            const startAutoScroll = () => {
+                if (autoScrollId) return;
+                autoScrollLastTime = 0;
+                autoScrollId = requestAnimationFrame(autoScroll);
+            };
+            const stopAutoScroll = () => {
+                if (autoScrollId) cancelAnimationFrame(autoScrollId);
+                autoScrollId = null;
+            };
+
+            if ('IntersectionObserver' in window) {
+                const sliderObserver = new IntersectionObserver(([entry]) => {
+                    isSliderVisible = entry.isIntersecting;
+                });
+                sliderObserver.observe(planSlider);
+            }
+            reducedMotion.addEventListener?.('change', () => {
+                if (reducedMotion.matches) stopAutoScroll();
+                else startAutoScroll();
+            });
+            if (!reducedMotion.matches) startAutoScroll();
+        }
 
         const runMomentum = () => {
             if (Math.abs(velocity) < 0.5) {
@@ -558,6 +708,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('[data-rp-payment-form]').forEach((form) => {
         const amountInput = form.querySelector('#paymentAmount');
+        const sampleForm = form.closest('.rp-payment-create-card')?.querySelector('.rp-payment-sample-form');
+        const sampleAmount = sampleForm?.querySelector('[data-rp-sample-amount]');
         const minAmount = Number(form.dataset.rpMinAmount || 0);
         const maxAmount = Number(form.dataset.rpMaxAmount || 0);
         const methodSelect = form.querySelector('[name="payment_method"]');
@@ -579,6 +731,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         methodSelect?.addEventListener('change', syncPaymentRefVisibility);
         syncPaymentRefVisibility();
+
+        sampleForm?.addEventListener('submit', () => {
+            if (amountInput && sampleAmount) sampleAmount.value = amountInput.value;
+        });
 
         form.querySelectorAll('[data-rp-pay-amount]').forEach((button) => {
             button.addEventListener('click', () => {
@@ -2592,6 +2748,13 @@ function initAvailabilityCalendar() {
     const nextBtn = calendarRoot.querySelector('[data-rp-cal-next]');
     const proceedLink = document.querySelector('[data-rp-proceed-booking]');
     const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    modalEl.querySelectorAll('[data-bs-dismiss="modal"]').forEach((dismissButton) => {
+        dismissButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            modal.hide();
+        });
+    });
     const mapRoots = [
         ...modalEl.querySelectorAll('[data-rp-resort-map]'),
         ...document.querySelectorAll('.rp-resort-map-page [data-rp-resort-map]'),
@@ -2669,8 +2832,12 @@ function initAvailabilityCalendar() {
             occupiedUrl = unit.occupied_url;
             form.dataset.occupiedUrl = unit.occupied_url;
         }
-        if (unit.availability_url) {
+        if (unit.availability_url && !form.hasAttribute('data-rp-proceed-only')) {
             form.setAttribute('action', unit.availability_url);
+        }
+        const selectedAccommodationInput = form.querySelector('[data-rp-selected-accommodation]');
+        if (selectedAccommodationInput) {
+            selectedAccommodationInput.value = String(unit.id);
         }
         form.dataset.rpSelectedUnit = String(unit.id);
         if (unit.family) {
@@ -3207,7 +3374,10 @@ function initAvailabilityCalendar() {
     const unlockPageScroll = () => {
         if (!scrollLocked) return;
         const y = Number(document.body.dataset.rpAvailScrollY || lockedScrollY || 0);
+        const root = document.documentElement;
+        const previousScrollBehavior = root.style.scrollBehavior;
         scrollLocked = false;
+        root.style.scrollBehavior = 'auto';
         document.body.style.position = '';
         document.body.style.top = '';
         document.body.style.left = '';
@@ -3215,6 +3385,9 @@ function initAvailabilityCalendar() {
         document.body.style.width = '';
         delete document.body.dataset.rpAvailScrollY;
         window.scrollTo(0, y);
+        requestAnimationFrame(() => {
+            root.style.scrollBehavior = previousScrollBehavior;
+        });
     };
 
     modalEl.addEventListener('show.bs.modal', lockPageScroll);
@@ -3271,7 +3444,7 @@ function initAvailabilityCalendar() {
         if (!pendingCheckIn || !pendingCheckOut) {
             return;
         }
-        // Fill dates only — do not filter/submit. User clicks Check Availability next.
+        // Fill dates only; the booking form decides what happens on submit.
         checkInInput.value = pendingCheckIn;
         checkOutInput.value = pendingCheckOut;
         if (checkInDisplay) checkInDisplay.value = formatDisplay(pendingCheckIn);
@@ -3296,8 +3469,87 @@ function initAvailabilityCalendar() {
         });
     });
 
-    // After Check Availability submit, restore scroll to the filters (not the hero).
-    if (form.method?.toLowerCase() === 'get' && !form.hasAttribute('data-rp-no-auto-submit')) {
+    if (form.matches('[data-rp-browse-availability-form]')) {
+        const errorEl = document.querySelector('[data-rp-browse-error]');
+        const submitButton = form.querySelector('[type="submit"]');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const resultsGrid = document.querySelector('.rp-cottage-grid');
+            if (!resultsGrid) return;
+
+            const values = new FormData(form);
+            const checkIn = String(values.get('check_in') || '');
+            const checkOut = String(values.get('check_out') || '');
+            if ((checkIn && !checkOut) || (!checkIn && checkOut)) {
+                if (errorEl) {
+                    errorEl.textContent = 'Choose both a check-in and check-out date, or clear both dates.';
+                    errorEl.classList.remove('d-none');
+                }
+                return;
+            }
+            if (checkIn && checkOut && checkOut <= checkIn) {
+                if (errorEl) {
+                    errorEl.textContent = 'Check-out must be after check-in.';
+                    errorEl.classList.remove('d-none');
+                }
+                return;
+            }
+
+            errorEl?.classList.add('d-none');
+            const targetUrl = new URL(form.action, window.location.origin);
+            values.forEach((value, key) => {
+                if (String(value).trim() !== '') targetUrl.searchParams.set(key, String(value));
+                else targetUrl.searchParams.delete(key);
+            });
+
+            const originalButtonText = submitButton?.textContent;
+            const scrollY = window.scrollY;
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Checking…';
+            }
+            form.setAttribute('aria-busy', 'true');
+
+            try {
+                const response = await fetch(targetUrl.toString(), {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'text/html' },
+                });
+                if (!response.ok) throw new Error('Availability could not be updated. Please try again.');
+
+                const html = await response.text();
+                const nextDocument = new DOMParser().parseFromString(html, 'text/html');
+                const nextGrid = nextDocument.querySelector('.rp-cottage-grid');
+                if (!nextGrid) throw new Error('Availability results could not be displayed. Please try again.');
+
+                resultsGrid.replaceWith(nextGrid);
+                const currentPagination = document.getElementById('rpBrowsePagination');
+                const nextPagination = nextDocument.getElementById('rpBrowsePagination');
+                if (currentPagination && nextPagination) currentPagination.replaceWith(nextPagination);
+                else if (currentPagination) currentPagination.remove();
+                else if (nextPagination) nextGrid.insertAdjacentElement('afterend', nextPagination);
+
+                window.history.replaceState({}, '', `${targetUrl.pathname}${targetUrl.search}`);
+                requestAnimationFrame(() => window.scrollTo(0, scrollY));
+            } catch (error) {
+                if (errorEl) {
+                    errorEl.textContent = error.message || 'Availability could not be updated. Please try again.';
+                    errorEl.classList.remove('d-none');
+                }
+            } finally {
+                form.removeAttribute('aria-busy');
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalButtonText || 'Check Availability';
+                }
+            }
+        });
+    }
+
+    // Restore the filters position only for non-AJAX GET forms.
+    if (form.method?.toLowerCase() === 'get'
+        && !form.hasAttribute('data-rp-no-auto-submit')
+        && !form.matches('[data-rp-browse-availability-form]')) {
         form.addEventListener('submit', () => {
             try {
                 sessionStorage.setItem('rp-browse-scroll', 'filters');

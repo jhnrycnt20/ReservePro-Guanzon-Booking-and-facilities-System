@@ -123,9 +123,9 @@ class BookingService
                 'children' => $children,
                 'number_of_guests' => $numberOfGuests,
                 'special_requests' => $data['special_requests'] ?? null,
-                'status' => BookingStatus::Approved,
-                'approved_by' => $createdBy?->id,
-                'approved_at' => now(),
+                'status' => $isWalkIn ? BookingStatus::Approved : BookingStatus::Pending,
+                'approved_by' => $isWalkIn ? $createdBy?->id : null,
+                'approved_at' => $isWalkIn ? now() : null,
                 'original_amount' => $totals['original_total'] ?? $totals['total'],
                 'discount_amount' => $totals['discount_amount'] ?? 0,
                 'discount_percent' => $totals['discount_percent'] ?? null,
@@ -138,9 +138,11 @@ class BookingService
                 'created_by' => $createdBy?->id,
             ]);
 
-            $accommodation->update([
-                'status' => AccommodationStatus::Reserved,
-            ]);
+            if ($isWalkIn) {
+                $accommodation->update([
+                    'status' => AccommodationStatus::Reserved,
+                ]);
+            }
 
             $booking->items()->create([
                 'description' => "{$accommodation->name} ({$totals['nights']} night(s))",
