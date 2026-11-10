@@ -4,7 +4,6 @@
 @section('theme', 'front_desk')
 @section('role_label', 'Front Desk')
 @section('page_title', 'Welcome back, ' . strtok(auth()->user()->name, ' '))
-@section('page_subtitle', 'Today’s arrivals, departures, and reservations at a glance.')
 @section('sidebar')
     @include('partials.sidebar-front-desk')
 @endsection
@@ -22,7 +21,6 @@
         <div class="rp-staff-panel-head">
             <div>
                 <h2 id="desk-chart-title">Stay flow</h2>
-                <p>Scheduled check-ins and check-outs over seven days</p>
             </div>
             <a href="{{ route('front_desk.reservations.index') }}" class="rp-staff-text-link">Reservations <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
         </div>

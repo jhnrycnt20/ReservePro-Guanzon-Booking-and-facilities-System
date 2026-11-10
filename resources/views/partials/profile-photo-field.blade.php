@@ -2,6 +2,7 @@
     $profilePhotoUser = $profilePhotoUser ?? auth()->user();
     $photoInputId = $photoInputId ?? 'rpProfileAvatar';
     $photoLayout = $photoLayout ?? 'default'; // default | centered
+    $showSavePhoto = $showSavePhoto ?? false;
     $initial = strtoupper(mb_substr($profilePhotoUser->name ?? 'U', 0, 1));
     $hasAvatar = filled($profilePhotoUser->avatar_url);
 @endphp
@@ -61,7 +62,10 @@
             <div class="rp-profile-photo-hint">JPG, PNG or WebP · Up to 2 MB</div>
             <div class="rp-profile-photo-actions is-centered">
                 <button type="button" class="rp-profile-photo-change" data-rp-avatar-trigger aria-describedby="{{ $photoInputId }}Feedback">Change photo</button>
-                @if($profilePhotoUser->avatar)
+                @if($showSavePhoto)
+                    <button type="submit" class="rp-profile-photo-save" data-rp-avatar-save hidden>Save photo</button>
+                @endif
+                @if($profilePhotoUser->avatar && ! $showSavePhoto)
                     <label class="rp-profile-photo-remove mb-0">
                         <input type="checkbox" name="remove_avatar" value="1" data-rp-avatar-remove>
                         Remove

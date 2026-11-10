@@ -6,11 +6,11 @@
     <title>Receipt {{ $payment->receipt_number ?? 'PAY-'.$payment->id }}</title>
     <style>
         :root {
-            --ink: #1f2a28;
-            --muted: #6b7a77;
-            --line: #d9e1df;
-            --accent: #5a6766;
-            --soft: #eef2f1;
+            --ink: #18352f;
+            --muted: #6b7c75;
+            --line: #e0e9e4;
+            --accent: #0f6b45;
+            --soft: #f2f6f4;
         }
         * { box-sizing: border-box; }
         body {
@@ -18,50 +18,58 @@
             background: var(--soft);
             color: var(--ink);
             font-family: "Segoe UI", Arial, Helvetica, sans-serif;
-            padding: 1.5rem 1rem 2.5rem;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 2rem 1rem;
         }
         .rp-receipt-shell {
-            max-width: 440px;
+            width: min(100%, 520px);
             margin: 0 auto;
         }
         .rp-receipt-actions {
             display: flex;
-            gap: .6rem;
-            margin-bottom: 1rem;
+            gap: .65rem;
+            margin-top: 1rem;
         }
         .rp-receipt-actions a,
         .rp-receipt-actions button {
             flex: 1;
             appearance: none;
-            border-radius: 10px;
+            min-height: 46px;
+            border-radius: 11px;
             padding: .7rem 1rem;
             font-size: .9rem;
             font-weight: 600;
             text-align: center;
             text-decoration: none;
             cursor: pointer;
+            transition: background-color 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out, transform 150ms ease-out;
         }
         .rp-receipt-download {
             background: var(--accent);
             border: 1px solid var(--accent);
             color: #fff;
         }
+        .rp-receipt-download:hover { background: #0b5638; border-color: #0b5638; }
         .rp-receipt-back {
             background: #fff;
             border: 1px solid var(--line);
-            color: var(--ink);
+            color: #31594a;
         }
+        .rp-receipt-back:hover { background: #f7fbf8; border-color: #b9d6c5; color: var(--accent); }
+        .rp-receipt-actions :is(a, button):active { transform: scale(.985); }
         .rp-receipt-card {
             background: #fff;
             border: 1px solid var(--line);
-            border-radius: 16px;
-            padding: 1.5rem 1.35rem;
-            box-shadow: 0 8px 24px rgba(90, 103, 102, 0.08);
+            border-radius: 20px;
+            padding: 1.65rem;
+            box-shadow: 0 18px 50px rgba(24, 53, 47, .09);
         }
         .rp-receipt-brand {
             font-size: 1.25rem;
             font-weight: 700;
-            letter-spacing: -0.01em;
+            letter-spacing: -.025em;
         }
         .rp-receipt-meta {
             color: var(--muted);
@@ -71,14 +79,16 @@
         .rp-receipt-divider {
             border: none;
             border-top: 1px solid var(--line);
-            margin: 1rem 0;
+            margin: 1.2rem 0;
         }
         .rp-receipt-row {
-            display: flex;
-            justify-content: space-between;
-            gap: 1rem;
-            margin: .55rem 0;
-            font-size: .92rem;
+            display: grid;
+            grid-template-columns: minmax(5.5rem, .7fr) minmax(0, 1.3fr);
+            align-items: baseline;
+            gap: .8rem;
+            padding: .7rem 0;
+            border-bottom: 1px solid #edf2ef;
+            font-size: .88rem;
         }
         .rp-receipt-row span {
             color: var(--muted);
@@ -87,12 +97,15 @@
             text-align: right;
             font-weight: 600;
             color: var(--ink);
+            overflow-wrap: anywhere;
         }
         .rp-receipt-amount {
-            font-size: 1.35rem;
+            font-size: 2rem;
             font-weight: 700;
             text-align: center;
-            margin: .35rem 0 .15rem;
+            letter-spacing: -.035em;
+            line-height: 1.1;
+            margin: .5rem 0 .2rem;
         }
         .rp-receipt-thanks {
             text-align: center;
@@ -101,17 +114,28 @@
             margin: 0;
         }
         .rp-receipt-demo-notice {
-            margin: 0 0 1rem;
+            margin: 1.1rem 0 0;
             padding: .7rem .8rem;
             border: 1px solid #cfe5d8;
-            border-radius: 10px;
+            border-radius: 11px;
             background: #f0f8f3;
             color: #176b4c;
             font-size: .8rem;
             line-height: 1.45;
         }
+        .rp-receipt-card > .rp-receipt-meta[style] {
+            display: table;
+            margin: 0 auto 1.1rem !important;
+            padding: .28rem .65rem;
+            border-radius: 999px;
+            background: #e9f5ed;
+            color: var(--accent);
+            font-size: .74rem;
+            font-weight: 600;
+        }
+        .rp-receipt-row:last-of-type { border-bottom: 0; }
         @media print {
-            body { background: #fff; padding: 0; }
+            body { display: block; min-height: 0; background: #fff; padding: 0; }
             .no-print { display: none !important; }
             .rp-receipt-card {
                 box-shadow: none;
@@ -119,6 +143,13 @@
                 border-radius: 0;
                 max-width: none;
             }
+        }
+        @media (max-width: 480px) {
+            body { padding: 1rem .75rem; }
+            .rp-receipt-card { padding: 1.25rem 1rem; border-radius: 16px; }
+            .rp-receipt-brand { font-size: 1.08rem; }
+            .rp-receipt-amount { font-size: 1.75rem; }
+            .rp-receipt-row { grid-template-columns: minmax(4.5rem, .65fr) minmax(0, 1.35fr); gap: .55rem; font-size: .82rem; }
         }
     </style>
 </head>
@@ -141,14 +172,8 @@
     $paymentShare = $bookingTotal > 0 ? round(((float) $payment->amount / $bookingTotal) * 100) : 0;
 @endphp
 <div class="rp-receipt-shell">
-    <div class="rp-receipt-actions no-print">
-        <button type="button" class="rp-receipt-download" onclick="window.print()">Download receipt</button>
-        <a href="{{ url()->previous() !== url()->current() ? url()->previous() : route('guest.bookings.show', $payment->booking) }}" class="rp-receipt-back">Back</a>
-    </div>
-
     <div class="rp-receipt-card">
         <div class="rp-receipt-brand">{{ $resortSettings['resort_name'] ?? 'Guanzon Beach' }}</div>
-        <div class="rp-receipt-meta">Payment receipt</div>
 
         @if($payment->gateway === 'demo')
             <div class="rp-receipt-demo-notice"><strong>Sample payment only.</strong> No real GCash transaction or charge was made.</div>
@@ -187,6 +212,11 @@
 
         <hr class="rp-receipt-divider">
         <p class="rp-receipt-thanks">Thank you for staying with us.</p>
+    </div>
+
+    <div class="rp-receipt-actions no-print">
+        <a href="{{ url()->previous() !== url()->current() ? url()->previous() : route('guest.bookings.show', $payment->booking) }}" class="rp-receipt-back">Back</a>
+        <button type="button" class="rp-receipt-download" onclick="window.print()">Download receipt</button>
     </div>
 </div>
 </body>

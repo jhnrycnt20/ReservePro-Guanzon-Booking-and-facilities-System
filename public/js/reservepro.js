@@ -1705,6 +1705,17 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
+        document.addEventListener('click', () => {
+            document.querySelectorAll(
+                '#rpLoginModal .rp-login-error:not(:empty), #rpRegisterModal .rp-login-error:not(:empty)'
+            ).forEach((messageEl) => {
+                messageEl.textContent = '';
+                const input = messageEl.closest('.rp-login-field')?.querySelector('input, textarea');
+                input?.classList.remove('is-invalid');
+                input?.removeAttribute('aria-invalid');
+            });
+        });
+
         form.addEventListener('submit', async (event) => {
             if (submitting) return;
 
@@ -2032,12 +2043,40 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!valid) {
                 event.preventDefault();
                 const firstInvalid = form.querySelector('[data-rp-profile-field].is-invalid');
-                (firstInvalid?.name === 'avatar' ? form.querySelector('[data-rp-avatar-trigger]') : firstInvalid)?.focus();
+                const focusTarget = firstInvalid?.name === 'avatar' ? form.querySelector('[data-rp-avatar-trigger]') : firstInvalid;
+                if (focusTarget?.closest('[data-rp-profile-step]')) {
+                    setProfilePasswordStep(form, focusTarget.closest('[data-rp-profile-step]').dataset.rpProfileStep);
+                    window.setTimeout(() => focusTarget.focus(), 230);
+                } else {
+                    focusTarget?.focus();
+                }
             }
         });
     });
 
+    const setProfilePasswordStep = (form, step) => {
+        const steps = form.querySelector('[data-rp-profile-steps]');
+        if (!steps) return;
+        steps.dataset.activeStep = step;
+        steps.querySelectorAll('[data-rp-profile-step]').forEach((panel) => {
+            const isActive = panel.dataset.rpProfileStep === step;
+            panel.inert = !isActive;
+            panel.setAttribute('aria-hidden', String(!isActive));
+        });
+        form.closest('[data-rp-profile-manage]')?.querySelectorAll('[data-rp-profile-step-title]').forEach((title) => {
+            title.hidden = title.dataset.rpProfileStepTitle !== step;
+        });
+        const manageShell = form.closest('[data-rp-profile-manage]');
+        const backButton = manageShell?.querySelector('[data-rp-profile-cancel]');
+        const hasSummary = Boolean(manageShell?.querySelector('[data-rp-profile-view]'));
+        if (backButton) {
+            backButton.setAttribute('aria-label', step === 'password' ? 'Back to edit details' : hasSummary ? 'Back' : 'Close profile editor');
+        }
+    };
+
     document.querySelectorAll('[data-rp-password-form]').forEach((form) => {
+        const steps = form.querySelector('[data-rp-profile-steps]');
+        if (steps) setProfilePasswordStep(form, steps.dataset.activeStep || 'details');
         const field = (name) => form.querySelector(`[data-rp-password-field="${name}"]`);
         const feedback = (name) => form.querySelector(`[data-rp-password-feedback="${name}"]`);
         const touched = new Set();
@@ -2176,6 +2215,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         form.addEventListener('submit', (event) => {
+            if (form.querySelector('[data-rp-profile-field].is-invalid')) {
+                setProfilePasswordStep(form, 'details');
+                return;
+            }
             if (!needsCurrentPassword()) {
                 clearPasswordErrors();
                 return;
@@ -2184,14 +2227,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 .forEach((name) => touched.add(name));
             if (!validateAll({ force: true })) {
                 event.preventDefault();
-                const panel = form.querySelector('[data-rp-password-panel]');
-                const dropdown = form.querySelector('[data-rp-password-dropdown]');
-                if (isChangingPassword()) {
-                    if (panel) panel.hidden = false;
-                    dropdown?.classList.add('is-open');
-                }
                 const firstInvalid = form.querySelector('[data-rp-password-field].is-invalid');
-                firstInvalid?.focus();
+                const credentialFields = ['current_password', 'password', 'password_confirmation'];
+                if (firstInvalid && credentialFields.includes(firstInvalid.name)) {
+                    setProfilePasswordStep(form, 'password');
+                    window.setTimeout(() => firstInvalid.focus(), 230);
+                } else {
+                    firstInvalid?.focus();
+                }
             }
         });
 
@@ -2272,8 +2315,28 @@ document.addEventListener('DOMContentLoaded', () => {
         shell.querySelectorAll('[data-rp-profile-edit]').forEach((btn) => {
             btn.addEventListener('click', showEdit);
         });
+        const profileForm = shell.querySelector('[data-rp-password-form]');
+        shell.querySelectorAll('[data-rp-profile-step-trigger="password"]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                if (!profileForm) return;
+                setProfilePasswordStep(profileForm, 'password');
+                window.setTimeout(() => profileForm.querySelector('[data-rp-password-field="current_password"]')?.focus(), 230);
+            });
+        });
         shell.querySelectorAll('[data-rp-profile-cancel]').forEach((btn) => {
-            btn.addEventListener('click', showView);
+            btn.addEventListener('click', () => {
+                if (profileForm?.querySelector('[data-rp-profile-steps]')?.dataset.activeStep === 'password') {
+                    setProfilePasswordStep(profileForm, 'details');
+                    window.setTimeout(() => shell.querySelector('[data-rp-profile-step-trigger="password"]')?.focus(), 230);
+                    return;
+                }
+                if (viewPanel) {
+                    showView();
+                    return;
+                }
+                const modal = shell.closest('.modal');
+                if (modal && window.bootstrap?.Modal) window.bootstrap.Modal.getOrCreateInstance(modal).hide();
+            });
         });
 
         shell.querySelectorAll('[data-rp-password-dropdown]').forEach((dropdown) => {
@@ -2294,6 +2357,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const fallback = wrap.querySelector('[data-rp-avatar-fallback]');
         const remove = wrap.querySelector('[data-rp-avatar-remove]');
         const viewBtn = wrap.querySelector('[data-rp-avatar-view]');
+        const savePhotoBtn = wrap.querySelector('[data-rp-avatar-save]');
         if (!input || !preview) return;
 
         wrap.querySelector('[data-rp-avatar-trigger]')?.addEventListener('click', () => input.click());
@@ -2310,7 +2374,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         input.addEventListener('change', () => {
             const file = input.files?.[0];
-            if (!file) return;
+            if (!file) {
+                if (savePhotoBtn) savePhotoBtn.hidden = !remove?.checked;
+                return;
+            }
+            if (savePhotoBtn) savePhotoBtn.hidden = false;
             const extension = file.name.split('.').pop()?.toLowerCase();
             if (!['jpg', 'jpeg', 'png', 'webp'].includes(extension)
                 || (file.type && !['image/jpeg', 'image/png', 'image/webp'].includes(file.type))
@@ -2324,6 +2392,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         remove?.addEventListener('change', () => {
+            if (savePhotoBtn) savePhotoBtn.hidden = !remove.checked && !input.files?.length;
             if (!remove.checked) return;
             input.value = '';
             preview.src = '';

@@ -466,6 +466,106 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-resv-table tbody td {
     border-color: var(--rp-border);
 }
 
+html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page {
+    --rp-resv-ink: var(--rp-text);
+    --rp-resv-muted: var(--rp-muted);
+    --rp-resv-line: var(--rp-border);
+    --rp-resv-surface: var(--rp-surface);
+    --rp-resv-soft: #343738;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-resv-toolbar, .rp-resv-overview-item) {
+    background: transparent;
+    border-color: var(--rp-border);
+    box-shadow: none;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-resv-toolbar-head {
+    border-color: var(--rp-border);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-resv-section-title, .rp-resv-overview-item strong, .rp-resv-dates-cell > div > strong, .rp-resv-date-panel-title) {
+    color: var(--rp-text);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-resv-section-copy, .rp-resv-overview-item > span:last-child > span, .rp-resv-dates-cell > div > span, .rp-resv-dates-cell > small) {
+    color: var(--rp-muted);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-tabs {
+    background: transparent;
+    border-color: transparent;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-tab:hover {
+    background: #414747;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page :is(.rp-resv-date-panel, .rp-resv-date-btn, .rp-resv-btn-outline) {
+    background: #353738;
+    border-color: #55585a;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-table tbody tr:hover {
+    background: #373a3b;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-resv-overview-item.is-open .rp-resv-overview-icon,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-resv-overview-item.is-checkin .rp-resv-overview-icon,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-resv-overview-item.is-checkout .rp-resv-overview-icon,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-resv-overview-item.is-walkin .rp-resv-overview-icon {
+    background: #43514f;
+    color: #a6e5d9;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-toolbar {
+    border: 0;
+    border-bottom: 1px solid var(--rp-border);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-tab.is-active {
+    background: transparent;
+    color: #a6e5d9 !important;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-tab.is-active::after {
+    background: #8bd1c7;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-overview {
+    border-color: var(--rp-border);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-overview-item {
+    border-color: var(--rp-border);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page :is(.rp-resv-id, .rp-resv-room-number) {
+    border-color: var(--rp-border);
+    background: #353a3b;
+    color: #a6d8d0;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page :is(.rp-resv-guest-count, .rp-resv-mobile-meta > div > strong, .rp-resv-mobile-dates > div > strong) {
+    color: var(--rp-text);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page :is(.rp-resv-mobile-booking span, .rp-resv-mobile-meta > div > span, .rp-resv-mobile-dates > div > span) {
+    color: var(--rp-muted);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page :is(.rp-resv-mobile-meta, .rp-resv-table tbody td) {
+    border-color: var(--rp-border);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-booking-source.is-online {
+    color: #9bd4c3;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-booking-source.is-walk-in {
+    color: #e5bf83;
+}
+
 html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-resv-id, .rp-resv-guest-name, .rp-resv-room-name, .rp-resv-date-main, .rp-resv-stat-value, .rp-resv-log-item__when) {
     color: var(--rp-text);
 }

@@ -68,7 +68,7 @@ class FeedbackController extends Controller
         ));
     }
 
-    public function create(Request $request, ?Booking $booking = null): View|RedirectResponse
+    public function create(Request $request, ?Booking $booking = null): RedirectResponse
     {
         $guestId = $request->user()?->guest?->id;
         abort_unless($guestId, 403);
@@ -76,12 +76,15 @@ class FeedbackController extends Controller
         if ($booking && $booking->exists) {
             abort_unless($booking->guest_id === $guestId, 403);
             abort_unless($booking->status === BookingStatus::CheckedOut, 422, 'Feedback allowed after check-out only.');
-            $booking->load('accommodation');
 
-            return view('guest.feedback.create', compact('booking'));
+            return redirect()
+                ->route('guest.bookings.show', $booking)
+                ->with('open_feedback_modal', true);
         }
 
-        return redirect()->route('guest.feedback.index', ['write' => 1]);
+        return redirect()
+            ->route('guest.feedback.index')
+            ->with('open_feedback_modal', true);
     }
 
     public function store(Request $request, ?Booking $booking = null): RedirectResponse
@@ -93,7 +96,7 @@ class FeedbackController extends Controller
             abort_unless($booking->guest_id === $guest->id, 403);
             abort_unless($booking->status === BookingStatus::CheckedOut, 422, 'Feedback allowed after check-out only.');
 
-            $data = $request->validate([
+            $data = $request->validateWithBag('feedback', [
                 'rating' => ['required', 'integer', 'min:1', 'max:5'],
                 'comment' => ['nullable', 'string', 'max:2000'],
             ]);

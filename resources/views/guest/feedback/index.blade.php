@@ -133,10 +133,10 @@
                         <div class="rp-feedback-label mb-2">Or rate a checked-out stay</div>
                         <div class="list-group list-group-flush">
                             @foreach($bookings as $option)
-                                <a href="{{ route('guest.feedback.create_booking', $option) }}" class="list-group-item list-group-item-action px-0">
+                                <button type="button" class="list-group-item list-group-item-action px-0" data-bs-toggle="modal" data-bs-target="#rpWriteFeedbackModal" data-rp-feedback-booking-action="{{ route('guest.feedback.store_booking', $option) }}" data-rp-feedback-booking-label="{{ $option->booking_number }} — {{ $option->accommodation->name ?? 'Stay' }}">
                                     <div class="fw-semibold">{{ $option->booking_number }}</div>
                                     <div class="small text-muted">{{ $option->accommodation->name ?? 'Stay' }} · {{ $option->check_out_date?->format('M d, Y') }}</div>
-                                </a>
+                                </button>
                             @endforeach
                         </div>
                     </div>

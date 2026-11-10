@@ -3,7 +3,7 @@
 @section('title', 'Submit Report')
 
 @section('content')
-<div class="container rp-public-page-top pb-4">
+<div class="container rp-public-page-top pb-4 rp-incident-create-page">
     <a href="{{ route('guest.bookings.index') }}" class="rp-back-link"><i class="bi bi-arrow-left"></i> Back to My Reservations</a>
 
     <div class="rp-page-intro">
@@ -11,8 +11,8 @@
     </div>
 
     <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="rp-flow-card">
+        <div class="col-12">
+            <div class="rp-flow-card rp-incident-create-card">
                 <form method="POST" action="{{ route('guest.incidents.store') }}" enctype="multipart/form-data">
                     @csrf
                     <div class="row g-3">

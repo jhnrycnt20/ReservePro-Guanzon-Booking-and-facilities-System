@@ -112,7 +112,7 @@
                         <a href="{{ route('guest.incidents.create', ['booking_id' => $booking->id]) }}" class="rp-reservation-secondary-button">Report an Issue</a>
                     @endif
                     @if($bookingStatus === 'checked_out' && !$booking->feedback)
-                        <a href="{{ route('guest.feedback.create_booking', $booking) }}" class="rp-reservation-secondary-button">Leave Feedback</a>
+                        <button type="button" class="rp-reservation-secondary-button" data-bs-toggle="modal" data-bs-target="#rpWriteFeedbackModal" data-rp-feedback-booking-action="{{ route('guest.feedback.store_booking', $booking) }}" data-rp-feedback-booking-label="{{ $booking->booking_number }} — {{ $booking->accommodation->name ?? 'Stay' }}">Leave Feedback</button>
                     @endif
                 </div>
             </section>
@@ -181,7 +181,7 @@
                             <div class="rp-transaction-history-reference">Reference <span>{{ $payment->reference_number }}</span></div>
                         @endif
                         @if($payment->receipt_number)
-                            <div class="rp-transaction-history-reference">Receipt <span>{{ $payment->receipt_number }}</span></div>
+                            <div class="rp-transaction-history-reference">Receipt <span>{{ $payment->receipt_number }}</span><a class="rp-transaction-history-receipt-link" href="{{ route('guest.payments.receipt', $payment) }}" target="_blank" rel="noopener noreferrer">View receipt</a></div>
                         @endif
                     </article>
                 @empty

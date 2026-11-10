@@ -14,13 +14,15 @@
     $passwordBag = $errors->getBag('password');
     $passwordErrors = $passwordBag->isNotEmpty()
         || $profileBag->hasAny(['current_password', 'password', 'password_confirmation']);
-    $startInEdit = $profileBag->isNotEmpty()
+    $startInEdit = $useModalFlags
+        || $profileBag->isNotEmpty()
         || $passwordBag->isNotEmpty()
         || old('_modal') === 'profile'
         || old('_modal') === 'profile_password';
 @endphp
 
 <div class="rp-profile-layout" data-rp-profile-manage @if($startInEdit) data-rp-profile-editing="1" @endif>
+    @unless($useModalFlags)
     <div class="rp-profile-view" data-rp-profile-view @if($startInEdit) hidden @endif>
         <div class="rp-profile-hero">
             <button
@@ -55,19 +57,25 @@
             </div>
         </dl>
     </div>
+    @endunless
 
     <div class="rp-profile-edit" data-rp-profile-edit-panel @if(! $startInEdit) hidden @endif>
         <div class="rp-profile-edit-shell">
+            @unless($useModalFlags)
             <div class="rp-profile-edit-bar">
                 <button type="button" class="rp-profile-back-btn" data-rp-profile-cancel aria-label="Back">
                     <i class="bi bi-arrow-left" aria-hidden="true"></i>
                 </button>
-                <h3 class="rp-profile-edit-title mb-0">Edit details</h3>
+                <h3 class="rp-profile-edit-title mb-0">
+                    <span data-rp-profile-step-title="details">Edit details</span>
+                    <span data-rp-profile-step-title="password" hidden>Change password</span>
+                </h3>
                 <button type="submit" form="rpProfileInfoForm-{{ $photoInputId }}" class="rp-profile-save-icon" aria-label="Save changes">
                     <i class="bi bi-check-lg" aria-hidden="true"></i>
                     <span>Save</span>
                 </button>
             </div>
+            @endunless
 
             <form
                 id="rpProfileInfoForm-{{ $photoInputId }}"
@@ -86,47 +94,53 @@
                     <input type="hidden" name="_modal" value="profile">
                 @endif
 
+                <div class="rp-profile-step-track" data-rp-profile-steps data-active-step="{{ $passwordErrors ? 'password' : 'details' }}">
+                <section class="rp-profile-step" data-rp-profile-step="details" aria-hidden="{{ $passwordErrors ? 'true' : 'false' }}" @if($passwordErrors) inert @endif>
                 @include('partials.profile-photo-field', [
                     'profilePhotoUser' => $profileUser,
                     'photoInputId' => $photoInputId,
                     'photoLayout' => 'centered',
+                    'showSavePhoto' => $useModalFlags,
                 ])
 
                 <div class="rp-profile-stack">
                     <div>
                         <label class="form-label" for="{{ $nameInputId }}">Name</label>
-                        <input id="{{ $nameInputId }}" type="text" name="name" class="form-control rp-profile-soft-input @error('name', 'profile') is-invalid @enderror" value="{{ old('name', $profileUser->name) }}" data-rp-profile-field="name" aria-describedby="{{ $nameInputId }}Feedback" autocomplete="name" required>
+                        <input id="{{ $nameInputId }}" type="text" name="name" class="form-control rp-profile-soft-input @error('name', 'profile') is-invalid @enderror" value="{{ old('name', $profileUser->name) }}" data-rp-profile-field="name" aria-describedby="{{ $nameInputId }}Feedback" autocomplete="name" readonly required>
                         <div id="{{ $nameInputId }}Feedback" class="invalid-feedback @error('name', 'profile') d-block @enderror" data-rp-profile-feedback="name" aria-live="polite">@error('name', 'profile'){{ $message }}@enderror</div>
                     </div>
                     <div>
                         <label class="form-label" for="{{ $emailInputId }}">Email address</label>
-                        <input id="{{ $emailInputId }}" type="email" name="email" class="form-control rp-profile-soft-input @error('email', 'profile') is-invalid @enderror" value="{{ old('email', $profileUser->email) }}" data-rp-profile-field="email" aria-describedby="{{ $emailInputId }}Feedback" autocomplete="email" required>
+                        <input id="{{ $emailInputId }}" type="email" name="email" class="form-control rp-profile-soft-input @error('email', 'profile') is-invalid @enderror" value="{{ old('email', $profileUser->email) }}" data-rp-profile-field="email" aria-describedby="{{ $emailInputId }}Feedback" autocomplete="email" readonly required>
                         <div id="{{ $emailInputId }}Feedback" class="invalid-feedback @error('email', 'profile') d-block @enderror" data-rp-profile-feedback="email" aria-live="polite">@error('email', 'profile'){{ $message }}@enderror</div>
                     </div>
                     <div>
                         <label class="form-label" for="{{ $phoneInputId }}">Phone number</label>
-                        <input id="{{ $phoneInputId }}" type="tel" name="phone" class="form-control rp-profile-soft-input @error('phone', 'profile') is-invalid @enderror" value="{{ old('phone', $profileUser->phone) }}" placeholder="09171234567" data-rp-profile-field="phone" aria-describedby="{{ $phoneInputId }}Feedback" autocomplete="tel" required>
+                        <input id="{{ $phoneInputId }}" type="tel" name="phone" class="form-control rp-profile-soft-input @error('phone', 'profile') is-invalid @enderror" value="{{ old('phone', $profileUser->phone) }}" placeholder="09171234567" data-rp-profile-field="phone" aria-describedby="{{ $phoneInputId }}Feedback" autocomplete="tel" readonly required>
                         <div id="{{ $phoneInputId }}Feedback" class="invalid-feedback @error('phone', 'profile') d-block @enderror" data-rp-profile-feedback="phone" aria-live="polite">@error('phone', 'profile'){{ $message }}@enderror</div>
-                    </div>
-                    <div>
-                        <label class="form-label" for="{{ $currentPasswordId }}">Current password</label>
-                        <input id="{{ $currentPasswordId }}" type="password" name="current_password" class="form-control rp-profile-soft-input @error('current_password', 'profile') is-invalid @enderror" data-rp-password-field="current_password" aria-describedby="{{ $currentPasswordId }}Hint {{ $currentPasswordId }}Feedback" autocomplete="current-password">
-                        <div id="{{ $currentPasswordId }}Hint" class="rp-profile-field-hint">Required to change your email or password.</div>
-                        <div id="{{ $currentPasswordId }}Feedback" class="invalid-feedback @error('current_password', 'profile') d-block @enderror" data-rp-password-feedback="current_password" aria-live="polite">@error('current_password', 'profile'){{ $message }}@enderror</div>
                     </div>
                 </div>
 
-                <div class="rp-profile-pw-dropdown{{ $passwordErrors ? ' is-open' : '' }}" data-rp-password-dropdown>
-                    <button
-                        type="button"
-                        class="rp-profile-pw-toggle"
-                        data-rp-password-toggle
-                        aria-expanded="{{ $passwordErrors ? 'true' : 'false' }}"
-                    >
-                        <span class="rp-profile-pw-toggle-label"><i class="bi bi-shield-lock" aria-hidden="true"></i>Change password</span>
-                        <i class="bi bi-chevron-down" aria-hidden="true"></i>
-                    </button>
-                    <div class="rp-profile-pw-panel" data-rp-password-panel @if(! $passwordErrors) hidden @endif>
+                <button type="button" class="rp-profile-password-link" data-rp-profile-step-trigger="password" aria-controls="rpProfilePasswordStep-{{ $photoInputId }}">
+                    <span class="rp-profile-password-link-label"><i class="bi bi-shield-lock" aria-hidden="true"></i>Change password</span>
+                    <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                </button>
+                </section>
+
+                <section id="rpProfilePasswordStep-{{ $photoInputId }}" class="rp-profile-step rp-profile-password-step" data-rp-profile-step="password" data-rp-password-panel aria-hidden="{{ $passwordErrors ? 'false' : 'true' }}" @if(! $passwordErrors) inert @endif>
+                    @if($useModalFlags)
+                        <button type="button" class="rp-profile-step-back" data-rp-profile-cancel aria-label="Back to edit details">
+                            <i class="bi bi-arrow-left" aria-hidden="true"></i> Edit details
+                        </button>
+                    @endif
+                    <div class="rp-profile-stack">
+                        <div>
+                            <label class="form-label" for="{{ $currentPasswordId }}">Current password</label>
+                            <input id="{{ $currentPasswordId }}" type="password" name="current_password" class="form-control rp-profile-soft-input @error('current_password', 'profile') is-invalid @enderror" data-rp-password-field="current_password" aria-describedby="{{ $currentPasswordId }}Hint {{ $currentPasswordId }}Feedback" autocomplete="current-password">
+                            <div id="{{ $currentPasswordId }}Hint" class="rp-profile-field-hint">Required to change your email or password.</div>
+                            <div id="{{ $currentPasswordId }}Feedback" class="invalid-feedback @error('current_password', 'profile') d-block @enderror" data-rp-password-feedback="current_password" aria-live="polite">@error('current_password', 'profile'){{ $message }}@enderror</div>
+                        </div>
+                    </div>
                         <div class="rp-profile-stack">
                             <div>
                                 <label class="form-label" for="{{ $newPasswordId }}">New password</label>
@@ -145,12 +159,19 @@
                             <li data-rp-pw-rule="lower"><i class="bi bi-check-circle" aria-hidden="true"></i><span>Lowercase</span></li>
                             <li data-rp-pw-rule="number"><i class="bi bi-check-circle" aria-hidden="true"></i><span>Number</span></li>
                         </ul>
-                    </div>
+                    @if($useModalFlags)
+                        <div class="rp-profile-actions">
+                            <button type="submit" class="btn btn-rp-primary w-100">Save changes</button>
+                        </div>
+                    @endif
+                </section>
                 </div>
 
+                @unless($useModalFlags)
                 <div class="rp-profile-actions d-md-none">
                     <button type="submit" class="btn btn-rp-primary w-100">Save changes</button>
                 </div>
+                @endunless
 
             </form>
         </div>

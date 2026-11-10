@@ -4,7 +4,6 @@
 @section('theme', 'security')
 @section('role_label', 'Security Guard')
 @section('page_title', 'Welcome back, ' . strtok(auth()->user()->name, ' '))
-@section('page_subtitle', 'Track new reports and investigation progress.')
 @section('sidebar')
     @include('partials.sidebar-security')
 @endsection

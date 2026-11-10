@@ -41,7 +41,7 @@
                                 <i class="bi bi-person-circle" aria-hidden="true"></i>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end rp-nav-account-menu">
-                                <li><a class="dropdown-item" href="{{ route('profile.edit') }}"><i class="bi bi-person me-2" aria-hidden="true"></i>My account</a></li>
+                                <li><button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#rpProfileModal"><i class="bi bi-person me-2" aria-hidden="true"></i>My account</button></li>
                                 @if(auth()->user()?->isGuestRole())
                                     <li><a class="dropdown-item" href="{{ route('guest.bookings.index') }}"><i class="bi bi-calendar-check me-2" aria-hidden="true"></i>Reservations</a></li>
                                     <li><button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#rpWriteFeedbackModal"><i class="bi bi-chat-square-text me-2" aria-hidden="true"></i>Write Feedback</button></li>

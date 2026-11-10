@@ -8,6 +8,7 @@
     @include('partials.sidebar-front-desk')
 @endsection
 
+
 @section('content')
 @php
     $dateFromDisplay = $dateFrom ? \Carbon\Carbon::parse($dateFrom)->format('M j, Y') : null;
@@ -28,38 +29,27 @@
 @endif
 
 <div class="rp-reservations-page">
-<div class="rp-resv-toolbar mb-3">
-    <div class="rp-resv-toolbar-head">
+<section class="rp-resv-toolbar" aria-label="Reservation controls">
     <nav class="rp-resv-tabs" aria-label="Reservation filters">
         <a href="{{ route('front_desk.reservations.index', array_filter(['q' => request('q'), 'from' => $dateFrom, 'to' => $dateTo, 'tab' => 'all'])) }}"
-           class="rp-resv-tab {{ $tab === 'all' ? 'is-active' : '' }}">All</a>
+           class="rp-resv-tab {{ $tab === 'all' ? 'is-active' : '' }}" @if($tab === 'all') aria-current="page" @endif>All</a>
         <a href="{{ route('front_desk.reservations.index', array_filter(['q' => request('q'), 'from' => $dateFrom, 'to' => $dateTo, 'tab' => 'check_in'])) }}"
-           class="rp-resv-tab {{ $tab === 'check_in' ? 'is-active' : '' }}">
-            Check-in
-        </a>
+           class="rp-resv-tab {{ $tab === 'check_in' ? 'is-active' : '' }}" @if($tab === 'check_in') aria-current="page" @endif>Check-in</a>
         <a href="{{ route('front_desk.reservations.index', array_filter(['q' => request('q'), 'from' => $dateFrom, 'to' => $dateTo, 'tab' => 'check_out'])) }}"
-           class="rp-resv-tab {{ $tab === 'check_out' ? 'is-active' : '' }}">
-            Check-out
-        </a>
+           class="rp-resv-tab {{ $tab === 'check_out' ? 'is-active' : '' }}" @if($tab === 'check_out') aria-current="page" @endif>Check-out</a>
         <a href="{{ route('front_desk.reservations.index', array_filter(['q' => request('q'), 'from' => $dateFrom, 'to' => $dateTo, 'tab' => 'walk_in'])) }}"
-           class="rp-resv-tab {{ $tab === 'walk_in' ? 'is-active' : '' }}">
-            Walk-ins
-        </a>
+           class="rp-resv-tab {{ $tab === 'walk_in' ? 'is-active' : '' }}" @if($tab === 'walk_in') aria-current="page" @endif>Walk-ins</a>
         <a href="{{ route('front_desk.reservations.index', array_filter(['q' => request('q'), 'from' => $dateFrom, 'to' => $dateTo, 'tab' => 'logs'])) }}"
-           class="rp-resv-tab {{ $tab === 'logs' ? 'is-active' : '' }}">
-            Logs
-        </a>
+           class="rp-resv-tab {{ $tab === 'logs' ? 'is-active' : '' }}" @if($tab === 'logs') aria-current="page" @endif>Logs</a>
     </nav>
-    <button type="button" class="btn btn-rp-primary rp-resv-walkin-btn" data-bs-toggle="modal" data-bs-target="#rpWalkInModal">
-        <i class="bi bi-plus-lg" aria-hidden="true"></i> New walk-in
-    </button>
-    </div>
 
     <form method="GET" class="rp-resv-search-form" data-rp-live-filter>
         <input type="hidden" name="tab" value="{{ $tab }}">
         <div class="rp-resv-search">
+            <label for="rpReservationSearch" class="visually-hidden">Search reservations</label>
             <i class="bi bi-search" aria-hidden="true"></i>
             <input
+                id="rpReservationSearch"
                 type="text"
                 name="q"
                 value="{{ request('q') }}"
@@ -70,27 +60,42 @@
             >
         </div>
         <div class="rp-resv-date" data-rp-resv-date>
-                <i class="bi bi-calendar3" aria-hidden="true"></i>
-                <button type="button" class="rp-resv-date-btn" data-rp-resv-date-toggle>
-                    <span>{{ $dateLabel }}</span>
-                    <i class="bi bi-chevron-down" aria-hidden="true"></i>
-                </button>
-                <div class="rp-resv-date-panel" data-rp-resv-date-panel hidden>
-                    <label class="form-label">From</label>
-                    <input type="date" name="from" value="{{ $dateFrom }}" class="form-control mb-2" data-rp-live-filter-change>
-                    <label class="form-label">To</label>
-                    <input type="date" name="to" value="{{ $dateTo }}" class="form-control mb-2" data-rp-live-filter-change>
-                    <a href="{{ route('front_desk.reservations.index', array_filter(['tab' => $tab, 'q' => request('q')])) }}" class="btn btn-rp-soft btn-sm w-100">Clear dates</a>
-                </div>
+            <button type="button" class="rp-resv-date-btn" data-rp-resv-date-toggle aria-expanded="false" aria-controls="rpReservationDatePanel">
+                <span class="rp-resv-date-btn-label"><i class="bi bi-calendar3" aria-hidden="true"></i><span>{{ $dateLabel }}</span></span>
+                <i class="bi bi-chevron-down" aria-hidden="true"></i>
+            </button>
+            <div class="rp-resv-date-panel" id="rpReservationDatePanel" data-rp-resv-date-panel hidden>
+                <div class="rp-resv-date-panel-title">Filter by stay dates</div>
+                <label class="form-label" for="rpReservationDateFrom">From</label>
+                <input id="rpReservationDateFrom" type="date" name="from" value="{{ $dateFrom }}" class="form-control mb-2" data-rp-live-filter-change>
+                <label class="form-label" for="rpReservationDateTo">To</label>
+                <input id="rpReservationDateTo" type="date" name="to" value="{{ $dateTo }}" class="form-control mb-3" data-rp-live-filter-change>
+                <a href="{{ route('front_desk.reservations.index', array_filter(['tab' => $tab, 'q' => request('q')])) }}" class="btn btn-rp-soft btn-sm w-100">Clear dates</a>
+            </div>
         </div>
     </form>
-</div>
+    <button type="button" class="btn btn-rp-primary rp-resv-walkin-btn" data-bs-toggle="modal" data-bs-target="#rpWalkInModal">
+        <i class="bi bi-plus-lg" aria-hidden="true"></i><span>New walk-in</span>
+    </button>
+</section>
 
 <div class="rp-resv-overview" aria-label="Reservation queue summary">
-    <div><strong>{{ number_format($stats['total']) }}</strong><span>Open stays</span></div>
-    <div><strong>{{ number_format($stats['check_ins_ready']) }}</strong><span>Ready for check-in</span></div>
-    <div><strong>{{ number_format($stats['check_outs_today_due']) }}</strong><span>Due for check-out</span></div>
-    <div><strong>{{ number_format($stats['walk_ins_today']) }}</strong><span>Walk-ins today</span></div>
+    <div class="rp-resv-overview-item is-open">
+        <span class="rp-resv-overview-icon" aria-hidden="true"><i class="bi bi-journal-bookmark"></i></span>
+        <span><strong>{{ number_format($stats['total']) }}</strong><span>Open stays</span></span>
+    </div>
+    <div class="rp-resv-overview-item is-checkin">
+        <span class="rp-resv-overview-icon" aria-hidden="true"><i class="bi bi-box-arrow-in-right"></i></span>
+        <span><strong>{{ number_format($stats['check_ins_ready']) }}</strong><span>Ready for check-in</span></span>
+    </div>
+    <div class="rp-resv-overview-item is-checkout">
+        <span class="rp-resv-overview-icon" aria-hidden="true"><i class="bi bi-box-arrow-right"></i></span>
+        <span><strong>{{ number_format($stats['check_outs_today_due']) }}</strong><span>Due for check-out</span></span>
+    </div>
+    <div class="rp-resv-overview-item is-walkin">
+        <span class="rp-resv-overview-icon" aria-hidden="true"><i class="bi bi-person-plus"></i></span>
+        <span><strong>{{ number_format($stats['walk_ins_today']) }}</strong><span>Walk-ins today</span></span>
+    </div>
 </div>
 
 <div class="rp-resv-table-card d-none d-xl-block">
@@ -98,11 +103,15 @@
         <table class="table align-middle rp-resv-table mb-0">
             <thead>
                 <tr>
-                    <th scope="col">Guest &amp; booking</th>
+                    <th scope="col">Guest</th>
+                    <th scope="col">Booking ID</th>
                     <th scope="col">Stay</th>
+                    <th scope="col" class="rp-resv-col-center">Room no.</th>
+                    <th scope="col" class="rp-resv-col-center">Guests</th>
+                    <th scope="col">Booked via</th>
                     <th scope="col">Dates</th>
-                    <th scope="col">Status</th>
-                    <th scope="col" class="text-end">Next step</th>
+                    <th scope="col" class="rp-resv-col-center">Status</th>
+                    <th scope="col" class="rp-resv-col-center">Next step</th>
                 </tr>
             </thead>
             <tbody>
@@ -111,6 +120,8 @@
                         $statusValue = $booking->status instanceof \BackedEnum ? $booking->status->value : (string) $booking->status;
                         $guestName = $booking->guest_name ?? $booking->guest?->user?->name ?? '—';
                         $guestPhone = $booking->contact_number ?? $booking->guest?->user?->phone ?? $booking->guest?->contact_number ?? '—';
+                        $guestCount = $booking->number_of_guests ?? (($booking->adults ?? 0) + ($booking->children ?? 0));
+                        $roomNumber = $booking->accommodation?->number ?? '—';
                         $paid = (float) $booking->paid_amount;
                         $remaining = (float) $booking->remaining_balance;
                         $paymentKey = $remaining <= 0.009 ? 'paid' : ($paid > 0.009 ? 'pending' : 'unpaid');
@@ -151,25 +162,27 @@
                     <tr>
                         <td>
                             <div class="rp-resv-guest-name">{{ $guestName }}</div>
-                            <div class="rp-resv-id">{{ $booking->short_number }}</div>
                         </td>
+                        <td><span class="rp-resv-id">{{ $booking->short_number }}</span></td>
                         <td>
                             <div class="rp-resv-room-name">{{ $booking->accommodation?->name ?? '—' }}</div>
-                            <div class="rp-resv-room-code">{{ $booking->accommodation?->number ?? '—' }} · {{ $booking->number_of_guests ?? (($booking->adults ?? 0) + ($booking->children ?? 0)) ?: '—' }} guests · {{ $booking->is_walk_in ? 'Walk-in' : 'Online' }}</div>
                         </td>
+                        <td class="rp-resv-col-center"><span class="rp-resv-room-number">{{ $roomNumber }}</span></td>
+                        <td class="rp-resv-col-center"><span class="rp-resv-guest-count">{{ $guestCount ?: '—' }}</span></td>
+                        <td><span class="rp-resv-booking-source {{ $booking->is_walk_in ? 'is-walk-in' : 'is-online' }}">{{ $booking->is_walk_in ? 'Walk-in' : 'Online' }}</span></td>
                         <td class="rp-resv-dates-cell">
                             <div><span>Arrive</span><strong>{{ $booking->check_in_date->format('M j, Y') }}</strong></div>
                             <div><span>Leave</span><strong>{{ $booking->check_out_date->format('M j, Y') }}</strong></div>
                             @if($checkInDisplay)<small>Arrived {{ $checkInDisplay->format('M j, g:i A') }}</small>@endif
                             @if($checkOutDisplay)<small>Left {{ $checkOutDisplay->format('M j, g:i A') }}</small>@endif
                         </td>
-                        <td>
+                        <td class="rp-resv-col-center">
                             <div class="rp-resv-row-status"><span class="rp-resv-pill is-status-{{ $resStatus }}">{{ $resLabel }}</span><span class="rp-resv-pill is-pay-{{ $paymentKey }}">{{ $paymentLabel }}</span></div>
                             @if($checkOutDue)
                                 <span class="rp-resv-due">Due now</span>
                             @endif
                         </td>
-                        <td class="text-end text-nowrap">
+                        <td class="rp-resv-col-center text-nowrap">
                             <div class="rp-resv-actions">
                                 @if($canCollectBalance)
                                     <button type="button" class="btn btn-sm rp-resv-btn-primary" data-bs-toggle="modal" data-bs-target="#rpCollectModal{{ $booking->id }}">Collect balance</button>
@@ -185,7 +198,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="text-muted py-4 text-center">
+                        <td colspan="9" class="text-muted py-4 text-center">
                             @if($tab === 'logs')
                                 No check-in or check-out logs yet.
                             @elseif($tab === 'check_out')
@@ -236,6 +249,7 @@
         @php
             $statusValue = $booking->status instanceof \BackedEnum ? $booking->status->value : (string) $booking->status;
             $guestName = $booking->guest_name ?? $booking->guest?->user?->name ?? '—';
+            $guestCount = $booking->number_of_guests ?? (($booking->adults ?? 0) + ($booking->children ?? 0));
             $paid = (float) $booking->paid_amount;
             $remaining = (float) $booking->remaining_balance;
             $paymentKey = $remaining <= 0.009 ? 'paid' : ($paid > 0.009 ? 'pending' : 'unpaid');
@@ -247,8 +261,8 @@
         <div class="rp-resv-mobile-card">
             <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
                 <div>
-                    <div class="rp-resv-id">{{ $booking->short_number }}</div>
                     <div class="rp-resv-guest-name">{{ $guestName }}</div>
+                    <div class="rp-resv-mobile-booking"><span>Booking ID</span><strong>{{ $booking->short_number }}</strong></div>
                 </div>
                 <div class="d-flex flex-column align-items-end gap-1">
                     <span class="rp-resv-pill is-pay-{{ $paymentKey }}">{{ $paymentKey === 'paid' ? 'Paid' : ($paymentKey === 'pending' ? 'Partially paid' : 'Unpaid') }}</span>
@@ -257,10 +271,15 @@
                     @endif
                 </div>
             </div>
-            <div class="rp-resv-room-name mb-1">{{ $booking->accommodation?->name ?? '—' }}</div>
-            <div class="rp-resv-date-sub mb-1">
-                Planned {{ $booking->check_in_date->format('M j') }} → {{ $booking->check_out_date->format('M j, Y') }}
-                · {{ $booking->is_walk_in ? 'Walk-in' : 'Online' }}
+            <div class="rp-resv-room-name mb-2">{{ $booking->accommodation?->name ?? '—' }}</div>
+            <div class="rp-resv-mobile-meta">
+                <div><span>Room no.</span><strong>{{ $booking->accommodation?->number ?? '—' }}</strong></div>
+                <div><span>Guests</span><strong>{{ $guestCount ?: '—' }}</strong></div>
+                <div><span>Booked via</span><strong>{{ $booking->is_walk_in ? 'Walk-in' : 'Online' }}</strong></div>
+            </div>
+            <div class="rp-resv-mobile-dates">
+                <div><span>Check-in</span><strong>{{ $booking->check_in_date->format('M j, Y') }}</strong></div>
+                <div><span>Check-out</span><strong>{{ $booking->check_out_date->format('M j, Y') }}</strong></div>
             </div>
             @if($booking->checkIn || $booking->checkOut)
                 <div class="rp-resv-log-mini mb-3">
@@ -741,9 +760,20 @@ document.addEventListener('DOMContentLoaded', () => {
         toggle.addEventListener('click', (event) => {
             event.preventDefault();
             panel.hidden = !panel.hidden;
+            toggle.setAttribute('aria-expanded', String(!panel.hidden));
+            if (!panel.hidden) panel.querySelector('input')?.focus();
         });
         document.addEventListener('click', (event) => {
-            if (!wrap.contains(event.target)) panel.hidden = true;
+            if (!wrap.contains(event.target)) {
+                panel.hidden = true;
+                toggle.setAttribute('aria-expanded', 'false');
+            }
+        });
+        wrap.addEventListener('keydown', (event) => {
+            if (event.key !== 'Escape' || panel.hidden) return;
+            panel.hidden = true;
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.focus();
         });
     });
 
