@@ -99,7 +99,30 @@ class PaymentController extends Controller
                 ->with('error', 'Your guest information was not found. Please start your reservation again.');
         }
 
-        $preview = $this->previewDraft($draft['data']);
+        try {
+            $preview = $this->previewDraft($draft['data']);
+        } catch (ValidationException $exception) {
+            // Stale/invalid promo on the draft should not crash billing.
+            if (! empty($draft['data']['promo_code'])) {
+                unset($draft['data']['promo_code']);
+                $request->session()->put('guest_booking_draft', $draft);
+
+                return redirect()->route('guest.payments.draft')
+                    ->with('error', 'That promo is no longer valid. Continue without it or enter a new code.');
+            }
+
+            return redirect()->route('guest.bookings.create', array_filter([
+                'accommodation_id' => $draft['data']['accommodation_id'] ?? null,
+                'check_in' => $draft['data']['check_in_date'] ?? null,
+                'check_out' => $draft['data']['check_out_date'] ?? null,
+            ]))->withErrors($exception->errors());
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return redirect()->route('guest.bookings.index')
+                ->with('error', 'We could not open billing for this reservation. Please start again.');
+        }
+
         $booking = $preview['booking'];
         $deposit = $this->paymentService->depositAmount($booking);
         $remaining = (float) $booking->remaining_balance;
@@ -392,7 +415,7 @@ class PaymentController extends Controller
             ->with('success', 'Sample payment completed. No real charge was made.');
     }
 
-    public function checkoutReturn(Request $request, Booking $booking): View
+    public function checkoutReturn(Request $request, Booking $booking): View|RedirectResponse
     {
         $this->authorize('view', $booking);
 

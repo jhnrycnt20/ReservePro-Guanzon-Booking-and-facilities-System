@@ -1,7 +1,12 @@
+@php
+    $feedbackBooking = (isset($booking) && $booking instanceof \App\Models\Booking && $booking->exists)
+        ? $booking
+        : null;
+@endphp
 <div class="modal fade rp-feedback-compose-modal" id="rpWriteFeedbackModal" tabindex="-1" aria-labelledby="rpWriteFeedbackModalTitle" aria-hidden="true"
      data-rp-auto-open="{{ $errors->feedback->any() || session('open_feedback_modal') ? '1' : '0' }}"
-     data-rp-auto-booking-action="{{ isset($booking) && $booking ? route('guest.feedback.store_booking', $booking) : '' }}"
-     data-rp-auto-booking-label="{{ isset($booking) && $booking ? $booking->booking_number.' — '.($booking->accommodation->name ?? 'Stay') : '' }}">
+     data-rp-auto-booking-action="{{ $feedbackBooking ? route('guest.feedback.store_booking', $feedbackBooking) : '' }}"
+     data-rp-auto-booking-label="{{ $feedbackBooking ? $feedbackBooking->booking_number.' — '.($feedbackBooking->accommodation->name ?? 'Stay') : '' }}">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
