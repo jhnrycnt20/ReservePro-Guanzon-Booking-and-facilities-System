@@ -59,7 +59,7 @@
     </div>
 
     <div class="rp-resort-map-canvas" data-rp-map-canvas>
-        <p class="rp-resort-map-pan-hint"><i class="bi bi-arrows-move" aria-hidden="true"></i> Drag to pan · Ctrl+scroll or pinch to zoom</p>
+        <p class="rp-resort-map-pan-hint"><i class="bi bi-arrows-move" aria-hidden="true"></i> Drag to pan · pinch or use + / − to zoom</p>
 
         <div class="rp-map-zoom-space" data-rp-map-zoom-space>
             <div class="rp-map-board" data-rp-map-board>

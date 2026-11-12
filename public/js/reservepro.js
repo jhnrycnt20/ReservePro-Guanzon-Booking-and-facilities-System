@@ -3027,9 +3027,11 @@ function initAvailabilityCalendar() {
         const zoomLabel = root.querySelector('[data-rp-map-zoom-label]');
         if (!board || !space) return;
 
-        const MIN_ZOOM = 0.55;
+        const isMobileMap = () => window.matchMedia('(max-width: 767.98px)').matches;
+        // Near-zero floor so phones can zoom out to a full aerial overview.
+        const MIN_ZOOM = 0.01;
         const MAX_ZOOM = 2;
-        const ZOOM_STEP = 0.15;
+        const ZOOM_STEP = isMobileMap() ? 0.05 : 0.12;
         let zoom = 1;
         let baseWidth = 0;
         let baseHeight = 0;
@@ -3064,14 +3066,28 @@ function initAvailabilityCalendar() {
 
         const paintZoom = () => {
             board.style.transformOrigin = '0 0';
-            board.style.transform = zoom === 1 ? 'none' : `scale(${zoom})`;
-            board.style.marginRight = zoom === 1 ? '0' : `${Math.max(0, Math.ceil(baseWidth * (zoom - 1)))}px`;
-            board.style.marginBottom = zoom === 1 ? '0' : `${Math.max(0, Math.ceil(baseHeight * (zoom - 1)))}px`;
+            board.style.transform = Math.abs(zoom - 1) < 0.001 ? 'none' : `scale(${zoom})`;
+            // Negative margins when zoomed out so scroll size matches the visible board.
+            board.style.marginRight = `${Math.ceil(baseWidth * (zoom - 1))}px`;
+            board.style.marginBottom = `${Math.ceil(baseHeight * (zoom - 1))}px`;
             space.style.width = 'max-content';
             space.style.height = 'max-content';
             space.style.zoom = '';
             space.style.transform = 'none';
         };
+
+        const fitZoomLevel = () => {
+            measureBase();
+            if (!baseWidth || !baseHeight) return MIN_ZOOM;
+            const availableW = Math.max(80, canvas.clientWidth - 16);
+            const availableH = Math.max(80, canvas.clientHeight - 16);
+            const fitW = availableW / baseWidth;
+            const fitH = availableH / baseHeight;
+            // Fit the whole board in the canvas (aerial overview).
+            return clampZoom(Math.min(fitW, fitH, 1));
+        };
+
+        const defaultZoomLevel = () => (isMobileMap() ? fitZoomLevel() : 1);
 
         const syncZoomChrome = () => {
             if (zoomLabel) zoomLabel.textContent = `${Math.round(zoom * 100)}%`;
@@ -3259,21 +3275,22 @@ function initAvailabilityCalendar() {
         zoomResetBtn?.addEventListener('click', (event) => {
             event.preventDefault();
             event.stopPropagation();
-            applyZoom(1, undefined, undefined, { force: true });
+            applyZoom(defaultZoomLevel(), undefined, undefined, { force: true });
             canvas.scrollLeft = 0;
             canvas.scrollTop = 0;
         });
 
-        const refreshViewport = ({ resetScroll = false } = {}) => {
+        const refreshViewport = ({ resetScroll = false, refit = false } = {}) => {
             measureBase();
-            applyZoom(zoom, undefined, undefined, { force: true, preserveScroll: !resetScroll });
-            if (resetScroll) {
+            const nextZoom = refit || resetScroll ? defaultZoomLevel() : zoom;
+            applyZoom(nextZoom, undefined, undefined, { force: true, preserveScroll: !resetScroll && !refit });
+            if (resetScroll || refit) {
                 canvas.scrollLeft = 0;
                 canvas.scrollTop = 0;
             }
         };
 
-        refreshViewport({ resetScroll: true });
+        refreshViewport({ resetScroll: true, refit: true });
 
         if (typeof ResizeObserver !== 'undefined') {
             let frame = 0;
@@ -3287,21 +3304,19 @@ function initAvailabilityCalendar() {
             observer.observe(board);
         }
 
-        root._rpMapRefreshViewport = () => refreshViewport({ resetScroll: false });
+        root._rpMapRefreshViewport = (options = {}) => refreshViewport(options);
     };
 
     mapRoots.forEach((root) => initMapViewport(root));
     modalEl?.addEventListener('shown.bs.modal', () => {
         window.requestAnimationFrame(() => {
             mapRoots.forEach((root) => {
-                root._rpMapRefreshViewport?.();
-                const canvas = root.querySelector('[data-rp-map-canvas]');
-                if (canvas) {
-                    canvas.scrollLeft = 0;
-                    canvas.scrollTop = 0;
-                }
+                root._rpMapRefreshViewport?.({ resetScroll: true, refit: true });
             });
         });
+    });
+    window.addEventListener('resize', () => {
+        mapRoots.forEach((root) => root._rpMapRefreshViewport?.({ refit: window.matchMedia('(max-width: 767.98px)').matches }));
     });
 
     const pad = (n) => String(n).padStart(2, '0');

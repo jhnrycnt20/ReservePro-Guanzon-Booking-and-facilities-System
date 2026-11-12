@@ -7361,6 +7361,11 @@ body.rp-gallery-viewer-open {
     .rp-availability-layout {
         grid-template-columns: minmax(0, 1fr);
     }
+
+    #rpAvailabilityModal .modal-dialog {
+        margin: .5rem;
+        max-width: calc(100% - 1rem);
+    }
 }
 
 /* —— Guanzon resort map —— */
@@ -7976,52 +7981,157 @@ body.rp-gallery-viewer-open {
 .rp-resort-map-page .rp-resort-map { margin-top: .25rem; }
 
 @media (max-width: 767.98px) {
+    .rp-resort-map {
+        border-radius: .85rem;
+        overflow: hidden;
+    }
+
+    .rp-resort-map-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: .65rem;
+        padding: .75rem .8rem .65rem;
+    }
+
+    .rp-resort-map-title {
+        font-size: 1.05rem;
+    }
+
+    .rp-resort-map-hint {
+        font-size: .72rem;
+        line-height: 1.35;
+    }
+
     .rp-resort-map-toolbar-side {
         align-items: stretch;
         width: 100%;
+        gap: .45rem;
     }
+
     .rp-resort-map-zoom-bar {
         width: 100%;
         justify-content: center;
     }
-    .rp-map-board {
-        width: max-content;
-        min-width: max-content;
+
+    .rp-resort-map-legend {
+        justify-content: center;
+        gap: .45rem .7rem;
+        font-size: .68rem;
     }
+
+    .rp-resort-map-pan-hint {
+        font-size: .66rem;
+        margin-bottom: .4rem;
+    }
+
+    .rp-resort-map-canvas,
+    .rp-resort-map--compact .rp-resort-map-canvas {
+        height: min(48vh, 22rem);
+        max-height: min(48vh, 22rem);
+        padding: .55rem .6rem 1.4rem;
+        overflow: auto;
+        touch-action: none;
+        overscroll-behavior: contain;
+    }
+
+    /* Keep the sketch board intact; mobile uses fit-to-width zoom + pan. */
+    .rp-map-board,
+    .rp-map-zoom-space,
     .rp-map-sketch,
     .rp-map-sketch-main,
     .rp-map-sketch-ac-left,
     .rp-map-sketch-main-mid,
     .rp-map-sketch-main-bottom {
-        width: 100%;
-        min-width: 0;
+        width: max-content;
+        min-width: max-content;
     }
-    .rp-map-sketch {
-        grid-template-columns: minmax(0, 1fr);
-        grid-template-areas:
-            "entrance"
-            "ac-left"
-            "main"
-            "suite";
+
+    .rp-map-sketch-main-mid > .rp-map-zone[data-map-zone="cabana"] {
+        margin-top: 1rem;
     }
-    .rp-map-entrance-path { width: 100%; min-height: .45rem; }
-    .rp-map-sketch-main-mid,
-    .rp-map-sketch-main-bottom { grid-template-columns: minmax(0, 1fr); }
-    .rp-map-ac-right {
-        grid-template-columns: max-content minmax(0, 1fr);
-        width: 100%;
+
+    .rp-map-zone {
+        padding: .45rem .5rem .55rem;
     }
-    .rp-map-ac-right-row {
-        flex-wrap: wrap;
+
+    .rp-map-zone-label {
+        font-size: .56rem;
+        margin-bottom: .35rem;
     }
-    .rp-map-sketch-main-mid > .rp-map-zone[data-map-zone="cabana"],
-    .rp-map-sketch-main-mid > .rp-map-zone[data-map-zone="ac"] {
-        width: 100%;
-        min-width: 0;
-        max-width: none;
+
+    .rp-map-room {
+        min-width: 1.7rem;
+        gap: .12rem;
     }
-    .rp-map-sketch-suite .rp-map-zone { width: 100%; min-width: 0; }
-    .rp-map-rooms--suite { flex-wrap: nowrap; overflow-x: auto; }
+
+    .rp-map-room-tag {
+        font-size: .5rem;
+    }
+
+    .rp-map-room--cabin .rp-map-room-icon {
+        width: 1.35rem;
+        height: .9rem;
+    }
+
+    .rp-map-room--hut .rp-map-room-icon {
+        width: 1.15rem;
+        height: 1.15rem;
+    }
+
+    .rp-map-room--house .rp-map-room-icon {
+        width: 1.7rem;
+        height: 1.05rem;
+    }
+
+    /* Keep entrance as a thin vertical path — never a full-width green bar. */
+    .rp-map-sketch-entrance {
+        min-height: 0;
+        margin-left: 0;
+        margin-right: .35rem;
+        justify-content: flex-start;
+        align-self: stretch;
+    }
+
+    .rp-map-entrance-label {
+        font-size: .5rem;
+        letter-spacing: .12em;
+    }
+
+    .rp-map-entrance-path {
+        flex: 1 1 auto;
+        width: .32rem;
+        min-width: .32rem;
+        max-width: .32rem;
+        min-height: 10rem;
+        align-self: center;
+    }
+
+    .rp-availability-map-pane {
+        order: 1;
+    }
+
+    .rp-availability-calendar-pane {
+        order: 2;
+    }
+
+    .rp-availability-layout {
+        gap: .85rem;
+    }
+
+    #rpAvailabilityModal .modal-dialog {
+        margin: .35rem;
+        max-width: calc(100% - .7rem);
+        max-height: calc(100dvh - .7rem);
+    }
+
+    #rpAvailabilityModal .modal-content {
+        max-height: calc(100dvh - .7rem);
+    }
+
+    #rpAvailabilityModal .modal-body {
+        padding-top: .65rem !important;
+        padding-bottom: .85rem;
+    }
 }
 
 .modal-content.rp-availability-modal .btn.btn-rp-primary {
