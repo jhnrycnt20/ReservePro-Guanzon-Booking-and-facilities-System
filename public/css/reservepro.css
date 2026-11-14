@@ -837,6 +837,11 @@ body.rp-page-booknow .rp-public-nav .rp-nav-link:hover {
 }
 
 .rp-public-nav .rp-nav-link {
+    appearance: none;
+    background: transparent;
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
     font-family: var(--rp-font);
     font-weight: 300;
     font-size: 14px;
@@ -845,6 +850,7 @@ body.rp-page-booknow .rp-public-nav .rp-nav-link:hover {
     padding-bottom: .3rem;
     border-bottom: 1px solid transparent;
     transition: color .2s ease, border-color .2s ease;
+    cursor: pointer;
 }
 
 .rp-public-nav .rp-nav-link:hover {
@@ -9459,92 +9465,137 @@ body.rp-gallery-viewer-open {
 
 /* Public feedback browse (landing + /feedback) */
 .rp-public-feedback-section {
-    background: #f7faf9;
-}
-
-.rp-public-feedback-head {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1.25rem 1.75rem;
-    margin-bottom: 1.75rem;
+    background:
+        radial-gradient(circle at top left, rgba(111, 207, 151, .12), transparent 42%),
+        radial-gradient(circle at bottom right, rgba(31, 75, 93, .08), transparent 40%),
+        #f7faf9;
 }
 
 .rp-public-feedback-intro {
-    min-width: min(100%, 20rem);
-    flex: 1 1 18rem;
+    text-align: center;
+    max-width: 40rem;
+    margin: 0 auto 2rem;
+}
+
+.rp-public-feedback-intro--page {
+    margin-bottom: 2.25rem;
+}
+
+.rp-public-feedback-intro--home {
+    margin-bottom: 1.75rem;
 }
 
 .rp-public-feedback-title {
     margin: .15rem 0 .45rem;
     font-family: var(--rp-display);
-    font-size: clamp(1.55rem, 2.6vw, 2.1rem);
-    font-weight: 700;
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    font-weight: 600;
     letter-spacing: -.02em;
-    color: #163844;
+    color: #2B4A3E;
 }
 
 .rp-public-feedback-copy {
+    margin: 0 auto;
     color: #6b7c84;
     max-width: 34rem;
     font-size: .95rem;
     line-height: 1.55;
 }
 
-.rp-public-feedback-summary {
-    display: flex;
+.rp-public-feedback-scoreline {
+    display: inline-flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: .85rem 1rem;
-    padding: .85rem 1rem;
-    border: 1px solid #d9e5e1;
-    border-radius: 1rem;
-    background: #fff;
-    box-shadow: 0 8px 20px rgba(27, 57, 65, .05);
-}
-
-.rp-public-feedback-score {
-    display: flex;
-    align-items: center;
-    gap: .7rem;
+    justify-content: center;
+    gap: .45rem .7rem;
+    margin-top: 1rem;
+    color: #6b7c84;
+    font-size: .9rem;
 }
 
 .rp-public-feedback-avg {
     font-family: var(--rp-display);
-    font-size: 2.15rem;
+    font-size: 1.85rem;
     font-weight: 700;
-    color: #163844;
+    color: #2B4A3E;
     line-height: 1;
 }
 
-.rp-public-feedback-avg-meta {
-    font-size: .84rem;
-    color: #6b7c84;
-    line-height: 1.35;
+.rp-public-feedback-stars {
+    color: #c79212;
+    letter-spacing: .04em;
+    font-size: .95rem;
 }
 
-.rp-public-feedback-stars {
-    color: #d4a017;
+.rp-public-feedback-count {
+    color: #6b7c84;
+}
+
+.rp-public-feedback-cta {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1.15rem;
+    min-height: 2.65rem;
+    padding: .65rem 1.35rem;
+    border: 0;
+    border-radius: .7rem;
+    background: linear-gradient(135deg, #6fcf97 0%, #0F6B45 100%);
+    color: #fff;
+    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    font-size: .84rem;
+    font-weight: 700;
     letter-spacing: .04em;
-    font-size: .92rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+}
+
+.rp-public-feedback-cta:hover,
+.rp-public-feedback-cta:focus-visible {
+    filter: brightness(1.03);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba(15, 107, 69, .22);
+    outline: none;
+    color: #fff;
+}
+
+.rp-public-feedback-cta--ghost {
+    background: transparent;
+    color: #1f4b5d;
+    border: 1px solid #b7cec4;
+    box-shadow: none;
+}
+
+.rp-public-feedback-cta--ghost:hover,
+.rp-public-feedback-cta--ghost:focus-visible {
+    background: #eef6f2;
+    color: #0F6B45;
+    border-color: #8fbea8;
+    box-shadow: none;
+    filter: none;
 }
 
 .rp-public-feedback-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1.15rem;
+}
+
+.rp-public-feedback-grid--home {
+    margin-bottom: .35rem;
 }
 
 .rp-public-feedback-card {
     display: flex;
     flex-direction: column;
     gap: .9rem;
-    background: #fff;
+    background: rgba(255, 255, 255, .92);
     border: 1px solid #e2e9e8;
     border-radius: 1rem;
     padding: 1.25rem 1.3rem;
-    box-shadow: 0 8px 22px rgba(27, 57, 65, .05);
+    box-shadow: 0 10px 26px rgba(27, 57, 65, .05);
 }
 
 .rp-public-feedback-card-top {
@@ -9558,7 +9609,7 @@ body.rp-gallery-viewer-open {
 .rp-public-feedback-about {
     font-size: .74rem;
     font-weight: 700;
-    letter-spacing: .02em;
+    letter-spacing: .04em;
     text-transform: uppercase;
     color: #1f4b5d;
     background: #e8f5f1;
@@ -9570,9 +9621,10 @@ body.rp-gallery-viewer-open {
     margin: 0;
     flex: 1 1 auto;
     color: #243940;
-    font-size: 1.05rem;
+    font-family: var(--rp-display);
+    font-size: 1.12rem;
     font-weight: 500;
-    line-height: 1.55;
+    line-height: 1.45;
     text-wrap: pretty;
 }
 
@@ -9619,17 +9671,18 @@ body.rp-gallery-viewer-open {
     padding: 1.75rem 1.5rem;
     border-radius: 1rem;
     border: 1px dashed #c5d7d2;
-    background: #fff;
+    background: rgba(255, 255, 255, .85);
     color: #6b7c84;
     text-align: center;
 }
 
-@media (max-width: 575.98px) {
-    .rp-public-feedback-summary {
-        width: 100%;
-        justify-content: space-between;
+@media (max-width: 991.98px) {
+    .rp-public-feedback-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+}
 
+@media (max-width: 575.98px) {
     .rp-public-feedback-grid {
         grid-template-columns: 1fr;
     }

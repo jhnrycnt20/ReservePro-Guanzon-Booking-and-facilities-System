@@ -125,38 +125,25 @@
 
 <section class="py-5 rp-public-feedback-section">
     <div class="container">
-        <div class="rp-public-feedback-head">
-            <div class="rp-public-feedback-intro">
-                <div class="rp-cottages-kicker">GUEST STORIES</div>
-                <h2 class="rp-public-feedback-title">What guests are saying</h2>
-                <p class="rp-public-feedback-copy mb-0">Real feedback from previous stays at Guanzon Resort.</p>
-            </div>
-            <div class="rp-public-feedback-summary">
-                @if(($publicFeedbackCount ?? 0) > 0)
-                    <div class="rp-public-feedback-score">
-                        <div class="rp-public-feedback-avg">{{ number_format($publicFeedbackAverage, 1) }}</div>
-                        <div class="rp-public-feedback-avg-meta">
-                            <div class="rp-public-feedback-stars" aria-label="Average {{ number_format($publicFeedbackAverage, 1) }} out of 5">
-                                @for($i = 1; $i <= 5; $i++)
-                                    <i class="bi bi-star{{ $i <= round($publicFeedbackAverage) ? '-fill' : '' }}" aria-hidden="true"></i>
-                                @endfor
-                            </div>
-                            <div>{{ $publicFeedbackCount }} review{{ $publicFeedbackCount === 1 ? '' : 's' }}</div>
-                        </div>
-                    </div>
-                @endif
-                @auth
-                    @if(auth()->user()?->isGuestRole())
-                        <button type="button" class="btn btn-rp-primary" data-bs-toggle="modal" data-bs-target="#rpWriteFeedbackModal">Write Feedback</button>
-                    @endif
-                @else
-                    <button type="button" class="btn btn-rp-primary" data-bs-toggle="modal" data-bs-target="#rpLoginModal">Sign in to write feedback</button>
-                @endauth
-            </div>
+        <div class="rp-public-feedback-intro rp-public-feedback-intro--home">
+            <div class="rp-cottages-kicker">GUEST STORIES</div>
+            <h2 class="rp-cottages-heading">What guests are saying</h2>
+            <p class="rp-public-feedback-copy">Real feedback from previous stays at Guanzon Resort.</p>
+            @if(($publicFeedbackCount ?? 0) > 0)
+                <div class="rp-public-feedback-scoreline" aria-label="Average rating {{ number_format($publicFeedbackAverage, 1) }} from {{ $publicFeedbackCount }} reviews">
+                    <span class="rp-public-feedback-avg">{{ number_format($publicFeedbackAverage, 1) }}</span>
+                    <span class="rp-public-feedback-stars" aria-hidden="true">
+                        @for($i = 1; $i <= 5; $i++)
+                            <i class="bi bi-star{{ $i <= round($publicFeedbackAverage) ? '-fill' : '' }}"></i>
+                        @endfor
+                    </span>
+                    <span class="rp-public-feedback-count">{{ $publicFeedbackCount }} review{{ $publicFeedbackCount === 1 ? '' : 's' }}</span>
+                </div>
+            @endif
         </div>
 
-        <div class="rp-public-feedback-grid">
-            @forelse($publicFeedback ?? [] as $item)
+        <div class="rp-public-feedback-grid rp-public-feedback-grid--home">
+            @forelse(($publicFeedback ?? collect())->take(3) as $item)
                 @php
                     $fullName = $item->guest?->user?->name;
                     $displayName = $fullName ? explode(' ', trim($fullName))[0] : 'Guest';
@@ -176,7 +163,7 @@
                         </div>
                         <div class="rp-public-feedback-about">{{ $about }}</div>
                     </div>
-                    <p class="rp-public-feedback-comment">“{{ \Illuminate\Support\Str::limit($item->comment, 180) }}”</p>
+                    <p class="rp-public-feedback-comment">“{{ \Illuminate\Support\Str::limit($item->comment, 140) }}”</p>
                     <div class="rp-public-feedback-card-foot">
                         <div class="rp-public-feedback-avatar" aria-hidden="true">{{ $initial }}</div>
                         <div class="rp-public-feedback-card-meta">
@@ -187,9 +174,15 @@
                 </article>
             @empty
                 <div class="rp-public-feedback-empty">
-                    No guest feedback yet. Be the first to share your stay once you sign in.
+                    No guest feedback yet. Check back after more stays are shared.
                 </div>
             @endforelse
+        </div>
+
+        <div class="rp-view-rates-wrap">
+            <a href="{{ route('feedback') }}" class="rp-view-rates-btn">
+                VIEW FEEDBACK <span class="rp-view-rates-arrow">→</span>
+            </a>
         </div>
     </div>
 </section>
