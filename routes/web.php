@@ -33,6 +33,7 @@ use App\Http\Controllers\Security\DashboardController as SecurityDashboardContro
 use App\Http\Controllers\Security\InvestigationController;
 use App\Http\Controllers\Webhooks\PayMongoWebhookController;
 use App\Models\Accommodation;
+use App\Models\Feedback;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -45,7 +46,25 @@ Route::get('/', function () {
         ->take(3)
         ->get();
 
-    return view('welcome', compact('featuredAccommodations'));
+    $publicFeedback = Feedback::query()
+        ->with(['guest.user', 'booking.accommodation', 'accommodation'])
+        ->whereNotNull('comment')
+        ->where('comment', '!=', '')
+        ->latest()
+        ->take(6)
+        ->get();
+
+    $publicFeedbackCount = Feedback::query()->count();
+    $publicFeedbackAverage = $publicFeedbackCount > 0
+        ? round((float) Feedback::query()->avg('rating'), 1)
+        : 0;
+
+    return view('welcome', compact(
+        'featuredAccommodations',
+        'publicFeedback',
+        'publicFeedbackCount',
+        'publicFeedbackAverage'
+    ));
 });
 
 // Fresh CSRF for mobile/WebView login (avoids stale tokens after sleep/resume).

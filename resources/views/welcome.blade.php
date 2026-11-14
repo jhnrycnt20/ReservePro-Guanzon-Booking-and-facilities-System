@@ -123,4 +123,75 @@
     <img class="rp-gallery-banner-logo" src="{{ asset('images/guanzon_navbar_transparent.png') }}?v={{ filemtime(public_path('images/guanzon_navbar_transparent.png')) }}" alt="Guanzon Resort">
 </div>
 
+<section class="py-5 rp-public-feedback-section">
+    <div class="container">
+        <div class="rp-public-feedback-head">
+            <div class="rp-public-feedback-intro">
+                <div class="rp-cottages-kicker">GUEST STORIES</div>
+                <h2 class="rp-public-feedback-title">What guests are saying</h2>
+                <p class="rp-public-feedback-copy mb-0">Real feedback from previous stays at Guanzon Resort.</p>
+            </div>
+            <div class="rp-public-feedback-summary">
+                @if(($publicFeedbackCount ?? 0) > 0)
+                    <div class="rp-public-feedback-score">
+                        <div class="rp-public-feedback-avg">{{ number_format($publicFeedbackAverage, 1) }}</div>
+                        <div class="rp-public-feedback-avg-meta">
+                            <div class="rp-public-feedback-stars" aria-label="Average {{ number_format($publicFeedbackAverage, 1) }} out of 5">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <i class="bi bi-star{{ $i <= round($publicFeedbackAverage) ? '-fill' : '' }}" aria-hidden="true"></i>
+                                @endfor
+                            </div>
+                            <div>{{ $publicFeedbackCount }} review{{ $publicFeedbackCount === 1 ? '' : 's' }}</div>
+                        </div>
+                    </div>
+                @endif
+                @auth
+                    @if(auth()->user()?->isGuestRole())
+                        <button type="button" class="btn btn-rp-primary" data-bs-toggle="modal" data-bs-target="#rpWriteFeedbackModal">Write Feedback</button>
+                    @endif
+                @else
+                    <button type="button" class="btn btn-rp-primary" data-bs-toggle="modal" data-bs-target="#rpLoginModal">Sign in to write feedback</button>
+                @endauth
+            </div>
+        </div>
+
+        <div class="rp-public-feedback-grid">
+            @forelse($publicFeedback ?? [] as $item)
+                @php
+                    $fullName = $item->guest?->user?->name;
+                    $displayName = $fullName ? explode(' ', trim($fullName))[0] : 'Guest';
+                    $initial = strtoupper(mb_substr($displayName, 0, 1));
+                    $about = $item->booking
+                        ? ($item->booking->accommodation->name ?? 'Stay')
+                        : (($item->scope ?? '') === 'room'
+                            ? ($item->accommodation->name ?? 'Room')
+                            : 'Resort');
+                @endphp
+                <article class="rp-public-feedback-card">
+                    <div class="rp-public-feedback-card-top">
+                        <div class="rp-public-feedback-stars" aria-label="{{ $item->rating }} out of 5 stars">
+                            @for($i = 1; $i <= 5; $i++)
+                                <i class="bi bi-star{{ $i <= $item->rating ? '-fill' : '' }}" aria-hidden="true"></i>
+                            @endfor
+                        </div>
+                        <div class="rp-public-feedback-about">{{ $about }}</div>
+                    </div>
+                    <p class="rp-public-feedback-comment">“{{ \Illuminate\Support\Str::limit($item->comment, 180) }}”</p>
+                    <div class="rp-public-feedback-card-foot">
+                        <div class="rp-public-feedback-avatar" aria-hidden="true">{{ $initial }}</div>
+                        <div class="rp-public-feedback-card-meta">
+                            <span class="rp-public-feedback-author">{{ $displayName }}</span>
+                            <span>{{ $item->created_at?->format('M j, Y') }}</span>
+                        </div>
+                    </div>
+                </article>
+            @empty
+                <div class="rp-public-feedback-empty">
+                    No guest feedback yet. Be the first to share your stay once you sign in.
+                </div>
+            @endforelse
+        </div>
+    </div>
+</section>
+
 @endsection
