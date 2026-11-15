@@ -31,6 +31,7 @@
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ url('/') }}">The Resort</a>
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ route('gallery') }}">Gallery</a>
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ route('offers') }}">Offers</a>
+                    <a class="rp-nav-link rp-nav-link-extra" href="{{ route('feedback') }}">Feedback</a>
                     <a class="rp-nav-link rp-nav-link-extra" href="{{ route('contact') }}">Contact</a>
                     <a class="rp-nav-link rp-nav-link-booknow" href="{{ route('accommodations.browse') }}">Book Now</a>
                     @guest
@@ -44,6 +45,8 @@
                                 <li><button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#rpProfileModal"><i class="bi bi-person me-2" aria-hidden="true"></i>My account</button></li>
                                 @if(auth()->user()?->isGuestRole())
                                     <li><a class="dropdown-item" href="{{ route('guest.bookings.index') }}"><i class="bi bi-calendar-check me-2" aria-hidden="true"></i>Reservations</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('guest.incidents.create') }}"><i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>Report Incident</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('guest.incidents.index') }}"><i class="bi bi-clipboard2-check me-2" aria-hidden="true"></i>My Reports</a></li>
                                     <li><button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#rpWriteFeedbackModal"><i class="bi bi-chat-square-text me-2" aria-hidden="true"></i>Write Feedback</button></li>
                                 @endif
                                 <li><hr class="dropdown-divider"></li>
@@ -65,13 +68,15 @@
             <a href="{{ url('/') }}">The Resort</a>
             <a href="{{ route('gallery') }}">Gallery</a>
             <a href="{{ route('offers') }}">Offers</a>
+            <a href="{{ route('feedback') }}">Feedback</a>
             <a href="{{ route('contact') }}">Contact</a>
             <a href="{{ route('accommodations.browse') }}">Book Now</a>
             @auth
                 @if(auth()->user()->hasRole('guest'))
                     <a href="{{ route('guest.bookings.index') }}">My Reservations</a>
                     <a href="{{ route('guest.payments.index') }}">Payments</a>
-                    <a href="{{ route('guest.incidents.index') }}">Reports</a>
+                    <a href="{{ route('guest.incidents.create') }}">Report Incident</a>
+                    <a href="{{ route('guest.incidents.index') }}">My Reports</a>
                     <a href="{{ route('guest.feedback.index') }}">My Feedback</a>
                     <a href="#rpProfileModal" data-bs-toggle="modal" data-bs-target="#rpProfileModal">Manage Profile</a>
                 @else
@@ -113,6 +118,7 @@
                     <div class="rp-footer-links">
                         <a href="{{ url('/') }}">The Resort</a>
                         <a href="{{ route('gallery') }}">Gallery</a>
+                        <a href="{{ route('feedback') }}">Feedback</a>
                         <a href="{{ route('downloads') }}">Download App</a>
                         <a href="{{ route('contact') }}">Contact us</a>
                     </div>
