@@ -220,6 +220,7 @@ Route::middleware(['auth', 'active'])->group(function () {
 
         Route::get('/payments', [PaymentVerificationController::class, 'index'])->name('payments.index');
         Route::post('/payments/{booking}/collect', [PaymentVerificationController::class, 'collect'])->name('payments.collect');
+        Route::post('/payments/{payment}/proof', [PaymentVerificationController::class, 'attachProof'])->name('payments.attach-proof');
         Route::get('/payments/{payment}', [PaymentVerificationController::class, 'show'])->name('payments.show');
         Route::get('/payments/{payment}/receipt', [PaymentVerificationController::class, 'receipt'])->name('payments.receipt');
 

@@ -758,6 +758,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const amountInput = form.querySelector('#paymentAmount');
         const sampleForm = form.closest('.rp-payment-create-card')?.querySelector('.rp-payment-sample-form');
         const sampleAmount = sampleForm?.querySelector('[data-rp-sample-amount]');
+        const paymentScreenshot = form.querySelector('[name="payment_screenshot"]');
+        const sampleProof = sampleForm?.querySelector('[data-rp-sample-proof]');
         const minAmount = Number(form.dataset.rpMinAmount || 0);
         const maxAmount = Number(form.dataset.rpMaxAmount || 0);
         const methodSelect = form.querySelector('[name="payment_method"]');
@@ -782,6 +784,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         sampleForm?.addEventListener('submit', () => {
             if (amountInput && sampleAmount) sampleAmount.value = amountInput.value;
+            if (paymentScreenshot?.files?.length && sampleProof && window.DataTransfer) {
+                const transfer = new DataTransfer();
+                Array.from(paymentScreenshot.files).forEach((file) => transfer.items.add(file));
+                sampleProof.files = transfer.files;
+            }
         });
 
         form.querySelectorAll('[data-rp-pay-amount]').forEach((button) => {

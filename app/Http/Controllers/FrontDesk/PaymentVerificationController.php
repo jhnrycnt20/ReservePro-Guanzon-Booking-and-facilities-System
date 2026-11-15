@@ -9,6 +9,7 @@ use App\Models\Payment;
 use App\Services\PaymentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -96,6 +97,31 @@ class PaymentVerificationController extends Controller
             ])
             ->with('open_view', $booking->id)
             ->with('success', $message);
+    }
+
+    public function attachProof(Request $request, Payment $payment): RedirectResponse
+    {
+        $this->authorize('update', $payment);
+
+        $validator = Validator::make($request->all(), [
+            'payment_screenshot' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+        ]);
+        if ($validator->fails()) {
+            return redirect()
+                ->route('front_desk.reservations.index')
+                ->withErrors($validator)
+                ->withInput()
+                ->with('open_view', $payment->booking_id);
+        }
+
+        $payment->forceFill([
+            'proof_path' => $request->file('payment_screenshot')->store('payment-proofs', 'public'),
+        ])->save();
+
+        return redirect()
+            ->route('front_desk.reservations.index')
+            ->with('open_view', $payment->booking_id)
+            ->with('success', 'Payment screenshot attached.');
     }
 
     public function receipt(Payment $payment): View

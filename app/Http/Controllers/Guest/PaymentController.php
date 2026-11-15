@@ -146,6 +146,7 @@ class PaymentController extends Controller
 
         $validated = $request->validate([
             'amount' => ['required', 'numeric', 'min:0.01', 'max:9999999999.99', 'decimal:0,2'],
+            'payment_screenshot' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ]);
         $preview = $this->previewDraft($draft['data'])['booking'];
         $amount = round((float) $validated['amount'], 2);
@@ -169,7 +170,12 @@ class PaymentController extends Controller
                 $request->user()->guest,
                 $request->user()
             );
-            $checkout = $this->paymentService->initiateGcashCheckout($booking, $amount, $request->user());
+            $checkout = $this->paymentService->initiateGcashCheckout(
+                $booking,
+                $amount,
+                $request->user(),
+                $request->file('payment_screenshot')
+            );
         } catch (ValidationException $exception) {
             return redirect()->route('guest.payments.draft')
                 ->withInput()
@@ -207,6 +213,7 @@ class PaymentController extends Controller
 
         $validated = $request->validate([
             'amount' => ['required', 'numeric', 'min:0.01', 'max:9999999999.99', 'decimal:0,2'],
+            'payment_screenshot' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ]);
         $preview = $this->previewDraft($draft['data'])['booking'];
         $amount = round((float) $validated['amount'], 2);
@@ -224,6 +231,7 @@ class PaymentController extends Controller
         );
 
         DB::transaction(function () use ($booking, $request, $amount) {
+            $proofPath = $request->file('payment_screenshot')?->store('payment-proofs', 'public');
             Payment::query()->create([
                 'booking_id' => $booking->id,
                 'amount' => $amount,
@@ -231,6 +239,7 @@ class PaymentController extends Controller
                 'gateway' => 'demo',
                 'gateway_status' => 'sample_success',
                 'reference_number' => 'DEMO-'.strtoupper(Str::random(10)),
+                'proof_path' => $proofPath,
                 'payment_date' => now(),
                 'status' => PaymentStatus::Verified,
                 'verified_by' => $request->user()->id,
@@ -334,7 +343,8 @@ class PaymentController extends Controller
             $checkout = $this->paymentService->initiateGcashCheckout(
                 $booking,
                 (float) $request->validated('amount'),
-                $request->user()
+                $request->user(),
+                $request->file('payment_screenshot')
             );
         } catch (\Throwable $exception) {
             report($exception);
@@ -364,7 +374,8 @@ class PaymentController extends Controller
         $user = $request->user();
         $amount = round((float) $request->validated('amount'), 2);
 
-        $payment = DB::transaction(function () use ($booking, $user, $amount) {
+        $payment = DB::transaction(function () use ($booking, $user, $amount, $request) {
+            $proofPath = $request->file('payment_screenshot')?->store('payment-proofs', 'public');
             $payment = Payment::query()->create([
                 'booking_id' => $booking->id,
                 'amount' => $amount,
@@ -372,6 +383,7 @@ class PaymentController extends Controller
                 'gateway' => 'demo',
                 'gateway_status' => 'sample_success',
                 'reference_number' => 'DEMO-'.strtoupper(Str::random(10)),
+                'proof_path' => $proofPath,
                 'payment_date' => now(),
                 'status' => PaymentStatus::Verified,
                 'verified_by' => $user->id,

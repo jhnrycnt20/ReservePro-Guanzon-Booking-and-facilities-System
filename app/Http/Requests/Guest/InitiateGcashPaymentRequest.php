@@ -20,6 +20,7 @@ class InitiateGcashPaymentRequest extends FormRequest
     {
         return [
             'amount' => ['required', 'numeric', 'min:0.01', 'max:9999999999.99', 'decimal:0,2'],
+            'payment_screenshot' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ];
     }
 

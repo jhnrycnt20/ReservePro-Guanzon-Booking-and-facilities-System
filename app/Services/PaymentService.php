@@ -188,7 +188,7 @@ class PaymentService
         });
     }
 
-    public function initiateGcashCheckout(Booking $booking, float $amount, User $guestUser): array
+    public function initiateGcashCheckout(Booking $booking, float $amount, User $guestUser, ?UploadedFile $proof = null): array
     {
         $this->assertBookingAcceptsPayment($booking);
 
@@ -205,7 +205,8 @@ class PaymentService
             ])
         );
 
-        $payment = DB::transaction(function () use ($booking, $amount, $guestUser, $source) {
+        $payment = DB::transaction(function () use ($booking, $amount, $guestUser, $source, $proof) {
+            $proofPath = $proof?->store('payment-proofs', 'public');
             $payment = Payment::query()->create([
                 'booking_id' => $booking->id,
                 'amount' => $amount,
@@ -213,6 +214,7 @@ class PaymentService
                 'gateway' => 'paymongo',
                 'gateway_source_id' => $source['id'],
                 'gateway_status' => $source['attributes']['status'] ?? null,
+                'proof_path' => $proofPath,
                 'payment_date' => now(),
                 'status' => PaymentStatus::Pending,
                 'processed_by' => $guestUser->id,

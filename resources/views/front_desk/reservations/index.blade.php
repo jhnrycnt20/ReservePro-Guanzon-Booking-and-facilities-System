@@ -105,13 +105,14 @@
                 <tr>
                     <th scope="col">Guest</th>
                     <th scope="col">Booking ID</th>
-                    <th scope="col">Stay</th>
+                    <th scope="col">Accommodation</th>
                     <th scope="col" class="rp-resv-col-center">Room no.</th>
                     <th scope="col" class="rp-resv-col-center">Guests</th>
                     <th scope="col">Booked via</th>
                     <th scope="col">Dates</th>
-                    <th scope="col" class="rp-resv-col-center">Status</th>
-                    <th scope="col" class="rp-resv-col-center">Next step</th>
+                    <th scope="col" class="rp-resv-col-center">Reservation status</th>
+                    <th scope="col" class="rp-resv-col-center">Payment status</th>
+                    <th scope="col" class="rp-resv-col-center"><span class="visually-hidden">Next step</span></th>
                 </tr>
             </thead>
             <tbody>
@@ -177,28 +178,21 @@
                             @if($checkOutDisplay)<small>Left {{ $checkOutDisplay->format('M j, g:i A') }}</small>@endif
                         </td>
                         <td class="rp-resv-col-center">
-                            <div class="rp-resv-row-status"><span class="rp-resv-pill is-status-{{ $resStatus }}">{{ $resLabel }}</span><span class="rp-resv-pill is-pay-{{ $paymentKey }}">{{ $paymentLabel }}</span></div>
+                            <span class="rp-resv-pill is-status-{{ $resStatus }}">{{ $resLabel }}</span>
                             @if($checkOutDue)
                                 <span class="rp-resv-due">Due now</span>
                             @endif
                         </td>
+                        <td class="rp-resv-col-center"><span class="rp-resv-pill is-pay-{{ $paymentKey }}">{{ $paymentLabel }}</span></td>
                         <td class="rp-resv-col-center text-nowrap">
                             <div class="rp-resv-actions">
-                                @if($canCollectBalance)
-                                    <button type="button" class="btn btn-sm rp-resv-btn-primary" data-bs-toggle="modal" data-bs-target="#rpCollectModal{{ $booking->id }}">Collect balance</button>
-                                @endif
-                                @if($canCheckIn)
-                                    <button type="button" class="btn btn-sm rp-resv-btn-primary" data-bs-toggle="modal" data-bs-target="#rpCheckInModal{{ $booking->id }}">Check-in</button>
-                                @elseif($canCheckOut)
-                                    <button type="button" class="btn btn-sm rp-resv-btn-outline" data-bs-toggle="modal" data-bs-target="#rpCheckOutModal{{ $booking->id }}">{{ $checkOutDue ? 'Check-out' : 'Early check-out' }}</button>
-                                @endif
                                 <button type="button" class="btn btn-sm rp-resv-btn-outline" data-bs-toggle="modal" data-bs-target="#rpResvViewModal{{ $booking->id }}">View</button>
                             </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="9" class="text-muted py-4 text-center">
+                        <td colspan="10" class="text-muted py-4 text-center">
                             @if($tab === 'logs')
                                 No check-in or check-out logs yet.
                             @elseif($tab === 'check_out')
@@ -349,6 +343,7 @@
         $canCheckIn = $statusValue === 'approved' && $booking->isFullyPaid() && ! $booking->checkIn && $booking->checkInWindowOpen();
         $canCheckOut = $statusValue === 'checked_in' && ! $canCollectBalance;
         $payment = $booking->payments->first();
+        $proofPayments = $booking->payments->filter(fn ($item) => filled($item->proof_path))->values();
         $methodLabel = $payment
             ? str_replace('_', ' ', ucfirst($payment->payment_method instanceof \BackedEnum ? $payment->payment_method->value : (string) $payment->payment_method))
             : '—';
@@ -374,13 +369,16 @@
         }
     @endphp
 
-    <div class="modal fade" id="rpResvViewModal{{ $booking->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="rpResvViewModal{{ $booking->id }}" tabindex="-1" aria-labelledby="rpResvViewTitle{{ $booking->id }}" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-            <div class="modal-content rp-admin-modal">
+            <div class="modal-content rp-admin-modal rp-resv-view-modal">
                 <div class="modal-header">
                     <div>
-                        <h2 class="modal-title h5 mb-0">Reservation {{ $booking->short_number }}</h2>
-                        <div class="text-muted small">{{ $resLabel }} · {{ $booking->is_walk_in ? 'Walk-in' : 'Online' }}</div>
+                        <div class="rp-resv-view-heading">
+                            <span>
+                                <h2 class="modal-title h5 mb-0" id="rpResvViewTitle{{ $booking->id }}">Reservation {{ $booking->short_number }}</h2>
+                            </span>
+                        </div>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -390,10 +388,9 @@
                             <i class="bi bi-check-circle me-1" aria-hidden="true"></i>{{ session('success') }}
                         </div>
                     @endif
-                    <div class="row g-3">
+                    <div class="row g-3 rp-resv-view-content">
                         <div class="col-md-6">
                             <div class="rp-resv-action-summary h-100">
-                                <div class="text-muted small mb-1">Guest</div>
                                 <div class="fw-semibold">{{ $guestName }}</div>
                                 <div class="text-muted small">{{ $guestPhone }}</div>
                                 <div class="text-muted small">{{ $guestEmail }}</div>
@@ -401,35 +398,52 @@
                         </div>
                         <div class="col-md-6">
                             <div class="rp-resv-action-summary h-100">
-                                <div class="text-muted small mb-1">Stay</div>
                                 <div class="fw-semibold">{{ $booking->accommodation?->name ?? '—' }}</div>
-                                <div class="text-muted small">{{ $booking->accommodation?->number ?? '—' }}</div>
+                                <div class="text-muted small">Room {{ $booking->accommodation?->number ?? '—' }}</div>
                                 <div class="text-muted small">{{ $booking->check_in_date->format('M j, Y') }} → {{ $booking->check_out_date->format('M j, Y') }}</div>
                                 <div class="text-muted small">Guests: {{ $booking->number_of_guests ?? '—' }}</div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="text-muted small">Total</div>
-                            <div class="fw-semibold">₱{{ number_format($bookingTotal, 2) }}</div>
+                        <div class="col-12">
+                            <div class="rp-resv-payment-totals">
+                                <div><span>Total</span><strong>₱{{ number_format($bookingTotal, 2) }}</strong></div>
+                                <div><span>Paid</span><strong>₱{{ number_format($bookingPaid, 2) }}</strong></div>
+                                <div><span>Balance</span><strong>₱{{ number_format($remainingBalance, 2) }}</strong></div>
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="text-muted small">Paid</div>
-                            <div class="fw-semibold">₱{{ number_format($bookingPaid, 2) }}</div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="text-muted small">Balance</div>
-                            <div class="fw-semibold">₱{{ number_format($remainingBalance, 2) }}</div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="text-muted small">Payment status</div>
-                            <div><span class="rp-resv-pill is-pay-{{ $paymentStatus }}">{{ $paymentLabel }}</span></div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="text-muted small">Latest payment</div>
-                            <div>{{ $payment ? '₱'.number_format((float) $payment->amount, 2).' · '.$methodLabel : 'No payment yet' }}</div>
-                            @if($payment?->reference_number)
-                                <div class="text-muted small">Ref: {{ $payment->reference_number }}</div>
-                            @endif
+                        <div class="col-12">
+                            <div class="rp-resv-payment-summary">
+                                <div class="rp-resv-payment-summary__status">
+                                    <span class="rp-resv-view-label">Payment status</span>
+                                    <span class="rp-resv-pill is-pay-{{ $paymentStatus }}">{{ $paymentLabel }}</span>
+                                </div>
+                                <div class="rp-resv-payment-summary__latest">
+                                    <span class="rp-resv-view-label">Latest payment</span>
+                                    <strong class="rp-resv-latest-payment">{{ $payment ? '₱'.number_format((float) $payment->amount, 2).' · '.$methodLabel : 'No payment yet' }}</strong>
+                                </div>
+                                <div class="rp-resv-payment-summary__reference">
+                                    <span class="rp-resv-view-label">Reference</span>
+                                    <strong class="rp-resv-reference-value">{{ $payment?->reference_number ?: '—' }}</strong>
+                                </div>
+                                <div class="rp-resv-payment-summary__screenshot">
+                                    <span class="rp-resv-view-label">Screenshot Receipt</span>
+                                    @if($proofPayments->isNotEmpty())
+                                        <button type="button" class="rp-resv-proof-button" data-rp-open-after-hide="#rpResvPaymentProof{{ $booking->id }}">
+                                            <i class="bi bi-images" aria-hidden="true"></i><span>View{{ $proofPayments->count() > 1 ? ' screenshots ('.$proofPayments->count().')' : ' screenshot' }}</span>
+                                        </button>
+                                    @elseif($payment)
+                                        <form method="POST" enctype="multipart/form-data" action="{{ route('front_desk.payments.attach-proof', $payment) }}" class="rp-resv-proof-upload">
+                                            @csrf
+                                            <label class="visually-hidden" for="rpPaymentProofUpload{{ $payment->id }}">Attach payment screenshot</label>
+                                            <input type="file" name="payment_screenshot" id="rpPaymentProofUpload{{ $payment->id }}" accept="image/jpeg,image/png,image/webp" required>
+                                            <button type="submit" class="rp-resv-proof-button"><i class="bi bi-paperclip" aria-hidden="true"></i><span>Attach screenshot</span></button>
+                                            @error('payment_screenshot')<span class="rp-resv-view-meta text-danger">{{ $message }}</span>@enderror
+                                        </form>
+                                    @else
+                                        <span class="rp-resv-reference-value">—</span>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
                         @if($booking->promo_code || ((float) $booking->discount_amount) > 0)
                             <div class="col-12">
@@ -444,7 +458,7 @@
                             </div>
                         @endif
                         <div class="col-12">
-                            <div class="text-muted small mb-2">Check-in / Check-out log</div>
+                            <div class="rp-resv-view-section-heading">Stay activity</div>
                             <div class="rp-resv-log-list">
                                 @if($statusValue === 'no_show')
                                     <div class="rp-resv-log-item">
@@ -511,6 +525,48 @@
             </div>
         </div>
     </div>
+
+    @if($proofPayments->isNotEmpty())
+    <div class="modal fade rp-resv-proof-modal" id="rpResvPaymentProof{{ $booking->id }}" tabindex="-1" aria-labelledby="rpResvPaymentProofTitle{{ $booking->id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content rp-admin-modal">
+                <div class="modal-header">
+                    <div>
+                        <h2 class="modal-title h5 mb-0" id="rpResvPaymentProofTitle{{ $booking->id }}">Payment screenshots</h2>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close screenshot"></button>
+                </div>
+                <div class="modal-body rp-resv-proof-modal-body">
+                    <div id="rpResvProofCarousel{{ $booking->id }}" class="carousel slide rp-resv-proof-carousel" data-bs-touch="true" data-bs-interval="false">
+                        <div class="carousel-inner">
+                            @foreach($proofPayments as $proofPayment)
+                                <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
+                                    <img src="{{ $proofPayment->proof_url }}" alt="Payment screenshot {{ $loop->iteration }} for reservation {{ $booking->short_number }}" class="rp-resv-proof-image">
+                                    <div class="rp-resv-proof-caption">
+                                        <span>Receipt {{ $loop->iteration }} of {{ $proofPayments->count() }}</span>
+                                        <strong>{{ $proofPayment->receipt_number ?: ($proofPayment->reference_number ?: 'Payment proof') }}</strong>
+                                        <span>₱{{ number_format((float) $proofPayment->amount, 2) }} · {{ $proofPayment->payment_date?->format('M j, Y g:i A') ?? 'Date unavailable' }}</span>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        @if($proofPayments->count() > 1)
+                            <button class="carousel-control-prev rp-resv-proof-control" type="button" data-bs-target="#rpResvProofCarousel{{ $booking->id }}" data-bs-slide="prev" aria-label="Previous payment screenshot">
+                                <span class="rp-resv-proof-control-icon" aria-hidden="true"><i class="bi bi-chevron-left"></i></span>
+                            </button>
+                            <button class="carousel-control-next rp-resv-proof-control" type="button" data-bs-target="#rpResvProofCarousel{{ $booking->id }}" data-bs-slide="next" aria-label="Next payment screenshot">
+                                <span class="rp-resv-proof-control-icon" aria-hidden="true"><i class="bi bi-chevron-right"></i></span>
+                            </button>
+                        @endif
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-rp-soft" data-rp-open-after-hide="#rpResvViewModal{{ $booking->id }}">Back to reservation</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 
     @if($canCollectBalance)
     <div class="modal fade" id="rpCollectModal{{ $booking->id }}" tabindex="-1" aria-hidden="true">
