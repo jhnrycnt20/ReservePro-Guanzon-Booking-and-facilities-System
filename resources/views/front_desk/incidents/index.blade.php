@@ -60,7 +60,7 @@
                         <td>{{ $report->guest?->user?->name ?? '—' }}</td>
                         <td><x-status-badge :status="$report->status" plain /></td>
                         <td class="text-end">
-                            <a href="{{ route('front_desk.incidents.show', $report) }}" class="btn btn-sm btn-rp-soft">View</a>
+                            <button type="button" class="btn btn-sm btn-rp-soft" data-bs-toggle="modal" data-bs-target="#rpFdReportModal{{ $report->id }}">View</button>
                         </td>
                     </tr>
                 @empty
@@ -71,4 +71,53 @@
     </div>
     @if(method_exists($reports, 'links')) {{ $reports->withQueryString()->links() }} @endif
 </div>
+
+@foreach($modalReports as $report)
+    @include('front_desk.incidents.detail-modal', ['report' => $report])
+@endforeach
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-rp-notes-count]').forEach((notes) => {
+        const notesValue = notes.closest('.rp-report-notes-wrap')?.querySelector('[data-rp-notes-count-value]');
+        const syncCount = () => {
+            if (notesValue) notesValue.textContent = String((notes.value || '').length);
+        };
+        notes.addEventListener('input', syncCount);
+        syncCount();
+    });
+
+    document.querySelectorAll('[data-rp-fd-photo-modal]').forEach((photoModal) => {
+        photoModal.addEventListener('hidden.bs.modal', () => {
+            const reportModal = document.getElementById(photoModal.dataset.rpReturnModal);
+            if (reportModal && window.bootstrap?.Modal) {
+                window.bootstrap.Modal.getOrCreateInstance(reportModal).show();
+            }
+        });
+    });
+
+    const selectedReportId = @json($selectedReportId ?: null);
+    if (!selectedReportId || !window.bootstrap?.Modal) return;
+
+    const modal = document.getElementById(`rpFdReportModal${selectedReportId}`);
+    if (!modal) return;
+
+    let openingPhoto = false;
+    modal.addEventListener('click', (event) => {
+        if (event.target.closest('[data-bs-toggle="modal"]')) openingPhoto = true;
+    });
+    modal.addEventListener('hidden.bs.modal', () => {
+        if (openingPhoto) {
+            openingPhoto = false;
+            return;
+        }
+        const url = new URL(window.location.href);
+        url.searchParams.delete('report');
+        window.history.replaceState(window.history.state, '', url);
+    });
+    window.bootstrap.Modal.getOrCreateInstance(modal).show();
+});
+</script>
+@endpush

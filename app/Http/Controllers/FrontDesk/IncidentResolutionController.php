@@ -21,7 +21,7 @@ class IncidentResolutionController extends Controller
     public function index(Request $request): View
     {
         $query = IncidentReport::query()
-            ->with(['guest.user', 'booking'])
+            ->with(['guest.user', 'booking', 'securityGuard', 'frontDeskStaff'])
             ->latest();
 
         if ($request->filled('status')) {
@@ -36,7 +36,19 @@ class IncidentResolutionController extends Controller
 
         ListFilters::applyIncidentSearch($query, $request->input('q'));
 
-        $reports = $query->paginate(20)->withQueryString();
+        $reports = $query->paginate(20)->appends($request->except('report'));
+        $modalReports = collect($reports->items());
+        $selectedReportId = $request->integer('report') ?: (int) $request->old('_modal');
+
+        if ($selectedReportId && ! $modalReports->contains('id', $selectedReportId)) {
+            $selectedReport = IncidentReport::query()
+                ->with(['guest.user', 'booking', 'securityGuard', 'frontDeskStaff'])
+                ->find($selectedReportId);
+
+            if ($selectedReport) {
+                $modalReports->push($selectedReport);
+            }
+        }
 
         $unresolvedCount = IncidentReport::query()
             ->whereIn('status', [
@@ -45,14 +57,17 @@ class IncidentResolutionController extends Controller
             ])
             ->count();
 
-        return view('front_desk.incidents.index', compact('reports', 'unresolvedCount'));
+        return view('front_desk.incidents.index', compact(
+            'reports',
+            'modalReports',
+            'selectedReportId',
+            'unresolvedCount'
+        ));
     }
 
-    public function show(IncidentReport $incident): View
+    public function show(IncidentReport $incident): RedirectResponse
     {
-        $incident->load(['guest.user', 'booking', 'attachments', 'securityGuard']);
-
-        return view('front_desk.incidents.show', ['report' => $incident]);
+        return redirect()->route('front_desk.incidents.index', ['report' => $incident->id]);
     }
 
     public function progress(Request $request, IncidentReport $incident): RedirectResponse

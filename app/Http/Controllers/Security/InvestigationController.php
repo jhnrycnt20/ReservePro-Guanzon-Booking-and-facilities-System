@@ -21,7 +21,7 @@ class InvestigationController extends Controller
     public function index(Request $request): View
     {
         $query = IncidentReport::query()
-            ->with(['guest.user', 'booking'])
+            ->with(['guest.user', 'booking', 'securityGuard', 'frontDeskStaff'])
             ->latest();
 
         if ($request->filled('status')) {
@@ -32,17 +32,28 @@ class InvestigationController extends Controller
 
         ListFilters::applyIncidentSearch($query, $request->input('q'));
 
-        $reports = $query->paginate(20)->withQueryString();
+        $reports = $query->paginate(20)->appends($request->except('report'));
+        $modalReports = collect($reports->items());
+        $selectedReportId = $request->integer('report') ?: (int) $request->old('_modal');
 
-        return view('security.incidents.index', compact('reports'));
+        if ($selectedReportId && ! $modalReports->contains('id', $selectedReportId)) {
+            $selectedReport = IncidentReport::query()
+                ->with(['guest.user', 'booking', 'securityGuard', 'frontDeskStaff'])
+                ->find($selectedReportId);
+
+            if ($selectedReport) {
+                $modalReports->push($selectedReport);
+            }
+        }
+
+        return view('security.incidents.index', compact('reports', 'modalReports', 'selectedReportId'));
     }
 
-    public function show(IncidentReport $incident): View
+    public function show(IncidentReport $incident): RedirectResponse
     {
         $this->authorize('view', $incident);
-        $incident->load(['guest.user', 'booking', 'attachments']);
 
-        return view('security.incidents.show', ['report' => $incident]);
+        return redirect()->route('security.incidents.index', ['report' => $incident->id]);
     }
 
     public function investigate(InvestigateIncidentRequest $request, IncidentReport $incident): RedirectResponse

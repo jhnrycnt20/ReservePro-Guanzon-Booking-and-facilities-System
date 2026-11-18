@@ -6076,6 +6076,636 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     color: rgba(255, 255, 255, .65);
 }
 
+/* Split resort login inspired by the supplied dark ReservePro reference. */
+#rpLoginModal .rp-login-reference-dialog {
+    width: min(860px, calc(100vw - 2rem));
+    max-width: 860px;
+}
+
+#rpLoginModal .modal-dialog-scrollable .rp-login-reference-modal {
+    max-height: min(90dvh, 35rem);
+}
+
+#rpLoginModal .rp-login-reference-modal.modal-content {
+    overflow: hidden;
+    border: 1px solid #0b4c3c;
+    border-radius: 28px;
+    background: #031c18;
+    box-shadow:
+        inset 0 0 0 1px rgba(0, 17, 13, .72),
+        0 30px 90px rgba(0, 14, 11, .76),
+        0 0 38px rgba(10, 92, 70, .18);
+}
+
+.rp-login-reference-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(25rem, .92fr);
+    min-height: min(70dvh, 32rem);
+}
+
+.rp-login-reference-showcase {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-width: 0;
+    overflow: hidden;
+    padding: 1.35rem;
+    background: #021c16;
+    contain: paint;
+    isolation: isolate;
+}
+
+.rp-login-reference-showcase::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+        linear-gradient(180deg, rgba(1, 20, 15, .16) 0%, rgba(1, 21, 16, .25) 40%, rgba(0, 25, 19, .96) 100%),
+        linear-gradient(90deg, rgba(0, 38, 28, .06), rgba(0, 29, 23, .17));
+    pointer-events: none;
+}
+
+.rp-login-reference-slides {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 0;
+    display: flex;
+    width: 200%;
+    animation: rpLoginShowcaseTrack 12s ease-in-out infinite;
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+}
+
+.rp-login-reference-slide {
+    flex: 0 0 50%;
+    width: 50%;
+    height: 100%;
+    min-width: 0;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+@keyframes rpLoginShowcaseTrack {
+    0%, 42% {
+        transform: translate3d(0, 0, 0);
+    }
+    50%, 92% {
+        transform: translate3d(-50%, 0, 0);
+    }
+    100% {
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.rp-login-reference-showcase::after,
+.rp-login-reference-form-panel::after {
+    content: "";
+    position: absolute;
+    right: -12%;
+    bottom: -3.7rem;
+    left: -12%;
+    height: 6.5rem;
+    border-radius: 50% 50% 0 0;
+    background: rgba(14, 190, 139, .18);
+    transform: rotate(-2deg);
+    pointer-events: none;
+}
+
+.rp-login-reference-showcase::after {
+    z-index: 1;
+}
+
+.rp-login-reference-showcase-copy,
+.rp-login-reference-dots {
+    position: relative;
+    z-index: 2;
+}
+
+.rp-login-reference-showcase-copy {
+    margin: auto 0 1.15rem;
+    text-align: center;
+}
+
+.rp-login-reference-showcase-copy img {
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: .2rem;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 14px rgba(0, 25, 18, .3));
+}
+
+.rp-login-reference-showcase-copy h2 {
+    max-width: none;
+    margin: 0 0 .1rem;
+    color: #fff;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: clamp(2rem, 3.5vw, 2.65rem);
+    font-style: normal;
+    font-weight: 600;
+    letter-spacing: -.035em;
+    line-height: .95;
+    text-shadow: 0 3px 20px rgba(0, 20, 14, .5);
+}
+
+.rp-login-reference-resort-label {
+    display: block;
+    color: rgba(255, 255, 255, .9);
+    font-size: .48rem;
+    font-weight: 700;
+    letter-spacing: .36em;
+    text-transform: uppercase;
+}
+
+.rp-login-reference-divider {
+    display: block;
+    width: 2rem;
+    height: 1px;
+    margin: .75rem auto;
+    background: rgba(255, 255, 255, .76);
+}
+
+.rp-login-reference-showcase-copy p {
+    max-width: 28rem;
+    margin: 0 auto;
+    color: rgba(255, 255, 255, .9);
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: .74rem;
+    letter-spacing: .24em;
+    line-height: 1.45;
+    text-transform: uppercase;
+}
+
+.rp-login-reference-dots {
+    display: flex;
+    justify-content: center;
+    gap: .45rem;
+    margin-top: .65rem;
+}
+
+.rp-login-reference-dots span {
+    width: .48rem;
+    height: .48rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .38);
+    animation: rpLoginShowcaseDot 12s ease-in-out infinite;
+}
+
+.rp-login-reference-dots span:nth-child(2) {
+    animation-delay: -6s;
+}
+
+@keyframes rpLoginShowcaseDot {
+    0%, 42%, 100% {
+        background: #fff;
+        transform: scale(1.12);
+    }
+    50%, 92% {
+        background: rgba(255, 255, 255, .38);
+        transform: scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rp-login-reference-slides,
+    .rp-login-reference-dots span {
+        animation: none;
+    }
+
+    .rp-login-reference-slides {
+        transform: translateX(0);
+    }
+}
+
+#rpLoginModal .rp-login-reference-form-panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-height: min(calc(90dvh - .9rem), 34.1rem);
+    margin: .45rem;
+    padding: 1.5rem 2.15rem 1.25rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border: 1px solid rgba(70, 218, 174, .42);
+    border-radius: 22px;
+    background:
+        radial-gradient(circle at 85% 8%, rgba(27, 166, 126, .13), transparent 34%),
+        linear-gradient(155deg, #052f27 0%, #021e19 58%, #011712 100%);
+    box-shadow:
+        0 16px 38px rgba(0, 12, 9, .48),
+        inset 0 0 0 1px rgba(255, 255, 255, .025);
+    color: #f4fbf8;
+}
+
+.rp-login-reference-form-panel::after {
+    display: none;
+}
+
+.rp-login-reference-form-panel > * {
+    position: relative;
+    z-index: 1;
+}
+
+.rp-login-reference-heading {
+    margin-bottom: .9rem;
+    text-align: center;
+}
+
+#rpLoginModal .rp-login-reference-heading .rp-login-title {
+    margin: 0 0 .45rem;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: clamp(1.5rem, 2.35vw, 1.78rem);
+    font-weight: 600;
+    letter-spacing: -.025em;
+    color: #fff;
+}
+
+.rp-login-reference-heading p {
+    max-width: 29rem;
+    margin: 0 auto;
+    color: rgba(235, 247, 243, .72);
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: .66rem;
+    line-height: 1.45;
+}
+
+#rpLoginModal .rp-login-reference-field {
+    margin-bottom: .9rem;
+}
+
+#rpLoginModal .rp-login-reference-field input {
+    min-height: 2.7rem;
+    padding: .85rem 3rem .85rem 3.25rem;
+    border: 1px solid rgba(198, 225, 216, .38);
+    border-radius: 15px !important;
+    background: rgba(4, 37, 31, .72);
+    color: #f7fffc;
+    font-size: .88rem;
+}
+
+#rpLoginModal .rp-login-reference-field input::placeholder {
+    color: rgba(232, 245, 241, .58);
+}
+
+#rpLoginModal .rp-login-reference-field input:focus {
+    border-color: #42ddb0;
+    background: rgba(5, 48, 39, .9);
+    box-shadow: 0 0 0 .2rem rgba(46, 217, 166, .13);
+}
+
+.rp-login-reference-leading-icon {
+    position: absolute;
+    top: 1.35rem;
+    left: 1.15rem;
+    z-index: 2;
+    color: rgba(235, 248, 244, .78);
+    font-size: 1.2rem;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+#rpLoginModal .rp-login-field-icon-btn {
+    top: 1.35rem;
+    right: 1.2rem;
+    color: rgba(235, 248, 244, .78);
+    font-size: 1.1rem;
+}
+
+.rp-login-reference-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0 0 .8rem;
+}
+
+#rpLoginModal .rp-login-reference-options .rp-login-remember {
+    margin: 0;
+}
+
+#rpLoginModal .rp-login-reference-options .rp-login-remember label {
+    color: rgba(244, 251, 248, .86);
+    font-size: .75rem;
+}
+
+.rp-login-reference-forgot {
+    color: #48e1b3;
+    font-size: .75rem;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.rp-login-reference-forgot:hover {
+    color: #8bf6d6;
+}
+
+#rpLoginModal .rp-login-submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .65rem;
+    min-height: 2.75rem;
+    border-radius: 15px;
+    background: linear-gradient(90deg, #5ee1ba, #12b984);
+    box-shadow: 0 12px 30px rgba(16, 185, 130, .22);
+    font-size: .92rem;
+}
+
+#rpLoginModal .rp-login-submit i {
+    font-size: 1.1rem;
+}
+
+#rpLoginModal .rp-login-signup {
+    margin-top: .9rem;
+    color: rgba(238, 248, 245, .72);
+    font-size: .75rem;
+}
+
+#rpLoginModal .rp-login-signup a {
+    color: #48e1b3;
+}
+
+#rpLoginModal .rp-login-demo {
+    margin-top: .8rem;
+    padding-top: .7rem;
+    border-top-color: rgba(208, 237, 227, .18);
+}
+
+#rpLoginModal .rp-login-demo-head {
+    color: rgba(235, 248, 244, .72);
+    font-size: .64rem;
+}
+
+#rpLoginModal .rp-login-demo-password {
+    background: rgba(203, 230, 221, .18);
+    color: rgba(243, 251, 248, .72);
+}
+
+#rpLoginModal .rp-login-demo-btn {
+    border-color: rgba(211, 235, 227, .22);
+    background: rgba(255, 255, 255, .055);
+    color: #eefaf6;
+}
+
+#rpLoginModal .rp-login-demo-btn:hover {
+    background: rgba(62, 218, 170, .13);
+}
+
+#rpLoginModal .rp-login-demo-email {
+    color: rgba(226, 242, 236, .64);
+}
+
+#rpLoginModal .rp-login-modal-close {
+    filter: invert(1) grayscale(1) brightness(2);
+    opacity: .8;
+}
+
+/* Password reset request modal */
+.rp-password-reset-backdrop {
+    min-height: 72vh;
+    background:
+        linear-gradient(rgba(1, 29, 23, .72), rgba(1, 20, 16, .82)),
+        url('../images/rooms/cottage/Sunlit Picnic Pavilion Courtyard.png') center / cover no-repeat;
+}
+
+#rpPasswordResetRequestModal .rp-password-reset-dialog {
+    width: min(29rem, calc(100vw - 1.5rem));
+    max-width: 29rem;
+}
+
+#rpPasswordResetRequestModal .rp-password-reset-modal {
+    position: relative;
+    padding: 1.65rem 2rem 1.45rem;
+    overflow: hidden;
+    border: 1px solid rgba(70, 218, 174, .45);
+    border-radius: 24px;
+    background:
+        radial-gradient(circle at 88% 5%, rgba(36, 190, 145, .15), transparent 32%),
+        linear-gradient(155deg, #05342b 0%, #021f1a 58%, #011712 100%);
+    box-shadow:
+        0 28px 75px rgba(0, 12, 9, .62),
+        inset 0 0 0 1px rgba(255, 255, 255, .025);
+    color: #f4fbf8;
+}
+
+.rp-password-reset-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 2;
+    filter: invert(1) grayscale(1) brightness(2);
+    opacity: .75;
+}
+
+.rp-password-reset-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .65rem;
+    margin-bottom: 1.2rem;
+}
+
+.rp-password-reset-brand img {
+    width: 2.35rem;
+    height: 2.35rem;
+    object-fit: contain;
+}
+
+.rp-password-reset-brand strong {
+    font-size: 1.25rem;
+    font-style: italic;
+    font-weight: 800;
+    letter-spacing: -.055em;
+}
+
+.rp-password-reset-brand strong span {
+    color: #32dda9;
+}
+
+.rp-password-reset-heading {
+    text-align: center;
+}
+
+.rp-password-reset-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.8rem;
+    height: 2.8rem;
+    margin-bottom: .7rem;
+    border: 1px solid rgba(74, 229, 181, .35);
+    border-radius: 50%;
+    background: rgba(51, 220, 168, .1);
+    color: #55e4b8;
+    font-size: 1.25rem;
+}
+
+.rp-password-reset-heading h2 {
+    margin: 0 0 .45rem;
+    color: #fff;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 1.75rem;
+    font-weight: 600;
+}
+
+.rp-password-reset-heading p {
+    max-width: 22rem;
+    margin: 0 auto 1.15rem;
+    color: rgba(235, 247, 243, .68);
+    font-size: .72rem;
+    line-height: 1.55;
+}
+
+.rp-password-reset-status {
+    display: flex;
+    align-items: flex-start;
+    gap: .55rem;
+    margin-bottom: .9rem;
+    padding: .7rem .8rem;
+    border: 1px solid rgba(76, 222, 177, .28);
+    border-radius: 12px;
+    background: rgba(48, 193, 149, .1);
+    color: #c8f7e8;
+    font-size: .72rem;
+    line-height: 1.45;
+}
+
+.rp-password-reset-form label {
+    display: block;
+    margin-bottom: .4rem;
+    color: rgba(244, 251, 248, .86);
+    font-size: .72rem;
+    font-weight: 600;
+}
+
+.rp-password-reset-field {
+    position: relative;
+}
+
+.rp-password-reset-field i {
+    position: absolute;
+    top: 50%;
+    left: 1rem;
+    color: rgba(235, 248, 244, .7);
+    font-size: 1rem;
+    transform: translateY(-50%);
+}
+
+.rp-password-reset-field input {
+    width: 100%;
+    min-height: 3rem;
+    padding: .75rem 1rem .75rem 2.8rem;
+    border: 1px solid rgba(198, 225, 216, .38);
+    border-radius: 14px;
+    outline: 0;
+    background: rgba(4, 37, 31, .72);
+    color: #f7fffc;
+    font-size: .82rem;
+}
+
+.rp-password-reset-field input::placeholder {
+    color: rgba(232, 245, 241, .5);
+}
+
+.rp-password-reset-field input:focus {
+    border-color: #42ddb0;
+    box-shadow: 0 0 0 .2rem rgba(46, 217, 166, .13);
+}
+
+.rp-password-reset-error {
+    margin-top: .4rem;
+    color: #ffaaaa;
+    font-size: .7rem;
+}
+
+.rp-password-reset-submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .55rem;
+    width: 100%;
+    min-height: 2.9rem;
+    margin-top: 1rem;
+    border: 0;
+    border-radius: 14px;
+    background: linear-gradient(90deg, #5ee1ba, #12b984);
+    color: #06251d;
+    font-size: .85rem;
+    font-weight: 700;
+    box-shadow: 0 12px 28px rgba(16, 185, 130, .2);
+}
+
+.rp-password-reset-back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    width: 100%;
+    margin-top: 1rem;
+    border: 0;
+    background: transparent;
+    color: #4de1b5;
+    font-size: .73rem;
+    font-weight: 650;
+}
+
+@media (max-width: 575.98px) {
+    #rpPasswordResetRequestModal .rp-password-reset-modal {
+        padding: 1.5rem 1.25rem 1.3rem;
+        border-radius: 20px;
+    }
+}
+
+@media (max-width: 991.98px) {
+    #rpLoginModal .rp-login-reference-dialog {
+        width: min(35rem, calc(100vw - 1.5rem));
+        max-width: 35rem;
+    }
+
+    .rp-login-reference-layout {
+        display: block;
+        min-height: 0;
+    }
+
+    .rp-login-reference-showcase {
+        display: none;
+    }
+
+    #rpLoginModal .rp-login-reference-form-panel {
+        max-height: min(92dvh, 46rem);
+    }
+}
+
+@media (max-width: 575.98px) {
+    #rpLoginModal .rp-login-reference-dialog {
+        width: calc(100vw - 1rem);
+        margin: .5rem auto;
+    }
+
+    #rpLoginModal .rp-login-reference-modal.modal-content {
+        border-radius: 20px;
+    }
+
+    #rpLoginModal .rp-login-reference-form-panel {
+        padding: 2.1rem 1.25rem 1.4rem;
+    }
+
+    .rp-login-reference-options {
+        align-items: flex-start;
+    }
+
+    .rp-login-reference-forgot,
+    #rpLoginModal .rp-login-remember label {
+        font-size: .72rem;
+    }
+}
+
 .rp-terms-modal-body {
     max-height: 65vh;
     overflow-y: auto;
@@ -13411,9 +14041,475 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-footer { 
     border-radius: .7rem;
     box-shadow: 0 5px 12px rgba(15, 107, 69, .14);
 }
+
+.rp-incident-report-modal .modal-dialog {
+    max-width: 820px;
+    padding-inline: .75rem;
+}
+.rp-incident-report-modal .modal-content {
+    overflow: hidden;
+    border: 1px solid #dce8e2;
+    border-radius: 1.15rem;
+    background: #fff;
+    box-shadow: 0 24px 70px rgba(24, 53, 47, .2);
+    color: #203d34;
+}
+.rp-incident-report-modal .modal-header {
+    align-items: center;
+    padding: 1.15rem 1.5rem;
+    border-bottom: 1px solid #e6efea;
+}
+.rp-incident-report-modal .modal-title {
+    color: #18352f;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -.025em;
+}
+.rp-incident-report-modal .modal-header p {
+    margin-top: .2rem;
+    color: #71847c;
+    font-size: .82rem;
+}
+.rp-incident-report-modal .modal-body.rp-incident-create-card {
+    padding: 1.35rem 1.5rem;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+.rp-incident-report-modal .modal-footer {
+    gap: .65rem;
+    padding: 0 1.5rem 1.35rem;
+    border-top: 0;
+}
+.rp-incident-report-modal .modal-footer .rp-btn-check-availability {
+    width: auto;
+    min-width: 10rem;
+}
 @media (max-width: 575.98px) {
     .rp-incident-create-page { padding-inline: 1rem; padding-top: 6.5rem; }
     .rp-incident-create-card { padding: 1.1rem; border-radius: 1rem; }
     .rp-incident-create-card form .row { --bs-gutter-y: 1rem; }
     .rp-incident-create-card .rp-btn-check-availability { margin-top: 1rem !important; }
+    .rp-incident-report-modal .modal-header,
+    .rp-incident-report-modal .modal-body.rp-incident-create-card { padding: 1rem 1.1rem; }
+    .rp-incident-report-modal .modal-footer { padding: 0 1.1rem 1.1rem; }
+    .rp-incident-report-modal .modal-footer .rp-btn-check-availability { flex: 1; min-width: 0; }
+}
+
+/* Login modal: blurred page backdrop and minimal two-panel form. */
+#rpLoginModal::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 16, 8, .18);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    body:has(#rpLoginModal.show) .rp-page-blur-overlay {
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+    }
+}
+
+#rpLoginModal .rp-login-reference-dialog {
+    width: min(960px, calc(100vw - 2rem));
+    max-width: 960px;
+}
+
+#rpLoginModal .rp-login-reference-modal.modal-content {
+    border: 1px solid rgba(75, 170, 91, .28);
+    border-radius: 22px;
+    background: #041108;
+    box-shadow: 0 30px 90px rgba(0, 0, 0, .78);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+#rpLoginModal .rp-login-reference-layout {
+    grid-template-columns: 1fr 1fr;
+    min-height: 450px;
+}
+
+#rpLoginModal .rp-login-reference-showcase {
+    justify-content: center;
+    padding: clamp(2rem, 4vw, 3.5rem);
+    background: #101510;
+}
+
+#rpLoginModal .rp-login-reference-showcase::before {
+    background: linear-gradient(90deg, rgba(0, 0, 0, .55), rgba(0, 0, 0, .2));
+}
+
+#rpLoginModal .rp-login-reference-showcase::after { display: none; }
+
+#rpLoginModal .rp-login-reference-showcase-copy {
+    margin: 0;
+    width: 100%;
+    text-align: center;
+}
+
+#rpLoginModal .rp-login-reference-showcase-copy img {
+    display: block;
+    width: min(18rem, 100%);
+    height: auto;
+    margin: 0 auto;
+    object-fit: contain;
+}
+
+#rpLoginModal .rp-login-reference-showcase-copy h2 {
+    max-width: 22rem;
+    margin-bottom: 1rem;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: clamp(1.7rem, 3vw, 2.4rem);
+    font-weight: 700;
+    line-height: 1.18;
+    letter-spacing: -.045em;
+}
+
+#rpLoginModal .rp-login-reference-resort-label,
+#rpLoginModal .rp-login-reference-divider { display: none; }
+
+#rpLoginModal .rp-login-reference-showcase-copy p {
+    max-width: 22rem;
+    margin: 0;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: .82rem;
+    line-height: 1.65;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+#rpLoginModal .rp-login-reference-form-panel {
+    min-height: 450px;
+    max-height: min(90dvh, 650px);
+    margin: 0;
+    padding: 3rem clamp(2rem, 5vw, 4rem);
+    border: 0;
+    border-radius: 0;
+    background: linear-gradient(150deg, rgba(1, 9, 4, .98), rgba(3, 21, 9, .98));
+    box-shadow: none;
+}
+
+#rpLoginModal .rp-login-reference-heading { margin-bottom: 1.8rem; text-align: left; }
+#rpLoginModal .rp-login-reference-heading .rp-login-title {
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -.04em;
+}
+
+#rpLoginModal .rp-login-reference-field { margin-bottom: 1.25rem; }
+#rpLoginModal .rp-login-reference-field input {
+    min-height: 3.4rem;
+    padding: .8rem 2.5rem .8rem .2rem;
+    border: 0;
+    border-bottom: 1px solid rgba(215, 233, 216, .42);
+    border-radius: 0 !important;
+    background: transparent;
+    box-shadow: none;
+    font-size: .84rem;
+}
+#rpLoginModal .rp-login-reference-field input:focus {
+    border-color: #37c987;
+    background: transparent;
+    box-shadow: none;
+}
+#rpLoginModal .rp-login-reference-leading-icon { display: none; }
+#rpLoginModal .rp-login-field-icon-btn { right: .2rem; }
+#rpLoginModal .rp-login-reference-options { margin: .3rem 0 1.4rem; }
+#rpLoginModal .rp-login-reference-forgot,
+#rpLoginModal .rp-login-signup a { color: #35c887; }
+#rpLoginModal .rp-login-submit {
+    min-height: 3rem;
+    border-radius: 0;
+    background: #0c9858;
+    box-shadow: none;
+    color: #fff;
+    font-size: .85rem;
+}
+#rpLoginModal .rp-login-submit:hover { background: #13ac68; }
+#rpLoginModal .rp-login-signup { margin-top: 1rem; font-size: .72rem; text-align: left; }
+
+@media (max-width: 767.98px) {
+    #rpLoginModal .rp-login-reference-dialog { width: min(440px, calc(100vw - 1rem)); }
+    #rpLoginModal .rp-login-reference-layout { display: block; min-height: 0; }
+    #rpLoginModal .rp-login-reference-showcase { display: none; }
+    #rpLoginModal .rp-login-reference-form-panel { min-height: 0; padding: 2.5rem 1.5rem; }
+}
+
+/* Sign up uses the same split resort design as login. */
+#rpRegisterModal .rp-login-reference-dialog {
+    width: min(960px, calc(100vw - 2rem));
+    max-width: 960px;
+}
+#rpRegisterModal .modal-dialog-scrollable .rp-login-reference-modal {
+    max-height: min(90dvh, 35rem);
+}
+#rpRegisterModal .rp-login-reference-modal.modal-content {
+    overflow: hidden;
+    border: 1px solid rgba(75, 170, 91, .28);
+    border-radius: 22px;
+    background: #041108;
+    box-shadow: 0 30px 90px rgba(0, 0, 0, .78);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+#rpRegisterModal .rp-login-reference-layout {
+    grid-template-columns: 1fr 1fr;
+    height: min(450px, 88dvh);
+    min-height: 0;
+}
+#rpRegisterModal .rp-login-reference-showcase {
+    justify-content: center;
+    padding: clamp(2rem, 4vw, 3.5rem);
+    background: #101510;
+}
+#rpRegisterModal .rp-login-reference-showcase::before {
+    background: linear-gradient(90deg, rgba(0, 0, 0, .55), rgba(0, 0, 0, .2));
+}
+#rpRegisterModal .rp-login-reference-showcase::after { display: none; }
+#rpRegisterModal .rp-login-reference-showcase-copy {
+    width: 100%;
+    margin: 0;
+    text-align: center;
+}
+#rpRegisterModal .rp-login-reference-showcase-copy img {
+    display: block;
+    width: min(18rem, 100%);
+    height: auto;
+    margin: 0 auto;
+    object-fit: contain;
+}
+#rpRegisterModal .rp-login-reference-form-panel {
+    min-height: 0;
+    max-height: none;
+    margin: 0;
+    padding: 2.5rem clamp(2rem, 5vw, 4rem);
+    border: 0;
+    border-radius: 0;
+    background: linear-gradient(150deg, rgba(1, 9, 4, .98), rgba(3, 21, 9, .98));
+    box-shadow: none;
+    overflow-y: auto;
+}
+#rpRegisterModal .rp-login-title {
+    margin-bottom: 1.5rem;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -.04em;
+    text-align: left;
+}
+#rpRegisterModal .rp-login-field { margin-bottom: 1.15rem; }
+#rpRegisterModal .rp-login-field input {
+    min-height: 3rem;
+    padding: .7rem 2.3rem .7rem .2rem;
+    border: 0;
+    border-bottom: 1px solid rgba(215, 233, 216, .42);
+    border-radius: 0 !important;
+    background: transparent;
+    box-shadow: none;
+    font-size: .84rem;
+}
+#rpRegisterModal .rp-login-field input:focus {
+    border-color: #37c987;
+    background: transparent;
+    box-shadow: none;
+}
+#rpRegisterModal .rp-login-field-icon { display: none; }
+#rpRegisterModal .rp-login-field-icon-btn { right: .2rem; }
+#rpRegisterModal .rp-register-pw-checks { font-size: .68rem; }
+#rpRegisterModal .rp-login-submit {
+    min-height: 3rem;
+    border-radius: 0;
+    background: #0c9858;
+    box-shadow: none;
+    color: #fff;
+    font-size: .85rem;
+}
+#rpRegisterModal .rp-login-submit:hover { background: #13ac68; }
+#rpRegisterModal .rp-login-signup { margin-top: 1rem; font-size: .72rem; text-align: left; }
+#rpRegisterModal .rp-login-signup a { color: #35c887; }
+
+#rpRegisterModal .rp-register-step[hidden] { display: none !important; }
+#rpRegisterModal .rp-register-step {
+    position: relative;
+    padding-left: 2.5rem;
+}
+#rpRegisterModal .rp-register-step::before {
+    content: "";
+    position: absolute;
+    top: .8rem;
+    bottom: 2rem;
+    left: .85rem;
+    width: 1px;
+    background: rgba(125, 231, 182, .4);
+}
+#rpRegisterModal .rp-register-step-heading {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    width: 100%;
+    margin: 0 0 1.3rem -2.5rem;
+    border: 0;
+    background: transparent;
+    color: #d8f3e3;
+    font-size: .83rem;
+    font-weight: 700;
+    text-align: left;
+}
+#rpRegisterModal .rp-register-step-marker {
+    display: inline-flex;
+    flex: 0 0 1.7rem;
+    align-items: center;
+    justify-content: center;
+    width: 1.7rem;
+    height: 1.7rem;
+    border-radius: 50%;
+    background: #16a76a;
+    color: #fff;
+    box-shadow: 0 0 0 4px rgba(37, 211, 133, .13);
+    font-size: .76rem;
+}
+#rpRegisterModal .rp-register-step-back {
+    color: #6ce3ab;
+    cursor: pointer;
+}
+#rpRegisterModal .rp-register-step-back > span:nth-child(2) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+#rpRegisterModal .rp-register-step-back > i:last-child { margin-left: auto; }
+#rpRegisterModal .rp-register-step-heading.is-current { margin-top: .3rem; }
+#rpRegisterModal .rp-register-next {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .6rem;
+    width: 100%;
+    min-height: 3rem;
+    border: 0;
+    background: #0c9858;
+    color: #fff;
+    font-size: .85rem;
+    font-weight: 700;
+}
+#rpRegisterModal .rp-register-next:hover { background: #13ac68; }
+#rpRegisterModal .rp-register-pw-checks {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .3rem .75rem;
+}
+
+@media (max-width: 767.98px) {
+    #rpRegisterModal .rp-login-reference-dialog { width: min(440px, calc(100vw - 1rem)); }
+    #rpRegisterModal .rp-login-reference-layout { display: block; height: min(450px, 88dvh); min-height: 0; }
+    #rpRegisterModal .rp-login-reference-showcase { display: none; }
+    #rpRegisterModal .rp-login-reference-form-panel { min-height: 0; padding: 2rem 1.5rem; }
+}
+
+/* Password recovery follows the same photo and step treatment. */
+#rpPasswordResetRequestModal .rp-password-reset-dialog {
+    width: min(960px, calc(100vw - 2rem));
+    max-width: 960px;
+}
+#rpPasswordResetRequestModal .rp-password-reset-modal {
+    padding: 0;
+    border: 1px solid rgba(75, 170, 91, .28);
+    border-radius: 22px;
+    background: #041108;
+    box-shadow: 0 30px 90px rgba(0, 0, 0, .78);
+}
+#rpPasswordResetRequestModal .rp-login-reference-layout {
+    grid-template-columns: 1fr 1fr;
+    min-height: 450px;
+}
+#rpPasswordResetRequestModal .rp-login-reference-showcase {
+    justify-content: center;
+    padding: clamp(2rem, 4vw, 3.5rem);
+    background: #101510;
+}
+#rpPasswordResetRequestModal .rp-login-reference-showcase::before {
+    background: linear-gradient(90deg, rgba(0, 0, 0, .55), rgba(0, 0, 0, .2));
+}
+#rpPasswordResetRequestModal .rp-login-reference-showcase::after { display: none; }
+#rpPasswordResetRequestModal .rp-login-reference-showcase-copy { width: 100%; margin: 0; text-align: center; }
+#rpPasswordResetRequestModal .rp-login-reference-showcase-copy img {
+    display: block;
+    width: min(18rem, 100%);
+    height: auto;
+    margin: 0 auto;
+    object-fit: contain;
+}
+#rpPasswordResetRequestModal .rp-login-reference-form-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 450px;
+    margin: 0;
+    padding: 3rem clamp(2rem, 5vw, 4rem);
+    border: 0;
+    border-radius: 0;
+    background: linear-gradient(150deg, rgba(1, 9, 4, .98), rgba(3, 21, 9, .98));
+    box-shadow: none;
+    color: #fff;
+}
+#rpPasswordResetRequestModal .rp-password-reset-heading { text-align: left; }
+#rpPasswordResetRequestModal .rp-password-reset-heading h2 {
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -.04em;
+}
+#rpPasswordResetRequestModal .rp-password-reset-heading p { margin: 0 0 1.5rem; font-size: .76rem; }
+#rpPasswordResetRequestModal .rp-password-reset-step-heading {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin-bottom: 1.1rem;
+    color: #d8f3e3;
+    font-size: .83rem;
+    font-weight: 700;
+}
+#rpPasswordResetRequestModal .rp-password-reset-step-marker {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.7rem;
+    height: 1.7rem;
+    border-radius: 50%;
+    background: #16a76a;
+    box-shadow: 0 0 0 4px rgba(37, 211, 133, .13);
+    color: #fff;
+}
+#rpPasswordResetRequestModal .rp-password-reset-form { padding-left: 2.45rem; }
+#rpPasswordResetRequestModal .rp-password-reset-field i { display: none; }
+#rpPasswordResetRequestModal .rp-password-reset-field input {
+    min-height: 3.2rem;
+    padding: .8rem .2rem;
+    border: 0;
+    border-bottom: 1px solid rgba(215, 233, 216, .42);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+#rpPasswordResetRequestModal .rp-password-reset-field input:focus { border-color: #37c987; box-shadow: none; }
+#rpPasswordResetRequestModal .rp-password-reset-submit {
+    margin-top: 1.4rem;
+    border-radius: 0;
+    background: #0c9858;
+    box-shadow: none;
+    color: #fff;
+}
+#rpPasswordResetRequestModal .rp-password-reset-back { margin-top: 1.2rem; color: #35c887; }
+#rpPasswordResetRequestModal .rp-password-reset-status { margin: 0 0 .6rem 2.45rem; }
+
+@media (max-width: 767.98px) {
+    #rpPasswordResetRequestModal .rp-password-reset-dialog { width: min(440px, calc(100vw - 1rem)); }
+    #rpPasswordResetRequestModal .rp-login-reference-layout { display: block; min-height: 0; }
+    #rpPasswordResetRequestModal .rp-login-reference-showcase { display: none; }
+    #rpPasswordResetRequestModal .rp-login-reference-form-panel { min-height: 0; padding: 2.5rem 1.5rem; }
 }

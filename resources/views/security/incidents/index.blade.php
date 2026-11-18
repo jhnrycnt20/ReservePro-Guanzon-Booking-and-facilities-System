@@ -53,7 +53,7 @@
                         <td>{{ $report->guest?->user?->name ?? '—' }}</td>
                         <td><x-status-badge :status="$report->status" plain /></td>
                         <td class="text-end">
-                            <a href="{{ route('security.incidents.show', $report) }}" class="btn btn-sm btn-rp-primary">View</a>
+                            <button type="button" class="btn btn-sm btn-rp-primary" data-bs-toggle="modal" data-bs-target="#rpSecurityReportModal{{ $report->id }}">View</button>
                         </td>
                     </tr>
                 @empty
@@ -64,4 +64,70 @@
     </div>
     @if(method_exists($reports, 'links')) {{ $reports->withQueryString()->links() }} @endif
 </div>
+
+@foreach($modalReports as $report)
+    @include('security.incidents.detail-modal', ['report' => $report])
+@endforeach
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-rp-security-report-modal]').forEach((reportModal) => {
+        const toggle = reportModal.querySelector('.rp-report-action-toggle');
+        toggle?.querySelectorAll('[data-bs-toggle="tab"]').forEach((button) => {
+            button.addEventListener('shown.bs.tab', () => {
+                toggle.querySelectorAll('.rp-report-action-btn').forEach((item) => item.classList.remove('is-active'));
+                button.classList.add('is-active');
+            });
+        });
+
+        reportModal.querySelectorAll('[data-rp-notes-count]').forEach((notes) => {
+            const notesValue = notes.closest('.rp-report-notes-wrap')?.querySelector('[data-rp-notes-count-value]');
+            const syncCount = () => {
+                if (notesValue) notesValue.textContent = String((notes.value || '').length);
+            };
+            notes.addEventListener('input', syncCount);
+            syncCount();
+        });
+
+        reportModal.querySelectorAll('.rp-report-upload-input').forEach((upload) => {
+            const uploadLabel = upload.closest('.rp-report-upload')?.querySelector('[data-rp-upload-label]');
+            upload.addEventListener('change', () => {
+                if (uploadLabel) uploadLabel.textContent = upload.files?.[0]?.name || 'Choose File or drag and drop';
+            });
+        });
+    });
+
+    document.querySelectorAll('[data-rp-security-photo-modal]').forEach((photoModal) => {
+        photoModal.addEventListener('hidden.bs.modal', () => {
+            const reportModal = document.getElementById(photoModal.dataset.rpReturnModal);
+            if (reportModal && window.bootstrap?.Modal) {
+                window.bootstrap.Modal.getOrCreateInstance(reportModal).show();
+            }
+        });
+    });
+
+    const selectedReportId = @json($selectedReportId ?: null);
+    if (!selectedReportId || !window.bootstrap?.Modal) return;
+
+    const modal = document.getElementById(`rpSecurityReportModal${selectedReportId}`);
+    if (!modal) return;
+
+    let openingPhoto = false;
+    modal.addEventListener('click', (event) => {
+        if (event.target.closest('[data-bs-toggle="modal"]')) openingPhoto = true;
+    });
+    modal.addEventListener('hidden.bs.modal', () => {
+        if (openingPhoto) {
+            openingPhoto = false;
+            return;
+        }
+        const url = new URL(window.location.href);
+        url.searchParams.delete('report');
+        window.history.replaceState(window.history.state, '', url);
+    });
+    window.bootstrap.Modal.getOrCreateInstance(modal).show();
+});
+</script>
+@endpush

@@ -45,7 +45,6 @@
                                 <li><button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#rpProfileModal"><i class="bi bi-person me-2" aria-hidden="true"></i>My account</button></li>
                                 @if(auth()->user()?->isGuestRole())
                                     <li><a class="dropdown-item" href="{{ route('guest.bookings.index') }}"><i class="bi bi-calendar-check me-2" aria-hidden="true"></i>Reservations</a></li>
-                                    <li><a class="dropdown-item" href="{{ route('guest.incidents.create') }}"><i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>Report Incident</a></li>
                                     <li><a class="dropdown-item" href="{{ route('guest.incidents.index') }}"><i class="bi bi-clipboard2-check me-2" aria-hidden="true"></i>My Reports</a></li>
                                     <li><button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#rpWriteFeedbackModal"><i class="bi bi-chat-square-text me-2" aria-hidden="true"></i>Write Feedback</button></li>
                                 @endif
@@ -75,7 +74,6 @@
                 @if(auth()->user()->hasRole('guest'))
                     <a href="{{ route('guest.bookings.index') }}">My Reservations</a>
                     <a href="{{ route('guest.payments.index') }}">Payments</a>
-                    <a href="{{ route('guest.incidents.create') }}">Report Incident</a>
                     <a href="{{ route('guest.incidents.index') }}">My Reports</a>
                     <a href="{{ route('guest.feedback.index') }}">My Feedback</a>
                     <a href="#rpProfileModal" data-bs-toggle="modal" data-bs-target="#rpProfileModal">Manage Profile</a>
@@ -154,11 +152,13 @@
         @include('partials.modals.profile-modal')
         @if(auth()->user()?->isGuestRole())
             @include('partials.guest-feedback-modal')
+            @include('partials.guest-incident-modal')
         @endif
     @endauth
     @guest
         @include('partials.login-modal')
         @include('partials.register-modal')
+        @include('partials.password-reset-request-modal')
     @endguest
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -182,11 +182,12 @@
             }
         }
 
-        const openModal = @json(session('open_modal') ?: old('_modal'));
+        const openModal = @json(session('open_modal') ?: old('_modal') ?: (request()->boolean('new') ? 'incident' : null));
         const map = {
             profile: 'rpProfileModal',
             profile_password: 'rpProfileModal',
             feedback: 'rpWriteFeedbackModal',
+            incident: 'rpGuestIncidentModal',
         };
         const targetId = map[openModal] || null;
         if (!targetId || !window.bootstrap?.Modal) return;

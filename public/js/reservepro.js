@@ -756,10 +756,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('[data-rp-payment-form]').forEach((form) => {
         const amountInput = form.querySelector('#paymentAmount');
-        const sampleForm = form.closest('.rp-payment-create-card')?.querySelector('.rp-payment-sample-form');
-        const sampleAmount = sampleForm?.querySelector('[data-rp-sample-amount]');
-        const paymentScreenshot = form.querySelector('[name="payment_screenshot"]');
-        const sampleProof = sampleForm?.querySelector('[data-rp-sample-proof]');
         const minAmount = Number(form.dataset.rpMinAmount || 0);
         const maxAmount = Number(form.dataset.rpMaxAmount || 0);
         const methodSelect = form.querySelector('[name="payment_method"]');
@@ -781,15 +777,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         methodSelect?.addEventListener('change', syncPaymentRefVisibility);
         syncPaymentRefVisibility();
-
-        sampleForm?.addEventListener('submit', () => {
-            if (amountInput && sampleAmount) sampleAmount.value = amountInput.value;
-            if (paymentScreenshot?.files?.length && sampleProof && window.DataTransfer) {
-                const transfer = new DataTransfer();
-                Array.from(paymentScreenshot.files).forEach((file) => transfer.items.add(file));
-                sampleProof.files = transfer.files;
-            }
-        });
 
         form.querySelectorAll('[data-rp-pay-amount]').forEach((button) => {
             button.addEventListener('click', () => {
@@ -1168,7 +1155,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const loginModalEl = document.getElementById('rpLoginModal');
     const registerModalEl = document.getElementById('rpRegisterModal');
-    const authModals = [loginModalEl, registerModalEl].filter(Boolean);
+    const passwordResetModalEl = document.getElementById('rpPasswordResetRequestModal');
+    const authModals = [loginModalEl, registerModalEl, passwordResetModalEl].filter(Boolean);
     let openAuthModalCount = 0;
 
     authModals.forEach((modalEl) => {
@@ -1192,6 +1180,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const authQuery = new URLSearchParams(window.location.search);
     const wantsLoginModal = loginModalEl?.getAttribute('data-rp-autoshow') === '1' || authQuery.get('login') === '1';
     const wantsRegisterModal = registerModalEl?.getAttribute('data-rp-autoshow') === '1' || authQuery.get('signup') === '1';
+    const wantsPasswordResetModal = passwordResetModalEl?.getAttribute('data-rp-autoshow') === '1';
 
     if (authQuery.has('login') || authQuery.has('signup')) {
         authQuery.delete('login');
@@ -1201,7 +1190,9 @@ document.addEventListener('DOMContentLoaded', () => {
         window.history.replaceState({}, document.title, cleanUrl);
     }
 
-    if (wantsLoginModal && window.bootstrap) {
+    if (wantsPasswordResetModal && window.bootstrap) {
+        new bootstrap.Modal(passwordResetModalEl).show();
+    } else if (wantsLoginModal && window.bootstrap) {
         new bootstrap.Modal(loginModalEl).show();
     } else if (wantsRegisterModal && window.bootstrap) {
         new bootstrap.Modal(registerModalEl).show();
@@ -1758,8 +1749,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const hint = (name) => form.querySelector(`[data-rp-register-hint="${name}"]`);
         const submitBtn = form.querySelector('[type="submit"]');
         const touched = new Set();
+        const detailsStep = form.querySelector('[data-rp-register-step="details"]');
+        const passwordStep = form.querySelector('[data-rp-register-step="password"]');
+        const showStep = (step) => {
+            if (!detailsStep || !passwordStep) return;
+            detailsStep.hidden = step !== 'details';
+            passwordStep.hidden = step !== 'password';
+            const summary = form.querySelector('[data-rp-register-email-summary]');
+            if (summary) summary.textContent = field('email')?.value.trim() || 'Your details';
+        };
 
         form.noValidate = true;
+
+        showStep(['password', 'password_confirmation'].some((name) => field(name)?.classList.contains('is-invalid')) ? 'password' : 'details');
 
         const normalizePhone = (value) => String(value || '').replace(/[\s\-()]/g, '');
 
@@ -1872,6 +1874,25 @@ document.addEventListener('DOMContentLoaded', () => {
             return fieldNames.map((name) => validateField(name, options)).every(Boolean);
         };
 
+        form.querySelector('[data-rp-register-next]')?.addEventListener('click', () => {
+            const detailNames = ['name', 'email', 'phone'];
+            detailNames.forEach((name) => touched.add(name));
+            const valid = detailNames.map((name) => validateField(name, { force: true })).every(Boolean);
+            if (!valid) {
+                detailNames.map(field).find((input) => input?.classList.contains('is-invalid'))?.focus();
+                return;
+            }
+            showStep('password');
+            field('password')?.focus();
+        });
+        form.querySelector('[data-rp-register-back]')?.addEventListener('click', () => {
+            showStep('details');
+            field('email')?.focus();
+        });
+        if (passwordStep && ['password', 'password_confirmation'].some((name) => field(name)?.classList.contains('is-invalid'))) {
+            showStep('password');
+        }
+
         fieldNames.forEach((name) => {
             const input = field(name);
             if (!input) return;
@@ -1905,7 +1926,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 event.stopPropagation();
                 if (submitBtn) {
                     submitBtn.disabled = false;
-                    submitBtn.textContent = 'Register';
+                    submitBtn.textContent = 'Sign Up';
+                }
+                if (['name', 'email', 'phone'].some((name) => field(name)?.classList.contains('is-invalid'))) {
+                    showStep('details');
+                } else {
+                    showStep('password');
                 }
                 const firstInvalid = form.querySelector('.is-invalid');
                 firstInvalid?.focus();

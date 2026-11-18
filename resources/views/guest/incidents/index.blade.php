@@ -14,7 +14,7 @@
             <h1 class="rp-page-intro-title mb-1">My Reports</h1>
             <p class="rp-page-intro-copy mb-0">Track whether your report is still being processed or already resolved.</p>
         </div>
-        <a href="{{ route('guest.incidents.create') }}" class="rp-avail-btn-primary rp-avail-btn-primary--inline">New Report</a>
+        <button type="button" class="rp-avail-btn-primary rp-avail-btn-primary--inline" data-bs-toggle="modal" data-bs-target="#rpGuestIncidentModal">New Report</button>
     </div>
 
     <div class="rp-report-quick-filters mb-3">
@@ -86,7 +86,7 @@
             <div class="rp-booking-empty">
                 <i class="bi bi-clipboard2-pulse"></i>
                 <p>No reports submitted yet.</p>
-                <a href="{{ route('guest.incidents.create') }}" class="rp-avail-btn-primary">New Report</a>
+                <button type="button" class="rp-avail-btn-primary" data-bs-toggle="modal" data-bs-target="#rpGuestIncidentModal">New Report</button>
             </div>
         @endforelse
     </div>

@@ -40,7 +40,7 @@
                     @endif
                 </div>
 
-                <form id="rpPaymentForm" method="POST" enctype="multipart/form-data" action="{{ $isDraft ? route('guest.payments.store-draft') : route('guest.payments.store', $booking) }}" data-rp-payment-form data-rp-min-amount="{{ number_format($minPayable, 2, '.', '') }}" data-rp-max-amount="{{ number_format($remaining, 2, '.', '') }}">
+                <form id="rpPaymentForm" method="POST" action="{{ $isDraft ? route('guest.payments.store-draft') : route('guest.payments.store', $booking) }}" data-rp-payment-form data-rp-min-amount="{{ number_format($minPayable, 2, '.', '') }}" data-rp-max-amount="{{ number_format($remaining, 2, '.', '') }}">
                     @csrf
                     <div class="row g-3">
                         <div class="col-12 mb-3 rp-payment-field">
@@ -76,12 +76,6 @@
                             <i class="bi bi-shield-check rp-payment-method-secure" aria-hidden="true"></i>
                         </div>
                         </div>
-                        <div class="col-12 mb-3 rp-payment-field rp-payment-proof-field">
-                            <label class="form-label" for="paymentScreenshot">Attach payment screenshot</label>
-                            <input type="file" name="payment_screenshot" id="paymentScreenshot" class="form-control @error('payment_screenshot') is-invalid @enderror" accept="image/jpeg,image/png,image/webp">
-                            <div class="form-text">Add a screenshot for reference. JPG, PNG, or WebP, up to 5 MB.</div>
-                            @error('payment_screenshot')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                        </div>
                     </div>
                 </form>
 
@@ -100,15 +94,6 @@
                 @endif
                 <button type="submit" form="rpPaymentForm" class="rp-avail-btn-primary rp-payment-submit-button">Continue to GCash</button>
                 <div class="rp-payment-secure-note"><i class="bi bi-lock" aria-hidden="true"></i> You'll be redirected to GCash for secure payment.</div>
-                @if(app()->environment(['local', 'testing']))
-                    <form id="rpSamplePaymentForm" method="POST" enctype="multipart/form-data" action="{{ $isDraft ? route('guest.payments.sample-success-draft') : route('guest.payments.sample-success', $booking) }}" class="rp-payment-sample-form">
-                        @csrf
-                        <input type="hidden" name="amount" value="{{ old('amount', number_format($depositAmount, 2, '.', '')) }}" data-rp-sample-amount>
-                        <input type="file" name="payment_screenshot" class="d-none" tabindex="-1" aria-hidden="true" data-rp-sample-proof>
-                        <button type="submit" class="rp-payment-sample-button">Complete sample payment</button>
-                        <small>Local demo only · no real payment will be charged</small>
-                    </form>
-                @endif
             </div>
         </div>
     </div>

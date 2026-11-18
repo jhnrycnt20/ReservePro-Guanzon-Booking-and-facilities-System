@@ -109,7 +109,7 @@
                         </form>
                     @endif
                     @if(in_array($bookingStatus, ['approved', 'checked_in', 'checked_out']))
-                        <a href="{{ route('guest.incidents.create', ['booking_id' => $booking->id]) }}" class="rp-reservation-secondary-button">Report an Issue</a>
+                        <button type="button" class="rp-reservation-secondary-button" data-bs-toggle="modal" data-bs-target="#rpGuestIncidentModal" data-rp-incident-booking="{{ $booking->id }}">Report an Issue</button>
                     @endif
                     @if($bookingStatus === 'checked_out' && !$booking->feedback)
                         <button type="button" class="rp-reservation-secondary-button" data-bs-toggle="modal" data-bs-target="#rpWriteFeedbackModal" data-rp-feedback-booking-action="{{ route('guest.feedback.store_booking', $booking) }}" data-rp-feedback-booking-label="{{ $booking->booking_number }} — {{ $booking->accommodation->name ?? 'Stay' }}">Leave Feedback</button>

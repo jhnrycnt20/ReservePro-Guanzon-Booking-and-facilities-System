@@ -1,8 +1,17 @@
 <div class="modal fade" id="rpRegisterModal" tabindex="-1" aria-labelledby="rpRegisterModalLabel" aria-hidden="true" data-rp-autoshow="{{ $errors->register->any() ? '1' : '0' }}">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content rp-login-modal">
-            <button type="button" class="btn-close rp-login-modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            <div class="rp-login-modal-body">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable rp-login-reference-dialog">
+        <div class="modal-content rp-login-modal rp-login-reference-modal">
+            <div class="rp-login-reference-layout">
+                <aside class="rp-login-reference-showcase" aria-hidden="true">
+                    <div class="rp-login-reference-slides">
+                        <div class="rp-login-reference-slide" style="background-image: url('{{ asset('images/rooms/cottage/Sunlit Picnic Pavilion Courtyard.png') }}');"></div>
+                        <div class="rp-login-reference-slide" style="background-image: url('{{ asset('images/rooms/cabana/Sunset Modern Bungalow Unit 4.png') }}');"></div>
+                    </div>
+                    <div class="rp-login-reference-showcase-copy">
+                        <img src="{{ asset('images/guanzon_navbar_transparent.png') }}" alt="Guanzon Resort">
+                    </div>
+                </aside>
+                <div class="rp-login-modal-body rp-login-reference-form-panel">
                 <h2 class="rp-login-title" id="rpRegisterModalLabel">Sign up</h2>
 
                 <form method="POST" action="{{ route('register') }}" data-rp-register-form novalidate>
@@ -16,6 +25,8 @@
                         </div>
                     @endif
 
+                    <div class="rp-register-step" data-rp-register-step="details">
+                        <div class="rp-register-step-heading"><span class="rp-register-step-marker">1</span><span>Your details</span></div>
                     <div class="rp-login-field">
                         <input
                             id="rpRegisterName"
@@ -66,6 +77,12 @@
                         <div class="rp-login-error" data-rp-register-feedback="phone">@error('phone', 'register'){{ $message }}@enderror</div>
                     </div>
 
+                    <button type="button" class="rp-register-next" data-rp-register-next>Continue <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+                    </div>
+
+                    <div class="rp-register-step" data-rp-register-step="password">
+                        <button type="button" class="rp-register-step-heading rp-register-step-back" data-rp-register-back><span class="rp-register-step-marker"><i class="bi bi-check-lg" aria-hidden="true"></i></span><span data-rp-register-email-summary>Your details</span><i class="bi bi-pencil" aria-hidden="true"></i></button>
+                        <div class="rp-register-step-heading is-current"><span class="rp-register-step-marker">2</span><span>Create password</span></div>
                     <div class="rp-login-field input-group">
                         <input
                             id="rpRegisterPassword"
@@ -107,12 +124,14 @@
                         <div class="rp-login-error" data-rp-register-feedback="password_confirmation"></div>
                     </div>
 
-                    <button type="submit" class="rp-login-submit">Register</button>
+                    <button type="submit" class="rp-login-submit">Sign Up</button>
+                    </div>
                 </form>
 
                 <div class="rp-login-signup">
                     Already have an account? <a href="{{ route('login') }}" data-bs-toggle="modal" data-bs-target="#rpLoginModal">Login</a>
                 </div>
+            </div>
             </div>
         </div>
     </div>

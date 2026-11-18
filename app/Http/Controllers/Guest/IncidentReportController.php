@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers\Guest;
 
-use App\Enums\BookingStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Guest\StoreIncidentReportRequest;
-use App\Models\Booking;
 use App\Models\IncidentReport;
 use App\Services\IncidentReportService;
 use Illuminate\Http\RedirectResponse;
@@ -42,20 +40,12 @@ class IncidentReportController extends Controller
         return view('guest.incidents.index', compact('reports'));
     }
 
-    public function create(Request $request): View
+    public function create(Request $request): RedirectResponse
     {
-        $bookings = Booking::query()
-            ->with('accommodation')
-            ->where('guest_id', $request->user()->guest?->id)
-            ->whereIn('status', [
-                BookingStatus::Approved,
-                BookingStatus::CheckedIn,
-                BookingStatus::CheckedOut,
-            ])
-            ->latest()
-            ->get();
-
-        return view('guest.incidents.create', compact('bookings'));
+        return redirect()->route('guest.incidents.index', array_filter([
+            'new' => 1,
+            'booking_id' => $request->integer('booking_id') ?: null,
+        ]));
     }
 
     public function store(StoreIncidentReportRequest $request): RedirectResponse

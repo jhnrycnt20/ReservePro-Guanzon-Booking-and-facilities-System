@@ -99,5 +99,23 @@ class AppServiceProvider extends ServiceProvider
 
             $view->with('feedbackStays', $stays);
         });
+
+        view()->composer('partials.guest-incident-modal', function ($view) {
+            $guestId = auth()->user()?->guest?->id;
+            $bookings = $guestId
+                ? \App\Models\Booking::query()
+                    ->with('accommodation')
+                    ->where('guest_id', $guestId)
+                    ->whereIn('status', [
+                        \App\Enums\BookingStatus::Approved->value,
+                        \App\Enums\BookingStatus::CheckedIn->value,
+                        \App\Enums\BookingStatus::CheckedOut->value,
+                    ])
+                    ->latest()
+                    ->get()
+                : collect();
+
+            $view->with('incidentReportBookings', $bookings);
+        });
     }
 }
