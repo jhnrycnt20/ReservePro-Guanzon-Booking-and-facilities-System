@@ -36,3 +36,10 @@ services:
         value: lax
       - key: LOG_CHANNEL
         value: stderr
+      # Avoid smtp/mailpit (not available on Render). Use real SMTP env vars for inbox delivery.
+      - key: MAIL_MAILER
+        value: log
+      - key: MAIL_FROM_ADDRESS
+        value: noreply@guanzonresort.com
+      - key: MAIL_FROM_NAME
+        value: ReservePro

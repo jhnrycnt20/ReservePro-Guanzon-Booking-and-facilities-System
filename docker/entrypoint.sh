@@ -45,6 +45,24 @@ if [ -f .env ]; then
     if ! grep -q '^APP_TIMEZONE=' .env; then
         printf 'APP_TIMEZONE=Asia/Manila\n' >> .env
     fi
+
+    # Sync mail settings from the host. Never keep mailpit SMTP on Render (causes 500 on password reset).
+    for key in MAIL_MAILER MAIL_HOST MAIL_PORT MAIL_USERNAME MAIL_PASSWORD MAIL_ENCRYPTION MAIL_FROM_ADDRESS MAIL_FROM_NAME; do
+        val=$(printenv "$key" || true)
+        if [ -n "$val" ]; then
+            safe_val=$(printf '%s' "$val" | sed 's/[&\\]/\\&/g')
+            if grep -q "^${key}=" .env; then
+                sed -i "s|^${key}=.*|${key}=${safe_val}|" .env
+            else
+                printf '%s=%s\n' "$key" "$val" >> .env
+            fi
+        fi
+    done
+
+    if grep -Eq '^MAIL_HOST=mailpit' .env || { [ -z "$(printenv MAIL_MAILER || true)" ] && grep -Eq '^MAIL_MAILER=smtp' .env; }; then
+        sed -i 's/^MAIL_MAILER=.*/MAIL_MAILER=log/' .env
+        sed -i 's/^MAIL_HOST=.*/MAIL_HOST=127.0.0.1/' .env
+    fi
 fi
 
 php artisan config:clear
