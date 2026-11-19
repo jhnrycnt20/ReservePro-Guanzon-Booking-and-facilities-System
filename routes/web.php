@@ -165,10 +165,10 @@ Route::redirect('/terms', '/');
 
 Auth::routes();
 
-if (app()->environment('local')) {
+if (\App\Support\PasswordResetLinkBoard::enabled()) {
     Route::get('/dev/reset-links', function () {
         return view('dev.reset-links', [
-            'links' => cache('dev_password_reset_links', []),
+            'links' => \App\Support\PasswordResetLinkBoard::all(),
         ]);
     })->name('dev.reset-links');
 }

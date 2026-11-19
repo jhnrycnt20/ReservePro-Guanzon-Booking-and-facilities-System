@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Password reset links — local</title>
+    <title>Password reset links</title>
     <style>
         :root { color-scheme: dark; }
         body {
@@ -17,7 +17,7 @@
             margin: 2.5rem auto;
         }
         h1 { margin: 0 0 .35rem; font-size: 1.45rem; }
-        p { margin: 0 0 1.4rem; color: rgba(232, 247, 239, .65); font-size: .9rem; }
+        p { margin: 0 0 1.4rem; color: rgba(232, 247, 239, .65); font-size: .9rem; line-height: 1.5; }
         .card {
             margin-bottom: .85rem;
             padding: 1rem 1.1rem;
@@ -39,7 +39,7 @@
             border-radius: 14px;
             color: rgba(232, 247, 239, .7);
         }
-        .actions { display: flex; gap: .6rem; margin-top: 1.2rem; }
+        .actions { display: flex; gap: .6rem; margin-top: 1.2rem; flex-wrap: wrap; }
         .actions a {
             color: #9fd9b9;
             font-size: .85rem;
@@ -49,7 +49,10 @@
 <body>
 <main>
     <h1>Password reset links</h1>
-    <p>Local only. Open this after clicking “Send reset link” on the forgot-password form.</p>
+    <p>
+        Demo mode (mail driver is log). After Forgot Password → Send reset link, open the newest link below.
+        Same flow as localhost.
+    </p>
 
     @forelse ($links as $link)
         <article class="card">
