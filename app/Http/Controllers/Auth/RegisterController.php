@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Enums\UserRole;
-use App\Helpers\RoleRedirect;
 use App\Http\Controllers\Controller;
 use App\Rules\GmailAddress;
 use App\Models\Guest;
@@ -23,16 +22,11 @@ class RegisterController extends Controller
 {
     use RegistersUsers;
 
-    protected $redirectTo = '/guest/bookings';
+    protected $redirectTo = '/?login=1';
 
     public function __construct()
     {
         $this->middleware('guest');
-    }
-
-    protected function redirectTo()
-    {
-        return RoleRedirect::dashboardPath();
     }
 
     public function showRegistrationForm()
@@ -70,9 +64,10 @@ class RegisterController extends Controller
             report($exception);
         }
 
-        $this->guard()->login($user);
-
-        return $this->registered($request, $user) ?: redirect($this->redirectPath());
+        return redirect('/?login=1')->with(
+            'success',
+            'You have successfully created an account. Please log in to continue.'
+        );
     }
 
     protected function validator(array $data)

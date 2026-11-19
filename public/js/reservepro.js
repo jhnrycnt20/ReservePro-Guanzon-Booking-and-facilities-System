@@ -308,42 +308,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const offersContent = document.getElementById('rpOffersContent');
     const offersNextBtn = document.getElementById('rpOffersNextBtn');
 
-    if (offersContent && offersNextBtn) {
+    if (offersContent) {
+        // Show every promo/package row — do not page/hide selected rooms.
         const offerRows = Array.from(offersContent.querySelectorAll('.rp-offer-row'));
-        const pageSize = 3;
-        const totalPages = Math.ceil(offerRows.length / pageSize);
-        let currentPage = 0;
-
-        const renderOffersPage = () => {
             offerRows.forEach((row, index) => {
-                const page = Math.floor(index / pageSize);
-                const isVisible = page === currentPage;
-                row.classList.remove('is-visible', 'rp-offer-row--first', 'rp-offer-row--last');
-                row.style.display = isVisible ? 'flex' : 'none';
-            });
-
-            const visibleRows = offerRows.filter((_, index) => Math.floor(index / pageSize) === currentPage);
-            visibleRows[0]?.classList.add('rp-offer-row--first');
-            visibleRows[visibleRows.length - 1]?.classList.add('rp-offer-row--last');
+            row.style.display = 'flex';
+            row.classList.toggle('rp-offer-row--first', index === 0);
+            row.classList.toggle('rp-offer-row--last', index === offerRows.length - 1);
+        });
 
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
-                    visibleRows.forEach((row) => row.classList.add('is-visible'));
+                offerRows.forEach((row) => row.classList.add('is-visible'));
                 });
             });
 
-        };
-
-        offersNextBtn.addEventListener('click', () => {
-            currentPage = (currentPage + 1) % totalPages;
-            renderOffersPage();
-        });
-
-        if (totalPages <= 1) {
+        if (offersNextBtn) {
             offersNextBtn.style.display = 'none';
         }
-
-        renderOffersPage();
     }
 
     const scrollTopBtn = document.getElementById('rpScrollTop');
@@ -1159,6 +1141,146 @@ document.addEventListener('DOMContentLoaded', () => {
     const authModals = [loginModalEl, registerModalEl, passwordResetModalEl].filter(Boolean);
     let openAuthModalCount = 0;
 
+    const authShowcaseControllers = new WeakMap();
+
+    const initAuthShowcase = (showcase) => {
+        const track = showcase.querySelector('.rp-login-reference-slides');
+        if (!track) return null;
+        if (authShowcaseControllers.has(showcase)) {
+            return authShowcaseControllers.get(showcase);
+        }
+
+        const slides = Array.from(track.querySelectorAll('.rp-login-reference-slide'));
+        const count = Math.max(slides.length, 1);
+        track.style.setProperty('--rp-slide-count', String(count));
+
+        let index = 0;
+        let timer = null;
+        let dragging = false;
+        let pointerId = null;
+        let startX = 0;
+        let deltaX = 0;
+        let autoEnabled = true;
+        const autoMs = 4000;
+        const dragThreshold = 48;
+
+        const slidePercent = () => 100 / count;
+
+        const isShowcaseActive = () => {
+            if (showcase.offsetParent === null && getComputedStyle(showcase).display === 'none') {
+                return false;
+            }
+            const modal = showcase.closest('.modal');
+            if (!modal) return true;
+            return modal.classList.contains('show');
+        };
+
+        const applyTransform = (dragPx = 0, animate = true) => {
+            track.classList.toggle('is-dragging', !animate);
+            showcase.classList.toggle('is-dragging', !animate);
+            const base = -(index * slidePercent());
+            track.style.transform = dragPx
+                ? `translate3d(calc(${base}% + ${dragPx}px), 0, 0)`
+                : `translate3d(${base}%, 0, 0)`;
+        };
+
+        const stopAuto = () => {
+            if (timer) {
+                window.clearTimeout(timer);
+                timer = null;
+            }
+        };
+
+        const scheduleAuto = () => {
+            stopAuto();
+            if (!autoEnabled || count < 2 || dragging || !isShowcaseActive()) return;
+            timer = window.setTimeout(() => {
+                if (!autoEnabled || dragging || !isShowcaseActive()) {
+                    scheduleAuto();
+                    return;
+                }
+                index = (index + 1) % count;
+                applyTransform(0, true);
+                scheduleAuto();
+            }, autoMs);
+        };
+
+        const goTo = (nextIndex) => {
+            index = ((nextIndex % count) + count) % count;
+            applyTransform(0, true);
+            scheduleAuto();
+        };
+
+        const onPointerDown = (event) => {
+            if (event.button != null && event.button !== 0) return;
+            dragging = true;
+            pointerId = event.pointerId;
+            startX = event.clientX;
+            deltaX = 0;
+            stopAuto();
+            showcase.setPointerCapture?.(pointerId);
+            applyTransform(0, false);
+        };
+
+        const onPointerMove = (event) => {
+            if (!dragging || event.pointerId !== pointerId) return;
+            deltaX = event.clientX - startX;
+            applyTransform(deltaX, false);
+        };
+
+        const onPointerUp = (event) => {
+            if (!dragging || (pointerId != null && event.pointerId !== pointerId)) return;
+            dragging = false;
+            try {
+                showcase.releasePointerCapture?.(pointerId);
+            } catch (_) { /* ignore */ }
+            pointerId = null;
+
+            if (Math.abs(deltaX) >= dragThreshold) {
+                goTo(index + (deltaX < 0 ? 1 : -1));
+            } else {
+                applyTransform(0, true);
+                scheduleAuto();
+            }
+            deltaX = 0;
+        };
+
+        showcase.addEventListener('pointerdown', onPointerDown);
+        showcase.addEventListener('pointermove', onPointerMove);
+        showcase.addEventListener('pointerup', onPointerUp);
+        showcase.addEventListener('pointercancel', onPointerUp);
+
+        applyTransform(0, false);
+
+        const controller = {
+            resume() {
+                autoEnabled = true;
+                applyTransform(0, true);
+                scheduleAuto();
+            },
+            pause() {
+                autoEnabled = false;
+                stopAuto();
+            },
+            reset() {
+                index = 0;
+                autoEnabled = true;
+                applyTransform(0, true);
+                scheduleAuto();
+            },
+        };
+
+        authShowcaseControllers.set(showcase, controller);
+        if (isShowcaseActive()) {
+            scheduleAuto();
+        }
+        return controller;
+    };
+
+    document.querySelectorAll('.rp-login-reference-showcase').forEach((showcase) => {
+        initAuthShowcase(showcase);
+    });
+
     authModals.forEach((modalEl) => {
         modalEl.addEventListener('show.bs.modal', () => {
             openAuthModalCount += 1;
@@ -1169,7 +1291,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         });
+        modalEl.addEventListener('shown.bs.modal', () => {
+            modalEl.querySelectorAll('.rp-login-reference-showcase').forEach((showcase) => {
+                const controller = initAuthShowcase(showcase);
+                // Wait one frame so the modal is fully visible before starting autoplay.
+                window.requestAnimationFrame(() => controller?.resume());
+            });
+        });
         modalEl.addEventListener('hidden.bs.modal', () => {
+            modalEl.querySelectorAll('.rp-login-reference-showcase').forEach((showcase) => {
+                authShowcaseControllers.get(showcase)?.pause();
+            });
             openAuthModalCount = Math.max(0, openAuthModalCount - 1);
             if (openAuthModalCount === 0) {
                 document.body.classList.remove('rp-login-modal-open');
@@ -1180,11 +1312,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const authQuery = new URLSearchParams(window.location.search);
     const wantsLoginModal = loginModalEl?.getAttribute('data-rp-autoshow') === '1' || authQuery.get('login') === '1';
     const wantsRegisterModal = registerModalEl?.getAttribute('data-rp-autoshow') === '1' || authQuery.get('signup') === '1';
-    const wantsPasswordResetModal = passwordResetModalEl?.getAttribute('data-rp-autoshow') === '1';
+    const wantsPasswordResetModal = passwordResetModalEl?.getAttribute('data-rp-autoshow') === '1' || authQuery.get('forgot') === '1';
 
-    if (authQuery.has('login') || authQuery.has('signup')) {
+    if (authQuery.has('login') || authQuery.has('signup') || authQuery.has('forgot')) {
         authQuery.delete('login');
         authQuery.delete('signup');
+        authQuery.delete('forgot');
         const cleanQuery = authQuery.toString();
         const cleanUrl = window.location.pathname + (cleanQuery ? `?${cleanQuery}` : '') + window.location.hash;
         window.history.replaceState({}, document.title, cleanUrl);
@@ -1476,7 +1609,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (input.dataset.rpPasswordToggle === '1') return;
             input.dataset.rpPasswordToggle = '1';
 
-            let wrap = input.closest('.input-group');
+            const styledWrap = input.closest('.rp-password-reset-field, .rp-login-field, .rp-login-reference-field');
+            let wrap = styledWrap || input.closest('.input-group');
             let button = wrap?.querySelector('[data-rp-toggle-password], #togglePassword');
 
             if (!wrap) {
@@ -1489,7 +1623,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!button) {
                 button = document.createElement('button');
                 button.type = 'button';
-                button.className = 'btn btn-outline-secondary';
+                button.className = styledWrap ? 'rp-login-field-icon-btn' : 'btn btn-outline-secondary';
                 button.setAttribute('data-rp-toggle-password', '');
                 button.setAttribute('aria-label', 'Show password');
                 button.innerHTML = '<i class="bi bi-eye" aria-hidden="true"></i>';
@@ -2266,7 +2400,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     setProfilePasswordStep(form, 'password');
                     window.setTimeout(() => firstInvalid.focus(), 230);
                 } else {
-                    firstInvalid?.focus();
+                firstInvalid?.focus();
                 }
             }
         });

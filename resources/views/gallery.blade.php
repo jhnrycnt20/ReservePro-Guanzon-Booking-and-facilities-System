@@ -45,8 +45,10 @@
                 ['src' => asset('images/rooms/cottage/Sunlit Picnic Pavilion Courtyard.png'), 'title' => 'Pavilion Courtyard'],
                 ['src' => asset('images/rooms/cottage/Resort Pavilion Dining Terrace.png'), 'title' => 'Pavilion Dining Terrace'],
                 ['src' => asset('images/rooms/ocean-view-room.png'), 'title' => 'Ocean-view Room'],
-                ['src' => asset('images/rooms/garden-cabin.png'), 'title' => 'Garden Cabin'],
-                ['src' => asset('images/rooms/blue-cabana.png'), 'title' => 'Blue Cabana'],
+                ['src' => asset('images/rooms/villa/01-exterior-evening.jpg'), 'title' => 'Villa Exterior'],
+                ['src' => asset('images/rooms/villa/04-outdoor-dining.jpg'), 'title' => 'Villa Dining'],
+                ['src' => asset('images/rooms/villa/07-bedroom.jpg'), 'title' => 'Villa Bedroom'],
+                ['src' => asset('images/rooms/beach-house/01-exterior.jpg'), 'title' => 'Beach House'],
                 ['src' => asset('images/rooms/bamboo-lounge.png'), 'title' => 'Bamboo Lounge'],
             ] as $photo)
                 <div class="rp-gallery-item">

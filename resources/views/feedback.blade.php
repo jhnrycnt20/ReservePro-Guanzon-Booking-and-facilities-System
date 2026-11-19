@@ -53,11 +53,6 @@
                     $fullName = $item->guest?->user?->name;
                     $displayName = $fullName ? explode(' ', trim($fullName))[0] : 'Guest';
                     $initial = strtoupper(mb_substr($displayName, 0, 1));
-                    $about = $item->booking
-                        ? ($item->booking->accommodation->name ?? 'Stay')
-                        : (($item->scope ?? '') === 'room'
-                            ? ($item->accommodation->name ?? 'Room')
-                            : 'Resort');
                 @endphp
                 <article class="rp-public-feedback-card">
                     <div class="rp-public-feedback-card-top">
@@ -66,7 +61,6 @@
                                 <i class="bi bi-star{{ $i <= $item->rating ? '-fill' : '' }}" aria-hidden="true"></i>
                             @endfor
                         </div>
-                        <div class="rp-public-feedback-about">{{ $about }}</div>
                     </div>
                     <p class="rp-public-feedback-comment">“{{ \Illuminate\Support\Str::limit($item->comment, 220) }}”</p>
                     <div class="rp-public-feedback-card-foot">

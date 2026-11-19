@@ -46,25 +46,7 @@ Route::get('/', function () {
         ->take(3)
         ->get();
 
-    $publicFeedback = Feedback::query()
-        ->with(['guest.user', 'booking.accommodation', 'accommodation'])
-        ->whereNotNull('comment')
-        ->where('comment', '!=', '')
-        ->latest()
-        ->take(6)
-        ->get();
-
-    $publicFeedbackCount = Feedback::query()->count();
-    $publicFeedbackAverage = $publicFeedbackCount > 0
-        ? round((float) Feedback::query()->avg('rating'), 1)
-        : 0;
-
-    return view('welcome', compact(
-        'featuredAccommodations',
-        'publicFeedback',
-        'publicFeedbackCount',
-        'publicFeedbackAverage'
-    ));
+    return view('welcome', compact('featuredAccommodations'));
 });
 
 // Fresh CSRF for mobile/WebView login (avoids stale tokens after sleep/resume).
@@ -182,6 +164,14 @@ Route::redirect('/cookie-policy', '/privacy-policy#cookies');
 Route::redirect('/terms', '/');
 
 Auth::routes();
+
+if (app()->environment('local')) {
+    Route::get('/dev/reset-links', function () {
+        return view('dev.reset-links', [
+            'links' => cache('dev_password_reset_links', []),
+        ]);
+    })->name('dev.reset-links');
+}
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 

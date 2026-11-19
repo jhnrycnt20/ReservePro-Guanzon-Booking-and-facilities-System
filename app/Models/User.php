@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\UserRole;
 use App\Helpers\RoleRedirect;
+use App\Notifications\ResetPasswordNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -107,5 +108,25 @@ class User extends Authenticatable
     public function dashboardRoute(): string
     {
         return RoleRedirect::dashboardRoute($this);
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        if (app()->environment('local')) {
+            $url = url(route('password.reset', [
+                'token' => $token,
+                'email' => $this->getEmailForPasswordReset(),
+            ], false));
+
+            $links = cache('dev_password_reset_links', []);
+            array_unshift($links, [
+                'email' => $this->email,
+                'url' => $url,
+                'at' => now()->toDateTimeString(),
+            ]);
+            cache()->put('dev_password_reset_links', array_slice($links, 0, 20), now()->addDay());
+        }
+
+        $this->notify(new ResetPasswordNotification($token));
     }
 }

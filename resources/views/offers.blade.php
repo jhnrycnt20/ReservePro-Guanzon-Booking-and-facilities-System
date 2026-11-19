@@ -148,9 +148,6 @@
             </div>
         </div>
     </div>
-    <button type="button" class="rp-offers-next-btn" id="rpOffersNextBtn" aria-label="Show next offers">
-        <i class="bi bi-arrow-right" aria-hidden="true"></i>
-    </button>
 </section>
 
 <div class="rp-gallery-banner">

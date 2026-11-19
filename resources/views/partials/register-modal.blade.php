@@ -3,10 +3,7 @@
         <div class="modal-content rp-login-modal rp-login-reference-modal">
             <div class="rp-login-reference-layout">
                 <aside class="rp-login-reference-showcase" aria-hidden="true">
-                    <div class="rp-login-reference-slides">
-                        <div class="rp-login-reference-slide" style="background-image: url('{{ asset('images/rooms/cottage/Sunlit Picnic Pavilion Courtyard.png') }}');"></div>
-                        <div class="rp-login-reference-slide" style="background-image: url('{{ asset('images/rooms/cabana/Sunset Modern Bungalow Unit 4.png') }}');"></div>
-                    </div>
+                    @include('partials.auth-showcase-slides')
                     <div class="rp-login-reference-showcase-copy">
                         <img src="{{ asset('images/guanzon_navbar_transparent.png') }}" alt="Guanzon Resort">
                     </div>

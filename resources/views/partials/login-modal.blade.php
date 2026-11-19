@@ -3,10 +3,7 @@
         <div class="modal-content rp-login-modal rp-login-reference-modal">
             <div class="rp-login-reference-layout">
                 <aside class="rp-login-reference-showcase" aria-hidden="true">
-                    <div class="rp-login-reference-slides">
-                        <div class="rp-login-reference-slide" style="background-image: url('{{ asset('images/rooms/cottage/Sunlit Picnic Pavilion Courtyard.png') }}');"></div>
-                        <div class="rp-login-reference-slide" style="background-image: url('{{ asset('images/rooms/cabana/Sunset Modern Bungalow Unit 4.png') }}');"></div>
-                    </div>
+                    @include('partials.auth-showcase-slides')
                     <div class="rp-login-reference-showcase-copy">
                         <img src="{{ asset('images/guanzon_navbar_transparent.png') }}" alt="Guanzon Resort">
                     </div>
@@ -20,6 +17,9 @@
 
                     <form method="POST" action="{{ route('login') }}" data-rp-login-form novalidate>
                         @csrf
+                        @if (session('success'))
+                            <div class="rp-login-alert is-success" role="status">{{ session('success') }}</div>
+                        @endif
                         @if (session('error'))
                             <div class="rp-login-alert" role="alert">{{ session('error') }}</div>
                         @endif
@@ -46,7 +46,7 @@
                                 <label for="rpLoginRemember">Remember me</label>
                             </div>
                             @if (Route::has('password.request'))
-                                <a href="{{ route('password.request') }}" class="rp-login-reference-forgot" data-bs-toggle="modal" data-bs-target="#rpPasswordResetRequestModal">Forgot Password?</a>
+                                <a href="{{ route('password.request') }}" class="rp-login-reference-forgot" data-bs-toggle="modal" data-bs-target="#rpPasswordResetRequestModal" onclick="event.preventDefault()">Forgot Password?</a>
                             @endif
                         </div>
 

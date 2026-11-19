@@ -1,6 +1,7 @@
 :root {
-    --rp-font: "Plus Jakarta Sans", system-ui, sans-serif;
-    --rp-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+    /* Clean/minimal body (Manrope) + classic elegant headings (Playfair), with option 2/3 fallbacks */
+    --rp-font: "Manrope", "DM Sans", system-ui, sans-serif;
+    --rp-display: "Playfair Display", "Instrument Serif", Georgia, "Times New Roman", serif;
     --rp-lagoon: #96DFD3;
     --rp-deep-sea: #1F4B5D;
     --rp-bg: #FAFAFA;
@@ -5934,6 +5935,12 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     font-size: .85rem;
 }
 
+.rp-login-alert.is-success {
+    background: rgba(48, 193, 149, .14);
+    border-color: rgba(76, 222, 177, .35);
+    color: #c8f7e8;
+}
+
 .rp-login-remember {
     display: flex;
     align-items: center;
@@ -6114,6 +6121,13 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     background: #021c16;
     contain: paint;
     isolation: isolate;
+    touch-action: pan-y;
+    cursor: grab;
+    user-select: none;
+}
+
+.rp-login-reference-showcase.is-dragging {
+    cursor: grabbing;
 }
 
 .rp-login-reference-showcase::before {
@@ -6128,38 +6142,40 @@ body.rp-login-modal-open .rp-page-blur-overlay {
 }
 
 .rp-login-reference-slides {
+    --rp-slide-count: 7;
     position: absolute;
     top: 0;
     bottom: 0;
     left: 0;
     z-index: 0;
     display: flex;
-    width: 200%;
-    animation: rpLoginShowcaseTrack 12s ease-in-out infinite;
+    width: calc(var(--rp-slide-count) * 100%);
     transform: translate3d(0, 0, 0);
+    transition: transform .45s ease;
     will-change: transform;
+    cursor: grab;
+    touch-action: pan-y;
+    user-select: none;
+}
+
+.rp-login-reference-slides.is-dragging,
+#rpLoginModal .rp-login-reference-slides.is-dragging,
+#rpRegisterModal .rp-login-reference-slides.is-dragging,
+#rpPasswordResetRequestModal .rp-login-reference-slides.is-dragging,
+.rp-password-reset-page .rp-login-reference-slides.is-dragging {
+    transition: none;
+    cursor: grabbing;
 }
 
 .rp-login-reference-slide {
-    flex: 0 0 50%;
-    width: 50%;
+    flex: 0 0 calc(100% / var(--rp-slide-count));
+    width: calc(100% / var(--rp-slide-count));
     height: 100%;
     min-width: 0;
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
-}
-
-@keyframes rpLoginShowcaseTrack {
-    0%, 42% {
-        transform: translate3d(0, 0, 0);
-    }
-    50%, 92% {
-        transform: translate3d(-50%, 0, 0);
-    }
-    100% {
-        transform: translate3d(0, 0, 0);
-    }
+    pointer-events: none;
 }
 
 .rp-login-reference-showcase::after,
@@ -6189,6 +6205,7 @@ body.rp-login-modal-open .rp-page-blur-overlay {
 .rp-login-reference-showcase-copy {
     margin: auto 0 1.15rem;
     text-align: center;
+    pointer-events: none;
 }
 
 .rp-login-reference-showcase-copy img {
@@ -6203,7 +6220,7 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     max-width: none;
     margin: 0 0 .1rem;
     color: #fff;
-    font-family: "Cormorant Garamond", Georgia, serif;
+    font-family: "Playfair Display", Georgia, serif;
     font-size: clamp(2rem, 3.5vw, 2.65rem);
     font-style: normal;
     font-weight: 600;
@@ -6233,7 +6250,7 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     max-width: 28rem;
     margin: 0 auto;
     color: rgba(255, 255, 255, .9);
-    font-family: "Cormorant Garamond", Georgia, serif;
+    font-family: "Playfair Display", Georgia, serif;
     font-size: .74rem;
     letter-spacing: .24em;
     line-height: 1.45;
@@ -6252,11 +6269,11 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     height: .48rem;
     border-radius: 50%;
     background: rgba(255, 255, 255, .38);
-    animation: rpLoginShowcaseDot 12s ease-in-out infinite;
+    animation: rpLoginShowcaseDot 6s ease-in-out infinite;
 }
 
 .rp-login-reference-dots span:nth-child(2) {
-    animation-delay: -6s;
+    animation-delay: -3s;
 }
 
 @keyframes rpLoginShowcaseDot {
@@ -6274,10 +6291,7 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     .rp-login-reference-slides,
     .rp-login-reference-dots span {
         animation: none;
-    }
-
-    .rp-login-reference-slides {
-        transform: translateX(0);
+        transition: none;
     }
 }
 
@@ -6318,7 +6332,7 @@ body.rp-login-modal-open .rp-page-blur-overlay {
 
 #rpLoginModal .rp-login-reference-heading .rp-login-title {
     margin: 0 0 .45rem;
-    font-family: "Cormorant Garamond", Georgia, serif;
+    font-family: "Playfair Display", Georgia, serif;
     font-size: clamp(1.5rem, 2.35vw, 1.78rem);
     font-weight: 600;
     letter-spacing: -.025em;
@@ -6329,7 +6343,7 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     max-width: 29rem;
     margin: 0 auto;
     color: rgba(235, 247, 243, .72);
-    font-family: "Plus Jakarta Sans", sans-serif;
+    font-family: "Manrope", sans-serif;
     font-size: .66rem;
     line-height: 1.45;
 }
@@ -6549,7 +6563,7 @@ body.rp-login-modal-open .rp-page-blur-overlay {
 .rp-password-reset-heading h2 {
     margin: 0 0 .45rem;
     color: #fff;
-    font-family: "Cormorant Garamond", Georgia, serif;
+    font-family: "Playfair Display", Georgia, serif;
     font-size: 1.75rem;
     font-weight: 600;
 }
@@ -6662,19 +6676,22 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     }
 }
 
-@media (max-width: 991.98px) {
+@media (max-width: 991.98px) and (min-width: 768px) {
     #rpLoginModal .rp-login-reference-dialog {
-        width: min(35rem, calc(100vw - 1.5rem));
-        max-width: 35rem;
+        width: min(52rem, calc(100vw - 1.5rem));
+        max-width: 52rem;
     }
 
-    .rp-login-reference-layout {
-        display: block;
-        min-height: 0;
+    .rp-login-reference-layout,
+    #rpLoginModal .rp-login-reference-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        min-height: 420px;
     }
 
-    .rp-login-reference-showcase {
-        display: none;
+    .rp-login-reference-showcase,
+    #rpLoginModal .rp-login-reference-showcase {
+        display: flex;
     }
 
     #rpLoginModal .rp-login-reference-form-panel {
@@ -7465,8 +7482,8 @@ body.rp-gallery-viewer-open {
 
 .rp-offers-section {
     position: relative;
-    --rp-font: "Plus Jakarta Sans", system-ui, sans-serif;
-    --rp-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+    --rp-font: "Manrope", system-ui, sans-serif;
+    --rp-display: "Playfair Display", Georgia, "Times New Roman", serif;
 }
 
 .rp-offers-section .container {
@@ -8486,7 +8503,7 @@ body.rp-gallery-viewer-open {
 .rp-resort-map-kicker {
     margin: 0 0 .15rem;
     color: var(--rp-map-accent);
-    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    font-family: var(--rp-font, "Manrope", system-ui, sans-serif);
     font-size: .68rem;
     font-weight: 700;
     letter-spacing: .12em;
@@ -8496,7 +8513,7 @@ body.rp-gallery-viewer-open {
 .rp-resort-map-title {
     margin: 0;
     color: var(--rp-map-ink);
-    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    font-family: var(--rp-font, "Manrope", system-ui, sans-serif);
     font-size: 1.05rem;
     font-weight: 700;
 }
@@ -8595,7 +8612,7 @@ body.rp-gallery-viewer-open {
     border-radius: .55rem;
     background: #f4f8f6;
     color: #1f3b34;
-    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    font-family: var(--rp-font, "Manrope", system-ui, sans-serif);
     font-size: .72rem;
     font-weight: 700;
     line-height: 1;
@@ -8624,7 +8641,7 @@ body.rp-gallery-viewer-open {
 .rp-map-zoom-label {
     min-width: 3.1rem;
     color: var(--rp-map-muted);
-    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    font-family: var(--rp-font, "Manrope", system-ui, sans-serif);
     font-size: .72rem;
     font-weight: 700;
     letter-spacing: .02em;
@@ -8718,7 +8735,7 @@ body.rp-gallery-viewer-open {
 
 .rp-map-entrance-label {
     color: var(--rp-map-accent);
-    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    font-family: var(--rp-font, "Manrope", system-ui, sans-serif);
     font-size: .62rem;
     font-weight: 700;
     letter-spacing: .16em;
@@ -8836,7 +8853,7 @@ body.rp-gallery-viewer-open {
 .rp-map-zone-label {
     margin-bottom: .5rem;
     color: var(--rp-map-muted);
-    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    font-family: var(--rp-font, "Manrope", system-ui, sans-serif);
     font-size: .62rem;
     font-weight: 700;
     letter-spacing: .1em;
@@ -8921,7 +8938,7 @@ body.rp-gallery-viewer-open {
     border: 0;
     background: transparent;
     color: var(--rp-room-ink);
-    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    font-family: var(--rp-font, "Manrope", system-ui, sans-serif);
     cursor: default;
     transition: transform .15s ease;
 }
@@ -10622,7 +10639,7 @@ body.rp-gallery-viewer-open {
     border-radius: .7rem;
     background: linear-gradient(135deg, #6fcf97 0%, #0F6B45 100%);
     color: #fff;
-    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    font-family: var(--rp-font, "Manrope", system-ui, sans-serif);
     font-size: .84rem;
     font-weight: 700;
     letter-spacing: .04em;
@@ -14134,9 +14151,33 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-footer { 
 }
 
 #rpLoginModal .rp-login-reference-showcase {
+    position: relative;
+    display: flex;
     justify-content: center;
+    overflow: hidden;
     padding: clamp(2rem, 4vw, 3.5rem);
     background: #101510;
+}
+
+#rpLoginModal .rp-login-reference-slides {
+    position: absolute;
+    inset: 0 auto 0 0;
+    z-index: 0;
+    display: flex;
+    width: calc(var(--rp-slide-count, 7) * 100%);
+    height: 100%;
+    transform: translate3d(0, 0, 0);
+    transition: transform .45s ease;
+    will-change: transform;
+}
+
+#rpLoginModal .rp-login-reference-slide {
+    flex: 0 0 calc(100% / var(--rp-slide-count, 7));
+    width: calc(100% / var(--rp-slide-count, 7));
+    height: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
 }
 
 #rpLoginModal .rp-login-reference-showcase::before {
@@ -14162,7 +14203,7 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-footer { 
 #rpLoginModal .rp-login-reference-showcase-copy h2 {
     max-width: 22rem;
     margin-bottom: 1rem;
-    font-family: "Plus Jakarta Sans", sans-serif;
+    font-family: "Manrope", sans-serif;
     font-size: clamp(1.7rem, 3vw, 2.4rem);
     font-weight: 700;
     line-height: 1.18;
@@ -14175,7 +14216,7 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-footer { 
 #rpLoginModal .rp-login-reference-showcase-copy p {
     max-width: 22rem;
     margin: 0;
-    font-family: "Plus Jakarta Sans", sans-serif;
+    font-family: "Manrope", sans-serif;
     font-size: .82rem;
     line-height: 1.65;
     letter-spacing: 0;
@@ -14195,7 +14236,7 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-footer { 
 
 #rpLoginModal .rp-login-reference-heading { margin-bottom: 1.8rem; text-align: left; }
 #rpLoginModal .rp-login-reference-heading .rp-login-title {
-    font-family: "Plus Jakarta Sans", sans-serif;
+    font-family: "Manrope", sans-serif;
     font-size: 1.5rem;
     font-weight: 700;
     letter-spacing: -.04em;
@@ -14263,15 +14304,40 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-footer { 
     min-height: 0;
 }
 #rpRegisterModal .rp-login-reference-showcase {
+    position: relative;
+    display: flex;
     justify-content: center;
+    overflow: hidden;
     padding: clamp(2rem, 4vw, 3.5rem);
     background: #101510;
+}
+#rpRegisterModal .rp-login-reference-slides {
+    position: absolute;
+    inset: 0 auto 0 0;
+    z-index: 0;
+    display: flex;
+    width: calc(var(--rp-slide-count, 7) * 100%);
+    height: 100%;
+    transform: translate3d(0, 0, 0);
+    transition: transform .45s ease;
+    will-change: transform;
+}
+#rpRegisterModal .rp-login-reference-slide {
+    flex: 0 0 calc(100% / var(--rp-slide-count, 7));
+    width: calc(100% / var(--rp-slide-count, 7));
+    height: 100%;
+    min-width: 0;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
 }
 #rpRegisterModal .rp-login-reference-showcase::before {
     background: linear-gradient(90deg, rgba(0, 0, 0, .55), rgba(0, 0, 0, .2));
 }
 #rpRegisterModal .rp-login-reference-showcase::after { display: none; }
 #rpRegisterModal .rp-login-reference-showcase-copy {
+    position: relative;
+    z-index: 2;
     width: 100%;
     margin: 0;
     text-align: center;
@@ -14296,7 +14362,7 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-footer { 
 }
 #rpRegisterModal .rp-login-title {
     margin-bottom: 1.5rem;
-    font-family: "Plus Jakarta Sans", sans-serif;
+    font-family: "Manrope", sans-serif;
     font-size: 1.5rem;
     font-weight: 700;
     letter-spacing: -.04em;
@@ -14428,15 +14494,44 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-footer { 
     min-height: 450px;
 }
 #rpPasswordResetRequestModal .rp-login-reference-showcase {
+    position: relative;
+    display: flex;
     justify-content: center;
+    overflow: hidden;
     padding: clamp(2rem, 4vw, 3.5rem);
     background: #101510;
+}
+#rpPasswordResetRequestModal .rp-login-reference-slides {
+    position: absolute;
+    inset: 0 auto 0 0;
+    z-index: 0;
+    display: flex;
+    width: calc(var(--rp-slide-count, 7) * 100%);
+    height: 100%;
+    transform: translate3d(0, 0, 0);
+    transition: transform .45s ease;
+    will-change: transform;
+}
+#rpPasswordResetRequestModal .rp-login-reference-slide {
+    flex: 0 0 calc(100% / var(--rp-slide-count, 7));
+    width: calc(100% / var(--rp-slide-count, 7));
+    height: 100%;
+    min-width: 0;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
 }
 #rpPasswordResetRequestModal .rp-login-reference-showcase::before {
     background: linear-gradient(90deg, rgba(0, 0, 0, .55), rgba(0, 0, 0, .2));
 }
 #rpPasswordResetRequestModal .rp-login-reference-showcase::after { display: none; }
-#rpPasswordResetRequestModal .rp-login-reference-showcase-copy { width: 100%; margin: 0; text-align: center; }
+#rpPasswordResetRequestModal .rp-login-reference-showcase-copy {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    margin: 0;
+    text-align: center;
+}
 #rpPasswordResetRequestModal .rp-login-reference-showcase-copy img {
     display: block;
     width: min(18rem, 100%);
@@ -14459,7 +14554,7 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-footer { 
 }
 #rpPasswordResetRequestModal .rp-password-reset-heading { text-align: left; }
 #rpPasswordResetRequestModal .rp-password-reset-heading h2 {
-    font-family: "Plus Jakarta Sans", sans-serif;
+    font-family: "Manrope", sans-serif;
     font-size: 1.5rem;
     font-weight: 700;
     letter-spacing: -.04em;
@@ -14512,4 +14607,290 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-footer { 
     #rpPasswordResetRequestModal .rp-login-reference-layout { display: block; min-height: 0; }
     #rpPasswordResetRequestModal .rp-login-reference-showcase { display: none; }
     #rpPasswordResetRequestModal .rp-login-reference-form-panel { min-height: 0; padding: 2.5rem 1.5rem; }
+}
+
+/* Standalone reset-password page — match login / forgot-password card */
+body.rp-password-reset-route {
+    background: #06140c;
+}
+
+body.rp-password-reset-route .rp-public-nav,
+body.rp-password-reset-route .rp-footer {
+    display: none;
+}
+
+.rp-password-reset-page {
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(1rem, 3vw, 2.5rem);
+    background:
+        radial-gradient(circle at 12% 18%, rgba(28, 120, 72, .28), transparent 42%),
+        radial-gradient(circle at 88% 80%, rgba(10, 70, 42, .35), transparent 40%),
+        linear-gradient(160deg, #031109 0%, #071a10 55%, #020a06 100%);
+}
+
+.rp-password-reset-page-shell {
+    width: min(960px, calc(100vw - 2rem));
+    overflow: hidden;
+    border: 1px solid rgba(75, 170, 91, .28);
+    border-radius: 22px;
+    background: #041108;
+    box-shadow: 0 30px 90px rgba(0, 0, 0, .78);
+}
+
+.rp-password-reset-page-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 560px;
+}
+
+.rp-password-reset-page .rp-login-reference-showcase {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(2rem, 4vw, 3.5rem);
+    background: #101510;
+    overflow: hidden;
+}
+
+.rp-password-reset-page .rp-login-reference-showcase::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(90deg, rgba(0, 0, 0, .55), rgba(0, 0, 0, .2));
+    pointer-events: none;
+}
+
+.rp-password-reset-page .rp-login-reference-slides {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 0;
+    display: flex;
+    width: calc(var(--rp-slide-count, 7) * 100%);
+    transform: translate3d(0, 0, 0);
+    transition: transform .45s ease;
+    will-change: transform;
+}
+
+.rp-password-reset-page .rp-login-reference-slide {
+    position: relative;
+    inset: auto;
+    flex: 0 0 calc(100% / var(--rp-slide-count, 7));
+    width: calc(100% / var(--rp-slide-count, 7));
+    height: 100%;
+    min-width: 0;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+.rp-password-reset-page .rp-login-reference-showcase-copy {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    margin: 0;
+    text-align: center;
+}
+
+.rp-password-reset-page .rp-login-reference-showcase-copy img {
+    display: block;
+    width: min(18rem, 100%);
+    height: auto;
+    margin: 0 auto;
+    object-fit: contain;
+}
+
+.rp-password-reset-page-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 560px;
+    margin: 0;
+    padding: 2.75rem clamp(1.75rem, 4vw, 3.5rem);
+    border: 0;
+    border-radius: 0;
+    background: linear-gradient(150deg, rgba(1, 9, 4, .98), rgba(3, 21, 9, .98));
+    box-shadow: none;
+    color: #fff;
+}
+
+.rp-password-reset-page .rp-password-reset-heading {
+    text-align: left;
+    margin-bottom: .35rem;
+}
+
+.rp-password-reset-page .rp-password-reset-heading h1 {
+    margin: 0 0 .45rem;
+    color: #fff;
+    font-family: "Manrope", sans-serif;
+    font-size: clamp(1.35rem, 2.4vw, 1.65rem);
+    font-weight: 700;
+    letter-spacing: -.04em;
+    line-height: 1.15;
+}
+
+.rp-password-reset-page .rp-password-reset-heading p {
+    max-width: 26rem;
+    margin: 0 0 1.35rem;
+    color: rgba(216, 243, 227, .72);
+    font-size: .78rem;
+    line-height: 1.55;
+}
+
+.rp-password-reset-page .rp-password-reset-step-heading {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin-bottom: 1.15rem;
+    color: #d8f3e3;
+    font-size: .83rem;
+    font-weight: 700;
+}
+
+.rp-password-reset-page .rp-password-reset-step-marker {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.7rem;
+    height: 1.7rem;
+    border-radius: 50%;
+    background: #16a76a;
+    box-shadow: 0 0 0 4px rgba(37, 211, 133, .13);
+    color: #fff;
+    font-size: .85rem;
+}
+
+.rp-password-reset-page-form {
+    padding-left: 2.45rem;
+}
+
+.rp-password-reset-page-form label {
+    margin-top: .85rem;
+    color: rgba(232, 247, 239, .88);
+}
+
+.rp-password-reset-page-form label:first-of-type {
+    margin-top: 0;
+}
+
+.rp-password-reset-page .rp-password-reset-field {
+    position: relative;
+    margin-bottom: .15rem;
+}
+
+.rp-password-reset-page .rp-password-reset-field > i {
+    display: none;
+}
+
+.rp-password-reset-page .rp-password-reset-field .input-group {
+    display: block;
+    width: 100%;
+    position: relative;
+}
+
+.rp-password-reset-page .rp-login-field-icon-btn {
+    position: absolute;
+    top: 50%;
+    right: .15rem;
+    z-index: 2;
+    transform: translateY(-50%);
+    padding: .25rem;
+    border: 0;
+    background: transparent;
+    color: rgba(235, 248, 244, .78);
+    font-size: 1.05rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.rp-password-reset-page .rp-login-field-icon-btn:hover,
+.rp-password-reset-page .rp-login-field-icon-btn:focus-visible {
+    color: #9ff0cb;
+    outline: 0;
+}
+
+.rp-password-reset-page .rp-password-reset-field input {
+    width: 100%;
+    min-height: 3.2rem;
+    padding: .8rem 2.2rem .8rem .2rem;
+    border: 0;
+    border-bottom: 1px solid rgba(215, 233, 216, .42);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    color: #f7fffc;
+    font-size: .9rem;
+}
+
+.rp-password-reset-page .rp-password-reset-field input::placeholder {
+    color: rgba(210, 232, 220, .45);
+}
+
+.rp-password-reset-page .rp-password-reset-field input:focus {
+    border-color: #37c987;
+    box-shadow: none;
+    outline: 0;
+}
+
+.rp-password-reset-page .rp-password-reset-error {
+    margin: .35rem 0 .15rem;
+}
+
+.rp-password-reset-page .rp-password-reset-submit {
+    margin-top: 1.5rem;
+    border-radius: 0;
+    background: #0c9858;
+    box-shadow: none;
+    color: #fff;
+}
+
+.rp-password-reset-page .rp-password-reset-submit:hover {
+    background: #0b8650;
+    color: #fff;
+}
+
+.rp-password-reset-page .rp-password-reset-back {
+    margin-top: 1.2rem;
+    color: #35c887;
+    text-decoration: none;
+}
+
+.rp-password-reset-page .rp-password-reset-back:hover {
+    color: #6be0ad;
+}
+
+@media (max-width: 767.98px) {
+    .rp-password-reset-page {
+        padding: .75rem;
+        align-items: stretch;
+    }
+
+    .rp-password-reset-page-shell {
+        width: min(440px, calc(100vw - 1rem));
+        margin: auto;
+    }
+
+    .rp-password-reset-page-layout {
+        display: block;
+        min-height: 0;
+    }
+
+    .rp-password-reset-page .rp-login-reference-showcase {
+        display: none;
+    }
+
+    .rp-password-reset-page-panel {
+        min-height: 0;
+        padding: 2.25rem 1.5rem 2rem;
+    }
+
+    .rp-password-reset-page-form {
+        padding-left: 0;
+    }
 }

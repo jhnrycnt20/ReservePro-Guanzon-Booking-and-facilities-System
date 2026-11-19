@@ -134,15 +134,39 @@
             font-weight: 600;
         }
         .rp-receipt-row:last-of-type { border-bottom: 0; }
+        @page {
+            /* Compact receipt page — not a full bond paper */
+            size: 110mm 160mm;
+            margin: 6mm;
+        }
         @media print {
-            body { display: block; min-height: 0; background: #fff; padding: 0; }
+            html, body {
+                width: auto;
+                height: auto;
+                min-height: 0;
+                margin: 0;
+                padding: 0;
+                background: #fff;
+                display: block;
+            }
             .no-print { display: none !important; }
+            .rp-receipt-shell {
+                width: 100%;
+                max-width: 98mm;
+                margin: 0 auto;
+            }
             .rp-receipt-card {
                 box-shadow: none;
-                border: none;
-                border-radius: 0;
-                max-width: none;
+                border: 1px solid #d7e4dd;
+                border-radius: 12px;
+                padding: 1rem 1.05rem;
+                break-inside: avoid;
+                page-break-inside: avoid;
             }
+            .rp-receipt-amount { font-size: 1.55rem; margin: .35rem 0 .1rem; }
+            .rp-receipt-divider { margin: .75rem 0; }
+            .rp-receipt-row { padding: .45rem 0; font-size: .8rem; }
+            .rp-receipt-thanks { font-size: .75rem; }
         }
         @media (max-width: 480px) {
             body { padding: 1rem .75rem; }
@@ -216,8 +240,60 @@
 
     <div class="rp-receipt-actions no-print">
         <a href="{{ url()->previous() !== url()->current() ? url()->previous() : route('guest.bookings.show', $payment->booking) }}" class="rp-receipt-back">Back</a>
-        <button type="button" class="rp-receipt-download" onclick="window.print()">Download receipt</button>
+        <button type="button" class="rp-receipt-download" id="rpReceiptDownloadBtn">Download receipt</button>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const button = document.getElementById('rpReceiptDownloadBtn');
+    const card = document.querySelector('.rp-receipt-card');
+    if (!button || !card) return;
+
+    const fileName = () => {
+        const receipt = @json($payment->receipt_number ?? ('PAY-'.$payment->id));
+        return String(receipt).replace(/[^\w.-]+/g, '_') + '.png';
+    };
+
+    button.addEventListener('click', async () => {
+        const original = button.textContent;
+        button.disabled = true;
+        button.textContent = 'Saving…';
+
+        try {
+            if (typeof html2canvas !== 'function') {
+                throw new Error('Saver unavailable');
+            }
+
+            const canvas = await html2canvas(card, {
+                backgroundColor: '#ffffff',
+                scale: Math.min(2.5, window.devicePixelRatio || 2),
+                useCORS: true,
+                logging: false,
+            });
+
+            const blob = await new Promise((resolve, reject) => {
+                canvas.toBlob((result) => result ? resolve(result) : reject(new Error('Could not create image')), 'image/png');
+            });
+
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName();
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error(error);
+            // Fallback: compact print layout (custom receipt page size)
+            window.print();
+        } finally {
+            button.disabled = false;
+            button.textContent = original;
+        }
+    });
+});
+</script>
 </body>
 </html>
