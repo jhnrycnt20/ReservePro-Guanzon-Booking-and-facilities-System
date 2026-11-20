@@ -15,29 +15,28 @@
         <strong class="rp-feedback-summary-value">{{ number_format($average ?? 0, 2) }}</strong>
         <span class="rp-feedback-average-scale">/ 5</span>
     </div>
-    @include('partials.list-filters', [
-    'filters' => [
-        [
-            'name' => 'rating',
-            'label' => 'Rating',
-            'empty' => 'All ratings',
-            'value' => request('rating'),
-            'options' => [
-                '5' => '5 stars',
-                '4' => '4 stars',
-                '3' => '3 stars',
-                '2' => '2 stars',
-                '1' => '1 star',
-            ],
-        ],
-    ],
-    'searchPlaceholder' => 'Guest, Booking Number, or Comment',
-    'clearUrl' => route('admin.feedback.index'),
-    ])
+    <div class="rp-feedback-controls rp-admin-list-toolbar">
+        <form method="GET" class="rp-admin-list-search" data-rp-live-filter>
+            <div class="rp-resv-search">
+                <label for="rpFeedbackSearch" class="visually-hidden">Search feedback</label>
+                <i class="bi bi-search" aria-hidden="true"></i>
+                <input
+                    id="rpFeedbackSearch"
+                    type="search"
+                    name="q"
+                    value="{{ request('q') }}"
+                    class="form-control"
+                    placeholder="Search by guest, booking number, or comment..."
+                    data-rp-live-filter-q
+                    autocomplete="off"
+                >
+            </div>
+        </form>
+    </div>
 </div>
-<div class="rp-card rp-admin-list-card">
+<div class="rp-card rp-admin-list-card rp-admin-table-card">
     <div class="table-responsive">
-        <table class="table align-middle rp-admin-list-table rp-admin-list-table--feedback">
+        <table class="table align-middle rp-admin-list-table rp-admin-list-table--feedback mb-0">
             <thead>
                 <tr>
                     <th scope="col" style="width: 14%;">Guest</th>
@@ -75,6 +74,31 @@
             </tbody>
         </table>
     </div>
-    @if(method_exists($feedback, 'links')) {{ $feedback->withQueryString()->links() }} @endif
+    @if(method_exists($feedback, 'links') && $feedback->total() > 0)
+        <div class="rp-resv-footer">
+            <div class="rp-resv-footer-meta">
+                Showing {{ $feedback->firstItem() }}-{{ $feedback->lastItem() }} of {{ $feedback->total() }} feedback entries
+            </div>
+            <div class="rp-resv-pagination">
+                @if($feedback->onFirstPage())
+                    <span class="rp-resv-page is-disabled" aria-disabled="true"><i class="bi bi-chevron-left"></i></span>
+                @else
+                    <a href="{{ $feedback->withQueryString()->previousPageUrl() }}" class="rp-resv-page" aria-label="Previous page"><i class="bi bi-chevron-left"></i></a>
+                @endif
+                @for($page = 1; $page <= $feedback->lastPage(); $page++)
+                    @if($page === $feedback->currentPage())
+                        <span class="rp-resv-page is-active" aria-current="page">{{ $page }}</span>
+                    @else
+                        <a href="{{ $feedback->withQueryString()->url($page) }}" class="rp-resv-page" aria-label="Page {{ $page }}">{{ $page }}</a>
+                    @endif
+                @endfor
+                @if($feedback->hasMorePages())
+                    <a href="{{ $feedback->withQueryString()->nextPageUrl() }}" class="rp-resv-page" aria-label="Next page"><i class="bi bi-chevron-right"></i></a>
+                @else
+                    <span class="rp-resv-page is-disabled" aria-disabled="true"><i class="bi bi-chevron-right"></i></span>
+                @endif
+            </div>
+        </div>
+    @endif
 </div>
 @endsection

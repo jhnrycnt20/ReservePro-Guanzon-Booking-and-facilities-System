@@ -38,7 +38,7 @@ class UserController extends Controller
             });
         }
 
-        $users = $query->paginate(20)->withQueryString();
+        $users = $query->paginate(10)->withQueryString();
         $roles = Role::query()->whereIn('slug', array_map(fn (UserRole $role): string => $role->value, UserRole::cases()))->orderBy('name')->get();
 
         return view('admin.users.index', compact('users', 'roles'));

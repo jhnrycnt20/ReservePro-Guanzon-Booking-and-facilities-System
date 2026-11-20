@@ -1,5 +1,5 @@
 <a href="{{ route('front_desk.dashboard') }}" class="{{ request()->routeIs('front_desk.dashboard') ? 'active' : '' }}">
-    <i class="bi bi-speedometer2"></i> Dashboard
+    Dashboard
 </a>
 
 <div class="rp-nav-group is-open" data-rp-nav-group>
@@ -9,10 +9,10 @@
     </button>
     <div class="rp-nav-group-panel" data-rp-nav-group-panel>
         <a href="{{ route('front_desk.incidents.index') }}" class="{{ request()->routeIs('front_desk.incidents.*') ? 'active' : '' }}">
-            <i class="bi bi-clipboard2-pulse"></i> Incident Reports
+            Incident Reports
         </a>
         <a href="{{ route('front_desk.reservations.index') }}" class="{{ request()->routeIs('front_desk.reservations.*') ? 'active' : '' }}">
-            <i class="bi bi-journal-text"></i> Reservations
+            Reservations
         </a>
     </div>
 </div>

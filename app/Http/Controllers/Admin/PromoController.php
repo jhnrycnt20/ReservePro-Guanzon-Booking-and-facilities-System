@@ -39,7 +39,7 @@ class PromoController extends Controller
             });
         }
 
-        $promos = $query->paginate(20)->withQueryString();
+        $promos = $query->paginate(10)->withQueryString();
         $accommodations = Accommodation::query()
             ->where('is_active', true)
             ->orderBy('name')

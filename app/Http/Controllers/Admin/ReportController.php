@@ -21,7 +21,7 @@ class ReportController extends Controller
 
         ListFilters::applyIncidentSearch($query, $request->input('q'));
 
-        $reports = $query->paginate(20)->appends($request->except('report'));
+        $reports = $query->paginate(10)->appends($request->except('report'));
         $modalReports = collect($reports->items());
         $selectedReportId = $request->integer('report');
 

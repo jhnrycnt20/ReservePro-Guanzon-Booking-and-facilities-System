@@ -9,29 +9,27 @@
 @endsection
 
 @section('content')
-@include('partials.list-filters', [
-    'filters' => [
-        [
-            'name' => 'status',
-            'label' => 'Status',
-            'empty' => 'All',
-            'value' => request('status'),
-            'options' => [
-                'pending' => 'Pending',
-                'verified' => 'Verified',
-                'invalid' => 'Invalid',
-                'in_progress' => 'In progress',
-                'resolved' => 'Resolved',
-                'closed' => 'Closed',
-            ],
-        ],
-    ],
-    'searchPlaceholder' => 'Report Number, Title, Location, or Guest',
-    'clearUrl' => route('admin.reports.index'),
-])
-<div class="rp-card rp-admin-list-card">
+<div class="rp-admin-list-toolbar rp-admin-list-toolbar--search-only">
+    <form method="GET" class="rp-admin-list-search" data-rp-live-filter>
+        <div class="rp-resv-search">
+            <label for="rpIncidentReportSearch" class="visually-hidden">Search incident reports</label>
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <input
+                id="rpIncidentReportSearch"
+                type="search"
+                name="q"
+                value="{{ request('q') }}"
+                class="form-control"
+                placeholder="Search by report number, title, location, or guest..."
+                data-rp-live-filter-q
+                autocomplete="off"
+            >
+        </div>
+    </form>
+</div>
+<div class="rp-card rp-admin-list-card rp-admin-table-card">
     <div class="table-responsive">
-        <table class="table align-middle rp-admin-list-table rp-admin-list-table--reports">
+        <table class="table align-middle rp-admin-list-table rp-admin-list-table--reports mb-0">
             <thead>
                 <tr>
                     <th scope="col" style="width: 16%;">Report ID</th>
@@ -40,7 +38,7 @@
                     <th scope="col" style="width: 14%;">Guest</th>
                     <th scope="col" style="width: 12%;">Status</th>
                     <th scope="col" style="width: 12%;">Submitted</th>
-                    <th scope="col" class="rp-admin-list-actions-heading" style="width: 12%;">Actions</th>
+                    <th scope="col" class="rp-admin-list-actions-heading" style="width: 12%;"><span class="visually-hidden">Actions</span></th>
                 </tr>
             </thead>
             <tbody>
@@ -62,7 +60,32 @@
             </tbody>
         </table>
     </div>
-    @if(method_exists($reports, 'links')) {{ $reports->links() }} @endif
+    @if(method_exists($reports, 'links') && $reports->total() > 0)
+        <div class="rp-resv-footer">
+            <div class="rp-resv-footer-meta">
+                Showing {{ $reports->firstItem() }}-{{ $reports->lastItem() }} of {{ $reports->total() }} reports
+            </div>
+            <div class="rp-resv-pagination">
+                @if($reports->onFirstPage())
+                    <span class="rp-resv-page is-disabled" aria-disabled="true"><i class="bi bi-chevron-left"></i></span>
+                @else
+                    <a href="{{ $reports->previousPageUrl() }}" class="rp-resv-page" aria-label="Previous page"><i class="bi bi-chevron-left"></i></a>
+                @endif
+                @for($page = 1; $page <= $reports->lastPage(); $page++)
+                    @if($page === $reports->currentPage())
+                        <span class="rp-resv-page is-active" aria-current="page">{{ $page }}</span>
+                    @else
+                        <a href="{{ $reports->url($page) }}" class="rp-resv-page" aria-label="Page {{ $page }}">{{ $page }}</a>
+                    @endif
+                @endfor
+                @if($reports->hasMorePages())
+                    <a href="{{ $reports->nextPageUrl() }}" class="rp-resv-page" aria-label="Next page"><i class="bi bi-chevron-right"></i></a>
+                @else
+                    <span class="rp-resv-page is-disabled" aria-disabled="true"><i class="bi bi-chevron-right"></i></span>
+                @endif
+            </div>
+        </div>
+    @endif
 </div>
 @foreach($modalReports as $report)
     @include('admin.reports.detail-modal', ['report' => $report])

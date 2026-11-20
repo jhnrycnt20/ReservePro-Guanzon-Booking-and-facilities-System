@@ -32,7 +32,7 @@ class FeedbackController extends Controller
             });
         }
 
-        $feedback = $query->paginate(20)->withQueryString();
+        $feedback = $query->paginate(10)->withQueryString();
         $average = round((float) Feedback::query()->avg('rating'), 2);
 
         return view('admin.feedback.index', compact('feedback', 'average'));

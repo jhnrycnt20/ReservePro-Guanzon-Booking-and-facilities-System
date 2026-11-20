@@ -189,10 +189,10 @@ class ReservationController extends Controller
                 ->orderByDesc(DB::raw(
                     'COALESCE((SELECT checked_out_at FROM check_outs WHERE check_outs.booking_id = bookings.id LIMIT 1), (SELECT checked_in_at FROM check_ins WHERE check_ins.booking_id = bookings.id LIMIT 1), bookings.updated_at)'
                 ))
-                ->paginate(8)
+                ->paginate(10)
                 ->withQueryString();
         } else {
-            $bookings = $query->latest()->paginate(8)->withQueryString();
+            $bookings = $query->latest()->paginate(10)->withQueryString();
         }
 
         $checkInTime = Carbon::createFromFormat('H:i', (string) config('resort.check_in_time', '14:00'))->format('g:i A');

@@ -55,6 +55,42 @@ class AccommodationValidationTest extends TestCase
         return UploadedFile::fake()->createWithContent('image.png', $png);
     }
 
+    public function test_index_shows_ten_accommodations_per_page(): void
+    {
+        $admin = $this->admin();
+        $type = AccommodationType::query()->create(['name' => 'Cabin', 'slug' => 'cabin']);
+
+        foreach (range(1, 11) as $number) {
+            Accommodation::query()->create($this->payload($type, [
+                'name' => "Cabin {$number}",
+                'number' => (string) $number,
+            ]));
+        }
+
+        $this->actingAs($admin)
+            ->get(route('admin.accommodations.index'))
+            ->assertOk()
+            ->assertViewHas('accommodations', fn ($accommodations) => $accommodations->perPage() === 10
+                && $accommodations->count() === 10
+                && $accommodations->total() === 11);
+    }
+
+    public function test_accommodation_actions_are_the_only_modal_triggers(): void
+    {
+        $admin = $this->admin();
+        $type = AccommodationType::query()->create(['name' => 'Cabin', 'slug' => 'cabin']);
+        $accommodation = Accommodation::query()->create($this->payload($type));
+
+        $this->actingAs($admin)
+            ->get(route('admin.accommodations.index'))
+            ->assertOk()
+            ->assertDontSee('data-rp-row-modal')
+            ->assertDontSee('class="rp-clickable-row"')
+            ->assertSee('data-bs-target="#rpAccViewModal'.$accommodation->id.'"', false)
+            ->assertSee('data-bs-target="#rpAccEditModal'.$accommodation->id.'"', false)
+            ->assertSee('data-rp-confirm=', false);
+    }
+
     public function test_create_accepts_numbers_from_one_to_ten_and_rejects_duplicates_across_types(): void
     {
         Storage::fake('public');

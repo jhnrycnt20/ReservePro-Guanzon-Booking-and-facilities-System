@@ -20,9 +20,25 @@ class IncidentResolutionController extends Controller
 
     public function index(Request $request): View
     {
+        $toRules = ['nullable', 'date'];
+        if ($request->filled('from')) {
+            $toRules[] = 'after_or_equal:from';
+        }
+        $validated = $request->validate([
+            'from' => ['nullable', 'date'],
+            'to' => $toRules,
+        ]);
+
         $query = IncidentReport::query()
             ->with(['guest.user', 'booking', 'securityGuard', 'frontDeskStaff'])
             ->latest();
+
+        if (! empty($validated['from'])) {
+            $query->whereDate('created_at', '>=', $validated['from']);
+        }
+        if (! empty($validated['to'])) {
+            $query->whereDate('created_at', '<=', $validated['to']);
+        }
 
         if ($request->filled('status')) {
             $query->where('status', $request->input('status'));
@@ -36,7 +52,7 @@ class IncidentResolutionController extends Controller
 
         ListFilters::applyIncidentSearch($query, $request->input('q'));
 
-        $reports = $query->paginate(20)->appends($request->except('report'));
+        $reports = $query->paginate(10)->appends($request->except('report'));
         $modalReports = collect($reports->items());
         $selectedReportId = $request->integer('report') ?: (int) $request->old('_modal');
 

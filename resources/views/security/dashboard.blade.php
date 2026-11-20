@@ -47,12 +47,10 @@
         <div class="rp-staff-queue">
             @forelse($pendingReports as $report)
                 <a href="{{ route('security.incidents.show', $report) }}" class="rp-staff-queue-item">
-                    <span class="rp-staff-activity-icon" aria-hidden="true"><i class="bi bi-clipboard2-pulse"></i></span>
                     <span class="rp-staff-queue-copy">
                         <strong>{{ $report->title }}</strong>
                         <small>{{ $report->report_number }} · {{ ucfirst(str_replace('_', ' ', $report->report_type->value)) }} · {{ $report->location ?: 'Location not specified' }}</small>
                     </span>
-                    <span class="rp-staff-pill">Pending</span>
                 </a>
             @empty
                 <div class="rp-staff-empty">No pending reports. The investigation queue is clear.</div>

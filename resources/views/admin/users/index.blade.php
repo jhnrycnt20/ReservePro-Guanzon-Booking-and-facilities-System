@@ -13,10 +13,28 @@
     <div class="alert alert-success border-0 shadow-sm mb-3">{{ session('success') }}</div>
 @endif
 
-<div class="rp-filter-with-action mb-3">
-    <div class="rp-filter-with-action__btn">
-        <button type="button" class="btn rp-user-add-button" data-bs-toggle="modal" data-bs-target="#rpUserCreateModal">Add User</button>
-    </div>
+<div class="rp-admin-list-toolbar">
+    <form method="GET" class="rp-admin-list-search" data-rp-live-filter>
+        @foreach(['role_id', 'active'] as $filterName)
+            @if(request()->filled($filterName))
+                <input type="hidden" name="{{ $filterName }}" value="{{ request($filterName) }}">
+            @endif
+        @endforeach
+        <div class="rp-resv-search">
+            <label for="rpUserSearch" class="visually-hidden">Search users</label>
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <input
+                id="rpUserSearch"
+                type="search"
+                name="q"
+                value="{{ request('q') }}"
+                class="form-control"
+                placeholder="Search by name, email, or phone..."
+                data-rp-live-filter-q
+                autocomplete="off"
+            >
+        </div>
+    </form>
     @include('partials.list-filters', [
         'filters' => [
             [
@@ -40,11 +58,13 @@
         'searchPlaceholder' => 'Name, Email, or Phone Number',
         'clearUrl' => route('admin.users.index'),
         'embedded' => true,
+        'showSearch' => false,
     ])
+    <button type="button" class="btn rp-user-add-button rp-admin-list-create-btn" data-bs-toggle="modal" data-bs-target="#rpUserCreateModal">Add User</button>
 </div>
-<div class="rp-card rp-users-card">
+<div class="rp-card rp-users-card rp-admin-table-card">
     <div class="table-responsive">
-        <table class="table align-middle rp-users-table">
+        <table class="table align-middle rp-users-table mb-0">
             <thead>
                 <tr>
                     <th scope="col">Name</th>
@@ -52,7 +72,7 @@
                     <th scope="col">Phone</th>
                     <th scope="col">Role</th>
                     <th scope="col">Status</th>
-                    <th scope="col" class="rp-users-actions-heading">Actions</th>
+                    <th scope="col" class="rp-users-actions-heading"><span class="visually-hidden">Actions</span></th>
                 </tr>
             </thead>
             <tbody>
@@ -82,7 +102,32 @@
             </tbody>
         </table>
     </div>
-    @if(method_exists($users, 'links')) {{ $users->withQueryString()->links() }} @endif
+    @if(method_exists($users, 'links') && $users->total() > 0)
+        <div class="rp-resv-footer">
+            <div class="rp-resv-footer-meta">
+                Showing {{ $users->firstItem() }}-{{ $users->lastItem() }} of {{ $users->total() }} users
+            </div>
+            <div class="rp-resv-pagination">
+                @if($users->onFirstPage())
+                    <span class="rp-resv-page is-disabled" aria-disabled="true"><i class="bi bi-chevron-left"></i></span>
+                @else
+                    <a href="{{ $users->withQueryString()->previousPageUrl() }}" class="rp-resv-page" aria-label="Previous page"><i class="bi bi-chevron-left"></i></a>
+                @endif
+                @for($page = 1; $page <= $users->lastPage(); $page++)
+                    @if($page === $users->currentPage())
+                        <span class="rp-resv-page is-active" aria-current="page">{{ $page }}</span>
+                    @else
+                        <a href="{{ $users->withQueryString()->url($page) }}" class="rp-resv-page" aria-label="Page {{ $page }}">{{ $page }}</a>
+                    @endif
+                @endfor
+                @if($users->hasMorePages())
+                    <a href="{{ $users->withQueryString()->nextPageUrl() }}" class="rp-resv-page" aria-label="Next page"><i class="bi bi-chevron-right"></i></a>
+                @else
+                    <span class="rp-resv-page is-disabled" aria-disabled="true"><i class="bi bi-chevron-right"></i></span>
+                @endif
+            </div>
+        </div>
+    @endif
 </div>
 
 {{-- Create User Modal --}}

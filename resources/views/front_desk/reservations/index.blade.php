@@ -84,8 +84,8 @@
         <table class="table align-middle rp-resv-table mb-0">
             <thead>
                 <tr>
-                    <th scope="col">Guest</th>
                     <th scope="col">Booking ID</th>
+                    <th scope="col">Guest</th>
                     <th scope="col">Accommodation</th>
                     <th scope="col" class="rp-resv-col-center">Room no.</th>
                     <th scope="col" class="rp-resv-col-center">Guests</th>
@@ -142,10 +142,10 @@
                         $checkOutDisplay = $booking->checkOut?->checked_out_at;
                     @endphp
                     <tr>
+                        <td><span class="rp-resv-id">{{ $booking->short_number }}</span></td>
                         <td>
                             <div class="rp-resv-guest-name">{{ $guestName }}</div>
                         </td>
-                        <td><span class="rp-resv-id">{{ $booking->short_number }}</span></td>
                         <td>
                             <div class="rp-resv-room-name">{{ $booking->accommodation?->name ?? '—' }}</div>
                         </td>

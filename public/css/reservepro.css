@@ -14060,20 +14060,28 @@ body.rp-page-booknow .rp-cottage-grid .rp-cottage-card-action {
 .rp-reservations-page .rp-resv-table .rp-resv-pill.is-status-ready,
 .rp-reservations-page .rp-resv-table .rp-resv-pill.is-pay-paid { color: #16804b; }
 .rp-reservations-page .rp-resv-table .rp-resv-pill.is-status-confirmed { color: #397b9e; }
+.rp-reservations-page .rp-resv-table tbody td:nth-child(6) .rp-resv-booking-source,
+.rp-reservations-page .rp-resv-table tbody td:nth-child(9) .rp-resv-pill {
+    display: inline-flex;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: .9rem;
+    font-weight: 700;
+    color: #16804b !important;
+    letter-spacing: normal;
+}
 .rp-reservations-page .rp-resv-row-status { display: inline-flex; align-items: center; flex-wrap: wrap; gap: .5rem; }
 .rp-reservations-page .rp-resv-table tbody td { padding: 1.4rem 1.15rem; }
 .rp-reservations-page .rp-resv-guest-name,
 .rp-reservations-page .rp-resv-room-name { color: #183c47; font-size: .9rem; font-weight: 700; }
-.rp-reservations-page .rp-resv-id { display: inline-flex; align-items: center; padding: .32rem .48rem; border-radius: .45rem; background: #f0f5f4; color: #477687; font-size: .76rem; }
+.rp-reservations-page .rp-resv-id { display: inline-flex; align-items: center; color: #477687; font-size: .9rem; }
 .rp-reservations-page .rp-resv-room-code { margin-top: .35rem; font-size: .82rem; }
 .rp-resv-room-number {
-    display: inline-flex; align-items: center; justify-content: center; min-width: 2.4rem; min-height: 2rem;
-    padding: .25rem .5rem; border: 1px solid #dfe8e6; border-radius: .5rem; background: #f8faf9;
-    color: #244d5a; font-size: .82rem; font-weight: 700; font-variant-numeric: tabular-nums;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #244d5a; font-size: .9rem; font-weight: 700; font-variant-numeric: tabular-nums;
 }
-.rp-resv-guest-count { color: #183c47; font-size: .92rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.rp-resv-guest-count { color: #183c47; font-size: .9rem; font-weight: 700; font-variant-numeric: tabular-nums; }
 .rp-resv-booking-source {
-    display: inline-flex; align-items: center; gap: .38rem; color: #526b73; font-size: .75rem; font-weight: 650;
+    display: inline-flex; align-items: center; gap: .38rem; color: #526b73; font-size: .9rem; font-weight: 650;
 }
 .rp-resv-booking-source::before { display: none; }
 .rp-resv-booking-source.is-online { color: #327a68; }
@@ -14099,12 +14107,160 @@ body.rp-page-booknow .rp-cottage-grid .rp-cottage-card-action {
 }
 .rp-reservations-page .rp-resv-dates-cell > div > span { color: #71838a; font-size: .78rem; }
 .rp-reservations-page .rp-resv-dates-cell > div > strong { color: #183c47; font-size: .84rem; font-weight: 650; }
-.rp-reservations-page .rp-resv-pill { padding: .38rem .68rem; font-size: .74rem; }
-.rp-reservations-page .rp-resv-btn-outline { padding: .48rem .9rem; border-color: #b9ccd0; border-radius: .5rem; color: #244d5a !important; }
+.rp-reservations-page .rp-resv-pill { padding: .38rem .68rem; font-size: .9rem; }
+.rp-reservations-page .rp-resv-btn-outline { padding: .48rem .9rem; border-color: #b9ccd0; border-radius: .5rem; color: #244d5a !important; font-size: .9rem; }
 .rp-reservations-page .rp-resv-table tbody tr { min-height: 6rem; }
 .rp-reservations-page .rp-resv-table tbody td { border-bottom-color: #e8efed; }
 .rp-reservations-page .rp-resv-footer { min-height: 3.25rem; padding: .6rem .9rem; background: #fbfcfc; }
 .rp-reservations-page .rp-resv-page { min-width: 1.9rem; height: 1.9rem; border-radius: .45rem; }
+
+.rp-report-table-card {
+    background: #fff;
+    border: 1px solid #dce8e5;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 28px rgba(31, 75, 93, 0.06);
+}
+.rp-report-table-card .table-responsive {
+    border-radius: inherit;
+}
+.rp-report-table-card .rp-resv-footer {
+    min-height: 3.25rem;
+    padding: .6rem .9rem;
+    background: #fbfcfc;
+    border-top: 1px solid #e8efed;
+}
+.rp-report-table-card .rp-resv-page {
+    min-width: 1.9rem;
+    height: 1.9rem;
+    border-radius: .45rem;
+}
+.rp-incident-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .75rem;
+    margin-bottom: 1rem;
+}
+.rp-incident-search-form {
+    flex: 0 1 45rem;
+    max-width: 45rem;
+    min-width: 0;
+}
+.rp-incident-search-form .rp-resv-search .form-control {
+    min-height: 2.55rem;
+    border-color: #d9e4e1;
+    border-radius: .55rem;
+    background: #fff;
+    color: #173a46;
+    font-size: .82rem;
+}
+.rp-incident-date {
+    position: relative;
+    flex: 0 0 14rem;
+}
+.rp-incident-date-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .55rem;
+    width: 100%;
+    min-height: 2.55rem;
+    padding: .45rem .8rem;
+    border: 1px solid #d9e4e1;
+    border-radius: .55rem;
+    background: #fff;
+    color: #173a46;
+    font-size: .82rem;
+}
+.rp-incident-date-btn > span {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+}
+.rp-incident-date-btn > span > .bi {
+    color: #1f4b5d;
+}
+.rp-incident-date .rp-resv-date-panel {
+    width: 16rem;
+}
+.rp-report-table {
+    table-layout: fixed;
+}
+.rp-report-table thead th {
+    padding: .72rem 1.15rem;
+    background: #f0f5f4;
+    border-bottom: 1px solid #dfe8e6;
+    color: #5d747c;
+    font-size: .67rem;
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+.rp-report-table tbody td {
+    padding: 1.4rem 1.15rem;
+    border-bottom: 1px solid #e8efed;
+    color: #183c47;
+    font-size: .9rem;
+    vertical-align: middle;
+}
+.rp-report-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+.rp-report-table tbody tr:hover {
+    background: #fbfdfd;
+}
+.rp-report-table .rp-report-id {
+    display: inline-flex;
+    align-items: center;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: .9rem;
+    font-weight: 700;
+    color: #477687;
+    letter-spacing: normal;
+}
+.rp-report-table .rp-report-table-copy {
+    display: block;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: .9rem;
+    font-weight: 700;
+    color: #183c47;
+}
+.rp-report-table .rp-status-badge--plain {
+    display: inline-flex !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: .9rem !important;
+    font-weight: 700 !important;
+    color: #16804b !important;
+    letter-spacing: normal !important;
+}
+.rp-report-table :is(.btn-rp-primary, .btn-rp-soft) {
+    display: inline-block;
+    padding: .48rem .9rem;
+    border: 1px solid #b9ccd0;
+    border-radius: .5rem;
+    background: transparent !important;
+    color: #244d5a !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: .9rem;
+    font-weight: 600;
+    box-shadow: none;
+}
+@media (max-width: 575.98px) {
+    .rp-incident-toolbar {
+        align-items: stretch;
+        flex-wrap: wrap;
+    }
+    .rp-incident-search-form {
+        flex-basis: 100%;
+        max-width: 100%;
+    }
+    .rp-incident-date {
+        flex-basis: 100%;
+    }
+}
 @media (max-width: 1399.98px) {
     .rp-reservations-page .rp-resv-toolbar { grid-template-columns: max-content minmax(13rem, 1fr) minmax(10rem, .6fr) max-content; gap: .55rem; }
     .rp-reservations-page .rp-resv-tab { padding-inline: .62rem; }

@@ -16,10 +16,26 @@
     </div>
 @endif
 
-<div class="rp-filter-with-action mb-3">
-    <div class="rp-filter-with-action__btn">
-        <button type="button" class="btn btn-rp-primary" data-bs-toggle="modal" data-bs-target="#rpPromoCreateModal">Create Promo</button>
-    </div>
+<div class="rp-admin-list-toolbar">
+    <form method="GET" class="rp-admin-list-search" data-rp-live-filter>
+        @if(request()->filled('active'))
+            <input type="hidden" name="active" value="{{ request('active') }}">
+        @endif
+        <div class="rp-resv-search">
+            <label for="rpPromoSearch" class="visually-hidden">Search promo codes</label>
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <input
+                id="rpPromoSearch"
+                type="search"
+                name="q"
+                value="{{ request('q') }}"
+                class="form-control"
+                placeholder="Search by promo code or name..."
+                data-rp-live-filter-q
+                autocomplete="off"
+            >
+        </div>
+    </form>
     @include('partials.list-filters', [
         'filters' => [
             [
@@ -36,21 +52,23 @@
         'searchPlaceholder' => 'Code or name',
         'clearUrl' => route('admin.promos.index'),
         'embedded' => true,
+        'showSearch' => false,
     ])
+    <button type="button" class="btn btn-rp-primary rp-admin-list-create-btn" data-bs-toggle="modal" data-bs-target="#rpPromoCreateModal">Create Promo</button>
 </div>
 
-<div class="rp-card rp-admin-list-card">
+<div class="rp-card rp-admin-list-card rp-admin-table-card">
     <div class="table-responsive">
-        <table class="table align-middle rp-admin-list-table rp-admin-list-table--promos">
+        <table class="table align-middle rp-admin-list-table rp-admin-list-table--promos mb-0">
             <thead>
                 <tr>
-                    <th scope="col" style="width: 12%;">Code</th>
-                    <th scope="col" style="width: 20%;">Name</th>
-                    <th scope="col" style="width: 10%;">Discount</th>
-                    <th scope="col" style="width: 18%;">Scope</th>
-                    <th scope="col" style="width: 8%;">Used</th>
+                    <th scope="col" style="width: 14%;">Code</th>
+                    <th scope="col" style="width: 16%;">Name</th>
+                    <th scope="col" style="width: 9%;">Discount</th>
+                    <th scope="col" style="width: 25%;">Scope</th>
+                    <th scope="col" style="width: 7%;">Used</th>
                     <th scope="col" style="width: 10%;">Status</th>
-                    <th scope="col" class="rp-admin-list-actions-heading" style="width: 22%;">Actions</th>
+                    <th scope="col" class="rp-admin-list-actions-heading" style="width: 19%;"><span class="visually-hidden">Actions</span></th>
                 </tr>
             </thead>
             <tbody>
@@ -63,7 +81,7 @@
                             @if($promo->applies_to_all)
                                 All accommodations
                             @else
-                                <div class="small">{{ $promo->accommodations->pluck('name')->filter()->join(', ') ?: '—' }}</div>
+                                <div class="rp-admin-list-wrap">{{ $promo->accommodations->pluck('name')->filter()->join(', ') ?: '—' }}</div>
                             @endif
                         </td>
                         <td class="rp-admin-list-mono">
@@ -89,7 +107,32 @@
             </tbody>
         </table>
     </div>
-    @if(method_exists($promos, 'links')) {{ $promos->withQueryString()->links() }} @endif
+    @if(method_exists($promos, 'links') && $promos->total() > 0)
+        <div class="rp-resv-footer">
+            <div class="rp-resv-footer-meta">
+                Showing {{ $promos->firstItem() }}-{{ $promos->lastItem() }} of {{ $promos->total() }} promo codes
+            </div>
+            <div class="rp-resv-pagination">
+                @if($promos->onFirstPage())
+                    <span class="rp-resv-page is-disabled" aria-disabled="true"><i class="bi bi-chevron-left"></i></span>
+                @else
+                    <a href="{{ $promos->withQueryString()->previousPageUrl() }}" class="rp-resv-page" aria-label="Previous page"><i class="bi bi-chevron-left"></i></a>
+                @endif
+                @for($page = 1; $page <= $promos->lastPage(); $page++)
+                    @if($page === $promos->currentPage())
+                        <span class="rp-resv-page is-active" aria-current="page">{{ $page }}</span>
+                    @else
+                        <a href="{{ $promos->withQueryString()->url($page) }}" class="rp-resv-page" aria-label="Page {{ $page }}">{{ $page }}</a>
+                    @endif
+                @endfor
+                @if($promos->hasMorePages())
+                    <a href="{{ $promos->withQueryString()->nextPageUrl() }}" class="rp-resv-page" aria-label="Next page"><i class="bi bi-chevron-right"></i></a>
+                @else
+                    <span class="rp-resv-page is-disabled" aria-disabled="true"><i class="bi bi-chevron-right"></i></span>
+                @endif
+            </div>
+        </div>
+    @endif
 </div>
 
 {{-- Create Promo --}}
@@ -214,7 +257,7 @@
                     </div>
                     <div class="rp-promo-view-sections">
                         <section class="rp-promo-view-section">
-                            <h3><i class="bi bi-calendar3" aria-hidden="true"></i>Schedule</h3>
+                            <h3>Schedule</h3>
                             <div class="rp-promo-view-schedule">
                                 <div><span>Starts</span><strong>{{ $promo->starts_at?->format('M d, Y · g:i A') ?? 'Immediately' }}</strong></div>
                                 <div><span>Ends</span><strong>{{ $promo->ends_at?->format('M d, Y · g:i A') ?? 'No expiry date' }}</strong></div>

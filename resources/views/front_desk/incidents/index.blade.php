@@ -9,43 +9,67 @@
 @endsection
 
 @section('content')
-<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-    <div class="text-muted small">
-        Default view shows unresolved reports only
-        @if(($unresolvedCount ?? 0) > 0)
-            · <strong>{{ $unresolvedCount }}</strong> still need action
+<div class="rp-incident-toolbar">
+    <form method="GET" class="rp-incident-search-form">
+        @if(filled(request('status')))
+            <input type="hidden" name="status" value="{{ request('status') }}">
         @endif
+        @if(filled(request('from')))
+            <input type="hidden" name="from" value="{{ request('from') }}">
+        @endif
+        @if(filled(request('to')))
+            <input type="hidden" name="to" value="{{ request('to') }}">
+        @endif
+        <div class="rp-resv-search">
+            <label for="rpIncidentSearch" class="visually-hidden">Search incident reports</label>
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <input
+                id="rpIncidentSearch"
+                type="search"
+                name="q"
+                value="{{ request('q') }}"
+                class="form-control"
+                placeholder="Report Number, Title, Location, or Guest"
+                autocomplete="off"
+            >
+        </div>
+    </form>
+    <div class="rp-incident-date" data-rp-incident-date>
+        <button type="button" class="rp-incident-date-btn" data-rp-incident-date-toggle aria-expanded="false" aria-controls="rpIncidentDatePanel">
+            <span><i class="bi bi-calendar3" aria-hidden="true"></i><span>Date range</span></span>
+            <i class="bi bi-chevron-down" aria-hidden="true"></i>
+        </button>
+        <div class="rp-resv-date-panel" id="rpIncidentDatePanel" data-rp-incident-date-panel hidden>
+            <form method="GET">
+                @if(filled(request('q')))
+                    <input type="hidden" name="q" value="{{ request('q') }}">
+                @endif
+                @if(filled(request('status')))
+                    <input type="hidden" name="status" value="{{ request('status') }}">
+                @endif
+                <div class="rp-resv-date-panel-title">Filter by report date</div>
+                <label class="form-label" for="rpIncidentDateFrom">From</label>
+                <input id="rpIncidentDateFrom" type="date" name="from" value="{{ request('from') }}" class="form-control mb-2">
+                <label class="form-label" for="rpIncidentDateTo">To</label>
+                <input id="rpIncidentDateTo" type="date" name="to" value="{{ request('to') }}" class="form-control mb-3">
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-rp-primary btn-sm">Apply dates</button>
+                    <a href="{{ route('front_desk.incidents.index', array_filter(['q' => request('q'), 'status' => request('status')])) }}" class="btn btn-rp-soft btn-sm">Clear dates</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
-
-@include('partials.list-filters', [
-    'filters' => [
-        [
-            'name' => 'status',
-            'label' => 'Status',
-            'empty' => 'Unresolved only',
-            'value' => request('status'),
-            'options' => [
-                'verified' => 'Verified (ready for FD)',
-                'in_progress' => 'Being processed',
-                'resolved' => 'Resolved',
-                'closed' => 'Closed',
-            ],
-        ],
-    ],
-    'searchPlaceholder' => 'Report Number, Title, Location, or Guest',
-    'clearUrl' => route('front_desk.incidents.index'),
-])
-<div class="rp-card">
+<div class="rp-report-table-card">
     <div class="table-responsive">
-        <table class="table align-middle" style="table-layout: fixed;">
+        <table class="table align-middle rp-report-table mb-0">
             <thead>
                 <tr>
-                    <th style="width: 14%;">Report #</th>
+                    <th style="width: 14%;">Report ID</th>
+                    <th style="width: 14%;">Guest</th>
                     <th style="width: 10%;">Type</th>
                     <th style="width: 22%;">Title</th>
                     <th style="width: 14%;">Location</th>
-                    <th style="width: 14%;">Guest</th>
                     <th style="width: 10%;">Status</th>
                     <th style="width: 16%;"></th>
                 </tr>
@@ -53,13 +77,13 @@
             <tbody>
                 @forelse($reports as $report)
                     <tr>
-                        <td>{{ $report->report_number }}</td>
-                        <td>{{ str_replace('_', ' ', ucfirst($report->report_type instanceof \BackedEnum ? $report->report_type->value : $report->report_type)) }}</td>
-                        <td>{{ $report->title }}</td>
-                        <td>{{ $report->location }}</td>
-                        <td>{{ $report->guest?->user?->name ?? '—' }}</td>
+                        <td><span class="rp-report-id">{{ $report->report_number }}</span></td>
+                        <td><span class="rp-report-table-copy">{{ $report->guest?->user?->name ?? '—' }}</span></td>
+                        <td><span class="rp-report-table-copy">{{ str_replace('_', ' ', ucfirst($report->report_type instanceof \BackedEnum ? $report->report_type->value : $report->report_type)) }}</span></td>
+                        <td><span class="rp-report-table-copy">{{ $report->title }}</span></td>
+                        <td><span class="rp-report-table-copy">{{ $report->location }}</span></td>
                         <td><x-status-badge :status="$report->status" plain /></td>
-                        <td class="text-end">
+                        <td class="text-center">
                             <button type="button" class="btn btn-sm btn-rp-soft" data-bs-toggle="modal" data-bs-target="#rpFdReportModal{{ $report->id }}">View</button>
                         </td>
                     </tr>
@@ -69,7 +93,32 @@
             </tbody>
         </table>
     </div>
-    @if(method_exists($reports, 'links')) {{ $reports->withQueryString()->links() }} @endif
+    @if(method_exists($reports, 'links') && $reports->total() > 0)
+        <div class="rp-resv-footer">
+            <div class="rp-resv-footer-meta">
+                Showing {{ $reports->firstItem() }}-{{ $reports->lastItem() }} of {{ $reports->total() }} reports
+            </div>
+            <div class="rp-resv-pagination">
+                @if($reports->onFirstPage())
+                    <span class="rp-resv-page is-disabled" aria-disabled="true"><i class="bi bi-chevron-left"></i></span>
+                @else
+                    <a href="{{ $reports->withQueryString()->previousPageUrl() }}" class="rp-resv-page" aria-label="Previous page"><i class="bi bi-chevron-left"></i></a>
+                @endif
+                @for($page = 1; $page <= $reports->lastPage(); $page++)
+                    @if($page === $reports->currentPage())
+                        <span class="rp-resv-page is-active" aria-current="page">{{ $page }}</span>
+                    @else
+                        <a href="{{ $reports->withQueryString()->url($page) }}" class="rp-resv-page" aria-label="Page {{ $page }}">{{ $page }}</a>
+                    @endif
+                @endfor
+                @if($reports->hasMorePages())
+                    <a href="{{ $reports->withQueryString()->nextPageUrl() }}" class="rp-resv-page" aria-label="Next page"><i class="bi bi-chevron-right"></i></a>
+                @else
+                    <span class="rp-resv-page is-disabled" aria-disabled="true"><i class="bi bi-chevron-right"></i></span>
+                @endif
+            </div>
+        </div>
+    @endif
 </div>
 
 @foreach($modalReports as $report)
@@ -80,6 +129,23 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    const dateWrap = document.querySelector('[data-rp-incident-date]');
+    const dateToggle = dateWrap?.querySelector('[data-rp-incident-date-toggle]');
+    const datePanel = dateWrap?.querySelector('[data-rp-incident-date-panel]');
+    if (dateWrap && dateToggle && datePanel) {
+        dateToggle.addEventListener('click', () => {
+            const isOpen = dateToggle.getAttribute('aria-expanded') === 'true';
+            dateToggle.setAttribute('aria-expanded', String(!isOpen));
+            datePanel.hidden = isOpen;
+        });
+        document.addEventListener('click', (event) => {
+            if (!dateWrap.contains(event.target)) {
+                dateToggle.setAttribute('aria-expanded', 'false');
+                datePanel.hidden = true;
+            }
+        });
+    }
+
     document.querySelectorAll('[data-rp-notes-count]').forEach((notes) => {
         const notesValue = notes.closest('.rp-report-notes-wrap')?.querySelector('[data-rp-notes-count-value]');
         const syncCount = () => {

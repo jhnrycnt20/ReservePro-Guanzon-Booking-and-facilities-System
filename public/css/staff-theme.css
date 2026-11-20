@@ -729,6 +729,97 @@ html[data-bs-theme="dark"] .rp-staff-ui .modal .modal-content {
     border-color: var(--rp-border);
     color: var(--rp-text);
 }
+html[data-bs-theme="dark"] .rp-staff-ui .rp-report-table-card {
+    background: var(--rp-surface);
+    border-color: var(--rp-border);
+}
+html[data-bs-theme="dark"] .rp-staff-ui .rp-report-table-card .rp-resv-footer {
+    background: #393a3b;
+    border-color: var(--rp-border);
+}
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card {
+    background: var(--rp-surface);
+    border-color: var(--rp-border);
+}
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card :is(.rp-admin-list-table, .rp-users-table) thead th {
+    background: #393a3b;
+    border-color: var(--rp-border);
+    color: #aabdc0 !important;
+}
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card :is(.rp-admin-list-table, .rp-users-table) tbody td {
+    border-color: var(--rp-border);
+    color: #f1f6f5 !important;
+}
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card .rp-admin-list-table tbody td:nth-child(1) {
+    color: #a9d1e4 !important;
+}
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card .rp-admin-list-table .badge-status-approved,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card .rp-admin-list-table .badge-status-verified,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card .rp-admin-list-table .badge-status-resolved {
+    color: #75d39b !important;
+}
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card .rp-admin-list-table .badge-status-pending {
+    color: #e7ba6c !important;
+}
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card .rp-admin-list-table .badge-status-rejected,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card .rp-admin-list-table .badge-status-invalid {
+    color: #f0a2a3 !important;
+}
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card .rp-admin-list-table .badge-status-cancelled,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card .rp-admin-list-table .badge-status-closed {
+    color: #b7c5c6 !important;
+}
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card .rp-admin-list-table .badge-status-checked-in,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card .rp-admin-list-table .badge-status-in-progress {
+    color: #a9d1e4 !important;
+}
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card .rp-admin-list-table .badge-status-checked-out {
+    color: #d0dcdd !important;
+}
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card .rp-admin-list-table--reports .badge-status-pending,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card .rp-admin-list-table--reports .badge-status-in-progress,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card .rp-admin-list-table--reports .badge-status-closed {
+    color: #b7c5c6 !important;
+}
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card .rp-admin-list-table--reports .badge-status-invalid {
+    color: #f0a2a3 !important;
+}
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card .rp-admin-list-table--reports .badge-status-verified,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card .rp-admin-list-table--reports .badge-status-resolved {
+    color: #75d39b !important;
+}
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card :is(.rp-admin-list-table, .rp-users-table) .rp-users-status.is-active {
+    color: #b9e7ca !important;
+}
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card :is(.rp-admin-list-table, .rp-users-table) .rp-users-status.is-inactive {
+    color: #d2dcdd !important;
+}
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card :is(.rp-admin-list-table, .rp-users-table) .btn-rp-soft,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card :is(.rp-admin-list-table, .rp-users-table) .rp-staff-edit-button,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card .rp-users-table .rp-user-edit-button {
+    color: #d0dcdd !important;
+}
+html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-table-card .rp-resv-footer {
+    background: #393a3b;
+    border-color: var(--rp-border);
+}
+html[data-bs-theme="dark"] .rp-staff-ui .rp-incident-date-btn {
+    background: #353738;
+    border-color: #55585a;
+    color: var(--rp-text);
+}
+html[data-bs-theme="dark"] .rp-staff-ui .rp-report-table thead th {
+    background: #393a3b;
+    border-color: var(--rp-border);
+    color: var(--rp-muted);
+}
+html[data-bs-theme="dark"] .rp-staff-ui .rp-report-table tbody td {
+    border-color: var(--rp-border);
+    color: var(--rp-text);
+}
+html[data-bs-theme="dark"] .rp-staff-ui .rp-report-table tbody tr:hover {
+    background: #373a3b;
+}
 
 html[data-bs-theme="dark"] .rp-staff-ui .modal :is(.modal-header, .modal-body, .modal-footer) {
     background: var(--rp-surface);

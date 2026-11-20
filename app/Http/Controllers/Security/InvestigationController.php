@@ -20,9 +20,25 @@ class InvestigationController extends Controller
 
     public function index(Request $request): View
     {
+        $toRules = ['nullable', 'date'];
+        if ($request->filled('from')) {
+            $toRules[] = 'after_or_equal:from';
+        }
+        $validated = $request->validate([
+            'from' => ['nullable', 'date'],
+            'to' => $toRules,
+        ]);
+
         $query = IncidentReport::query()
             ->with(['guest.user', 'booking', 'securityGuard', 'frontDeskStaff'])
             ->latest();
+
+        if (! empty($validated['from'])) {
+            $query->whereDate('created_at', '>=', $validated['from']);
+        }
+        if (! empty($validated['to'])) {
+            $query->whereDate('created_at', '<=', $validated['to']);
+        }
 
         if ($request->filled('status')) {
             $query->where('status', $request->input('status'));

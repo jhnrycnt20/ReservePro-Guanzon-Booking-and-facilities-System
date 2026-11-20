@@ -47,11 +47,9 @@
             <div class="rp-staff-queue">
                 @forelse($pendingReservations as $booking)
                     @php($paymentProgress = $booking->total_amount > 0 ? min(100, round($booking->paid_amount / $booking->total_amount * 100)) : 0)
-                    @php($reservationStatus = $booking->status === \App\Enums\BookingStatus::CheckedIn ? 'Checked in' : ($booking->isFullyPaid() ? 'Ready' : 'Booked'))
                     <a href="{{ route('front_desk.reservations.show', $booking) }}" class="rp-staff-reservation">
                         <div class="rp-staff-reservation-top">
                             <strong>{{ $booking->guest_name }}</strong>
-                            <span class="rp-staff-pill">{{ $reservationStatus }}</span>
                         </div>
                         <p>{{ $booking->accommodation->name ?? 'Accommodation' }} · {{ $booking->check_in_date->format('M j') }} – {{ $booking->check_out_date->format('M j') }}</p>
                         <div class="rp-staff-progress-label"><span>Payment progress</span><span>{{ $paymentProgress }}%</span></div>
@@ -72,7 +70,6 @@
             <ol class="rp-staff-activity-list">
                 @forelse($recentActivities as $activity)
                     <li>
-                        <span class="rp-staff-activity-icon" aria-hidden="true"><i class="bi bi-clock-history"></i></span>
                         <div class="rp-staff-activity-copy"><strong>{{ $activity->label }}</strong></div>
                         <time datetime="{{ $activity->created_at->toIso8601String() }}">{{ $activity->created_at->diffForHumans() }}</time>
                     </li>
@@ -107,7 +104,7 @@ if (deskChartCanvas && window.Chart) {
             { label: 'Check-ins', data: @json($chart['checkins']), borderColor: '#1f4b5d', backgroundColor: fill, fill: true, tension: .35, borderWidth: 2, pointRadius: 3 },
             { label: 'Check-outs', data: @json($chart['checkouts']), borderColor: '#72b9ac', borderDash: [5, 5], fill: false, tension: .35, borderWidth: 2, pointRadius: 3 }
         ] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, ticks: { precision: 0 } } } }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, ticks: { precision: 0 } } } }
     });
 }
 </script>

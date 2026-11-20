@@ -42,7 +42,7 @@ class AccommodationController extends Controller
         }
 
         return view('admin.accommodations.index', [
-            'accommodations' => $query->paginate(20)->withQueryString(),
+            'accommodations' => $query->paginate(10)->withQueryString(),
             'types' => AccommodationType::query()->orderBy('name')->get(),
             'amenities' => Amenity::query()->orderBy('name')->get(),
         ]);

@@ -5,6 +5,7 @@
         ['name' => 'status', 'label' => 'Status', 'options' => ['pending' => 'Pending'], 'value' => request('status'), 'empty' => 'All']
      ]
   - $searchPlaceholder (optional)
+  - $showSearch (optional; defaults to true)
   - $dateName / $dateLabel (optional single date field)
   - $clearUrl (optional; defaults to current route without query)
   - $embedded (optional)
@@ -12,6 +13,7 @@
 @php
     $filters = $filters ?? [];
     $searchPlaceholder = $searchPlaceholder ?? 'Search…';
+    $showSearch = $showSearch ?? true;
     $embedded = !empty($embedded);
     $clearUrl = $clearUrl ?? url()->current();
     $activeCount = 0;
@@ -52,6 +54,9 @@
             <button type="button" class="rp-filter-compact-close" data-rp-filter-close aria-label="Close filters"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
         </div>
         <form method="GET" class="rp-filter-compact-form">
+            @unless($showSearch)
+                <input type="hidden" name="q" value="{{ request('q') }}">
+            @endunless
             @foreach($filters as $filter)
                 <div class="rp-filter-compact-field">
                     <label class="form-label" for="{{ $filterId }}-{{ $loop->index }}">{{ $filter['label'] }}</label>
@@ -73,21 +78,23 @@
                 </div>
             @endisset
 
-            <div class="rp-filter-compact-field">
-                <label class="form-label" for="{{ $filterId }}-search">Search</label>
-                <div class="rp-filter-compact-search">
-                    <i class="bi bi-search" aria-hidden="true"></i>
-                    <input
-                        id="{{ $filterId }}-search"
-                        type="search"
-                        name="q"
-                        value="{{ request('q') }}"
-                        class="form-control"
-                        placeholder="{{ $searchPlaceholder }}"
-                        autocomplete="off"
-                    >
+            @if($showSearch)
+                <div class="rp-filter-compact-field">
+                    <label class="form-label" for="{{ $filterId }}-search">Search</label>
+                    <div class="rp-filter-compact-search">
+                        <i class="bi bi-search" aria-hidden="true"></i>
+                        <input
+                            id="{{ $filterId }}-search"
+                            type="search"
+                            name="q"
+                            value="{{ request('q') }}"
+                            class="form-control"
+                            placeholder="{{ $searchPlaceholder }}"
+                            autocomplete="off"
+                        >
+                    </div>
                 </div>
-            </div>
+            @endif
 
             <div class="rp-filter-compact-actions">
                 @if($activeCount > 0)

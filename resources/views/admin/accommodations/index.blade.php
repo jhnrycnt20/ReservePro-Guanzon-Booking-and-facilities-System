@@ -13,10 +13,28 @@
     <div class="alert alert-success border-0 shadow-sm mb-3">{{ session('success') }}</div>
 @endif
 
-<div class="rp-filter-with-action mb-3">
-    <div class="rp-filter-with-action__btn">
-        <button type="button" class="btn btn-rp-primary" data-bs-toggle="modal" data-bs-target="#rpAccCreateModal">Add Accommodation</button>
-    </div>
+<div class="rp-admin-list-toolbar">
+    <form method="GET" class="rp-admin-list-search" data-rp-live-filter>
+        @foreach(['type', 'status', 'active'] as $filterName)
+            @if(request()->filled($filterName))
+                <input type="hidden" name="{{ $filterName }}" value="{{ request($filterName) }}">
+            @endif
+        @endforeach
+        <div class="rp-resv-search">
+            <label for="rpAccommodationSearch" class="visually-hidden">Search accommodations</label>
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <input
+                id="rpAccommodationSearch"
+                type="search"
+                name="q"
+                value="{{ request('q') }}"
+                class="form-control"
+                placeholder="Search by accommodation name or number..."
+                data-rp-live-filter-q
+                autocomplete="off"
+            >
+        </div>
+    </form>
     @include('partials.list-filters', [
         'filters' => [
             [
@@ -53,34 +71,34 @@
         'searchPlaceholder' => 'Name, Number, or Description',
         'clearUrl' => route('admin.accommodations.index'),
         'embedded' => true,
+        'showSearch' => false,
     ])
+    <button type="button" class="btn btn-rp-primary rp-admin-list-create-btn" data-bs-toggle="modal" data-bs-target="#rpAccCreateModal">Add Accommodation</button>
 </div>
-<div class="rp-card rp-admin-list-card">
+<div class="rp-card rp-admin-list-card rp-admin-table-card">
     <div class="table-responsive">
-        <table class="table align-middle rp-admin-list-table rp-admin-list-table--accommodations">
+        <table class="table align-middle rp-admin-list-table rp-admin-list-table--accommodations mb-0">
             <thead>
                 <tr>
-                    <th scope="col" style="width: 17%;">Name</th>
                     <th scope="col" style="width: 14%;">Number</th>
+                    <th scope="col" style="width: 17%;">Name</th>
                     <th scope="col" style="width: 12%;">Type</th>
                     <th scope="col" style="width: 10%;">Capacity</th>
                     <th scope="col" style="width: 14%;">Rate</th>
                     <th scope="col" style="width: 11%;">Status</th>
-                    <th scope="col" class="rp-admin-list-actions-heading" style="width: 22%;">Actions</th>
+                    <th scope="col" class="rp-admin-list-actions-heading" style="width: 22%;"><span class="visually-hidden">Actions</span></th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($accommodations as $item)
-                    <tr class="rp-clickable-row" role="button" tabindex="0" data-rp-row-modal="#rpAccViewModal{{ $item->id }}" title="View accommodation">
-                        <td class="rp-admin-list-primary">
-                            <span class="rp-clickable-row-label">{{ $item->name }}</span>
-                        </td>
+                    <tr>
                         <td class="rp-admin-list-mono">{{ $item->number }}</td>
+                        <td class="rp-admin-list-primary">{{ $item->name }}</td>
                         <td>{{ $item->type->name ?? '—' }}</td>
                         <td>{{ $item->capacity }}</td>
                         <td class="rp-admin-list-mono">₱{{ number_format($item->rate, 2) }}</td>
                         <td><x-status-badge :status="$item->status" /></td>
-                        <td class="text-nowrap" data-rp-stop-row-click>
+                        <td class="text-nowrap">
                             <div class="d-flex justify-content-end gap-2">
                                 <button type="button" class="btn btn-sm btn-rp-soft" data-bs-toggle="modal" data-bs-target="#rpAccViewModal{{ $item->id }}">View</button>
                                 <button type="button" class="btn btn-sm rp-staff-edit-button" data-bs-toggle="modal" data-bs-target="#rpAccEditModal{{ $item->id }}">Edit</button>
@@ -98,7 +116,32 @@
             </tbody>
         </table>
     </div>
-    @if(method_exists($accommodations, 'links')) {{ $accommodations->withQueryString()->links() }} @endif
+    @if(method_exists($accommodations, 'links') && $accommodations->total() > 0)
+        <div class="rp-resv-footer">
+            <div class="rp-resv-footer-meta">
+                Showing {{ $accommodations->firstItem() }}-{{ $accommodations->lastItem() }} of {{ $accommodations->total() }} accommodations
+            </div>
+            <div class="rp-resv-pagination">
+                @if($accommodations->onFirstPage())
+                    <span class="rp-resv-page is-disabled" aria-disabled="true"><i class="bi bi-chevron-left"></i></span>
+                @else
+                    <a href="{{ $accommodations->withQueryString()->previousPageUrl() }}" class="rp-resv-page" aria-label="Previous page"><i class="bi bi-chevron-left"></i></a>
+                @endif
+                @for($page = 1; $page <= $accommodations->lastPage(); $page++)
+                    @if($page === $accommodations->currentPage())
+                        <span class="rp-resv-page is-active" aria-current="page">{{ $page }}</span>
+                    @else
+                        <a href="{{ $accommodations->withQueryString()->url($page) }}" class="rp-resv-page" aria-label="Page {{ $page }}">{{ $page }}</a>
+                    @endif
+                @endfor
+                @if($accommodations->hasMorePages())
+                    <a href="{{ $accommodations->withQueryString()->nextPageUrl() }}" class="rp-resv-page" aria-label="Next page"><i class="bi bi-chevron-right"></i></a>
+                @else
+                    <span class="rp-resv-page is-disabled" aria-disabled="true"><i class="bi bi-chevron-right"></i></span>
+                @endif
+            </div>
+        </div>
+    @endif
 </div>
 
 {{-- Create --}}
