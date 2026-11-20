@@ -74,6 +74,25 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-rp-security-report-modal]').forEach((reportModal) => {
+        const outcomeForm = reportModal.querySelector('[data-rp-outcome-form]');
+        const outcome = outcomeForm?.querySelector('[data-rp-report-outcome]');
+        const outcomeNotes = outcomeForm?.querySelector('[data-rp-outcome-notes]');
+        const outcomeEvidence = outcomeForm?.querySelector('[data-rp-outcome-evidence]');
+        const outcomeUpload = outcomeEvidence?.querySelector('input[type="file"]');
+        const outcomeSubmit = outcomeForm?.querySelector('[data-rp-outcome-submit] span');
+        const syncOutcome = () => {
+            if (!outcomeForm || !outcome || !outcomeNotes) return;
+            const isInvalid = outcome.value === 'invalid';
+            outcomeForm.action = isInvalid ? outcomeForm.dataset.invalidAction : outcomeForm.dataset.verifyAction;
+            outcomeNotes.name = isInvalid ? 'invalid_reason' : 'investigation_notes';
+            outcomeNotes.placeholder = isInvalid ? 'Why is this report invalid?' : 'What did you find on site?';
+            outcomeEvidence?.classList.toggle('d-none', isInvalid);
+            if (outcomeUpload) outcomeUpload.disabled = isInvalid;
+            if (outcomeSubmit) outcomeSubmit.textContent = 'Submit';
+        };
+        outcome?.addEventListener('change', syncOutcome);
+        syncOutcome();
+
         const toggle = reportModal.querySelector('.rp-report-action-toggle');
         toggle?.querySelectorAll('[data-bs-toggle="tab"]').forEach((button) => {
             button.addEventListener('shown.bs.tab', () => {

@@ -41,14 +41,17 @@
                                 <i class="bi bi-person-circle" aria-hidden="true"></i>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end rp-nav-account-menu">
-                                <li><button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#rpProfileModal"><i class="bi bi-person me-2" aria-hidden="true"></i>My account</button></li>
+                                @unless(auth()->user()?->isGuestRole())
+                                    <li><a class="dropdown-item" href="{{ \App\Helpers\RoleRedirect::dashboardRoute(auth()->user()) }}">Dashboard</a></li>
+                                @endunless
+                                <li><button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#rpProfileModal">My account</button></li>
                                 @if(auth()->user()?->isGuestRole())
-                                    <li><a class="dropdown-item" href="{{ route('guest.bookings.index') }}"><i class="bi bi-calendar-check me-2" aria-hidden="true"></i>Reservations</a></li>
-                                    <li><a class="dropdown-item" href="{{ route('guest.incidents.index') }}"><i class="bi bi-clipboard2-check me-2" aria-hidden="true"></i>My Reports</a></li>
-                                    <li><button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#rpWriteFeedbackModal"><i class="bi bi-chat-square-text me-2" aria-hidden="true"></i>Write Feedback</button></li>
+                                    <li><a class="dropdown-item" href="{{ route('guest.bookings.index') }}">Reservations</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('guest.incidents.index') }}">My Reports</a></li>
+                                    <li><button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#rpWriteFeedbackModal">Write Feedback</button></li>
                                 @endif
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item rp-logout-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rpNavDesktopLogoutForm').submit();"><i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>Sign out</a></li>
+                                <li><a class="dropdown-item rp-logout-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rpNavDesktopLogoutForm').submit();">Sign out</a></li>
                             </ul>
                         </div>
                         <form id="rpNavDesktopLogoutForm" action="{{ route('logout') }}" method="POST" class="d-none">
@@ -76,7 +79,7 @@
                     <a href="{{ route('guest.feedback.index') }}">My Feedback</a>
                     <a href="#rpProfileModal" data-bs-toggle="modal" data-bs-target="#rpProfileModal">Manage Profile</a>
                 @else
-                    <a href="{{ \App\Helpers\RoleRedirect::dashboardRoute() }}">Account</a>
+                    <a href="{{ \App\Helpers\RoleRedirect::dashboardRoute(auth()->user()) }}">Dashboard</a>
                 @endif
                 <a class="rp-logout-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('rpNavOverlayLogoutForm').submit();">Sign Out</a>
                 <form id="rpNavOverlayLogoutForm" action="{{ route('logout') }}" method="POST" class="d-none">

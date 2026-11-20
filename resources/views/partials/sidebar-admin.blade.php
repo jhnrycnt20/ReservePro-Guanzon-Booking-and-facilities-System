@@ -1,5 +1,5 @@
 <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-    <i class="bi bi-speedometer2"></i> Dashboard
+    Dashboard
 </a>
 
 <div class="rp-nav-group is-open" data-rp-nav-group>
@@ -8,14 +8,14 @@
         <i class="bi bi-chevron-down" aria-hidden="true"></i>
     </button>
     <div class="rp-nav-group-panel" data-rp-nav-group-panel>
-        <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-            <i class="bi bi-people"></i> Users
-        </a>
         <a href="{{ route('admin.accommodations.index') }}" class="{{ request()->routeIs('admin.accommodations.*') ? 'active' : '' }}">
-            <i class="bi bi-building"></i> Accommodations
+            Accommodations
         </a>
         <a href="{{ route('admin.promos.index') }}" class="{{ request()->routeIs('admin.promos.*') ? 'active' : '' }}">
-            <i class="bi bi-ticket-perforated"></i> Promo Codes
+            Promo Codes
+        </a>
+        <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+            Users
         </a>
     </div>
 </div>
@@ -26,17 +26,17 @@
         <i class="bi bi-chevron-down" aria-hidden="true"></i>
     </button>
     <div class="rp-nav-group-panel" data-rp-nav-group-panel>
-        <a href="{{ route('admin.reports.index') }}" class="{{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
-            <i class="bi bi-clipboard-data"></i> Incident Reports
-        </a>
         <a href="{{ route('admin.analytics.index') }}" class="{{ request()->routeIs('admin.analytics.*') ? 'active' : '' }}">
-            <i class="bi bi-graph-up"></i> Analytics
-        </a>
-        <a href="{{ route('admin.feedback.index') }}" class="{{ request()->routeIs('admin.feedback.*') ? 'active' : '' }}">
-            <i class="bi bi-chat-quote"></i> Feedback
+            Analytics
         </a>
         <a href="{{ route('admin.contact-messages.index') }}" class="{{ request()->routeIs('admin.contact-messages.*') ? 'active' : '' }}">
-            <i class="bi bi-envelope"></i> Contact Messages
+            Contact Messages
+        </a>
+        <a href="{{ route('admin.feedback.index') }}" class="{{ request()->routeIs('admin.feedback.*') ? 'active' : '' }}">
+            Feedback
+        </a>
+        <a href="{{ route('admin.reports.index') }}" class="{{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
+            Incident Reports
         </a>
     </div>
 </div>

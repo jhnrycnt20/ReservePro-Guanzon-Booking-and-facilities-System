@@ -15,27 +15,21 @@
         default => 'bi-clock',
     };
     $isValidationTarget = (int) old('_modal') === $report->id;
-    $showInvalidTab = $isValidationTarget && $errors->has('invalid_reason');
+    $selectedOutcome = $isValidationTarget ? old('outcome', 'verified') : 'verified';
 @endphp
 
 <div class="modal fade" id="rpSecurityReportModal{{ $report->id }}" tabindex="-1" aria-labelledby="rpSecurityReportModal{{ $report->id }}Label" aria-hidden="true" data-rp-security-report-modal>
-    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
-        <div class="modal-content rp-admin-modal rp-admin-report-modal">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable rp-security-report-dialog">
+        <div class="modal-content rp-admin-modal rp-admin-report-modal rp-security-report-modal">
             <div class="modal-header">
                 <div class="rp-admin-report-header-copy">
-                    <h2 class="modal-title" id="rpSecurityReportModal{{ $report->id }}Label">Report details</h2>
-                    <div class="rp-admin-report-header-meta">
-                        <span class="rp-admin-report-number">{{ $report->report_number }}</span>
-                        <span class="rp-report-detail-status is-{{ $status }}">
-                            <i class="bi {{ $statusIcon }}" aria-hidden="true"></i> {{ $statusLabel }}
-                        </span>
-                    </div>
+                    <h2 class="modal-title" id="rpSecurityReportModal{{ $report->id }}Label">{{ $issueTitle }}</h2>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <div class="modal-body">
-                <div class="rp-report-detail-hero">
+                <div class="rp-report-detail-hero visually-hidden">
                     <div class="rp-report-detail-hero-main">
                         <div>
                             <h3 class="rp-report-detail-title">{{ $issueTitle }}</h3>
@@ -59,6 +53,22 @@
                         <div class="rp-report-detail-block">
                             <h4 class="rp-report-detail-label">Report information</h4>
                             <div class="rp-report-detail-meta">
+                                <div>
+                                    <div class="rp-report-detail-label">Report ID</div>
+                                    <div class="rp-report-detail-meta-value">{{ $report->report_number }}</div>
+                                </div>
+                                <div>
+                                    <div class="rp-report-detail-label">Report type</div>
+                                    <div class="rp-report-detail-meta-value">{{ $reportTypeLabel }}</div>
+                                </div>
+                                <div>
+                                    <div class="rp-report-detail-label">Location</div>
+                                    <div class="rp-report-detail-meta-value">{{ $report->location ?: '—' }}</div>
+                                </div>
+                                <div>
+                                    <div class="rp-report-detail-label">Status</div>
+                                    <div class="rp-report-detail-meta-value">{{ $statusLabel }}</div>
+                                </div>
                                 <div>
                                     <div class="rp-report-detail-label">Guest</div>
                                     <div class="rp-report-detail-meta-value">{{ $guestName }}</div>
@@ -119,66 +129,47 @@
 
                     <aside class="rp-report-detail-card rp-report-review-card">
                         @if($status === 'pending')
-                            <div class="rp-report-review-head">
-                                <span class="rp-report-review-icon" aria-hidden="true"><i class="bi bi-shield-check"></i></span>
-                                <div>
-                                    <h3 class="rp-report-review-title">Review &amp; Verification</h3>
-                                    <p class="rp-report-review-sub mb-0">Check the details and verify the report status.</p>
-                                </div>
-                            </div>
-
-                            <div class="rp-report-action-toggle" role="tablist" aria-label="Review action">
-                                <button type="button" class="rp-report-action-btn {{ $showInvalidTab ? '' : 'is-active' }}" id="rpVerifyTab{{ $report->id }}" data-bs-toggle="tab" data-bs-target="#rpVerifyPane{{ $report->id }}" role="tab" aria-controls="rpVerifyPane{{ $report->id }}" aria-selected="{{ $showInvalidTab ? 'false' : 'true' }}">
-                                    <i class="bi bi-check2" aria-hidden="true"></i> Verify report
-                                </button>
-                                <button type="button" class="rp-report-action-btn {{ $showInvalidTab ? 'is-active' : '' }}" id="rpInvalidTab{{ $report->id }}" data-bs-toggle="tab" data-bs-target="#rpInvalidPane{{ $report->id }}" role="tab" aria-controls="rpInvalidPane{{ $report->id }}" aria-selected="{{ $showInvalidTab ? 'true' : 'false' }}">
-                                    <i class="bi bi-x-lg" aria-hidden="true"></i> Mark invalid
-                                </button>
-                            </div>
-
-                            <div class="tab-content">
-                                <div class="tab-pane fade {{ $showInvalidTab ? '' : 'show active' }}" id="rpVerifyPane{{ $report->id }}" role="tabpanel" aria-labelledby="rpVerifyTab{{ $report->id }}">
-                                    <form method="POST" action="{{ route('security.incidents.verify', $report) }}" enctype="multipart/form-data" class="rp-report-review-form">
+                            <div>
+                                    <form
+                                        method="POST"
+                                        action="{{ $selectedOutcome === 'invalid' ? route('security.incidents.invalidate', $report) : route('security.incidents.verify', $report) }}"
+                                        enctype="multipart/form-data"
+                                        class="rp-report-review-form"
+                                        data-rp-outcome-form
+                                        data-verify-action="{{ route('security.incidents.verify', $report) }}"
+                                        data-invalid-action="{{ route('security.incidents.invalidate', $report) }}"
+                                    >
                                         @csrf
                                         <input type="hidden" name="_modal" value="{{ $report->id }}">
                                         <div class="mb-3">
                                             <label class="form-label" for="rpInvestigationNotes{{ $report->id }}">Investigation notes / findings</label>
                                             <div class="rp-report-notes-wrap">
-                                                <textarea id="rpInvestigationNotes{{ $report->id }}" name="investigation_notes" class="form-control" rows="5" maxlength="1000" placeholder="What did you find on site?" required data-rp-notes-count>{{ $isValidationTarget ? old('investigation_notes') : '' }}</textarea>
+                                                <textarea id="rpInvestigationNotes{{ $report->id }}" name="{{ $selectedOutcome === 'invalid' ? 'invalid_reason' : 'investigation_notes' }}" class="form-control" rows="5" maxlength="1000" placeholder="{{ $selectedOutcome === 'invalid' ? 'Why is this report invalid?' : 'What did you find on site?' }}" required data-rp-notes-count data-rp-outcome-notes>{{ $isValidationTarget ? old($selectedOutcome === 'invalid' ? 'invalid_reason' : 'investigation_notes') : '' }}</textarea>
                                                 <div class="rp-report-char-count"><span data-rp-notes-count-value>0</span>/1000</div>
                                             </div>
                                             @if($isValidationTarget) @error('investigation_notes')<div class="text-danger small mt-1">{{ $message }}</div>@enderror @endif
+                                            @if($isValidationTarget) @error('invalid_reason')<div class="text-danger small mt-1">{{ $message }}</div>@enderror @endif
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label">Photo (optional)</label>
+                                            <label class="form-label" for="rpReportOutcome{{ $report->id }}">Outcome</label>
+                                            <select id="rpReportOutcome{{ $report->id }}" name="outcome" class="form-select" data-rp-report-outcome>
+                                                <option value="verified" @selected($selectedOutcome === 'verified')>Verified</option>
+                                                <option value="invalid" @selected($selectedOutcome === 'invalid')>Invalid</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3 {{ $selectedOutcome === 'invalid' ? 'd-none' : '' }}" data-rp-outcome-evidence>
+                                            <label class="form-label">Evidence photo <span class="rp-report-optional">Optional</span></label>
                                             <label class="rp-report-upload">
                                                 <input type="file" name="investigation_photo" accept="image/jpeg,image/png,image/webp" class="rp-report-upload-input">
                                                 <span class="rp-report-upload-icon" aria-hidden="true"><i class="bi bi-cloud-arrow-up"></i></span>
-                                                <span class="rp-report-upload-title" data-rp-upload-label>Choose File or drag and drop</span>
-                                                <span class="rp-report-upload-hint">JPG, PNG or WEBP (Max 5MB)</span>
+                                                <span class="rp-report-upload-hint">Choose or drop a JPG, PNG, or WEBP up to 5 MB</span>
                                             </label>
                                             @if($isValidationTarget) @error('investigation_photo')<div class="text-danger small mt-1">{{ $message }}</div>@enderror @endif
                                         </div>
-                                        <button type="submit" class="btn btn-rp-primary w-100 rp-report-submit">
-                                            <i class="bi bi-check2 me-1" aria-hidden="true"></i> Verify &amp; Forward to Front Desk
+                                        <button type="submit" class="btn btn-rp-primary w-100 rp-report-submit" data-rp-outcome-submit>
+                                            <span>Submit</span>
                                         </button>
                                     </form>
-                                </div>
-
-                                <div class="tab-pane fade {{ $showInvalidTab ? 'show active' : '' }}" id="rpInvalidPane{{ $report->id }}" role="tabpanel" aria-labelledby="rpInvalidTab{{ $report->id }}">
-                                    <form method="POST" action="{{ route('security.incidents.invalidate', $report) }}" class="rp-report-review-form">
-                                        @csrf
-                                        <input type="hidden" name="_modal" value="{{ $report->id }}">
-                                        <div class="mb-3">
-                                            <label class="form-label" for="rpInvalidReason{{ $report->id }}">Reason</label>
-                                            <textarea id="rpInvalidReason{{ $report->id }}" name="invalid_reason" class="form-control" rows="5" maxlength="1000" placeholder="Why isn't this a valid report?" required>{{ $isValidationTarget ? old('invalid_reason') : '' }}</textarea>
-                                            @if($isValidationTarget) @error('invalid_reason')<div class="text-danger small mt-1">{{ $message }}</div>@enderror @endif
-                                        </div>
-                                        <button type="submit" class="btn btn-outline-danger w-100">
-                                            <i class="bi bi-x-lg me-1" aria-hidden="true"></i> Mark Invalid &amp; Close
-                                        </button>
-                                    </form>
-                                </div>
                             </div>
                         @else
                             <div class="rp-report-review-head">

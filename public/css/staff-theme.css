@@ -1252,3 +1252,29 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-analytics-section-head a,
 html[data-bs-theme="dark"] .rp-staff-ui .rp-analytics-data summary { color: #9cddd1; }
 
 html[data-bs-theme="dark"] .rp-staff-ui .rp-feedback-average { color: #b8cbd0; }
+
+html[data-bs-theme="dark"] body.rp-staff-ui .rp-security-report-modal .rp-report-detail-hero,
+html[data-bs-theme="dark"] body.rp-staff-ui .rp-security-report-modal .rp-report-review-card { background: #303b3d; }
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-security-report-modal .rp-report-chip,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-security-report-modal .rp-report-review-form .form-control,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-security-report-modal .rp-report-review-form .form-select,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-security-report-modal .rp-report-upload {
+    border-color: #4b6061;
+    background: #283436;
+    color: #e9f3f2;
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-security-report-modal .rp-report-action-toggle { background: #263234; }
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-security-report-modal .rp-report-action-btn.is-active {
+    background: #426d67;
+    color: #fff;
+    box-shadow: 0 .15rem .5rem rgba(0, 0, 0, .22);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui .rp-security-report-modal .rp-report-upload:hover,
+html[data-bs-theme="dark"] .rp-staff-ui .rp-security-report-modal .rp-report-upload:focus-within {
+    border-color: #6fa99e;
+    background: #304243;
+}

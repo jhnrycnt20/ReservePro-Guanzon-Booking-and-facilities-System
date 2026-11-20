@@ -129,7 +129,7 @@
                 <section id="rpProfilePasswordStep-{{ $photoInputId }}" class="rp-profile-step rp-profile-password-step" data-rp-profile-step="password" data-rp-password-panel aria-hidden="{{ $passwordErrors ? 'false' : 'true' }}" @if(! $passwordErrors) inert @endif>
                     @if($useModalFlags)
                         <button type="button" class="rp-profile-step-back" data-rp-profile-cancel aria-label="Back to edit details">
-                            <i class="bi bi-arrow-left" aria-hidden="true"></i> Back
+                            Back
                         </button>
                     @endif
                     <div class="rp-profile-stack">

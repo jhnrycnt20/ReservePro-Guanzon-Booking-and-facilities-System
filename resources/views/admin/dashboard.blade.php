@@ -4,7 +4,6 @@
 @section('theme', 'admin')
 @section('role_label', 'Admin')
 @section('page_title', 'Welcome back, ' . strtok(auth()->user()->name, ' '))
-@section('page_subtitle', 'Reservations, revenue, and resort operations at a glance.')
 @section('sidebar')
     @include('partials.sidebar-admin')
 @endsection
@@ -12,19 +11,18 @@
 @section('content')
 <div class="rp-staff-dashboard">
     <div class="rp-staff-stat-grid">
-        <x-staff-stat label="Total reservations" :value="number_format($stats['total_reservations'])" icon="bi-journal-check" hint="All recorded bookings" />
-        <x-staff-stat label="Reservations today" :value="number_format($stats['today_reservations'])" icon="bi-calendar-event" hint="Created today" />
-        <x-staff-stat label="Total guests" :value="number_format($stats['total_guests'])" icon="bi-people" hint="Registered guest profiles" />
-        <x-staff-stat label="Verified revenue" :value="'₱' . number_format($stats['total_revenue'], 0)" icon="bi-graph-up-arrow" hint="From verified payments" />
+        <x-staff-stat label="Total reservations" :value="number_format($stats['total_reservations'])" icon="bi-journal-check" />
+        <x-staff-stat label="Reservations today" :value="number_format($stats['today_reservations'])" icon="bi-calendar-event" />
+        <x-staff-stat label="Total guests" :value="number_format($stats['total_guests'])" icon="bi-people" />
+        <x-staff-stat label="Verified revenue" :value="'₱' . number_format($stats['total_revenue'], 0)" icon="bi-graph-up-arrow" />
     </div>
 
     <section class="rp-staff-panel rp-staff-chart-panel" aria-labelledby="admin-chart-title">
         <div class="rp-staff-panel-head">
             <div>
                 <h2 id="admin-chart-title">Reservation trend</h2>
-                <p>Bookings created in the last six months</p>
             </div>
-            <a href="{{ route('admin.analytics.index') }}" class="rp-staff-text-link">View analytics <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+            <a href="{{ route('admin.analytics.index') }}" class="rp-staff-text-link">View analytics</a>
         </div>
         <div class="rp-staff-chart-wrap"><canvas id="adminReservationsChart" aria-label="Monthly reservations chart" role="img"></canvas></div>
     </section>
@@ -34,7 +32,6 @@
             <div class="rp-staff-panel-head">
                 <div>
                     <h2 id="admin-operations-title">Resort operations</h2>
-                    <p>Current accommodation and incident status</p>
                 </div>
             </div>
             <div class="rp-staff-metric-list">
@@ -51,13 +48,11 @@
             <div class="rp-staff-panel-head">
                 <div>
                     <h2 id="admin-activity-title">Recent reservations</h2>
-                    <p>Latest booking activity</p>
                 </div>
             </div>
             <ol class="rp-staff-activity-list">
                 @forelse($recentBookings as $booking)
                     <li>
-                        <span class="rp-staff-activity-icon" aria-hidden="true"><i class="bi bi-calendar-check"></i></span>
                         <div class="rp-staff-activity-copy">
                             <strong>{{ $booking->guest_name }}</strong>
                             <span>{{ $booking->accommodation->name ?? 'Accommodation' }} · {{ ucfirst(str_replace('_', ' ', $booking->status->value)) }}</span>
@@ -76,9 +71,8 @@
             <div class="rp-staff-panel-head">
                 <div>
                     <h2 id="admin-reports-title">Reports needing attention</h2>
-                    <p>Most recent pending incident reports</p>
                 </div>
-                <a href="{{ route('admin.reports.index') }}" class="rp-staff-text-link">All reports <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+                <a href="{{ route('admin.reports.index') }}" class="rp-staff-text-link">All reports</a>
             </div>
             <div class="rp-staff-queue">
                 @foreach($priorityReports as $report)

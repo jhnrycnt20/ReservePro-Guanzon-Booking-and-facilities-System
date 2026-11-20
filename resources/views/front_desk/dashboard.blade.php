@@ -11,10 +11,10 @@
 @section('content')
 <div class="rp-staff-dashboard">
     <div class="rp-staff-stat-grid">
-        <x-staff-stat label="Check-ins today" :value="$stats['today_checkins']" icon="bi-box-arrow-in-right" hint="Scheduled arrivals" />
-        <x-staff-stat label="Check-outs today" :value="$stats['today_checkouts']" icon="bi-box-arrow-right" hint="Scheduled departures" />
-        <x-staff-stat label="Ready for check-in" :value="$stats['ready_checkin']" icon="bi-calendar-check" hint="Approved and fully paid" />
-        <x-staff-stat label="Pending incidents" :value="$stats['pending_incidents']" icon="bi-clipboard2-pulse" hint="Awaiting front desk action" />
+        <x-staff-stat label="Check-ins today" :value="$stats['today_checkins']" icon="bi-box-arrow-in-right" />
+        <x-staff-stat label="Check-outs today" :value="$stats['today_checkouts']" icon="bi-box-arrow-right" />
+        <x-staff-stat label="Ready for check-in" :value="$stats['ready_checkin']" icon="bi-calendar-check" />
+        <x-staff-stat label="Pending incidents" :value="$stats['pending_incidents']" icon="bi-clipboard2-pulse" />
     </div>
 
     <section class="rp-staff-panel rp-staff-chart-panel" aria-labelledby="desk-chart-title">
@@ -22,7 +22,7 @@
             <div>
                 <h2 id="desk-chart-title">Stay flow</h2>
             </div>
-            <a href="{{ route('front_desk.reservations.index') }}" class="rp-staff-text-link">Reservations <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+            <a href="{{ route('front_desk.reservations.index') }}" class="rp-staff-text-link">Reservations</a>
         </div>
         @if($chart['checkins']->sum() + $chart['checkouts']->sum() > 0)
             <div class="rp-staff-chart-wrap"><canvas id="deskStayChart" aria-label="Daily check-ins and check-outs chart" role="img"></canvas></div>
@@ -42,7 +42,6 @@
             <div class="rp-staff-panel-head">
                 <div>
                     <h2 id="desk-reservations-title">Active reservations</h2>
-                    <p>Booked and ready stays in the queue</p>
                 </div>
             </div>
             <div class="rp-staff-queue">
@@ -68,7 +67,6 @@
             <div class="rp-staff-panel-head">
                 <div>
                     <h2 id="desk-activity-title">Recent activity</h2>
-                    <p>Latest front desk updates</p>
                 </div>
             </div>
             <ol class="rp-staff-activity-list">

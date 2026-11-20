@@ -34,7 +34,7 @@
                         <div>{{ $notification->data['message'] ?? $notification->data['title'] ?? 'Notification' }}</div>
                         <div class="small text-muted">{{ $notification->created_at->diffForHumans() }}</div>
                     </div>
-                    <span class="small text-nowrap">Open <i class="bi bi-chevron-right"></i></span>
+                    <span class="small text-nowrap">Open</span>
                 </div>
             </a>
         @empty

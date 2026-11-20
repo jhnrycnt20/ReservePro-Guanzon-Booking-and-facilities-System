@@ -153,18 +153,18 @@
                                 </div>
                                 <div class="dropdown-divider"></div>
                                 <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#rpProfileModal">
-                                    <i class="bi bi-person-circle" aria-hidden="true"></i> Manage Profile
+                                    Manage Profile
                                 </button>
                                 @if(auth()->user()->hasRole('admin'))
                                     <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#rpSettingsModal">
-                                        <i class="bi bi-gear" aria-hidden="true"></i> Settings
+                                        Settings
                                     </button>
                                 @endif
                                 <div class="dropdown-divider"></div>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit" class="dropdown-item">
-                                        <i class="bi bi-box-arrow-right" aria-hidden="true"></i> Logout
+                                        Logout
                                     </button>
                                 </form>
                             </div>

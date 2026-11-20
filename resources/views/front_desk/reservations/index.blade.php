@@ -75,28 +75,9 @@
         </div>
     </form>
     <button type="button" class="btn btn-rp-primary rp-resv-walkin-btn" data-bs-toggle="modal" data-bs-target="#rpWalkInModal">
-        <i class="bi bi-plus-lg" aria-hidden="true"></i><span>New walk-in</span>
+        <span>New walk-in</span>
     </button>
 </section>
-
-<div class="rp-resv-overview" aria-label="Reservation queue summary">
-    <div class="rp-resv-overview-item is-open">
-        <span class="rp-resv-overview-icon" aria-hidden="true"><i class="bi bi-journal-bookmark"></i></span>
-        <span><strong>{{ number_format($stats['total']) }}</strong><span>Open stays</span></span>
-    </div>
-    <div class="rp-resv-overview-item is-checkin">
-        <span class="rp-resv-overview-icon" aria-hidden="true"><i class="bi bi-box-arrow-in-right"></i></span>
-        <span><strong>{{ number_format($stats['check_ins_ready']) }}</strong><span>Ready for check-in</span></span>
-    </div>
-    <div class="rp-resv-overview-item is-checkout">
-        <span class="rp-resv-overview-icon" aria-hidden="true"><i class="bi bi-box-arrow-right"></i></span>
-        <span><strong>{{ number_format($stats['check_outs_today_due']) }}</strong><span>Due for check-out</span></span>
-    </div>
-    <div class="rp-resv-overview-item is-walkin">
-        <span class="rp-resv-overview-icon" aria-hidden="true"><i class="bi bi-person-plus"></i></span>
-        <span><strong>{{ number_format($stats['walk_ins_today']) }}</strong><span>Walk-ins today</span></span>
-    </div>
-</div>
 
 <div class="rp-resv-table-card d-none d-xl-block">
     <div class="table-responsive">

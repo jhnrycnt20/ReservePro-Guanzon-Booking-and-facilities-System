@@ -11,19 +11,18 @@
 @section('content')
 <div class="rp-staff-dashboard">
     <div class="rp-staff-stat-grid">
-        <x-staff-stat label="Pending reports" :value="$stats['pending']" icon="bi-hourglass-split" hint="Waiting for investigation" />
-        <x-staff-stat label="Verified" :value="$stats['verified']" icon="bi-patch-check" hint="Confirmed reports" />
-        <x-staff-stat label="In progress" :value="$stats['in_progress']" icon="bi-shield-check" hint="Under investigation" />
-        <x-staff-stat label="Invalid" :value="$stats['invalid']" icon="bi-x-circle" hint="Closed as invalid" />
+        <x-staff-stat label="Pending reports" :value="$stats['pending']" icon="bi-hourglass-split" />
+        <x-staff-stat label="Verified" :value="$stats['verified']" icon="bi-patch-check" />
+        <x-staff-stat label="In progress" :value="$stats['in_progress']" icon="bi-shield-check" />
+        <x-staff-stat label="Invalid" :value="$stats['invalid']" icon="bi-x-circle" />
     </div>
 
     <section class="rp-staff-panel rp-staff-chart-panel" aria-labelledby="security-chart-title">
         <div class="rp-staff-panel-head">
             <div>
                 <h2 id="security-chart-title">Report activity</h2>
-                <p>Reports filed over seven days, grouped by current status</p>
             </div>
-            <a href="{{ route('security.incidents.index') }}" class="rp-staff-text-link">All reports <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+            <a href="{{ route('security.incidents.index') }}" class="rp-staff-text-link">All reports</a>
         </div>
         @if($chart['pending']->sum() + $chart['reviewed']->sum() > 0)
             <div class="rp-staff-chart-wrap"><canvas id="securityReportsChart" aria-label="Daily pending and reviewed reports chart" role="img"></canvas></div>
@@ -42,9 +41,8 @@
         <div class="rp-staff-panel-head">
             <div>
                 <h2 id="security-pending-title">New pending reports</h2>
-                <p>Open an incident to review and record findings</p>
             </div>
-            <a href="{{ route('security.incidents.index', ['status' => 'pending']) }}" class="rp-staff-text-link">View queue <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+            <a href="{{ route('security.incidents.index', ['status' => 'pending']) }}" class="rp-staff-text-link">View queue</a>
         </div>
         <div class="rp-staff-queue">
             @forelse($pendingReports as $report)
