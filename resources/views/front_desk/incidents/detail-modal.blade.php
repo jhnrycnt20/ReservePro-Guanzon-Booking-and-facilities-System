@@ -25,11 +25,11 @@
 @endphp
 
 <div class="modal fade" id="rpFdReportModal{{ $report->id }}" tabindex="-1" aria-labelledby="rpFdReportModal{{ $report->id }}Label" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
-        <div class="modal-content rp-admin-modal rp-admin-report-modal">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable rp-fd-report-dialog">
+        <div class="modal-content rp-admin-modal rp-admin-report-modal rp-fd-report-modal">
             <div class="modal-header">
                 <div class="rp-admin-report-header-copy">
-                    <h2 class="modal-title" id="rpFdReportModal{{ $report->id }}Label">Report details</h2>
+                    <h2 class="modal-title" id="rpFdReportModal{{ $report->id }}Label">{{ $issueTitle }}</h2>
                     <div class="rp-admin-report-header-meta">
                         <span class="rp-admin-report-number">{{ $report->report_number }}</span>
                         <span class="rp-report-detail-status is-{{ $status }}">
@@ -41,7 +41,7 @@
             </div>
 
             <div class="modal-body">
-                <div class="rp-report-detail-hero">
+                <div class="rp-report-detail-hero visually-hidden">
                     <div class="rp-report-detail-hero-main">
                         <div>
                             <h3 class="rp-report-detail-title">{{ $issueTitle }}</h3>
@@ -65,6 +65,9 @@
                         <div class="rp-report-detail-block">
                             <h4 class="rp-report-detail-label">Report information</h4>
                             <div class="rp-report-detail-meta">
+                                <div><div class="rp-report-detail-label">Report ID</div><div class="rp-report-detail-meta-value">{{ $report->report_number }}</div></div>
+                                <div><div class="rp-report-detail-label">Report type</div><div class="rp-report-detail-meta-value">{{ $reportTypeLabel }}</div></div>
+                                <div><div class="rp-report-detail-label">Location</div><div class="rp-report-detail-meta-value">{{ $report->location ?: '—' }}</div></div>
                                 <div>
                                     <div class="rp-report-detail-label">Guest</div>
                                     <div class="rp-report-detail-meta-value">{{ $guestName }}</div>
@@ -102,29 +105,20 @@
                             </div>
                         @endif
 
+                    </section>
+
+                    <aside class="rp-report-detail-card rp-report-review-card">
                         @if($report->investigation_notes || $report->investigation_photo)
-                            <div class="rp-report-detail-block mb-0">
+                            <div class="rp-report-detail-block">
                                 <h4 class="rp-report-detail-label">Security investigation</h4>
-                                @if($report->investigation_notes)
-                                    <div class="rp-report-note-panel">
-                                        <p class="rp-report-detail-copy mb-0">{{ $report->investigation_notes }}</p>
-                                    </div>
-                                @endif
+                                @if($report->investigation_notes)<p class="rp-report-detail-copy mb-0">{{ $report->investigation_notes }}</p>@endif
                                 @if($report->investigation_photo)
                                     <div class="rp-report-detail-photo-wrap mt-3">
-                                        <button type="button" class="rp-report-detail-photo-trigger" data-bs-toggle="modal" data-bs-target="#rpFdInvestigationPhotoModal{{ $report->id }}" aria-label="View investigation photo">
-                                            <img src="{{ asset('storage/'.$report->investigation_photo) }}" class="rp-report-detail-photo" alt="Investigation photo">
-                                        </button>
-                                        <button type="button" class="rp-report-detail-photo-expand" data-bs-toggle="modal" data-bs-target="#rpFdInvestigationPhotoModal{{ $report->id }}" title="View full photo" aria-label="View full investigation photo">
-                                            <i class="bi bi-arrows-fullscreen" aria-hidden="true"></i>
-                                        </button>
+                                        <button type="button" class="rp-report-detail-photo-trigger" data-bs-toggle="modal" data-bs-target="#rpFdInvestigationPhotoModal{{ $report->id }}" aria-label="View investigation photo"><img src="{{ asset('storage/'.$report->investigation_photo) }}" class="rp-report-detail-photo" alt="Investigation photo"></button>
                                     </div>
                                 @endif
                             </div>
                         @endif
-                    </section>
-
-                    <aside class="rp-report-detail-card rp-report-review-card">
                         @if($status === 'verified')
                             <div class="rp-report-review-head">
                                 <span class="rp-report-review-icon" aria-hidden="true"><i class="bi bi-play-circle"></i></span>

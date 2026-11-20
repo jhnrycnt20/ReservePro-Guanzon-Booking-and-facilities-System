@@ -12,6 +12,8 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             UserSeeder::class,
             AccommodationSeeder::class,
+            FeedbackSeeder::class,
+            ContactMessageSeeder::class,
             IncidentReportSeeder::class,
             SystemSettingSeeder::class,
         ]);

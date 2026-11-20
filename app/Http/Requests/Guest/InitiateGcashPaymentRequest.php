@@ -27,6 +27,16 @@ class InitiateGcashPaymentRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator) {
+            $gcashAvailable = filled(trim((string) config('services.paymongo.secret_key')));
+
+            if (! $gcashAvailable) {
+                $validator->errors()->add(
+                    'amount',
+                    'Online GCash checkout is unavailable right now. Please try again later or pay at the front desk.'
+                );
+                return;
+            }
+
             if ($validator->errors()->has('amount')) {
                 return;
             }

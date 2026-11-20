@@ -740,6 +740,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const amountInput = form.querySelector('#paymentAmount');
         const minAmount = Number(form.dataset.rpMinAmount || 0);
         const maxAmount = Number(form.dataset.rpMaxAmount || 0);
+        const gcashAvailable = form.dataset.rpGcashAvailable !== 'false';
         const methodSelect = form.querySelector('[name="payment_method"]');
         const refWrap = form.querySelector('[data-rp-pay-ref-wrap]');
         const refInput = refWrap?.querySelector('[name="reference_number"]');
@@ -778,6 +779,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         form.addEventListener('submit', (event) => {
+            if (!gcashAvailable) {
+                event.preventDefault();
+                return;
+            }
             if (!amountInput) {
                 return;
             }
@@ -1837,14 +1842,22 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        document.addEventListener('click', () => {
-            document.querySelectorAll(
-                '#rpLoginModal .rp-login-error:not(:empty), #rpRegisterModal .rp-login-error:not(:empty)'
-            ).forEach((messageEl) => {
-                messageEl.textContent = '';
-                const input = messageEl.closest('.rp-login-field')?.querySelector('input, textarea');
+        document.addEventListener('click', (event) => {
+            const target = event.target instanceof Element ? event.target : null;
+            const clickedField = target?.closest('.rp-login-field');
+            const clickedSubmit = target?.closest('[type="submit"]');
+            if ((clickedField && form.contains(clickedField)) || (clickedSubmit && form.contains(clickedSubmit))) {
+                return;
+            }
+
+            names.forEach((name) => {
+                const input = field(name);
+                const messageEl = feedback(name);
                 input?.classList.remove('is-invalid');
                 input?.removeAttribute('aria-invalid');
+                if (messageEl) messageEl.textContent = '';
+                touched.delete(name);
+                serverInvalid.delete(name);
             });
         });
 
@@ -1885,6 +1898,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const touched = new Set();
         const detailsStep = form.querySelector('[data-rp-register-step="details"]');
         const passwordStep = form.querySelector('[data-rp-register-step="password"]');
+        const notification = form.parentElement?.querySelector('[data-rp-register-notification]');
+        const notificationMessage = notification?.querySelector('[data-rp-register-notification-message]');
+        const initialNotification = notification?.dataset.rpRegisterInitialNotification?.trim() || '';
+        let notificationTimer = null;
+        const hideNotification = () => {
+            if (notificationTimer) window.clearTimeout(notificationTimer);
+            notificationTimer = null;
+            if (notification) notification.hidden = true;
+        };
+        const showNotification = (message) => {
+            if (!notification || !notificationMessage || !message) return;
+            if (notificationTimer) window.clearTimeout(notificationTimer);
+            notificationMessage.textContent = message;
+            notification.hidden = false;
+            notificationTimer = window.setTimeout(hideNotification, 5000);
+        };
         const showStep = (step) => {
             if (!detailsStep || !passwordStep) return;
             detailsStep.hidden = step !== 'details';
@@ -2013,9 +2042,11 @@ document.addEventListener('DOMContentLoaded', () => {
             detailNames.forEach((name) => touched.add(name));
             const valid = detailNames.map((name) => validateField(name, { force: true })).every(Boolean);
             if (!valid) {
+                hideNotification();
                 detailNames.map(field).find((input) => input?.classList.contains('is-invalid'))?.focus();
                 return;
             }
+            hideNotification();
             showStep('password');
             field('password')?.focus();
         });
@@ -2049,6 +2080,27 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
+        document.addEventListener('click', (event) => {
+            const target = event.target instanceof Element ? event.target : null;
+            const clickedField = target?.closest('.rp-login-field');
+            const clickedAction = target?.closest('[data-rp-register-next], [data-rp-register-back], [type="submit"]');
+            if ((clickedField && form.contains(clickedField)) || (clickedAction && form.contains(clickedAction))) {
+                return;
+            }
+
+            fieldNames.forEach((name) => {
+                const input = field(name);
+                const messageEl = feedback(name);
+                input?.classList.remove('is-invalid');
+                input?.removeAttribute('aria-invalid');
+                if (messageEl) messageEl.textContent = '';
+                touched.delete(name);
+            });
+            hideNotification();
+        });
+
+        notification?.querySelector('[data-rp-register-notification-close]')?.addEventListener('click', hideNotification);
+
         let registering = false;
         form.addEventListener('submit', async (event) => {
             if (registering) return;
@@ -2067,6 +2119,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     showStep('password');
                 }
+                hideNotification();
                 const firstInvalid = form.querySelector('.is-invalid');
                 firstInvalid?.focus();
                 firstInvalid?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
@@ -2096,6 +2149,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     validateField(name, { force: true });
                 }
             });
+        } else if (initialNotification) {
+            showNotification(initialNotification);
         }
     });
 

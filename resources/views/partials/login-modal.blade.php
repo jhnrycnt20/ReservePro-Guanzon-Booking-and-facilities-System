@@ -12,10 +12,10 @@
 
                 <div class="rp-login-modal-body rp-login-reference-form-panel">
                     <div class="rp-login-reference-heading">
-                        <h2 class="rp-login-title" id="rpLoginModalLabel">Welcome Back!</h2>
+                        <h2 class="rp-login-title" id="rpLoginModalLabel">Login</h2>
                     </div>
 
-                    <form method="POST" action="{{ route('login') }}" data-rp-login-form novalidate>
+                    <form method="POST" action="{{ route('login') }}" autocomplete="off" data-rp-login-form novalidate>
                         @csrf
                         @if (session('success'))
                             <div class="rp-login-alert is-success" role="status">{{ session('success') }}</div>
@@ -27,13 +27,13 @@
                         <div class="rp-login-field rp-login-reference-field">
                             <i class="bi bi-envelope rp-login-reference-leading-icon" aria-hidden="true"></i>
                             {{-- type=text + inputmode avoids some mobile browsers rejecting reserved .test demo emails --}}
-                            <input id="rpLoginEmail" type="text" inputmode="email" autocomplete="username" class="@error('email', 'login') is-invalid @enderror" name="email" value="{{ old('email') }}" placeholder="Email" aria-describedby="rpLoginEmailError" @error('email', 'login') aria-invalid="true" @enderror required data-rp-login-field="email">
+                            <input id="rpLoginEmail" type="text" inputmode="email" autocomplete="off" class="@error('email', 'login') is-invalid @enderror" name="email" value="{{ old('email') }}" placeholder="Email" aria-describedby="rpLoginEmailError" @error('email', 'login') aria-invalid="true" @enderror required data-rp-login-field="email">
                             <div id="rpLoginEmailError" class="rp-login-error" role="status" aria-live="polite" data-rp-login-feedback="email">@error('email', 'login'){{ $message }}@enderror</div>
                         </div>
 
                         <div class="rp-login-field input-group rp-login-reference-field">
                             <i class="bi bi-lock rp-login-reference-leading-icon" aria-hidden="true"></i>
-                            <input id="rpLoginPassword" type="password" class="@error('password', 'login') is-invalid @enderror" name="password" placeholder="Password" autocomplete="current-password" aria-describedby="rpLoginPasswordError" @error('password', 'login') aria-invalid="true" @enderror required data-rp-login-field="password">
+                            <input id="rpLoginPassword" type="password" class="@error('password', 'login') is-invalid @enderror" name="password" placeholder="Password" autocomplete="off" aria-describedby="rpLoginPasswordError" @error('password', 'login') aria-invalid="true" @enderror required data-rp-login-field="password">
                             <button type="button" class="rp-login-field-icon-btn" data-rp-toggle-password aria-label="Show password">
                                 <i class="bi bi-eye"></i>
                             </button>

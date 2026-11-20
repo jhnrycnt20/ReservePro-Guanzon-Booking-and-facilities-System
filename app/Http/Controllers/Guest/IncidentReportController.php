@@ -64,7 +64,7 @@ class IncidentReportController extends Controller
     public function show(Request $request, IncidentReport $incident): View
     {
         $this->authorize('view', $incident);
-        $incident->load(['booking', 'attachments']);
+        $incident->load(['booking.accommodation', 'attachments']);
 
         return view('guest.incidents.show', ['report' => $incident]);
     }

@@ -84,7 +84,6 @@
                 @foreach($priorityReports as $report)
                     <a href="{{ route('admin.reports.show', $report) }}" class="rp-staff-queue-item">
                         <span><strong>{{ $report->title }}</strong><small>{{ $report->report_number }} · {{ $report->location ?: 'Location not specified' }}</small></span>
-                        <span class="rp-staff-pill">Pending</span>
                     </a>
                 @endforeach
             </div>

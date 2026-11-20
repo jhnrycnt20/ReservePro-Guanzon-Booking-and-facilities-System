@@ -85,8 +85,9 @@ class PaymentController extends Controller
         $suggestedDeposit = min($deposit, $remaining);
 
         $isDraft = false;
+        $gcashAvailable = filled(trim((string) config('services.paymongo.secret_key')));
 
-        return response()->view('guest.payments.create', compact('booking', 'deposit', 'suggestedDeposit', 'isDraft'))
+        return response()->view('guest.payments.create', compact('booking', 'deposit', 'suggestedDeposit', 'isDraft', 'gcashAvailable'))
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
             ->header('Pragma', 'no-cache');
     }
@@ -128,8 +129,9 @@ class PaymentController extends Controller
         $remaining = (float) $booking->remaining_balance;
         $suggestedDeposit = min($deposit, $remaining);
         $isDraft = true;
+        $gcashAvailable = filled(trim((string) config('services.paymongo.secret_key')));
 
-        return response()->view('guest.payments.create', compact('booking', 'deposit', 'suggestedDeposit', 'isDraft'))
+        return response()->view('guest.payments.create', compact('booking', 'deposit', 'suggestedDeposit', 'isDraft', 'gcashAvailable'))
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
             ->header('Pragma', 'no-cache');
     }
@@ -161,6 +163,11 @@ class PaymentController extends Controller
 
     public function storeDraft(Request $request): RedirectResponse
     {
+        if (! filled(trim((string) config('services.paymongo.secret_key')))) {
+            return redirect()->route('guest.payments.draft')
+                ->withErrors(['amount' => 'Online GCash checkout is unavailable right now. Please try again later or pay at the front desk.']);
+        }
+
         $draft = $this->bookingDraft($request);
         if (! $draft) {
             return redirect()->route('guest.bookings.index')
@@ -223,6 +230,42 @@ class PaymentController extends Controller
         $request->session()->forget('guest_booking_draft');
 
         return redirect()->away($checkout['checkout_url']);
+    }
+
+    public function proceedWithoutOnlinePayment(Request $request): RedirectResponse
+    {
+        $draft = $this->bookingDraft($request);
+        if (! $draft) {
+            return redirect()->route('guest.bookings.index')
+                ->with('error', 'Your guest information was not found. Please start your reservation again.');
+        }
+
+        try {
+            $guest = $request->user()->guest;
+            if (! $guest) {
+                return redirect()->route('guest.bookings.index')
+                    ->with('error', 'Your guest profile was not found. Please update your profile before submitting a reservation.');
+            }
+
+            $booking = $this->bookingService->createReservation(
+                $draft['data'],
+                $guest,
+                $request->user()
+            );
+        } catch (ValidationException $exception) {
+            return redirect()->route('guest.payments.draft')
+                ->withErrors($exception->errors());
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return redirect()->route('guest.payments.draft')
+                ->with('error', 'We could not submit your reservation. Please review your details and try again.');
+        }
+
+        $request->session()->forget('guest_booking_draft');
+
+        return redirect()->route('guest.bookings.show', $booking)
+            ->with('success', 'Your reservation was submitted without online payment and is pending confirmation. Please arrange payment at the front desk.');
     }
 
     public function sampleSuccessDraft(Request $request): RedirectResponse

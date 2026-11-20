@@ -196,6 +196,7 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::post('/bookings', [GuestBookingController::class, 'store'])->name('bookings.store');
         Route::get('/billing', [GuestPaymentController::class, 'createDraft'])->name('payments.draft');
         Route::post('/billing', [GuestPaymentController::class, 'storeDraft'])->name('payments.store-draft');
+        Route::post('/billing/proceed', [GuestPaymentController::class, 'proceedWithoutOnlinePayment'])->name('payments.proceed-without-online-payment');
         Route::post('/billing/promo', [GuestPaymentController::class, 'applyDraftPromo'])->name('payments.apply-draft-promo');
         if (app()->environment(['local', 'testing'])) {
             Route::post('/billing/sample-success', [GuestPaymentController::class, 'sampleSuccessDraft'])->name('payments.sample-success-draft');

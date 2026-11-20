@@ -6,58 +6,30 @@
 @php
     $statusFilter = request('status');
 @endphp
-<div class="container rp-public-page-top pb-4">
-    <a href="{{ route('guest.bookings.index') }}" class="rp-back-link"><i class="bi bi-arrow-left"></i> Back to My Reservations</a>
+<div class="container rp-public-page-top rp-reservations-index rp-reports-index pb-4">
+    <div class="rp-reservations-heading">
+        <h1 class="rp-page-intro-title mb-0">My Reports</h1>
+        <form method="GET" action="{{ route('guest.incidents.index') }}" class="rp-reservations-filter">
+            <label class="visually-hidden" for="reportStatusFilter">Filter reports by status</label>
+            <select id="reportStatusFilter" name="status" class="form-select" onchange="this.form.submit()">
+                <option value="">All reports</option>
+                <option value="pending" @selected($statusFilter === 'pending')>Submitted</option>
+                <option value="verified" @selected($statusFilter === 'verified')>Under review</option>
+                <option value="in_progress" @selected($statusFilter === 'in_progress')>Being processed</option>
+                <option value="resolved" @selected($statusFilter === 'resolved')>Resolved</option>
+                <option value="closed" @selected($statusFilter === 'closed')>Closed</option>
+                <option value="invalid" @selected($statusFilter === 'invalid')>Invalid</option>
+            </select>
+            @if(filled(request('q')))<input type="hidden" name="q" value="{{ request('q') }}">@endif
+        </form>
+    </div>
 
-    <div class="rp-page-intro d-flex align-items-end justify-content-between flex-wrap gap-3">
-        <div>
-            <h1 class="rp-page-intro-title mb-1">My Reports</h1>
-            <p class="rp-page-intro-copy mb-0">Track whether your report is still being processed or already resolved.</p>
-        </div>
+    <div class="rp-reports-toolbar">
         <button type="button" class="rp-avail-btn-primary rp-avail-btn-primary--inline" data-bs-toggle="modal" data-bs-target="#rpGuestIncidentModal">New Report</button>
     </div>
 
-    <div class="rp-report-quick-filters mb-3">
-        <a href="{{ route('guest.incidents.index') }}" class="rp-report-quick-filter {{ blank($statusFilter) ? 'is-active' : '' }}">All</a>
-        <a href="{{ route('guest.incidents.index', ['status' => 'pending']) }}" class="rp-report-quick-filter {{ $statusFilter === 'pending' ? 'is-active' : '' }}">Submitted</a>
-        <a href="{{ route('guest.incidents.index', ['status' => 'in_progress']) }}" class="rp-report-quick-filter {{ $statusFilter === 'in_progress' ? 'is-active' : '' }}">Being processed</a>
-        <a href="{{ route('guest.incidents.index', ['status' => 'resolved']) }}" class="rp-report-quick-filter {{ $statusFilter === 'resolved' ? 'is-active' : '' }}">Resolved</a>
-    </div>
-
-    @include('partials.list-filters', [
-        'filters' => [
-            [
-                'name' => 'status',
-                'label' => 'Status',
-                'empty' => 'All statuses',
-                'value' => $statusFilter,
-                'options' => [
-                    'pending' => 'Submitted',
-                    'verified' => 'Under review',
-                    'in_progress' => 'Being processed',
-                    'resolved' => 'Resolved',
-                    'closed' => 'Closed',
-                    'invalid' => 'Invalid',
-                ],
-            ],
-        ],
-        'searchPlaceholder' => 'Report #, title, or location',
-        'clearUrl' => route('guest.incidents.index'),
-    ])
-
     <div class="rp-booking-list">
         @forelse($reports as $report)
-            @php
-                $statusValue = $report->status instanceof \BackedEnum ? $report->status->value : (string) $report->status;
-                $progressLabel = match ($statusValue) {
-                    'pending' => 'Submitted — waiting for review',
-                    'verified' => 'Under review',
-                    'in_progress' => 'Being processed',
-                    'resolved', 'closed' => 'Resolved',
-                    'invalid' => 'Invalid',
-                    default => str_replace('_', ' ', ucwords($statusValue, '_')),
-                };
-            @endphp
             <a href="{{ route('guest.incidents.show', $report) }}" class="rp-booking-list-item">
                 <div class="rp-booking-list-media">
                     @if($report->photo)
@@ -67,20 +39,14 @@
                     @endif
                 </div>
                 <div class="rp-booking-list-body">
-                    <div class="rp-booking-list-top">
-                        <div>
-                            <div class="rp-booking-list-title">{{ $report->title }}</div>
-                            <div class="rp-booking-list-dates">
-                                {{ $report->report_number }}
-                                &middot; {{ str_replace('_', ' ', ucfirst($report->report_type instanceof \BackedEnum ? $report->report_type->value : $report->report_type)) }}
-                                &middot; {{ $report->location }}
-                            </div>
-                            <div class="rp-report-progress-inline">{{ $progressLabel }}</div>
-                        </div>
-                        <x-status-badge :status="$report->status" />
+                    <div class="rp-booking-list-title">{{ $report->title }}</div>
+                    <div class="rp-booking-list-meta">
+                        <span class="rp-booking-list-code">{{ $report->report_number }} &middot; {{ str_replace('_', ' ', ucfirst($report->report_type instanceof \BackedEnum ? $report->report_type->value : $report->report_type)) }} &middot; {{ $report->location }}</span>
                     </div>
                 </div>
-                <div class="rp-booking-list-arrow"><i class="bi bi-chevron-right"></i></div>
+                <div class="rp-booking-list-action">
+                    <span class="rp-booking-list-view">View Details <i class="bi bi-arrow-right" aria-hidden="true"></i></span>
+                </div>
             </a>
         @empty
             <div class="rp-booking-empty">
@@ -90,6 +56,10 @@
             </div>
         @endforelse
     </div>
+
+    @if($reports->total() > 0)
+        <p class="rp-reservations-count">Showing {{ $reports->firstItem() }}–{{ $reports->lastItem() }} of {{ $reports->total() }} reports</p>
+    @endif
 
     @if($reports->hasPages())
         <div class="rp-simple-pagination mt-4">

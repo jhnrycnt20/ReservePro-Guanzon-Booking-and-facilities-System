@@ -38,9 +38,6 @@
                                 </option>
                             @endforeach
                         </select>
-                        @if($feedbackStays->isEmpty())
-                            <div class="form-text">Completed stays will appear here.</div>
-                        @endif
                         @error('accommodation_id', 'feedback')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     </div>
                     <div class="rp-feedback-compose-field">

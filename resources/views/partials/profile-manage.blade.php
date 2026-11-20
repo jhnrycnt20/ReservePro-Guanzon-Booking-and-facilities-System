@@ -122,15 +122,14 @@
                 </div>
 
                 <button type="button" class="rp-profile-password-link" data-rp-profile-step-trigger="password" aria-controls="rpProfilePasswordStep-{{ $photoInputId }}">
-                    <span class="rp-profile-password-link-label"><i class="bi bi-shield-lock" aria-hidden="true"></i>Change password</span>
-                    <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                    <span class="rp-profile-password-link-label">Change password</span>
                 </button>
                 </section>
 
                 <section id="rpProfilePasswordStep-{{ $photoInputId }}" class="rp-profile-step rp-profile-password-step" data-rp-profile-step="password" data-rp-password-panel aria-hidden="{{ $passwordErrors ? 'false' : 'true' }}" @if(! $passwordErrors) inert @endif>
                     @if($useModalFlags)
                         <button type="button" class="rp-profile-step-back" data-rp-profile-cancel aria-label="Back to edit details">
-                            <i class="bi bi-arrow-left" aria-hidden="true"></i> Edit details
+                            <i class="bi bi-arrow-left" aria-hidden="true"></i> Back
                         </button>
                     @endif
                     <div class="rp-profile-stack">

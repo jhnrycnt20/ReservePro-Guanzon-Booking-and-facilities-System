@@ -188,7 +188,6 @@
                     <div class="rp-transaction-history-empty">
                         <span><i class="bi bi-receipt" aria-hidden="true"></i></span>
                         <strong>No transactions yet</strong>
-                        <p>Payments for this reservation will appear here.</p>
                     </div>
                 @endforelse
             </div>

@@ -111,27 +111,31 @@
                         </div>
                         <div>
                             <label class="form-label">Code</label>
-                            <input type="text" name="code" class="form-control text-uppercase" value="{{ old('_modal') === 'promo_create' ? old('code', $generatedCode) : $generatedCode }}" placeholder="e.g. WEEKEND20" maxlength="32" required data-rp-promo-code>
+                            <input type="text" name="code" class="form-control text-uppercase @error('code') is-invalid @enderror" value="{{ old('_modal') === 'promo_create' ? old('code', $generatedCode) : $generatedCode }}" placeholder="e.g. WEEKEND20" maxlength="32" required data-rp-promo-code>
+                            @error('code')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div>
                             <label class="form-label">Discount %</label>
-                            <input type="number" step="0.01" min="1" max="100" name="discount_percent" class="form-control" value="{{ old('_modal') === 'promo_create' ? old('discount_percent', 10) : 10 }}" placeholder="e.g. 20" required data-rp-promo-percent>
+                            <input type="number" step="0.01" min="1" max="100" name="discount_percent" class="form-control @error('discount_percent') is-invalid @enderror" value="{{ old('_modal') === 'promo_create' ? old('discount_percent', 10) : 10 }}" placeholder="e.g. 20" required data-rp-promo-percent>
+                            @error('discount_percent')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div>
                             <label class="form-label">Usage limit</label>
-                            <input type="number" min="1" name="usage_limit" class="form-control" value="{{ old('_modal') === 'promo_create' ? old('usage_limit') : '' }}" placeholder="e.g. 50 (blank = unlimited)">
+                            <input type="number" min="1" name="usage_limit" class="form-control @error('usage_limit') is-invalid @enderror" value="{{ old('_modal') === 'promo_create' ? old('usage_limit') : '' }}" placeholder="e.g. 50 (blank = unlimited)">
+                            @error('usage_limit')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div>
                             <label class="form-label">Status</label>
-                            <select name="is_active" class="form-select">
+                            <select name="is_active" class="form-select @error('is_active') is-invalid @enderror">
                                 <option value="1" selected>Active</option>
                                 <option value="0">Inactive</option>
                             </select>
+                            @error('is_active')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div>
                             <label class="form-label">Accommodations</label>
                             <div class="dropdown rp-promo-acc-dropdown" data-rp-promo-acc-wrap>
-                                <button class="form-select text-start rp-promo-acc-trigger" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" data-bs-display="static" aria-expanded="false">
+                                <button class="form-select text-start rp-promo-acc-trigger @if($errors->has('accommodation_ids') || $errors->has('applies_to_all')) is-invalid @endif" type="button" data-rp-promo-acc-trigger data-bs-toggle="dropdown" data-bs-auto-close="outside" data-bs-display="static" aria-expanded="false">
                                     <span data-rp-promo-acc-label>Select accommodations</span>
                                 </button>
                                 <div class="dropdown-menu p-2" data-rp-promo-list>
@@ -148,6 +152,9 @@
                                     @endforeach
                                 </div>
                             </div>
+                            @error('accommodation_ids')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                            @error('applies_to_all')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                            <div class="text-danger small mt-1 d-none" data-rp-promo-acc-error>Select at least one accommodation or apply the promo to all.</div>
                         </div>
                         <div>
                             <label class="form-label">Starts</label>
@@ -191,22 +198,6 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="rp-promo-view-heading">
-                        <div class="rp-promo-view-identity">
-                            <div>
-                                <span class="rp-promo-view-field-label">Promo name</span>
-                                <div class="rp-promo-view-name">{{ $promo->name ?: 'Unnamed promotion' }}</div>
-                            </div>
-                            <div>
-                                <span class="rp-promo-view-field-label">Code</span>
-                                <div class="rp-promo-view-code">{{ $promo->code }}</div>
-                            </div>
-                        </div>
-                        <span class="rp-promo-view-status {{ $promo->is_active ? 'is-active' : 'is-inactive' }}">
-                            <i class="bi bi-circle-fill" aria-hidden="true"></i>{{ $promo->is_active ? 'Active' : 'Inactive' }}
-                        </span>
-                    </div>
-
                     <div class="rp-promo-view-stats">
                         <div class="rp-promo-view-stat">
                             <span class="rp-promo-view-stat-icon"><i class="bi bi-percent" aria-hidden="true"></i></span>
@@ -231,17 +222,12 @@
                         </section>
 
                         <section class="rp-promo-view-section">
-                            <h3><i class="bi bi-building-check" aria-hidden="true"></i>Applicable accommodations</h3>
-                            <div class="rp-promo-view-accommodations">
-                                @if($promo->applies_to_all)
-                                    <span><i class="bi bi-check2" aria-hidden="true"></i>All accommodations</span>
-                                @else
-                                    @forelse($promo->accommodations as $accommodation)
-                                        <span><i class="bi bi-check2" aria-hidden="true"></i>{{ $accommodation->name }}</span>
-                                    @empty
-                                        <p>No accommodations selected.</p>
-                                    @endforelse
-                                @endif
+                            <h3>Details</h3>
+                            <div class="rp-promo-view-details">
+                                <div><span>Promo name</span><strong>{{ $promo->name ?: 'Unnamed promotion' }}</strong></div>
+                                <div><span>Code</span><strong>{{ $promo->code }}</strong></div>
+                                <div><span>Status</span><strong>{{ $promo->is_active ? 'Active' : 'Inactive' }}</strong></div>
+                                <div><span>Accommodations</span><strong>{{ $promo->applies_to_all ? 'All accommodations' : ($promo->accommodations->pluck('name')->join(', ') ?: 'None selected') }}</strong></div>
                             </div>
                         </section>
                     </div>
@@ -435,6 +421,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const startsInput = form.querySelector('[data-rp-promo-starts]');
         const endsInput = form.querySelector('[data-rp-promo-ends]');
         const dateError = form.querySelector('[data-rp-promo-date-error]');
+        const accTrigger = form.querySelector('[data-rp-promo-acc-trigger]');
+        const accError = form.querySelector('[data-rp-promo-acc-error]');
 
         const syncDateBounds = () => {
             if (!startsInput || !endsInput) return true;
@@ -460,6 +448,13 @@ document.addEventListener('DOMContentLoaded', () => {
         endsInput?.addEventListener('input', syncDateBounds);
 
         form.addEventListener('submit', (event) => {
+            const missingAccommodations = !allToggle?.checked && selectedChecks().length === 0;
+            accTrigger?.classList.toggle('is-invalid', missingAccommodations);
+            accError?.classList.toggle('d-none', !missingAccommodations);
+            if (missingAccommodations) {
+                event.preventDefault();
+                accTrigger?.focus();
+            }
             if (!syncDateBounds()) {
                 event.preventDefault();
                 endsInput?.focus();

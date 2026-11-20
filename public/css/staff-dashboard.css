@@ -788,6 +788,70 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-users-table .rp-user-row-actions .bt
     .rp-staff-ui .rp-feedback-average { max-width: 9rem; }
 }
 
+/* Promo details follows the split report-details modal layout. */
+.rp-staff-ui .rp-promo-view-modal {
+    max-width: 800px;
+}
+.rp-staff-ui .rp-promo-view-modal .modal-body {
+    padding: 1.35rem 1.5rem 1.5rem;
+}
+.rp-staff-ui .rp-promo-view-modal .rp-promo-view-heading {
+    margin-bottom: 1.1rem;
+    padding-bottom: .1rem;
+}
+.rp-staff-ui .rp-promo-view-modal .rp-promo-view-field-label {
+    color: #4d6a78;
+    font-size: .7rem;
+}
+.rp-staff-ui .rp-promo-view-modal :is(.rp-promo-view-name, .rp-promo-view-code) {
+    font-size: 1.25rem;
+}
+.rp-staff-ui .rp-promo-view-modal .rp-promo-view-stats {
+    display: none;
+}
+.rp-staff-ui .rp-promo-view-modal .rp-promo-view-sections {
+    grid-template-columns: 1.15fr .85fr;
+    gap: 0;
+}
+.rp-staff-ui .rp-promo-view-modal .rp-promo-view-section {
+    min-height: 8.4rem;
+    padding: 1rem .95rem 0 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+.rp-staff-ui .rp-promo-view-modal .rp-promo-view-section + .rp-promo-view-section {
+    padding-right: 0;
+    padding-left: 1.35rem;
+    border-left: 1px solid #dbe3e4;
+}
+.rp-staff-ui .rp-promo-view-modal .rp-promo-view-section h3 {
+    margin-bottom: .8rem;
+    color: #17364b;
+    font-size: .9rem;
+}
+.rp-staff-ui .rp-promo-view-modal .rp-promo-view-schedule > div {
+    padding: .65rem 0;
+}
+.rp-staff-ui .rp-promo-view-modal .rp-promo-view-schedule strong {
+    color: #17364b;
+    font-size: .78rem;
+}
+.rp-staff-ui .rp-promo-view-modal .rp-promo-view-accommodations > span {
+    border-color: #c8e3dc;
+    background: #eef8f5;
+    color: #276859;
+}
+@media (max-width: 767.98px) {
+    .rp-staff-ui .rp-promo-view-modal .rp-promo-view-sections { grid-template-columns: 1fr; }
+    .rp-staff-ui .rp-promo-view-modal .rp-promo-view-section + .rp-promo-view-section {
+        padding-top: 1rem;
+        padding-left: 0;
+        border-top: 1px solid #dbe3e4;
+        border-left: 0;
+    }
+}
+
 .rp-staff-ui .rp-admin-list-table tbody td.rp-feedback-rating {
     color: #9caeb2;
     white-space: nowrap;
@@ -1525,6 +1589,68 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-list-table .btn-outline-danger
         align-items: flex-start;
         flex-direction: column;
         gap: .75rem;
+    }
+}
+
+/* Final promo details refinements: match the split report-details modal. */
+.rp-staff-ui .rp-promo-view-modal { max-width: 800px; }
+.rp-staff-ui .rp-promo-view-modal .rp-promo-view-stats { display: none; }
+.rp-staff-ui .rp-promo-view-modal .rp-promo-view-sections {
+    grid-template-columns: 1.15fr .85fr;
+    gap: 0;
+}
+.rp-staff-ui .rp-promo-view-modal .rp-promo-view-section {
+    min-height: 8.4rem;
+    padding: 1rem .95rem 0 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+.rp-staff-ui .rp-promo-view-modal .rp-promo-view-section + .rp-promo-view-section {
+    padding-right: 0;
+    padding-left: 1.35rem;
+    border-left: 1px solid #dbe3e4;
+}
+.rp-staff-ui .rp-promo-view-modal .rp-promo-view-section h3 { color: #17364b; font-size: .9rem; }
+.rp-staff-ui .rp-promo-view-modal .rp-promo-view-schedule strong { color: #17364b; }
+.rp-staff-ui .rp-promo-view-modal .rp-promo-view-accommodations > span { background: #eef8f5; color: #276859; }
+.rp-staff-ui .rp-promo-view-details { display: grid; gap: 0; }
+.rp-staff-ui .rp-promo-view-details > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .58rem 0;
+    border-bottom: 1px solid #e2e8e8;
+}
+.rp-staff-ui .rp-promo-view-details > div:last-child { border-bottom: 0; }
+.rp-staff-ui .rp-promo-view-details span { color: #607985; font-size: .75rem; }
+.rp-staff-ui .rp-promo-view-details strong { color: #17364b; font-size: .78rem; text-align: right; }
+.rp-staff-ui .rp-promo-view-modal .rp-promo-view-section:first-child {
+    order: 2;
+    padding-right: 0;
+    padding-left: 1.35rem;
+    border-left: 1px solid #dbe3e4;
+}
+.rp-staff-ui .rp-promo-view-modal .rp-promo-view-section:last-child {
+    order: 1;
+    padding-right: .95rem;
+    padding-left: 0;
+    border-left: 0;
+}
+@media (max-width: 767.98px) {
+    .rp-staff-ui .rp-promo-view-modal .rp-promo-view-sections { grid-template-columns: 1fr; }
+    .rp-staff-ui .rp-promo-view-modal .rp-promo-view-section + .rp-promo-view-section {
+        padding-top: 1rem;
+        padding-left: 0;
+        border-top: 1px solid #dbe3e4;
+        border-left: 0;
+    }
+    .rp-staff-ui .rp-promo-view-modal .rp-promo-view-section:first-child,
+    .rp-staff-ui .rp-promo-view-modal .rp-promo-view-section:last-child {
+        order: initial;
+        padding-left: 0;
+        padding-right: 0;
+        border-left: 0;
     }
 }
 
@@ -2395,12 +2521,93 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-list-table .btn-outline-danger
 }
 
 /* Walk-in booking form (modal + page) */
-.rp-walkin-modal-errors {
-    position: sticky;
-    top: 0;
-    z-index: 2;
+.rp-walkin-modal-dialog { max-width: 760px; }
+.rp-walkin-modal-dialog .rp-walkin-modal {
+    border: 1px solid #d7dee0;
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0 18px 44px rgba(18, 36, 42, .18);
 }
+.rp-walkin-modal-dialog .rp-walkin-modal {
+    background: #fff;
+    color: #17364b;
+}
+.rp-walkin-modal-dialog .modal-content {
+    border: 1px solid #d7dee0;
+    border-radius: .95rem;
+    overflow: hidden;
+}
+.rp-walkin-modal-dialog .rp-walkin-modal-header {
+    min-height: 4.5rem;
+    padding: .95rem 1.5rem;
+    border-bottom: 1px solid #e5e9ea;
+}
+.rp-walkin-modal-dialog .rp-walkin-modal-heading { align-items: center; gap: .8rem; }
+.rp-walkin-modal-dialog .rp-walkin-modal-icon { width: 2.5rem; height: 2.5rem; border-radius: .75rem; }
+.rp-walkin-modal-dialog .rp-walkin-modal-heading h2 { color: #102b3d; font-size: 1.1rem; font-weight: 700; }
+.rp-walkin-modal-dialog .rp-walkin-modal-sub { display: none; }
+.rp-walkin-modal-dialog .modal-body { padding: 1.35rem 1.5rem 1.5rem; }
+.rp-walkin-modal-dialog .rp-walkin-modal .form-label {
+    margin-bottom: .45rem;
+    color: #18384b;
+    font-size: .78rem;
+    font-weight: 700;
+}
+.rp-walkin-modal-dialog .rp-walkin-modal .form-label .bi { display: none; }
+.rp-walkin-modal-dialog .rp-walkin-modal :is(.form-control, .form-select, .rp-avail-input) {
+    min-height: 2.75rem;
+    border-color: #cbd5d9;
+    border-radius: .55rem;
+    background: #eef1f2;
+    color: #17364b;
+    box-shadow: none;
+}
+.rp-walkin-modal-dialog .rp-walkin-modal :is(.form-control, .form-select, .rp-avail-input) {
+    background: #fff;
+    color: #17364b;
+    border-color: #cbd5d9;
+    border-radius: .55rem;
+}
+.rp-walkin-modal-dialog .rp-walkin-modal .row.g-3 { --bs-gutter-y: .8rem; }
+.rp-walkin-modal-dialog .rp-walkin-modal .rp-walkin-total-banner {
+    background: #f1faf7;
+    border-color: #c8e8df;
+    padding: .85rem 1rem;
+}
+.rp-walkin-modal-dialog .rp-walkin-total-label { text-transform: none; letter-spacing: 0; color: #496b68; }
+.rp-walkin-modal-dialog .rp-walkin-total-value { font-size: 1.2rem; }
+.rp-walkin-modal-dialog .rp-walkin-total-hint { display: none; }
+.rp-walkin-modal-dialog .rp-walkin-modal .col-4.col-md-2 { width: 33.333333%; }
+.rp-walkin-modal-dialog .rp-walkin-pay-head { border-top: 1px solid #e4e9ea; padding-top: 1rem; margin-top: .2rem; }
+.rp-walkin-modal-dialog .rp-walkin-section-title { color: #17364b; }
+.rp-walkin-modal-dialog .rp-walkin-pay-rows {
+    max-height: 7rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: thin;
+}
+.rp-walkin-modal-dialog .rp-walkin-pay-row {
+    min-height: 6.2rem;
+    scroll-snap-align: start;
+}
+.rp-walkin-modal-dialog .rp-walkin-modal textarea.form-control { min-height: 4.5rem; }
+.rp-walkin-modal-dialog .rp-walkin-modal :is(.form-control, .form-select, .rp-avail-input):focus {
+    border-color: #5f9bad;
+    background: #f5f7f7;
+    box-shadow: 0 0 0 .18rem rgba(47, 112, 132, .12);
+}
+.rp-walkin-modal-dialog .rp-walkin-total-banner { border-radius: .75rem; box-shadow: none; }
+.rp-walkin-modal-dialog .rp-walkin-modal-footer {
+    padding: .9rem 1.5rem 1rem;
+    border-top: 1px solid #e5e9ea;
+}
+.rp-walkin-modal-dialog .rp-walkin-modal-footer .btn { min-height: 2.55rem; border-radius: .55rem; }
 
+@media (max-width: 767.98px) {
+    .rp-walkin-modal-dialog .modal-body { padding: 1rem; }
+    .rp-walkin-modal-dialog .rp-walkin-modal-footer { padding-inline: 1rem; }
+}
 .rp-walkin-modal-header {
     align-items: flex-start;
     gap: 1rem;
@@ -2582,32 +2789,6 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-list-table .btn-outline-danger
 .rp-walkin-pay-remove:disabled {
     opacity: .35;
     cursor: not-allowed;
-}
-
-.rp-walkin-pay-summary {
-    display: flex;
-    align-items: center;
-    gap: .55rem;
-    margin-top: .85rem;
-    padding: .75rem 1rem;
-    border-radius: .8rem;
-    font-size: .9rem;
-    font-weight: 600;
-}
-
-.rp-walkin-pay-summary.is-pending {
-    background: #f3f7f6;
-    color: #526871;
-}
-
-.rp-walkin-pay-summary.is-ok {
-    background: #e7f6ef;
-    color: #18794a;
-}
-
-.rp-walkin-pay-summary.is-bad {
-    background: #fdecee;
-    color: #b42318;
 }
 
 .rp-walkin-modal-footer {
@@ -2959,6 +3140,13 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-list-table .btn-outline-danger
     min-width: 0;
 }
 
+.rp-staff-ui .rp-admin-report-modal .modal-title {
+    color: var(--rp-report-modal-ink);
+    font-size: 1.05rem;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
 .rp-staff-ui .rp-admin-report-header-meta {
     display: flex;
     flex-wrap: wrap;
@@ -2979,6 +3167,27 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-list-table .btn-outline-danger
     background: var(--rp-report-modal-surface);
 }
 
+.rp-staff-ui .rp-fd-report-dialog { max-width: min(1040px, calc(100vw - 2rem)); }
+.rp-staff-ui .rp-fd-report-modal { background: #fff; color: #203541; }
+.rp-staff-ui .rp-fd-report-modal .rp-admin-report-header-meta,
+.rp-staff-ui .rp-fd-report-modal .rp-report-review-head { display: none; }
+.rp-staff-ui .rp-fd-report-modal .rp-report-detail-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.rp-staff-ui .rp-fd-report-modal .rp-report-detail-card { padding: 1.2rem 1.35rem; }
+.rp-staff-ui .rp-fd-report-modal .rp-report-detail-label { color: #536d79; text-transform: uppercase; font-size: .73rem; }
+.rp-staff-ui .rp-fd-report-modal .rp-report-detail-meta { display: grid; gap: 0; }
+.rp-staff-ui .rp-fd-report-modal .rp-report-detail-meta > div { display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: .5rem; padding: .5rem 0; }
+.rp-staff-ui .rp-fd-report-modal .rp-report-detail-meta .rp-report-detail-label { text-transform: none; }
+.rp-staff-ui .rp-fd-report-modal .rp-report-note-panel { padding: 0; border: 0; background: transparent; }
+.rp-staff-ui .rp-fd-report-modal .rp-report-review-form .form-control,
+.rp-staff-ui .rp-fd-report-modal .rp-report-review-form .form-select { background: #fff; border-color: #cbd5d9; }
+.rp-staff-ui .rp-fd-report-modal .rp-report-notes-wrap .form-control { min-height: 5.5rem; }
+.rp-staff-ui .rp-fd-report-modal .rp-report-review-form .mb-3 { margin-bottom: .8rem !important; }
+.rp-staff-ui .rp-fd-report-modal .rp-report-submit { width: 100% !important; display: block; }
+@media (max-width: 767.98px) {
+    .rp-staff-ui .rp-fd-report-modal .rp-report-detail-grid { grid-template-columns: 1fr; }
+    .rp-staff-ui .rp-fd-report-modal .rp-report-review-card { border-left: 0; border-top: 1px solid #e1e9e8; }
+}
+
 .rp-staff-ui .rp-admin-report-modal .rp-report-detail-hero {
     align-items: center;
     margin: 0;
@@ -2997,7 +3206,7 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-list-table .btn-outline-danger
 
 .rp-staff-ui .rp-admin-report-modal .rp-report-detail-tags {
     gap: .35rem;
-    margin: .55rem 0 0;
+    margin: 0;
 }
 
 .rp-staff-ui .rp-admin-report-modal .rp-report-chip {
@@ -3096,7 +3305,7 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-list-table .btn-outline-danger
 
 .rp-staff-ui .rp-admin-report-modal .rp-report-detail-meta > div {
     display: grid;
-    grid-template-columns: 4.6rem minmax(0, 1fr);
+    grid-template-columns: 5.3rem minmax(0, 1fr);
     gap: .5rem;
     align-items: baseline;
     padding: .62rem 0;
@@ -3420,6 +3629,309 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-admin-list-table .btn-outline-danger
     .rp-staff-ui #contactMessageViewModal .rp-contact-view-sender-card {
         margin-right: 1.05rem;
         margin-left: 1.05rem;
+    }
+}
+
+/* Contact message reader: one calm document instead of stacked panels. */
+.rp-staff-ui #contactMessageViewModal {
+    --rp-contact-view-ink: #17342c;
+    --rp-contact-view-muted: #60776f;
+    --rp-contact-view-rule: #dbe7e1;
+    --rp-contact-view-surface: #fff;
+    --rp-contact-view-link: #096b45;
+    --rp-contact-view-accent: #0f7650;
+}
+
+.rp-staff-ui #contactMessageViewModal .modal-dialog {
+    max-width: 40rem;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-modal {
+    border: 0;
+    border-radius: 1rem;
+    box-shadow: 0 24px 60px rgba(17, 48, 39, .2);
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-header {
+    padding: 1.15rem 1.5rem;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-header .modal-title {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -.01em;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-summary {
+    padding: 1.5rem 1.5rem 1.35rem;
+    border-bottom: 1px solid var(--rp-contact-view-rule);
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-subject {
+    max-width: 28ch;
+    font-size: clamp(1.3rem, 3vw, 1.65rem);
+    line-height: 1.25;
+    letter-spacing: -.025em;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-received {
+    margin-top: .65rem;
+    font-size: .78rem;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-sender {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) minmax(8rem, auto);
+    gap: .85rem 1rem;
+    align-items: center;
+    padding: 1.15rem 1.5rem;
+    border-bottom: 1px solid var(--rp-contact-view-rule);
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: .75rem;
+    background: #e4f3eb;
+    color: var(--rp-contact-view-accent);
+    font-size: .95rem;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-name {
+    margin-bottom: .08rem;
+    font-size: .92rem;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-email {
+    font-size: .8rem;
+    font-weight: 600;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-phone {
+    min-width: 0;
+    padding-left: 1rem;
+    border-left: 1px solid var(--rp-contact-view-rule);
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-detail-label,
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-section-title {
+    display: block;
+    margin: 0 0 .25rem;
+    color: var(--rp-contact-view-muted);
+    font-family: var(--rp-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    font-size: .72rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.rp-staff-ui #contactMessageViewModal #contactViewPhone {
+    display: block;
+    color: var(--rp-contact-view-ink);
+    font-size: .84rem;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-message {
+    padding: 1.35rem 1.5rem 1.6rem;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-section-title {
+    margin-bottom: .6rem;
+    color: var(--rp-contact-view-ink);
+    font-size: .78rem;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-message-body {
+    min-height: 5.5rem;
+    max-width: 68ch;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    font-size: .95rem;
+    font-weight: 450;
+    line-height: 1.75;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-footer {
+    padding: 1rem 1.5rem 1.15rem;
+    background: #f8fbf9;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-footer .btn {
+    min-height: 2.55rem;
+    padding-inline: 1rem;
+}
+
+@media (max-width: 575.98px) {
+    .rp-staff-ui #contactMessageViewModal .rp-contact-view-header,
+    .rp-staff-ui #contactMessageViewModal .rp-contact-view-summary,
+    .rp-staff-ui #contactMessageViewModal .rp-contact-view-sender,
+    .rp-staff-ui #contactMessageViewModal .rp-contact-view-message,
+    .rp-staff-ui #contactMessageViewModal .rp-contact-view-footer {
+        padding-right: 1.1rem;
+        padding-left: 1.1rem;
+    }
+
+    .rp-staff-ui #contactMessageViewModal .rp-contact-view-sender {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .rp-staff-ui #contactMessageViewModal .rp-contact-view-phone {
+        grid-column: 2;
+        padding: .65rem 0 0;
+        border-top: 1px solid var(--rp-contact-view-rule);
+        border-left: 0;
+    }
+
+    .rp-staff-ui #contactMessageViewModal .rp-contact-view-footer {
+        flex-wrap: nowrap;
+    }
+}
+
+/* Report-detail composition requested for the contact message reader. */
+.rp-staff-ui #contactMessageViewModal .modal-dialog {
+    max-width: 50rem;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-header {
+    justify-content: flex-start;
+    gap: 1rem;
+    padding: .85rem 1.45rem;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-header-icon {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex: 0 0 auto;
+    border-radius: .8rem;
+    background: #eaf4f0;
+    color: #245a68;
+    font-size: 1rem;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-header .modal-title {
+    max-width: 42ch;
+    font-size: 1rem;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-header .btn-close {
+    margin-left: auto !important;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(16rem, .95fr);
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-message {
+    min-width: 0;
+    padding: 1.25rem 1.45rem 1.5rem;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-section-title {
+    margin-bottom: .45rem;
+    color: var(--rp-contact-view-muted);
+    font-size: .75rem;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-message-body {
+    min-height: 9rem;
+    max-width: 68ch;
+    font-size: .94rem;
+    line-height: 1.7;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-details {
+    min-width: 0;
+    padding: 1.15rem 1.45rem 1.5rem;
+    border-left: 1px solid var(--rp-contact-view-rule);
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-details-title {
+    margin: 0 0 .55rem;
+    color: var(--rp-contact-view-ink);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-detail-list {
+    margin: 0;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-detail-list > div {
+    display: grid;
+    grid-template-columns: 4.7rem minmax(0, 1fr);
+    gap: .55rem;
+    align-items: baseline;
+    padding: .7rem 0;
+    border-bottom: 1px solid var(--rp-contact-view-rule);
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-detail-list > div:last-child {
+    border-bottom: 0;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-detail-list dt,
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-detail-list dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-detail-list dt {
+    color: var(--rp-contact-view-muted);
+    font-size: .73rem;
+    font-weight: 600;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-detail-list dd,
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-detail-list .rp-contact-view-email {
+    color: var(--rp-contact-view-ink);
+    font-size: .8rem;
+    font-weight: 700;
+    line-height: 1.45;
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-detail-list .rp-contact-view-email:hover {
+    color: var(--rp-contact-view-link);
+}
+
+.rp-staff-ui #contactMessageViewModal .rp-contact-view-footer {
+    padding: .9rem 1.45rem 1rem;
+    border-top: 0;
+    background: transparent;
+}
+
+@media (max-width: 767.98px) {
+    .rp-staff-ui #contactMessageViewModal .rp-contact-view-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .rp-staff-ui #contactMessageViewModal .rp-contact-view-details {
+        border-top: 1px solid var(--rp-contact-view-rule);
+        border-left: 0;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .rp-staff-ui #contactMessageViewModal .rp-contact-view-header,
+    .rp-staff-ui #contactMessageViewModal .rp-contact-view-message,
+    .rp-staff-ui #contactMessageViewModal .rp-contact-view-details,
+    .rp-staff-ui #contactMessageViewModal .rp-contact-view-footer {
+        padding-right: 1.05rem;
+        padding-left: 1.05rem;
+    }
+
+    .rp-staff-ui #contactMessageViewModal .rp-contact-view-header-icon {
+        width: 2.5rem;
+        height: 2.5rem;
     }
 }
 

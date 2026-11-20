@@ -23,7 +23,7 @@
     <div class="container">
         <div class="rp-offers-layout">
             <div class="rp-offers-content" id="rpOffersContent">
-                @forelse(($promoOffers ?? collect()) as $offer)
+                @foreach(($promoOffers ?? collect()) as $offer)
                     <div class="rp-offer-row">
                         <div class="rp-offer-row-media">
                             <img src="{{ $offer['image'] }}" alt="{{ $offer['title'] }}" loading="lazy">
@@ -50,13 +50,7 @@
                             @endif
                         </div>
                     </div>
-                @empty
-                    <div class="rp-offer-empty">
-                        <h2 class="rp-offer-row-title">No active promo rooms right now</h2>
-                        <p class="rp-offer-row-desc mb-0">Check back soon, or browse all accommodations to book a stay.</p>
-                        <a href="{{ route('accommodations.browse', ['from' => 'offers']) }}" class="rp-offer-cta">Browse rooms</a>
-                    </div>
-                @endforelse
+                @endforeach
 
                 {{-- Always-on resort packages (marketing) — not tied to private promo codes --}}
                 @foreach ([

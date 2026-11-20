@@ -990,21 +990,6 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-walkin-add-pay {
     color: #cfe3df;
 }
 
-html[data-bs-theme="dark"] .rp-staff-ui .rp-walkin-pay-summary.is-pending {
-    background: #24363e;
-    color: #b8cbd0;
-}
-
-html[data-bs-theme="dark"] .rp-staff-ui .rp-walkin-pay-summary.is-ok {
-    background: #1f3d34;
-    color: #8fd6b0;
-}
-
-html[data-bs-theme="dark"] .rp-staff-ui .rp-walkin-pay-summary.is-bad {
-    background: #3d2628;
-    color: #f0a8a8;
-}
-
 html[data-bs-theme="dark"] .rp-staff-ui .rp-report-detail-card {
     background: var(--rp-surface);
     border-color: var(--rp-border);
@@ -1153,9 +1138,19 @@ html[data-bs-theme="dark"] .rp-staff-ui #contactMessageViewModal .rp-contact-vie
 }
 
 html[data-bs-theme="dark"] .rp-staff-ui #contactMessageViewModal .rp-contact-message-body {
-    background: #22302c;
-    border-color: var(--rp-contact-view-rule);
+    background: transparent;
+    border: 0;
     color: var(--rp-contact-view-ink);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui #contactMessageViewModal .rp-contact-view-avatar {
+    background: #334a42;
+    color: var(--rp-contact-view-accent);
+}
+
+html[data-bs-theme="dark"] .rp-staff-ui #contactMessageViewModal .rp-contact-view-header-icon {
+    background: #334a42;
+    color: #a9d5df;
 }
 
 html[data-bs-theme="dark"] .rp-staff-ui .rp-contact-page-card {
@@ -1184,7 +1179,6 @@ html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-modal, .rp-profile-page)
     background: #303b3c;
 }
 
-html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-modal, .rp-profile-page) .rp-profile-photo-title,
 html[data-bs-theme="dark"] .rp-staff-ui :is(.rp-profile-modal, .rp-profile-page) .rp-profile-pw-toggle {
     color: #e9f3f2;
 }

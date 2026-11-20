@@ -35,10 +35,8 @@
             @php
                 $paidAmount = (float) $booking->paid_amount;
                 $isUnpaid = $paidAmount <= 0.009;
-                $isPartial = ! $isUnpaid && ((float) $booking->remaining_balance) > 0.009;
                 $bookingStatus = $booking->status instanceof \BackedEnum ? $booking->status->value : (string) $booking->status;
                 $isCancelled = $bookingStatus === 'cancelled';
-                $paymentLabel = $isCancelled ? 'Cancelled' : ($isUnpaid ? 'Unpaid' : ($isPartial ? 'Partially paid' : 'Paid'));
             @endphp
             <a href="{{ route('guest.bookings.show', $booking) }}" class="rp-booking-list-item {{ $isUnpaid && ! $isCancelled ? 'is-unpaid' : '' }} {{ $isCancelled ? 'is-cancelled' : '' }}">
                 <div class="rp-booking-list-media">
@@ -54,7 +52,6 @@
                             <div class="rp-booking-list-title">{{ $booking->accommodation->name ?? 'Reservation' }}</div>
                             <div class="rp-booking-list-meta">
                                 <span class="rp-booking-list-code">{{ $booking->accommodation->type->name ?? 'Accommodation' }} · {{ $booking->short_number }}</span>
-                                <span class="rp-booking-pay-badge {{ $isCancelled ? 'is-cancelled' : ($isUnpaid ? 'is-unpaid' : ($isPartial ? 'is-partial' : 'is-paid')) }}">{{ $paymentLabel }}</span>
                             </div>
                             <div class="rp-booking-list-dates">
                                 <div class="rp-booking-list-date-block">

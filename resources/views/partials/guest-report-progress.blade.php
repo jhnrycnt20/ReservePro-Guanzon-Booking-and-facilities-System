@@ -28,23 +28,17 @@
         'invalid' => 'Marked invalid',
         default => str_replace('_', ' ', ucwords($statusValue, '_')),
     };
-
-    $stageCopy = match ($statusValue) {
-        'pending' => 'Your report has been received and is currently waiting for staff review.',
-        'verified' => 'Security has verified your report. The front desk will start resolution next.',
-        'in_progress' => 'Staff are actively working on your report.',
-        'resolved', 'closed' => 'This report has been resolved. Thank you for letting us know.',
-        'invalid' => 'This report was reviewed and marked invalid.',
-        default => 'Track the status of your report below.',
-    };
+    $accommodation = $report->booking?->accommodation;
+    $headingLabel = $accommodation
+        ? ($accommodation->name ?: 'Accommodation').(filled($accommodation->number) ? ' · Unit '.$accommodation->number : '')
+        : $stageLabel;
 @endphp
 
 <div class="rp-guest-report-progress {{ $isInvalid ? 'is-invalid-state' : '' }}">
     <div class="rp-guest-report-card-head">
         <span class="rp-guest-report-card-icon" aria-hidden="true"><i class="bi bi-file-earmark-text"></i></span>
         <div>
-            <div class="rp-guest-report-progress-stage">{{ $stageLabel }}</div>
-            <p class="rp-guest-report-progress-copy mb-0">{{ $stageCopy }}</p>
+            <div class="rp-guest-report-progress-stage">{{ $headingLabel }}</div>
         </div>
     </div>
 

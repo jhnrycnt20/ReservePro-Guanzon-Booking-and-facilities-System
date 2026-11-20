@@ -58,8 +58,6 @@
         </div>
     @else
         <div class="rp-profile-photo-meta">
-            <div class="rp-profile-photo-title">Profile photo</div>
-            <div class="rp-profile-photo-hint">JPG, PNG or WebP · Up to 2 MB</div>
             <div class="rp-profile-photo-actions is-centered">
                 <button type="button" class="rp-profile-photo-change" data-rp-avatar-trigger aria-describedby="{{ $photoInputId }}Feedback">Change photo</button>
                 @if($showSavePhoto)
@@ -72,6 +70,7 @@
                     </label>
                 @endif
             </div>
+            <div class="rp-profile-photo-hint">JPG, PNG or WebP · Up to 2 MB</div>
             <div id="{{ $photoInputId }}Feedback" class="invalid-feedback @error('avatar', 'profile') d-block @enderror" data-rp-profile-feedback="avatar" aria-live="polite">@error('avatar', 'profile'){{ $message }}@enderror</div>
         </div>
     @endif

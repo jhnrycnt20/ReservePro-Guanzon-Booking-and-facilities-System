@@ -1,5 +1,5 @@
 <div class="modal fade" id="rpRegisterModal" tabindex="-1" aria-labelledby="rpRegisterModalLabel" aria-hidden="true" data-rp-autoshow="{{ $errors->register->any() ? '1' : '0' }}">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable rp-login-reference-dialog">
+    <div class="modal-dialog modal-dialog-centered rp-login-reference-dialog">
         <div class="modal-content rp-login-modal rp-login-reference-modal">
             <div class="rp-login-reference-layout">
                 <aside class="rp-login-reference-showcase" aria-hidden="true">
@@ -11,17 +11,16 @@
                 <div class="rp-login-modal-body rp-login-reference-form-panel">
                 <h2 class="rp-login-title" id="rpRegisterModalLabel">Sign up</h2>
 
-                <form method="POST" action="{{ route('register') }}" data-rp-register-form novalidate>
-                    @csrf
-                    @if (session('error'))
-                        <div class="rp-login-alert" role="alert">{{ session('error') }}</div>
-                    @endif
-                    @if ($errors->register->any())
-                        <div class="rp-login-alert" role="alert">
-                            {{ $errors->register->first('email') ?: $errors->register->first() }}
-                        </div>
-                    @endif
+                <div class="rp-register-notification" data-rp-register-notification data-rp-register-initial-notification="{{ session('error', '') }}" role="alert" aria-live="assertive" hidden>
+                    <i class="bi bi-exclamation-circle-fill" aria-hidden="true"></i>
+                    <span data-rp-register-notification-message></span>
+                    <button type="button" data-rp-register-notification-close aria-label="Dismiss notification">
+                        <i class="bi bi-x-lg" aria-hidden="true"></i>
+                    </button>
+                </div>
 
+                <form method="POST" action="{{ route('register') }}" autocomplete="off" data-rp-register-form novalidate>
+                    @csrf
                     <div class="rp-register-step" data-rp-register-step="details">
                         <div class="rp-register-step-heading"><span class="rp-register-step-marker">1</span><span>Your details</span></div>
                     <div class="rp-login-field">
@@ -31,7 +30,7 @@
                             class="@error('name', 'register') is-invalid @enderror"
                             name="name"
                             value="{{ old('name') }}"
-                            autocomplete="name"
+                            autocomplete="off"
                             placeholder="Full name"
                             required
                             autofocus
@@ -48,13 +47,13 @@
                             class="@error('email', 'register') is-invalid @enderror"
                             name="email"
                             value="{{ old('email') }}"
-                            autocomplete="email"
+                            autocomplete="off"
                             placeholder="you@gmail.com"
                             required
                             data-rp-register-field="email"
                         >
                         <i class="bi bi-envelope rp-login-field-icon"></i>
-                        <div class="rp-login-error" data-rp-register-feedback="email">@error('email', 'register'){{ $message }}@enderror</div>
+                        <div class="rp-login-error @error('email', 'register') rp-register-inline-notice @enderror" data-rp-register-feedback="email">@error('email', 'register'){{ $message }}@enderror</div>
                     </div>
 
                     <div class="rp-login-field">
@@ -64,7 +63,7 @@
                             class="@error('phone', 'register') is-invalid @enderror"
                             name="phone"
                             value="{{ old('phone') }}"
-                            autocomplete="tel"
+                            autocomplete="off"
                             inputmode="numeric"
                             placeholder="Contact number (09171234567)"
                             required
@@ -74,7 +73,7 @@
                         <div class="rp-login-error" data-rp-register-feedback="phone">@error('phone', 'register'){{ $message }}@enderror</div>
                     </div>
 
-                    <button type="button" class="rp-register-next" data-rp-register-next>Continue <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+                    <button type="button" class="rp-register-next" data-rp-register-next>Continue</button>
                     </div>
 
                     <div class="rp-register-step" data-rp-register-step="password">
@@ -86,7 +85,7 @@
                             type="password"
                             class="@error('password', 'register') is-invalid @enderror"
                             name="password"
-                            autocomplete="new-password"
+                            autocomplete="off"
                             placeholder="Password"
                             required
                             data-rp-register-field="password"
@@ -110,7 +109,7 @@
                             type="password"
                             class="@error('password', 'register') is-invalid @enderror"
                             name="password_confirmation"
-                            autocomplete="new-password"
+                            autocomplete="off"
                             placeholder="Confirm password"
                             required
                             data-rp-register-field="password_confirmation"

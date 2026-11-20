@@ -16,7 +16,6 @@
                 <i class="bi bi-wallet2" aria-hidden="true"></i>
                 <span>Payments</span>
             </div>
-            <div class="rp-walkin-section-hint">Split Cash + GCash is OK if the amounts add up to the full total.</div>
         </div>
         <button type="button" class="btn btn-sm rp-walkin-add-pay" data-rp-walkin-add-pay>
             <i class="bi bi-plus-lg" aria-hidden="true"></i> Add payment
@@ -43,10 +42,6 @@
         ])
     </template>
 
-    <div class="rp-walkin-pay-summary is-pending" data-rp-walkin-pay-summary role="status">
-        <i class="bi bi-info-circle" aria-hidden="true"></i>
-        <span data-rp-walkin-pay-summary-text>Entered: ₱0.00 / ₱0.00</span>
-    </div>
     @error('payments')
         <div class="text-danger small mt-2">{{ $message }}</div>
     @enderror

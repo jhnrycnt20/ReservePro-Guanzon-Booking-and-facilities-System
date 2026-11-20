@@ -383,11 +383,6 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    @if(session('success') && (string) session('open_view') === (string) $booking->id)
-                        <div class="alert alert-success border-0 shadow-sm mb-3" role="status">
-                            <i class="bi bi-check-circle me-1" aria-hidden="true"></i>{{ session('success') }}
-                        </div>
-                    @endif
                     <div class="row g-3 rp-resv-view-content">
                         <div class="col-md-6">
                             <div class="rp-resv-action-summary h-100">
@@ -425,6 +420,7 @@
                                     <span class="rp-resv-view-label">Reference</span>
                                     <strong class="rp-resv-reference-value">{{ $payment?->reference_number ?: '—' }}</strong>
                                 </div>
+                                @if($payment && strtolower((string) ($payment->payment_method instanceof \BackedEnum ? $payment->payment_method->value : $payment->payment_method)) !== 'cash')
                                 <div class="rp-resv-payment-summary__screenshot">
                                     <span class="rp-resv-view-label">Screenshot Receipt</span>
                                     @if($proofPayments->isNotEmpty())
@@ -443,6 +439,7 @@
                                         <span class="rp-resv-reference-value">—</span>
                                     @endif
                                 </div>
+                                @endif
                             </div>
                         </div>
                         @if($booking->promo_code || ((float) $booking->discount_amount) > 0)
@@ -616,8 +613,8 @@
 
     @if($canCheckIn)
     <div class="modal fade" id="rpCheckInModal{{ $booking->id }}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content rp-admin-modal">
+        <div class="modal-dialog modal-dialog-centered rp-checkin-dialog">
+            <div class="modal-content rp-admin-modal rp-checkin-modal">
                 <form method="POST" action="{{ route('front_desk.checkins.store', $booking) }}">
                     @csrf
                     <div class="modal-header">
@@ -625,21 +622,23 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="rp-resv-action-summary mb-3">
-                            <div class="text-muted small mb-1">Guest</div>
-                            <div><strong>{{ $guestName }}</strong></div>
-                            <div class="text-muted small mb-2">{{ $guestPhone }}</div>
-                            <div class="text-muted small mb-1">Room / cottage</div>
-                            <div class="fw-semibold">{{ $booking->accommodation?->name ?? '—' }}</div>
-                            <div class="text-muted small mb-2">{{ $booking->short_number }} · {{ $booking->check_in_date->format('M j, Y') }} → {{ $booking->check_out_date->format('M j, Y') }}</div>
-                            <div class="d-flex justify-content-between align-items-center gap-2">
-                                <span class="text-muted small">Balance</span>
-                                <span class="fw-semibold text-success">₱0.00 · Paid</span>
+                        <div class="rp-checkin-summary">
+                            <div class="rp-checkin-summary-item">
+                                <span>Guest</span><strong>{{ $guestName }}</strong><small>{{ $guestPhone }}</small>
+                            </div>
+                            <div class="rp-checkin-summary-item">
+                                <span>Accommodation</span><strong>{{ $booking->accommodation?->name ?? '—' }}</strong><small>{{ $booking->short_number }}</small>
+                            </div>
+                            <div class="rp-checkin-summary-item">
+                                <span>Stay</span><strong>{{ $booking->check_in_date->format('M j, Y') }} → {{ $booking->check_out_date->format('M j, Y') }}</strong>
+                            </div>
+                            <div class="rp-checkin-summary-item">
+                                <span>Balance</span><strong>₱0.00 · Paid</strong>
                             </div>
                         </div>
-                        <div class="mb-0">
-                            <label class="form-label">Notes (optional)</label>
-                            <textarea name="notes" class="form-control" rows="3" placeholder="Room keys, special notes…"></textarea>
+                        <div class="rp-checkin-notes">
+                            <label class="form-label" for="rpCheckInNotes{{ $booking->id }}">Check-in notes <span class="fw-normal text-muted">(optional)</span></label>
+                            <textarea id="rpCheckInNotes{{ $booking->id }}" name="notes" class="form-control" rows="3" placeholder="Room keys, special notes…"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -702,32 +701,20 @@
 
 {{-- Walk-in modal --}}
 <div class="modal fade" id="rpWalkInModal" tabindex="-1" aria-labelledby="rpWalkInModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable rp-walkin-modal-dialog">
         <div class="modal-content rp-admin-modal rp-walkin-modal">
             <form method="POST" action="{{ route('front_desk.walkins.store') }}" data-rp-walkin-form data-rp-availability-form data-occupied-url="{{ url('/accommodations') }}/__ACCOMMODATION__/occupied-dates" data-rp-no-auto-submit novalidate>
                 @csrf
                 <input type="hidden" name="_modal" value="walkin">
                 <div class="modal-header rp-walkin-modal-header">
                     <div class="rp-walkin-modal-heading">
-                        <span class="rp-walkin-modal-icon" aria-hidden="true"><i class="bi bi-calendar2-plus"></i></span>
                         <div>
                             <h2 class="modal-title h5 mb-0" id="rpWalkInModalLabel">New Walk-in Booking</h2>
-                            <p class="rp-walkin-modal-sub mb-0">Create a new reservation for a walk-in guest.</p>
                         </div>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    @if(old('_modal') === 'walkin' && $errors->any())
-                        <div class="alert alert-danger border-0 shadow-sm mb-3 rp-walkin-modal-errors" role="alert">
-                            <div class="fw-semibold mb-1"><i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i>Please fix the following</div>
-                            <ul class="mb-0 ps-3">
-                                @foreach($errors->all() as $message)
-                                    <li>{{ $message }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label"><i class="bi bi-person me-1" aria-hidden="true"></i>Guest name</label>
@@ -765,15 +752,7 @@
                             </div>
                             <input type="hidden" name="check_out_date" value="{{ old('_modal') === 'walkin' ? old('check_out_date', now()->addDay()->toDateString()) : now()->addDay()->toDateString() }}" data-stay-check-out required>
                         </div>
-                        <div class="col-12">
-                            <div class="rp-walkin-total-banner">
-                                <div>
-                                    <div class="rp-walkin-total-label">Full stay total</div>
-                                    <div class="rp-walkin-total-value" data-rp-walkin-total>—</div>
-                                </div>
-                                <div class="rp-walkin-total-hint">room rate × nights · must pay in full · Cash + GCash split allowed</div>
-                            </div>
-                        </div>
+                        <span class="visually-hidden" data-rp-walkin-total>—</span>
                         <div class="col-4 col-md-2">
                             <label class="form-label">Adults</label>
                             <input type="number" min="1" name="adults" class="form-control" value="{{ old('_modal') === 'walkin' ? old('adults', 1) : 1 }}" data-rp-guest-adults required>
@@ -848,9 +827,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (openModal === 'walkin') {
             el.addEventListener('shown.bs.modal', () => {
                 const body = el.querySelector('.modal-body');
-                const errors = el.querySelector('.rp-walkin-modal-errors');
                 if (body) body.scrollTop = 0;
-                errors?.focus?.();
             }, { once: true });
         }
     }

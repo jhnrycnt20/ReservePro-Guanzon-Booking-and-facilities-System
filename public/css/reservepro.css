@@ -2681,7 +2681,7 @@ body.rp-body .container > .row,
 .rp-avail-btn-primary:hover,
 .rp-avail-btn-primary:focus,
 .rp-avail-btn-primary:active {
-    background: linear-gradient(135deg, #5bbb85 0%, #0a4f33 100%);
+    background: #0F6B45;
     color: #FFFFFF;
     text-decoration: none;
 }
@@ -3290,33 +3290,6 @@ body.rp-receipt-save-open {
     font-size: .78rem;
     font-weight: 600;
     color: var(--rp-muted);
-}
-
-.rp-booking-pay-badge {
-    display: inline-flex;
-    align-items: center;
-    font-family: var(--rp-font);
-    font-size: .72rem;
-    font-weight: 700;
-    letter-spacing: .02em;
-    text-transform: uppercase;
-    border-radius: 999px;
-    padding: .2rem .55rem;
-}
-
-.rp-booking-pay-badge.is-unpaid {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.rp-booking-pay-badge.is-partial {
-    background: #e0f2fe;
-    color: #075985;
-}
-
-.rp-booking-pay-badge.is-paid {
-    background: #dcfce7;
-    color: #166534;
 }
 
 .rp-booking-list-item.is-unpaid {
@@ -4431,12 +4404,6 @@ body.rp-receipt-save-open {
     height: 4rem;
 }
 
-:is(.rp-profile-modal, .rp-profile-page) .rp-profile-photo-title {
-    color: #203541;
-    font-size: .85rem;
-    font-weight: 700;
-}
-
 :is(.rp-profile-modal, .rp-profile-page) .rp-profile-photo-hint {
     margin-top: .15rem;
     color: #6b858a;
@@ -5068,6 +5035,10 @@ body.rp-receipt-save-open {
     background: #f7faf8;
 }
 
+.rp-resv-payment-summary:not(:has(.rp-resv-payment-summary__screenshot)) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .rp-resv-payment-summary__status,
 .rp-resv-payment-summary__latest {
     display: grid;
@@ -5123,6 +5094,22 @@ body.rp-receipt-save-open {
 .rp-resv-view-modal .rp-resv-log-item {
     border-color: #e2ebe5;
     background: #f7faf8;
+}
+
+.rp-resv-view-modal .rp-resv-action-summary,
+.rp-resv-view-modal .rp-resv-payment-totals,
+.rp-resv-view-modal .rp-resv-payment-summary,
+.rp-resv-view-modal .rp-resv-log-item {
+    background: #f1f3f3;
+    border-color: #d8dede;
+}
+.rp-resv-view-modal .rp-resv-pill {
+    padding: 0;
+    border-radius: 0;
+    background: transparent !important;
+    color: #29463d !important;
+    font-size: .86rem;
+    font-weight: 400;
 }
 
 .rp-resv-log-list {
@@ -5903,6 +5890,16 @@ body.rp-login-modal-open .rp-page-blur-overlay {
     min-height: 0;
     margin: 0 !important;
     pointer-events: none;
+}
+
+#rpRegisterModal .rp-login-error.rp-register-inline-notice:not(:empty) {
+    position: static;
+    width: fit-content;
+    max-width: 100%;
+    margin: .35rem 0 0 !important;
+    border-radius: .45rem !important;
+    font-size: .68rem;
+    line-height: 1.35;
 }
 
 #rpRegisterModal .rp-login-modal-body {
@@ -6828,6 +6825,8 @@ body.rp-login-modal-open .rp-page-blur-overlay {
 
 .rp-cottage-card-details {
     margin-top: auto;
+    border-top: 1px solid var(--rp-border);
+    border-bottom: 1px solid var(--rp-border);
 }
 
 body.rp-page-booknow #rpBrowseFilters .form-label {
@@ -6853,11 +6852,14 @@ body.rp-page-booknow #rpBrowseFilters .rp-avail-input {
     align-items: center;
     justify-content: space-between;
     padding: .5rem 0;
-    border-top: 1px solid var(--rp-border);
     font-family: var(--rp-font);
     font-size: .875rem;
     line-height: 1.45;
     font-variant-numeric: tabular-nums;
+}
+
+.rp-cottage-row + .rp-cottage-row {
+    border-top: 1px solid var(--rp-border);
 }
 
 .rp-cottage-row span:first-child {
@@ -6903,9 +6905,8 @@ body.rp-page-booknow #rpBrowseFilters .rp-avail-input {
     align-items: center;
     justify-content: space-between;
     gap: .5rem;
-    margin-top: .85rem;
-    padding-top: .8rem;
-    border-top: 1px solid var(--rp-border);
+    margin-top: 0;
+    padding-top: .85rem;
     color: #17684f;
     font-family: var(--rp-font);
     font-size: .84rem;
@@ -7556,10 +7557,6 @@ body.rp-gallery-viewer-open {
     transition: transform 220ms cubic-bezier(.23, 1, .32, 1);
 }
 
-.rp-offer-empty {
-    padding: 1.5rem 0 2rem;
-}
-
 @media (hover: hover) and (pointer: fine) {
     .rp-offer-row:hover .rp-offer-row-media {
         box-shadow: 0 20px 38px rgba(22, 53, 40, .16);
@@ -7578,8 +7575,8 @@ body.rp-gallery-viewer-open {
 .rp-offer-row-title {
     font-family: var(--rp-display);
     font-weight: 600;
-    font-size: clamp(2rem, 2.7vw, 2.6rem);
-    line-height: 1;
+    font-size: clamp(1.8rem, 2.4vw, 2.35rem);
+    line-height: 1.12;
     letter-spacing: -.02em;
     text-transform: none;
     color: #123f31;
@@ -7625,37 +7622,39 @@ body.rp-gallery-viewer-open {
 .rp-offer-row-desc {
     font-family: var(--rp-font);
     font-weight: 400;
-    font-size: .95rem;
-    line-height: 1.75;
+    font-size: 1rem;
+    line-height: 1.6;
     color: var(--rp-muted);
     max-width: 32rem;
     margin: 0;
+    text-wrap: pretty;
 }
 
 .rp-offer-perks {
     list-style: none;
-    margin: 1rem 0 0;
+    margin: 1.15rem 0 0;
     padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: .35rem 1rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: .5rem;
     max-width: 32rem;
 }
 
 .rp-offer-perks li {
     position: relative;
-    padding-left: 1rem;
+    padding-left: 1.15rem;
     font-family: var(--rp-font);
-    font-size: .88rem;
-    line-height: 1.45;
+    font-size: .95rem;
+    line-height: 1.5;
     color: var(--rp-text);
+    text-wrap: pretty;
 }
 
 .rp-offer-perks li::before {
     content: "";
     position: absolute;
     left: 0;
-    top: .55em;
+    top: .58em;
     width: .35rem;
     height: .35rem;
     border-radius: 50%;
@@ -11310,6 +11309,119 @@ body.rp-gallery-viewer-open {
     display: block;
 }
 
+.rp-guest-report-page {
+    max-width: 64rem;
+}
+
+.rp-guest-report-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: .35rem 0 1.25rem;
+}
+
+.rp-guest-report-header .rp-guest-report-title {
+    margin: 0;
+    max-width: 44rem;
+}
+
+.rp-guest-report-header .rp-status-badge {
+    flex-shrink: 0;
+    margin-top: .15rem;
+}
+
+.rp-guest-report-card {
+    border: 1px solid #dfe7e3;
+    border-radius: 14px;
+    padding: 1.25rem;
+    box-shadow: 0 5px 18px rgba(20, 58, 47, .05);
+}
+
+.rp-guest-report-card-head {
+    align-items: center;
+    margin-bottom: 1.1rem;
+}
+
+.rp-guest-report-card-icon {
+    border-radius: 10px;
+    background: #edf5f1;
+}
+
+.rp-guest-report-progress {
+    padding: .1rem;
+}
+
+.rp-guest-report-progress-stage {
+    color: #174b3b;
+}
+
+.rp-guest-report-steps {
+    margin-top: .75rem;
+}
+
+.rp-guest-report-step-dot {
+    width: 2rem;
+    height: 2rem;
+    background: #f2f6f4;
+}
+
+.rp-guest-report-step.is-done .rp-guest-report-step-dot,
+.rp-guest-report-step.is-current .rp-guest-report-step-dot {
+    background: #0f6b45;
+    box-shadow: 0 0 0 1px #0f6b45;
+}
+
+.rp-guest-report-step.is-done .rp-guest-report-step-label,
+.rp-guest-report-step.is-current .rp-guest-report-step-label {
+    color: #174b3b;
+}
+
+.rp-guest-report-step.is-current .rp-guest-report-step-dot {
+    box-shadow: 0 0 0 4px rgba(15, 107, 69, .14);
+}
+
+.rp-guest-report-main-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.rp-guest-report-details-card,
+.rp-guest-report-description-card {
+    margin-bottom: 0;
+}
+
+.rp-guest-report-meta {
+    grid-template-columns: 1fr;
+    gap: 1.15rem;
+}
+
+.rp-guest-report-meta-item {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #edf1ef;
+}
+
+.rp-guest-report-meta-item:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.rp-guest-report-description-card {
+    min-height: 17.5rem;
+}
+
+.rp-guest-report-description-card .rp-guest-report-copy {
+    font-size: 1rem;
+    line-height: 1.75;
+}
+
+.rp-guest-report-update {
+    border-radius: 10px;
+    background: #f7faf8;
+}
+
 /* Accommodation detail page */
 .rp-accommodation-show-page {
     padding-bottom: clamp(2.5rem, 5vw, 4.5rem) !important;
@@ -11776,6 +11888,15 @@ body.rp-gallery-viewer-open {
 }
 
 @media (max-width: 575.98px) {
+    .rp-guest-report-header {
+        flex-direction: column;
+        gap: .65rem;
+    }
+
+    .rp-guest-report-header .rp-guest-report-title {
+        font-size: 1.45rem;
+    }
+
     .rp-accommodation-detail-layout {
         --bs-gutter-x: 1rem;
     }
@@ -11791,6 +11912,18 @@ body.rp-gallery-viewer-open {
 }
 
 @media (max-width: 767.98px) {
+    .rp-guest-report-header {
+        align-items: flex-start;
+    }
+
+    .rp-guest-report-main-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rp-guest-report-description-card {
+        min-height: 0;
+    }
+
     .rp-guest-report-steps {
         grid-template-columns: 1fr 1fr;
         row-gap: 1rem;
@@ -12650,6 +12783,27 @@ body.rp-page-booknow .rp-cottage-grid .rp-cottage-card-action {
     transform: scale(.98);
 }
 
+.rp-page-payment-create .rp-payment-submit-button:disabled,
+.rp-page-payment-create .rp-payment-submit-button:disabled:hover,
+.rp-page-payment-create .rp-payment-submit-button:disabled:focus-visible,
+.rp-page-payment-create .rp-payment-submit-button.rp-guest-submit-button:disabled,
+.rp-page-payment-create .rp-payment-submit-button.rp-guest-submit-button:disabled:hover,
+.rp-page-payment-create .rp-payment-submit-button.rp-guest-submit-button:disabled:focus-visible {
+    border-color: #cbd5d1;
+    background: #edf1ef;
+    color: #7a8681;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+
+.rp-payment-unavailable {
+    margin-top: 1rem;
+    border-radius: .7rem;
+    font-size: .82rem;
+}
+
 .rp-page-payment-create .rp-payment-secure-note {
     display: flex;
     justify-content: center;
@@ -13115,7 +13269,8 @@ body.rp-page-booknow .rp-cottage-grid .rp-cottage-card-action {
 .rp-page-reservation-detail .rp-reservation-paid-chip { padding: .22rem .5rem; border: 0; background: #002b18; color: #00d676; font-size: .67rem; }
 .rp-page-reservation-detail .rp-reservation-dates { gap: .65rem; padding: 1rem 0; }
 .rp-page-reservation-detail .rp-reservation-date-icon { display: none; }
-.rp-page-reservation-detail .rp-reservation-date-item div { gap: .1rem; }
+.rp-page-reservation-detail .rp-reservation-date-item { justify-content: center; text-align: center; }
+.rp-page-reservation-detail .rp-reservation-date-item div { justify-items: center; gap: .1rem; }
 .rp-page-reservation-detail .rp-reservation-date-item span:not(.rp-reservation-date-icon) { color: #c4c4c4; font-size: .7rem; }
 .rp-page-reservation-detail .rp-reservation-date-item strong { color: #f0f0f0; font-size: .86rem; font-weight: 500; }
 .rp-page-reservation-detail .rp-reservation-date-item small { color: #bdbdbd; font-size: .69rem; }
@@ -13322,7 +13477,6 @@ body.rp-page-booknow .rp-cottage-grid .rp-cottage-card-action {
 .rp-page-reservation-detail .rp-transaction-history-empty { display: grid; justify-items: center; padding: 2rem 1rem; text-align: center; }
 .rp-page-reservation-detail .rp-transaction-history-empty > span { display: grid; width: 2.7rem; height: 2.7rem; place-items: center; margin-bottom: .75rem; border-radius: .8rem; background: #edf6f1; color: #176b4c; }
 .rp-page-reservation-detail .rp-transaction-history-empty strong { color: #304941; font-size: .9rem; }
-.rp-page-reservation-detail .rp-transaction-history-empty p { margin: .25rem 0 0; color: #71847c; font-size: .8rem; }
 .rp-page-reservation-detail .rp-transaction-history-modal .modal-footer { padding: .85rem 1.35rem 1.1rem; border-top: 1px solid #e6eee9; }
 .rp-page-reservation-detail .rp-transaction-history-close { padding: .55rem .9rem; border: 1px solid #cfe5d8; border-radius: .6rem; background: #f0f8f3; color: #176b4c; font: 600 .82rem/1.2 var(--rp-font); }
 .rp-page-reservation-detail .rp-transaction-history-close:hover { border-color: #b9d6c5; background: #e7f4ec; }
@@ -13426,6 +13580,15 @@ body.rp-page-booknow .rp-cottage-grid .rp-cottage-card-action {
 }
 
 /* Compact guest reservation list */
+.rp-reports-toolbar { display: flex; align-items: center; justify-content: flex-end; gap: .75rem; margin: 0 0 .8rem; }
+.rp-reports-index .rp-booking-list-code { overflow-wrap: anywhere; }
+.rp-reports-index .rp-report-progress-inline { color: #526a61; font-size: .8rem; font-weight: 500; }
+.rp-reports-index .rp-booking-list-action .badge { white-space: nowrap; }
+@media (max-width: 575px) {
+    .rp-reports-index .rp-booking-list-action { max-width: 88px; }
+    .rp-reports-index .rp-booking-list-view { white-space: normal; text-align: right; }
+    .rp-reports-toolbar .rp-avail-btn-primary { min-height: 40px; }
+}
 .rp-reservations-index { max-width: 1020px; }
 .rp-reservations-heading { display: grid; gap: .75rem; margin-bottom: 1rem; }
 .rp-reservations-heading .rp-page-intro-title { color: #203d34; font-size: 1.55rem; font-weight: 700; }
@@ -13454,11 +13617,6 @@ body.rp-page-booknow .rp-cottage-grid .rp-cottage-card-action {
 .rp-reservations-index .rp-booking-list-title { color: #203d34; font-size: 1.08rem; line-height: 1.3; }
 .rp-reservations-index .rp-booking-list-meta { gap: .5rem; margin-top: .3rem; }
 .rp-reservations-index .rp-booking-list-code { color: #647d72; font-size: .84rem; font-weight: 500; }
-.rp-reservations-index .rp-booking-pay-badge { padding: .2rem .55rem; font-size: .72rem; letter-spacing: 0; text-transform: none; }
-.rp-reservations-index .rp-booking-pay-badge.is-unpaid { background: #fff2e8; color: #a34b13; }
-.rp-reservations-index .rp-booking-pay-badge.is-partial { background: #edf5fc; color: #33628b; }
-.rp-reservations-index .rp-booking-pay-badge.is-paid { background: #e8f6ee; color: #176b4c; }
-.rp-reservations-index .rp-booking-pay-badge.is-cancelled { background: #fff0ef; color: #a63c36; }
 .rp-reservations-index .rp-booking-list-item.is-cancelled { border-color: #efd7d5; }
 .rp-reservations-index .rp-booking-list-item.is-cancelled:hover { border-color: #dfaaa5; }
 .rp-reservations-index .rp-booking-list-dates { gap: 1.5rem; margin-top: .5rem; }
@@ -14283,11 +14441,11 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-footer { 
 
 /* Sign up uses the same split resort design as login. */
 #rpRegisterModal .rp-login-reference-dialog {
-    width: min(960px, calc(100vw - 2rem));
-    max-width: 960px;
+    width: min(1040px, calc(100vw - 1rem));
+    max-width: 1040px;
 }
-#rpRegisterModal .modal-dialog-scrollable .rp-login-reference-modal {
-    max-height: min(90dvh, 35rem);
+#rpRegisterModal .rp-login-reference-modal {
+    max-height: min(92dvh, 38rem);
 }
 #rpRegisterModal .rp-login-reference-modal.modal-content {
     overflow: hidden;
@@ -14300,7 +14458,7 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-footer { 
 }
 #rpRegisterModal .rp-login-reference-layout {
     grid-template-columns: 1fr 1fr;
-    height: min(450px, 88dvh);
+    height: min(500px, 90dvh);
     min-height: 0;
 }
 #rpRegisterModal .rp-login-reference-showcase {
@@ -14353,24 +14511,24 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-footer { 
     min-height: 0;
     max-height: none;
     margin: 0;
-    padding: 2.5rem clamp(2rem, 5vw, 4rem);
+    padding: 2.75rem clamp(2.25rem, 5vw, 4.25rem);
     border: 0;
     border-radius: 0;
     background: linear-gradient(150deg, rgba(1, 9, 4, .98), rgba(3, 21, 9, .98));
     box-shadow: none;
-    overflow-y: auto;
+    overflow: hidden;
 }
 #rpRegisterModal .rp-login-title {
-    margin-bottom: 1.5rem;
-    font-family: "Manrope", sans-serif;
-    font-size: 1.5rem;
+    margin-bottom: 1.65rem;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 1.6rem;
     font-weight: 700;
     letter-spacing: -.04em;
     text-align: left;
 }
-#rpRegisterModal .rp-login-field { margin-bottom: 1.15rem; }
+#rpRegisterModal .rp-login-field { margin-bottom: 1.25rem; }
 #rpRegisterModal .rp-login-field input {
-    min-height: 3rem;
+    min-height: 3.15rem;
     padding: .7rem 2.3rem .7rem .2rem;
     border: 0;
     border-bottom: 1px solid rgba(215, 233, 216, .42);
@@ -14399,18 +14557,58 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-footer { 
 #rpRegisterModal .rp-login-signup { margin-top: 1rem; font-size: .72rem; text-align: left; }
 #rpRegisterModal .rp-login-signup a { color: #35c887; }
 
+#rpRegisterModal .rp-register-notification {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    width: min(22rem, calc(100vw - 2rem));
+    padding: .8rem .9rem;
+    border: 1px solid rgba(255, 139, 148, .62);
+    border-radius: .75rem;
+    background: #35171d;
+    box-shadow: 0 14px 38px rgba(0, 0, 0, .42);
+    color: #ffe9eb;
+    font-size: .78rem;
+    line-height: 1.4;
+}
+#rpRegisterModal .rp-register-notification[hidden] { display: none; }
+#rpRegisterModal .rp-register-notification > i {
+    flex: 0 0 auto;
+    color: #ff8993;
+    font-size: 1rem;
+}
+#rpRegisterModal .rp-register-notification span { flex: 1; }
+#rpRegisterModal .rp-register-notification button {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: rgba(255, 233, 235, .72);
+}
+#rpRegisterModal .rp-register-notification button:hover { color: #fff; }
+
 #rpRegisterModal .rp-register-step[hidden] { display: none !important; }
 #rpRegisterModal .rp-register-step {
+    --rp-register-marker-size: 1.7rem;
     position: relative;
     padding-left: 2.5rem;
 }
 #rpRegisterModal .rp-register-step::before {
     content: "";
     position: absolute;
-    top: .8rem;
-    bottom: 2rem;
-    left: .85rem;
+    top: var(--rp-register-marker-size);
+    left: calc((var(--rp-register-marker-size) - 1px) / 2);
     width: 1px;
+    height: 1.6rem;
     background: rgba(125, 231, 182, .4);
 }
 #rpRegisterModal .rp-register-step-heading {
@@ -14419,6 +14617,7 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-footer { 
     gap: .75rem;
     width: 100%;
     margin: 0 0 1.3rem -2.5rem;
+    padding: 0;
     border: 0;
     background: transparent;
     color: #d8f3e3;
@@ -14428,11 +14627,11 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-footer { 
 }
 #rpRegisterModal .rp-register-step-marker {
     display: inline-flex;
-    flex: 0 0 1.7rem;
+    flex: 0 0 var(--rp-register-marker-size);
     align-items: center;
     justify-content: center;
-    width: 1.7rem;
-    height: 1.7rem;
+    width: var(--rp-register-marker-size);
+    height: var(--rp-register-marker-size);
     border-radius: 50%;
     background: #16a76a;
     color: #fff;
@@ -14472,9 +14671,18 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-footer { 
 
 @media (max-width: 767.98px) {
     #rpRegisterModal .rp-login-reference-dialog { width: min(440px, calc(100vw - 1rem)); }
-    #rpRegisterModal .rp-login-reference-layout { display: block; height: min(450px, 88dvh); min-height: 0; }
+    #rpRegisterModal .rp-login-reference-layout { display: block; height: min(480px, 90dvh); min-height: 0; }
     #rpRegisterModal .rp-login-reference-showcase { display: none; }
     #rpRegisterModal .rp-login-reference-form-panel { min-height: 0; padding: 2rem 1.5rem; }
+}
+
+@media (max-height: 600px) {
+    #rpRegisterModal .rp-login-reference-layout { height: calc(100dvh - 1rem); }
+    #rpRegisterModal .rp-login-reference-form-panel { padding-block: 1.5rem; }
+    #rpRegisterModal .rp-login-title { margin-bottom: 1rem; }
+    #rpRegisterModal .rp-register-step-heading { margin-bottom: .9rem; }
+    #rpRegisterModal .rp-login-field { margin-bottom: .8rem; }
+    #rpRegisterModal .rp-login-signup { margin-top: .75rem; }
 }
 
 /* Password recovery follows the same photo and step treatment. */
@@ -14554,7 +14762,8 @@ html[data-bs-theme="dark"] .rp-staff-ui .rp-reservations-page .rp-resv-footer { 
 }
 #rpPasswordResetRequestModal .rp-password-reset-heading { text-align: left; }
 #rpPasswordResetRequestModal .rp-password-reset-heading h2 {
-    font-family: "Manrope", sans-serif;
+    margin: 0 0 1.35rem;
+    font-family: "Plus Jakarta Sans", sans-serif;
     font-size: 1.5rem;
     font-weight: 700;
     letter-spacing: -.04em;
@@ -14892,5 +15101,61 @@ body.rp-password-reset-route .rp-footer {
 
     .rp-password-reset-page-form {
         padding-left: 0;
+    }
+}
+
+.rp-page-payment-create .rp-payment-skip-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .75rem;
+    margin-top: .65rem;
+}
+
+.rp-page-payment-create .rp-payment-skip-actions > span {
+    color: #71847c;
+    font-size: .75rem;
+    text-align: right;
+}
+
+.rp-page-payment-create .rp-payment-skip-form {
+    margin: 0;
+}
+
+.rp-page-payment-create .rp-payment-proceed-button {
+    display: inline-flex;
+    min-height: 34px;
+    align-items: center;
+    justify-content: center;
+    padding: .35rem .8rem;
+    border: 1px solid #b9d2c4;
+    border-radius: .55rem;
+    background: #fff;
+    color: #31594a;
+    font: 600 .78rem/1.2 var(--rp-font);
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color 160ms ease-out, background-color 160ms ease-out, color 160ms ease-out;
+}
+
+.rp-page-payment-create .rp-payment-proceed-button:hover,
+.rp-page-payment-create .rp-payment-proceed-button:focus-visible {
+    border-color: #8bbba0;
+    background: #f1f8f4;
+    color: #0f6b45;
+}
+
+.rp-page-payment-create .rp-payment-proceed-button:focus-visible {
+    outline: 2px solid #0f6b45;
+    outline-offset: 2px;
+}
+
+@media (max-width: 575.98px) {
+    .rp-page-payment-create .rp-payment-skip-actions {
+        align-items: flex-start;
+    }
+
+    .rp-page-payment-create .rp-payment-skip-actions > span {
+        flex: 1;
     }
 }

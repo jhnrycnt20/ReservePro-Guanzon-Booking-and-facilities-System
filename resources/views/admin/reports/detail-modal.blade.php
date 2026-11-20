@@ -1,19 +1,12 @@
 <div class="modal fade" id="rpAdminReportModal{{ $report->id }}" tabindex="-1" aria-labelledby="rpAdminReportModal{{ $report->id }}Label" aria-hidden="true">
     @php
         $status = $report->status instanceof \BackedEnum ? $report->status->value : (string) $report->status;
-        $statusLabel = str_replace('_', ' ', ucwords($status, '_'));
     @endphp
     <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
         <div class="modal-content rp-admin-modal rp-admin-report-modal">
             <div class="modal-header">
                 <div class="rp-admin-report-header-copy">
-                    <h2 class="modal-title" id="rpAdminReportModal{{ $report->id }}Label">Report details</h2>
-                    <div class="rp-admin-report-header-meta">
-                        <span class="rp-admin-report-number">{{ $report->report_number }}</span>
-                        <span class="rp-report-detail-status is-{{ $status }}">
-                            {{ $statusLabel }}
-                        </span>
-                    </div>
+                    <h2 class="modal-title" id="rpAdminReportModal{{ $report->id }}Label">{{ $report->title ?: \Illuminate\Support\Str::limit((string) $report->description, 80) }}</h2>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -31,7 +24,6 @@
                     $bookingLabel = $report->booking
                         ? ($report->booking->short_number ?? $report->booking->booking_number)
                         : null;
-                    $issueTitle = $report->title ?: \Illuminate\Support\Str::limit((string) $report->description, 80);
                     $actionLabels = [
                         'repair_broken_amenity' => 'Repair broken amenity',
                         'assist_guest' => 'Assist guest',
@@ -40,20 +32,6 @@
                         'other' => 'Other',
                     ];
                 @endphp
-
-                <div class="rp-report-detail-hero">
-                    <div class="rp-report-detail-hero-main">
-                        <div>
-                            <h3 class="rp-report-detail-title">{{ $issueTitle }}</h3>
-                            <div class="rp-report-detail-tags">
-                                <span class="rp-report-chip is-type">{{ $heading }}</span>
-                                @if($report->location)
-                                    <span class="rp-report-chip is-location"><i class="bi bi-geo-alt" aria-hidden="true"></i> {{ $report->location }}</span>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="rp-report-detail-grid">
                     <section class="rp-report-detail-card">
@@ -100,7 +78,6 @@
                                 <h4 class="rp-report-detail-label">{{ $status === 'invalid' ? 'Invalid reason' : 'Resolution' }}</h4>
                                 @if($report->resolution_action && $status !== 'invalid')
                                     <div class="rp-report-detail-meta-value mb-2">
-                                        <i class="bi bi-wrench" aria-hidden="true"></i>
                                         {{ $actionLabels[$report->resolution_action] ?? str_replace('_', ' ', ucfirst($report->resolution_action)) }}
                                     </div>
                                 @endif
@@ -115,10 +92,20 @@
 
                     <aside class="rp-report-detail-card rp-report-review-card">
                         <div class="rp-report-review-head">
-                            <h3 class="rp-report-review-title">People &amp; timing</h3>
+                            <h3 class="rp-report-review-title">Details</h3>
                         </div>
 
                         <div class="rp-report-detail-meta">
+                            <div>
+                                <div class="rp-report-detail-label">Report type</div>
+                                <div class="rp-report-detail-meta-value">{{ $heading }}</div>
+                            </div>
+                            @if($report->location)
+                                <div>
+                                    <div class="rp-report-detail-label">Location</div>
+                                    <div class="rp-report-detail-meta-value">{{ $report->location }}</div>
+                                </div>
+                            @endif
                             <div>
                                 <div class="rp-report-detail-label">Guest</div>
                                 <div class="rp-report-detail-meta-value">{{ $guestName }}</div>
