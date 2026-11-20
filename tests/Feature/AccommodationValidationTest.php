@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\AccommodationStatus;
 use App\Models\Accommodation;
 use App\Models\AccommodationType;
 use App\Models\Role;
@@ -89,6 +90,86 @@ class AccommodationValidationTest extends TestCase
             ->assertSee('data-bs-target="#rpAccViewModal'.$accommodation->id.'"', false)
             ->assertSee('data-bs-target="#rpAccEditModal'.$accommodation->id.'"', false)
             ->assertSee('data-rp-confirm=', false);
+    }
+
+    public function test_accommodation_edit_shows_readonly_name_and_number_without_a_dropdown(): void
+    {
+        $admin = $this->admin();
+        $type = AccommodationType::query()->create(['name' => 'Cabin', 'slug' => 'cabin']);
+        $accommodation = Accommodation::query()->create($this->payload($type, [
+            'name' => 'Payag 1',
+            'number' => 'PAY-01',
+        ]));
+
+        $this->actingAs($admin)
+            ->get(route('admin.accommodations.edit', $accommodation))
+            ->assertOk()
+            ->assertSee('name="name" class="form-control" value="Payag 1" readonly required', false)
+            ->assertSee('value="PAY-01" readonly', false)
+            ->assertDontSee('<select name="number"', false);
+    }
+
+    public function test_accommodation_edit_preserves_its_name_and_number(): void
+    {
+        $admin = $this->admin();
+        $type = AccommodationType::query()->create(['name' => 'Cabin', 'slug' => 'cabin']);
+        $accommodation = Accommodation::query()->create($this->payload($type, [
+            'name' => 'Payag 1',
+            'number' => 'PAY-01',
+        ]));
+
+        $this->actingAs($admin)
+            ->put(route('admin.accommodations.update', $accommodation), $this->payload($type, [
+                'name' => 'Changed Name',
+                'number' => '2',
+            ]))
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame('Payag 1', $accommodation->fresh()->name);
+        $this->assertSame('PAY-01', $accommodation->fresh()->number);
+    }
+
+    public function test_reserved_and_occupied_accommodations_cannot_be_deleted(): void
+    {
+        $admin = $this->admin();
+        $type = AccommodationType::query()->create(['name' => 'Cabin', 'slug' => 'cabin']);
+
+        foreach ([AccommodationStatus::Reserved, AccommodationStatus::Occupied] as $index => $status) {
+            $accommodation = Accommodation::query()->create($this->payload($type, [
+                'name' => 'Cabin '.$index,
+                'number' => (string) ($index + 1),
+                'status' => $status->value,
+            ]));
+
+            $this->actingAs($admin)
+                ->delete(route('admin.accommodations.destroy', $accommodation))
+                ->assertRedirect(route('admin.accommodations.index'))
+                ->assertSessionHas('error', 'Cannot delete an accommodation while it is reserved or occupied.');
+
+            $this->assertDatabaseHas('accommodations', [
+                'id' => $accommodation->id,
+                'deleted_at' => null,
+            ]);
+        }
+
+        $this->actingAs($admin)
+            ->get(route('admin.accommodations.index'))
+            ->assertOk()
+            ->assertSee('disabled title="Cannot delete an accommodation while it is reserved or occupied."', false);
+    }
+
+    public function test_available_accommodation_can_still_be_deleted(): void
+    {
+        $admin = $this->admin();
+        $type = AccommodationType::query()->create(['name' => 'Cabin', 'slug' => 'cabin']);
+        $accommodation = Accommodation::query()->create($this->payload($type));
+
+        $this->actingAs($admin)
+            ->delete(route('admin.accommodations.destroy', $accommodation))
+            ->assertRedirect()
+            ->assertSessionHas('success', 'Accommodation deleted.');
+
+        $this->assertSoftDeleted($accommodation);
     }
 
     public function test_create_accepts_numbers_from_one_to_ten_and_rejects_duplicates_across_types(): void

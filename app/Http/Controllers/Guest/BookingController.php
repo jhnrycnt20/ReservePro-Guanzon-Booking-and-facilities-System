@@ -87,7 +87,7 @@ class BookingController extends Controller
         if ($status === 'maintenance') {
             return redirect()
                 ->route('accommodations.browse')
-                ->with('error', 'Sorry, this room is under maintenance.');
+                ->with('error', 'Sorry, this accommodation is currently unavailable.');
         }
 
         return view('guest.bookings.create', [

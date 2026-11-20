@@ -1364,12 +1364,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let open = false;
         let lastToggleAt = 0;
+        let closeTimer = null;
+        panel.inert = true;
 
         const setOpen = (next) => {
             open = Boolean(next);
-            panel.hidden = !open;
             toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-            root.classList.toggle('is-open', open);
+            if (closeTimer) {
+                window.clearTimeout(closeTimer);
+                closeTimer = null;
+            }
+
+            if (open) {
+                document.querySelectorAll('.rp-staff-account .rp-topbar-avatar[aria-expanded="true"]').forEach((accountToggle) => {
+                    window.bootstrap?.Dropdown?.getInstance(accountToggle)?.hide();
+                });
+                panel.hidden = false;
+                panel.inert = false;
+                window.requestAnimationFrame(() => {
+                    if (open) root.classList.add('is-open');
+                });
+                return;
+            }
+
+            root.classList.remove('is-open');
+            panel.inert = true;
+            closeTimer = window.setTimeout(() => {
+                panel.hidden = true;
+                closeTimer = null;
+            }, 180);
         };
 
         toggle.addEventListener('click', (event) => {
@@ -1380,6 +1403,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (now - lastToggleAt < 280) return;
             lastToggleAt = now;
             setOpen(!open);
+        });
+
+        document.addEventListener('show.bs.dropdown', (event) => {
+            if (event.target instanceof Element && event.target.matches('.rp-staff-account')) {
+                setOpen(false);
+            }
         });
 
         panel.addEventListener('click', (event) => {
@@ -3066,7 +3095,49 @@ function initPromoDatetimePicker() {
     });
 }
 
+function initStaticResortMapDrag() {
+    document.querySelectorAll('.rp-resort-map--static[data-rp-resort-map]').forEach((root) => {
+        const canvas = root.querySelector('[data-rp-map-canvas]');
+        if (!canvas || canvas.dataset.rpMapPanReady === '1') return;
+        canvas.dataset.rpMapPanReady = '1';
+
+        let pointerId = null;
+        let startX = 0;
+        let startY = 0;
+        let scrollLeft = 0;
+        let scrollTop = 0;
+
+        canvas.addEventListener('pointerdown', (event) => {
+            if (pointerId !== null || event.isPrimary === false || (event.button !== undefined && event.button !== 0)) return;
+            pointerId = event.pointerId;
+            startX = event.clientX;
+            startY = event.clientY;
+            scrollLeft = canvas.scrollLeft;
+            scrollTop = canvas.scrollTop;
+            canvas.classList.add('is-dragging');
+            canvas.setPointerCapture?.(event.pointerId);
+        });
+
+        canvas.addEventListener('pointermove', (event) => {
+            if (event.pointerId !== pointerId) return;
+            canvas.scrollLeft = scrollLeft - (event.clientX - startX);
+            canvas.scrollTop = scrollTop - (event.clientY - startY);
+        });
+
+        const endDrag = (event) => {
+            if (event.pointerId !== pointerId) return;
+            pointerId = null;
+            canvas.classList.remove('is-dragging');
+        };
+
+        canvas.addEventListener('pointerup', endDrag);
+        canvas.addEventListener('pointercancel', endDrag);
+    });
+}
+
 function initAvailabilityCalendar() {
+    initStaticResortMapDrag();
+
     const modalEl = document.getElementById('rpAvailabilityModal');
     const form = document.querySelector('[data-rp-availability-form]');
     const calendarRoot = document.querySelector('[data-rp-availability-calendar]');

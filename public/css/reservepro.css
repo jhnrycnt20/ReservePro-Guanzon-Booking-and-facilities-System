@@ -19,6 +19,7 @@
     --rp-topbar-muted: rgba(255, 255, 255, 0.78);
     --rp-dashboard-gradient: linear-gradient(135deg, #96DFD3 0%, #1F4B5D 100%);
     --rp-shadow: 0 10px 30px rgba(31, 75, 93, 0.12);
+    --rp-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 /* Shared Lagoon → Deep Sea palette for every role dashboard */
@@ -445,10 +446,41 @@ body.theme-admin.rp-body {
     border-radius: 1rem;
     box-shadow: var(--rp-shadow);
     overflow: hidden;
+    opacity: 0;
+    transform: translateY(-0.25rem) scale(0.97);
+    transform-origin: top right;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+        opacity 180ms var(--rp-ease-out),
+        transform 180ms var(--rp-ease-out),
+        visibility 0s linear 180ms;
 }
 
 .rp-notif-panel[hidden] {
     display: none !important;
+}
+
+.rp-notif.is-open .rp-notif-panel {
+    opacity: 1;
+    transform: none;
+    visibility: visible;
+    pointer-events: auto;
+    transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rp-notif-panel,
+    .rp-notif.is-open .rp-notif-panel {
+        transform: none;
+        transition:
+            opacity 180ms var(--rp-ease-out),
+            visibility 0s linear 180ms;
+    }
+
+    .rp-notif.is-open .rp-notif-panel {
+        transition-delay: 0s;
+    }
 }
 
 .rp-notif-panel-head,
@@ -13436,6 +13468,32 @@ body.rp-page-booknow .rp-cottage-grid .rp-cottage-card-action {
 .rp-page-reservation-detail .rp-reservation-guest-line { align-items: flex-start; }
 .rp-page-reservation-detail .rp-reservation-title-amenities h2 { margin: 0 0 .15rem; color: #203d34; font-size: 1.05rem; font-weight: 700; letter-spacing: -.015em; }
 .rp-page-reservation-detail .rp-reservation-title-meta { color: #71847c; font-size: .75rem; }
+.rp-page-reservation-detail .rp-room-location-button {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    width: max-content;
+    margin-top: .45rem;
+    padding: .35rem .55rem;
+    border: 1px solid #dce9e2;
+    border-radius: .55rem;
+    background: #f7faf8;
+    color: #31594a;
+    font: 600 .72rem/1.2 var(--rp-font);
+    cursor: pointer;
+    transition: background-color 160ms ease-out, border-color 160ms ease-out, color 160ms ease-out;
+}
+.rp-page-reservation-detail .rp-room-location-button:hover,
+.rp-page-reservation-detail .rp-room-location-button:focus-visible {
+    border-color: #b9d6c5;
+    background: #f0f8f3;
+    color: #0f6b45;
+}
+.rp-page-reservation-detail .rp-room-location-button:focus-visible {
+    outline: 2px solid #168052;
+    outline-offset: 2px;
+}
+.rp-page-reservation-detail .rp-room-location-modal .rp-resort-map--static .rp-map-room { cursor: grab; }
 .rp-page-reservation-detail .rp-reservation-amenities { display: grid; gap: .4rem; margin-top: .75rem; }
 .rp-page-reservation-detail .rp-reservation-amenities-label { color: #526a61; font-size: .75rem; font-weight: 650; }
 .rp-page-reservation-detail .rp-reservation-amenities > div { display: flex; flex-wrap: wrap; gap: .35rem; }

@@ -100,6 +100,10 @@ class AccommodationController extends Controller
     public function update(Request $request, Accommodation $accommodation): RedirectResponse
     {
         $statusLocked = $accommodation->isStatusLocked();
+        $request->merge([
+            'name' => $accommodation->name,
+            'number' => $accommodation->number,
+        ]);
         $data = $this->validated($request, $accommodation->id, $statusLocked);
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('accommodations', 'public');
@@ -127,6 +131,11 @@ class AccommodationController extends Controller
 
     public function destroy(Accommodation $accommodation): RedirectResponse
     {
+        if ($accommodation->isDeletionLocked()) {
+            return redirect()->route('admin.accommodations.index')
+                ->with('error', 'Cannot delete an accommodation while it is reserved or occupied.');
+        }
+
         $accommodation->delete();
 
         return back()->with('success', 'Accommodation deleted.');
@@ -137,7 +146,9 @@ class AccommodationController extends Controller
         $data = $request->validate([
             'accommodation_type_id' => ['required', 'exists:accommodation_types,id'],
             'name' => ['required', 'string', 'max:255'],
-            'number' => ['required', 'integer', 'between:1,50', Rule::unique('accommodations', 'number')->ignore($id)],
+            'number' => $id
+                ? ['required', 'string', 'max:255', Rule::unique('accommodations', 'number')->ignore($id)]
+                : ['required', 'integer', 'between:1,50', Rule::unique('accommodations', 'number')],
             'description' => ['nullable', 'string'],
             'capacity' => ['required', 'integer', 'min:1', 'max:50'],
             'rate' => ['required', 'numeric', $request->boolean('is_active', true) ? 'min:0.01' : 'min:0', 'max:999999.99', 'decimal:0,2'],

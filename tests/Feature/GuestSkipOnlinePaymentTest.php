@@ -40,7 +40,7 @@ class GuestSkipOnlinePaymentTest extends TestCase
         $accommodation = Accommodation::query()->create([
             'accommodation_type_id' => $type->id,
             'name' => 'Guest Room',
-            'number' => 'GS-1',
+            'number' => 'RM-AC-VK-01',
             'capacity' => 2,
             'rate' => 4500,
             'status' => 'available',
@@ -70,5 +70,11 @@ class GuestSkipOnlinePaymentTest extends TestCase
         $this->assertSame(BookingStatus::Pending, $booking->status);
         $this->assertSame('0.00', $booking->paid_amount);
         $this->assertDatabaseCount('payments', 0);
+
+        $this->actingAs($user)->get(route('guest.bookings.show', $booking))
+            ->assertOk()
+            ->assertSee('Room location')
+            ->assertSee('Room 1 is highlighted on the resort map.')
+            ->assertSee('rp-map-room rp-map-room--cabin is-selected', false);
     }
 }

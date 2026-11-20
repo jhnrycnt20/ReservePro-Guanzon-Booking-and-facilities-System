@@ -83,6 +83,16 @@ class Accommodation extends Model
             ->exists();
     }
 
+    public function isDeletionLocked(): bool
+    {
+        $status = $this->status instanceof AccommodationStatus
+            ? $this->status
+            : AccommodationStatus::tryFrom((string) $this->status);
+
+        return in_array($status, [AccommodationStatus::Reserved, AccommodationStatus::Occupied], true)
+            || $this->isStatusLocked();
+    }
+
     public function statusLockReason(): ?string
     {
         if (! $this->isStatusLocked()) {
@@ -158,7 +168,7 @@ class Accommodation extends Model
     }
 
     /**
-     * One representative row per product family (lowest unit number).
+     * One representative row per family, using the lowest-numbered unit not under maintenance.
      *
      * @param  \Illuminate\Database\Eloquent\Builder<self>  $query
      * @return \Illuminate\Database\Eloquent\Builder<self>
@@ -167,6 +177,7 @@ class Accommodation extends Model
     {
         $ids = static::query()
             ->where('is_active', true)
+            ->where('status', '!=', AccommodationStatus::Maintenance->value)
             ->get(['id', 'number', 'accommodation_type_id', 'name'])
             ->groupBy(fn (self $unit) => $unit->familyKey())
             ->map(function ($group) {

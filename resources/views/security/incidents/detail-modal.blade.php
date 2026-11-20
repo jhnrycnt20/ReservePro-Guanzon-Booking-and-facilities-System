@@ -8,12 +8,6 @@
         ? ($report->booking->short_number ?? $report->booking->booking_number)
         : null;
     $issueTitle = $report->title ?: \Illuminate\Support\Str::limit((string) $report->description, 80);
-    $statusIcon = match ($status) {
-        'verified', 'in_progress' => 'bi-check2-circle',
-        'resolved', 'closed' => 'bi-check-circle',
-        'invalid' => 'bi-x-circle',
-        default => 'bi-clock',
-    };
     $isValidationTarget = (int) old('_modal') === $report->id;
     $selectedOutcome = $isValidationTarget ? old('outcome', 'verified') : 'verified';
 @endphp
@@ -22,8 +16,9 @@
     <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable rp-security-report-dialog">
         <div class="modal-content rp-admin-modal rp-admin-report-modal rp-security-report-modal">
             <div class="modal-header">
-                <div class="rp-admin-report-header-copy">
-                    <h2 class="modal-title" id="rpSecurityReportModal{{ $report->id }}Label">{{ $issueTitle }}</h2>
+                <div class="rp-admin-report-header-copy rp-security-report-heading">
+                    <span class="rp-security-report-heading-icon" aria-hidden="true"><i class="bi bi-file-text"></i></span>
+                    <h2 class="modal-title" id="rpSecurityReportModal{{ $report->id }}Label">Reports</h2>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -43,7 +38,7 @@
                     </div>
                 </div>
 
-                <div class="rp-report-detail-grid">
+                <div class="rp-report-detail-grid {{ $status === 'pending' ? '' : 'rp-report-detail-grid--read-only' }}">
                     <section class="rp-report-detail-card">
                         <div class="rp-report-detail-block">
                             <h4 class="rp-report-detail-label">Description</h4>
@@ -127,8 +122,8 @@
                         @endif
                     </section>
 
-                    <aside class="rp-report-detail-card rp-report-review-card">
-                        @if($status === 'pending')
+                    @if($status === 'pending')
+                        <aside class="rp-report-detail-card rp-report-review-card">
                             <div>
                                     <form
                                         method="POST"
@@ -171,17 +166,8 @@
                                         </button>
                                     </form>
                             </div>
-                        @else
-                            <div class="rp-report-review-head">
-                                <span class="rp-report-review-icon" aria-hidden="true"><i class="bi {{ $statusIcon }}"></i></span>
-                                <div>
-                                    <h3 class="rp-report-review-title">Investigation completed</h3>
-                                    <p class="rp-report-review-sub mb-0">This report has already been reviewed.</p>
-                                </div>
-                            </div>
-                            <button type="button" class="btn btn-rp-soft w-100" data-bs-dismiss="modal">Close</button>
-                        @endif
-                    </aside>
+                        </aside>
+                    @endif
                 </div>
             </div>
         </div>

@@ -8,6 +8,17 @@
     $bookingStatus = $booking->status instanceof \BackedEnum ? $booking->status->value : (string) $booking->status;
     $checkInTime = \Carbon\Carbon::createFromFormat('H:i', (string) config('resort.check_in_time', '14:00'))->format('g:i A');
     $bookingGallery = $booking->accommodation->gallery_urls;
+    $roomLocationZone = match ($booking->accommodation->familyKey()) {
+        'SUITE' => 'suite',
+        'CAB' => 'cabana',
+        'BH' => 'beach',
+        'VILLA' => 'villa',
+        'COT', 'COT-NVK', 'COT-VK' => 'cottage',
+        'PAY' => 'payag',
+        'RM-AC', 'RM-AC-VK' => 'ac',
+        default => '',
+    };
+    $roomLocationNumber = $booking->accommodation->unitNumber();
     $nights = max(1, $booking->check_in_date->diffInDays($booking->check_out_date));
     $discountAmount = (float) ($booking->discount_amount ?? 0);
     $staySubtotal = (float) ($booking->original_amount ?? ((float) $booking->total_amount + $discountAmount));
@@ -59,6 +70,12 @@
                     <div class="rp-reservation-title-amenities">
                         <h2 id="rpReservationSummaryTitle">{{ $booking->accommodation->name }}</h2>
                         <span class="rp-reservation-title-meta">{{ $booking->accommodation->type->name ?? 'Accommodation' }}@if(filled($booking->accommodation->number)) · Unit {{ $booking->accommodation->number }}@endif · {{ $booking->booking_number }}</span>
+                        @if($roomLocationZone && $roomLocationNumber !== null)
+                            <button type="button" class="rp-room-location-button" data-bs-toggle="modal" data-bs-target="#rpRoomLocationModal{{ $booking->id }}">
+                                <i class="bi bi-geo-alt" aria-hidden="true"></i>
+                                Room location
+                            </button>
+                        @endif
                     </div>
                 </div>
 
@@ -119,6 +136,28 @@
         </div>
     </div>
 </div>
+
+@if($roomLocationZone && $roomLocationNumber !== null)
+    <div class="modal fade rp-room-location-modal" id="rpRoomLocationModal{{ $booking->id }}" tabindex="-1" aria-labelledby="rpRoomLocationTitle{{ $booking->id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="rpRoomLocationTitle{{ $booking->id }}">Room location</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @include('partials.resort-map', [
+                        'mapId' => 'rpRoomLocationMap'.$booking->id,
+                        'mapCompact' => true,
+                        'mapStatic' => true,
+                        'mapSelectedZone' => $roomLocationZone,
+                        'mapSelectedLabel' => (string) $roomLocationNumber,
+                    ])
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
 
 <div class="modal fade rp-reservation-lightbox" id="rpReservationLightbox" tabindex="-1" aria-label="Reservation photo gallery" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered rp-lightbox-dialog">

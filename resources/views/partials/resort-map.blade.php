@@ -6,8 +6,11 @@
      */
     $mapId = $mapId ?? 'rpResortMap';
     $mapCompact = (bool) ($mapCompact ?? false);
+     $mapStatic = (bool) ($mapStatic ?? false);
+     $mapSelectedZone = (string) ($mapSelectedZone ?? '');
+     $mapSelectedLabel = (string) ($mapSelectedLabel ?? '');
 
-    $roomBtn = function (int $n, string $zone, string $shape = 'cabin') {
+     $roomBtn = function (int $n, string $zone, string $shape = 'cabin') use ($mapStatic, $mapSelectedZone, $mapSelectedLabel) {
         $aria = match ($zone) {
             'suite' => "Suite room {$n}",
             'ac' => "AC room {$n}",
@@ -18,15 +21,20 @@
             'cottage' => "Cottage {$n}",
             default => "Room {$n}",
         };
-        echo '<button type="button" class="rp-map-room rp-map-room--'.$shape.'" data-map-zone="'.$zone.'" data-map-label="'.$n.'" aria-label="'.$aria.'">';
+        $selected = $mapStatic && $mapSelectedZone === $zone && $mapSelectedLabel === (string) $n;
+        if ($mapStatic) {
+            echo '<span class="rp-map-room rp-map-room--'.$shape.($selected ? ' is-selected' : '').'" aria-hidden="true">';
+        } else {
+            echo '<button type="button" class="rp-map-room rp-map-room--'.$shape.'" data-map-zone="'.$zone.'" data-map-label="'.$n.'" aria-label="'.$aria.'">';
+        }
         echo '<span class="rp-map-room-icon" aria-hidden="true"></span>';
         echo '<span class="rp-map-room-tag">RM '.$n.'</span>';
-        echo '</button>';
+        echo $mapStatic ? '</span>' : '</button>';
     };
 @endphp
 
 <section
-    class="rp-resort-map {{ $mapCompact ? 'rp-resort-map--compact' : '' }}"
+    class="rp-resort-map {{ $mapCompact ? 'rp-resort-map--compact' : '' }} {{ $mapStatic ? 'rp-resort-map--static' : '' }}"
     id="{{ $mapId }}"
     data-rp-resort-map
     aria-label="Guanzon Beach resort map"
@@ -35,31 +43,41 @@
         <div>
             <p class="rp-resort-map-kicker">Guanzon Beach</p>
             <h3 class="rp-resort-map-title">Resort map</h3>
-            <p class="rp-resort-map-hint" data-rp-map-hint>Select a numbered room for this accommodation type.</p>
+            <p class="rp-resort-map-hint" data-rp-map-hint>
+                @if($mapStatic)
+                    Room {{ $mapSelectedLabel }} is highlighted on the resort map.
+                @else
+                    Select a numbered room for this accommodation type.
+                @endif
+            </p>
         </div>
-        <div class="rp-resort-map-toolbar-side">
-            <div class="rp-resort-map-zoom-bar" data-rp-map-zoom-bar>
-                <button type="button" class="rp-map-zoom-btn" data-rp-map-zoom-out aria-label="Zoom out">
-                    <i class="bi bi-dash-lg" aria-hidden="true"></i>
-                </button>
-                <span class="rp-map-zoom-label" data-rp-map-zoom-label>100%</span>
-                <button type="button" class="rp-map-zoom-btn" data-rp-map-zoom-in aria-label="Zoom in">
-                    <i class="bi bi-plus-lg" aria-hidden="true"></i>
-                </button>
-                <button type="button" class="rp-map-zoom-btn rp-map-zoom-btn--reset" data-rp-map-zoom-reset aria-label="Reset zoom">
-                    Reset
-                </button>
+        @unless($mapStatic)
+            <div class="rp-resort-map-toolbar-side">
+                <div class="rp-resort-map-zoom-bar" data-rp-map-zoom-bar>
+                    <button type="button" class="rp-map-zoom-btn" data-rp-map-zoom-out aria-label="Zoom out">
+                        <i class="bi bi-dash-lg" aria-hidden="true"></i>
+                    </button>
+                    <span class="rp-map-zoom-label" data-rp-map-zoom-label>100%</span>
+                    <button type="button" class="rp-map-zoom-btn" data-rp-map-zoom-in aria-label="Zoom in">
+                        <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="rp-map-zoom-btn rp-map-zoom-btn--reset" data-rp-map-zoom-reset aria-label="Reset zoom">
+                        Reset
+                    </button>
+                </div>
+                <div class="rp-resort-map-legend" aria-hidden="true">
+                    <span><i class="rp-map-legend-dot is-selectable"></i> Selectable</span>
+                    <span><i class="rp-map-legend-dot is-selected"></i> Selected</span>
+                    <span><i class="rp-map-legend-dot is-other"></i> Other areas</span>
+                </div>
             </div>
-            <div class="rp-resort-map-legend" aria-hidden="true">
-                <span><i class="rp-map-legend-dot is-selectable"></i> Selectable</span>
-                <span><i class="rp-map-legend-dot is-selected"></i> Selected</span>
-                <span><i class="rp-map-legend-dot is-other"></i> Other areas</span>
-            </div>
-        </div>
+        @endunless
     </div>
 
     <div class="rp-resort-map-canvas" data-rp-map-canvas>
-        <p class="rp-resort-map-pan-hint"><i class="bi bi-arrows-move" aria-hidden="true"></i> Drag to pan · pinch or use + / − to zoom</p>
+        @unless($mapStatic)
+            <p class="rp-resort-map-pan-hint"><i class="bi bi-arrows-move" aria-hidden="true"></i> Drag to pan · pinch or use + / − to zoom</p>
+        @endunless
 
         <div class="rp-map-zoom-space" data-rp-map-zoom-space>
             <div class="rp-map-board" data-rp-map-board>

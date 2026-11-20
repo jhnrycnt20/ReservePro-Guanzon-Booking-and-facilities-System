@@ -30,16 +30,19 @@
 
     <div class="rp-booking-list">
         @forelse($reports as $report)
+            @php
+                $reportDisplayName = $report->booking?->accommodation?->name ?? $report->title;
+            @endphp
             <a href="{{ route('guest.incidents.show', $report) }}" class="rp-booking-list-item">
                 <div class="rp-booking-list-media">
                     @if($report->photo)
-                        <img src="{{ asset('storage/'.$report->photo) }}" alt="{{ $report->title }}">
+                        <img src="{{ asset('storage/'.$report->photo) }}" alt="{{ $reportDisplayName }}">
                     @else
                         <div class="rp-booking-list-media-icon"><i class="bi bi-clipboard2-pulse"></i></div>
                     @endif
                 </div>
                 <div class="rp-booking-list-body">
-                    <div class="rp-booking-list-title">{{ $report->title }}</div>
+                    <div class="rp-booking-list-title">{{ $reportDisplayName }}</div>
                     <div class="rp-booking-list-meta">
                         <span class="rp-booking-list-code">{{ $report->report_number }} &middot; {{ str_replace('_', ' ', ucfirst($report->report_type instanceof \BackedEnum ? $report->report_type->value : $report->report_type)) }} &middot; {{ $report->location }}</span>
                     </div>

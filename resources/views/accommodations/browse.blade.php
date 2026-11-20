@@ -71,8 +71,6 @@
     <div class="row g-4 rp-cottage-grid">
         @forelse($accommodations ?? [] as $item)
             @php
-                $statusValue = $item->status instanceof \BackedEnum ? $item->status->value : (string) $item->status;
-                $isMaintenance = $statusValue === 'maintenance';
                 $displayName = $item->baseDisplayName();
                 $typeName = $item->type->name ?? $item->accommodationType->name ?? null;
                 $showType = $typeName && strcasecmp($typeName, $displayName) !== 0;
@@ -84,17 +82,7 @@
                 ]));
             @endphp
             <div class="col-md-4">
-                @if($isMaintenance)
-                    <a
-                        href="{{ $showUrl }}"
-                        class="rp-cottage-card rp-cottage-card--blocked"
-                        data-rp-blocked-click="Sorry, this room is under maintenance."
-                        data-rp-blocked-title="Under maintenance"
-                        aria-disabled="true"
-                    >
-                @else
-                    <a href="{{ $showUrl }}" class="rp-cottage-card">
-                @endif
+                <a href="{{ $showUrl }}" class="rp-cottage-card">
                     <div class="rp-cottage-card-media">
                         <img src="{{ $item->image_url }}" alt="{{ $displayName }}">
                     </div>

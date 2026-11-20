@@ -19,6 +19,7 @@ class IncidentReportController extends Controller
     public function index(Request $request): View
     {
         $query = IncidentReport::query()
+            ->with('booking.accommodation')
             ->where('guest_id', $request->user()->guest?->id)
             ->latest();
 

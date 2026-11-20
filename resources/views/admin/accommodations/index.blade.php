@@ -102,11 +102,15 @@
                             <div class="d-flex justify-content-end gap-2">
                                 <button type="button" class="btn btn-sm btn-rp-soft" data-bs-toggle="modal" data-bs-target="#rpAccViewModal{{ $item->id }}">View</button>
                                 <button type="button" class="btn btn-sm rp-staff-edit-button" data-bs-toggle="modal" data-bs-target="#rpAccEditModal{{ $item->id }}">Edit</button>
-                                <form method="POST" action="{{ route('admin.accommodations.destroy', $item) }}" data-rp-confirm="Are you sure you want to permanently delete this accommodation? This action cannot be undone.">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn btn-sm btn-outline-danger">Delete</button>
-                                </form>
+                                @if($item->isDeletionLocked())
+                                    <button type="button" class="btn btn-sm btn-outline-danger" disabled title="Cannot delete an accommodation while it is reserved or occupied." aria-label="Delete unavailable: accommodation is reserved or occupied">Delete</button>
+                                @else
+                                    <form method="POST" action="{{ route('admin.accommodations.destroy', $item) }}" data-rp-confirm="Are you sure you want to permanently delete this accommodation? This action cannot be undone.">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                @endif
                             </div>
                         </td>
                     </tr>
@@ -398,19 +402,12 @@
                         <div class="rp-promo-form-stack">
                             <div>
                                 <label class="form-label">Name</label>
-                                <input type="text" name="name" class="form-control" value="{{ old('_modal') === 'acc_edit_'.$item->id ? old('name') : $item->name }}" required>
+                                <input type="text" name="name" class="form-control" value="{{ old('_modal') === 'acc_edit_'.$item->id ? old('name') : $item->name }}" readonly required>
                                 <x-accommodation-field-error field="name" :show="$isAccEdit" />
                             </div>
                             <div>
                                 <label class="form-label">Number</label>
-                                @php $selectedNumber = old('_modal') === 'acc_edit_'.$item->id ? old('number') : $item->number; @endphp
-                                <select name="number" class="form-select" required>
-                                    <option value="" disabled @selected(! in_array((int) $selectedNumber, range(1, 50), true))>Select a number</option>
-                                    @foreach(range(1, 50) as $number)
-                                        <option value="{{ $number }}" @selected((string) $selectedNumber === (string) $number)>{{ $number }}</option>
-                                    @endforeach
-                                </select>
-                                <x-accommodation-field-error field="number" :show="$isAccEdit" />
+                                <input type="text" class="form-control" value="{{ $item->number }}" readonly>
                             </div>
                             <div>
                                 <label class="form-label">Type</label>

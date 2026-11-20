@@ -73,22 +73,8 @@
         <h2 class="rp-cottages-heading">Our Rooms</h2>
         <div class="row g-4 mt-2 rp-cottage-grid">
             @forelse($featuredAccommodations ?? [] as $item)
-                @php
-                    $statusValue = $item->status instanceof \BackedEnum ? $item->status->value : (string) $item->status;
-                    $isMaintenance = $statusValue === 'maintenance';
-                @endphp
                 <div class="col-md-4">
-                    @if($isMaintenance)
-                        <a
-                            href="{{ route('accommodations.browse', ['type' => $item->accommodation_type_id, 'from' => 'home']) }}"
-                            class="rp-cottage-card rp-cottage-card--blocked"
-                            data-rp-blocked-click="Sorry, this room is under maintenance."
-                            data-rp-blocked-title="Under maintenance"
-                            aria-disabled="true"
-                        >
-                    @else
-                        <a href="{{ route('accommodations.show', ['accommodation' => $item->id, 'from' => 'home']) }}" class="rp-cottage-card">
-                    @endif
+                    <a href="{{ route('accommodations.show', ['accommodation' => $item->id, 'from' => 'home']) }}" class="rp-cottage-card">
                         <div class="rp-cottage-card-media">
                             <img src="{{ $item->image_url }}" alt="{{ $item->name }}">
                         </div>
@@ -100,9 +86,7 @@
                             @if($item->description)
                                 <p class="rp-cottage-desc">{{ $item->description }}</p>
                             @endif
-                            @unless($isMaintenance)
-                                <span class="rp-cottage-book">Book Now</span>
-                            @endunless
+                            <span class="rp-cottage-book">Book Now</span>
                         </div>
                     </a>
                 </div>

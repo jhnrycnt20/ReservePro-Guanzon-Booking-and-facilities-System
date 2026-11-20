@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Guest;
 
+use App\Enums\AccommodationStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Accommodation;
 use App\Models\AccommodationType;
@@ -30,6 +31,7 @@ class AccommodationBrowseController extends Controller
         $query = Accommodation::query()
             ->with(['type', 'amenities'])
             ->where('is_active', true)
+            ->where('status', '!=', AccommodationStatus::Maintenance->value)
             ->representatives();
 
         if ($request->filled('type')) {
@@ -84,10 +86,10 @@ class AccommodationBrowseController extends Controller
             ? $accommodation->status->value
             : (string) $accommodation->status;
 
-        if ($status === 'maintenance') {
+        if ($status === AccommodationStatus::Maintenance->value) {
             return redirect()
                 ->route('accommodations.browse')
-                ->with('error', 'Sorry, this room is under maintenance.');
+                ->with('error', 'Sorry, this accommodation is currently unavailable.');
         }
 
         if ($status === 'inactive' || ! $accommodation->is_active) {
@@ -98,22 +100,24 @@ class AccommodationBrowseController extends Controller
 
         $accommodation->load(['type', 'amenities', 'pricing']);
 
-        $units = $accommodation->siblingUnits()->map(fn (Accommodation $unit) => [
-            'id' => $unit->id,
-            'number' => $unit->number,
-            'name' => $unit->name,
-            'family' => $unit->familyKey(),
-            'label' => $unit->unitNumber() !== null
-                ? (string) $unit->unitNumber()
-                : $unit->number,
-            'occupied_url' => route('accommodations.occupied-dates', $unit),
-            'availability_url' => route('accommodations.availability', $unit),
-            'booking_url' => route('guest.bookings.create', [
-                'accommodation_id' => $unit->id,
-                'check_in' => $request->input('check_in'),
-                'check_out' => $request->input('check_out'),
-            ]),
-        ])->values();
+        $units = $accommodation->siblingUnits()
+            ->reject(fn (Accommodation $unit) => $unit->status === AccommodationStatus::Maintenance)
+            ->map(fn (Accommodation $unit) => [
+                'id' => $unit->id,
+                'number' => $unit->number,
+                'name' => $unit->name,
+                'family' => $unit->familyKey(),
+                'label' => $unit->unitNumber() !== null
+                    ? (string) $unit->unitNumber()
+                    : $unit->number,
+                'occupied_url' => route('accommodations.occupied-dates', $unit),
+                'availability_url' => route('accommodations.availability', $unit),
+                'booking_url' => route('guest.bookings.create', [
+                    'accommodation_id' => $unit->id,
+                    'check_in' => $request->input('check_in'),
+                    'check_out' => $request->input('check_out'),
+                ]),
+            ])->values();
 
         $available = null;
         if ($request->filled('check_in') && $request->filled('check_out')) {

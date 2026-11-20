@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\AccommodationStatus;
 use App\Http\Controllers\Admin\AccommodationController as AdminAccommodationController;
 use App\Http\Controllers\Admin\AccommodationTypeController;
 use App\Http\Controllers\Admin\AmenityController;
@@ -41,6 +42,7 @@ Route::get('/', function () {
     $featuredAccommodations = Accommodation::query()
         ->with('type')
         ->where('is_active', true)
+        ->where('status', '!=', AccommodationStatus::Maintenance->value)
         ->representatives()
         ->orderBy('rate')
         ->take(3)
@@ -69,6 +71,7 @@ Route::get('/offers', function () {
         ->currentlyValid()
         ->with(['accommodations' => function ($query) {
             $query->where('is_active', true)
+                ->where('status', '!=', AccommodationStatus::Maintenance->value)
                 ->with(['type', 'amenities'])
                 ->orderBy('name');
         }])
@@ -81,6 +84,7 @@ Route::get('/offers', function () {
         $rooms = $promo->applies_to_all
             ? \App\Models\Accommodation::query()
                 ->where('is_active', true)
+                ->where('status', '!=', AccommodationStatus::Maintenance->value)
                 ->with(['type', 'amenities'])
                 ->orderBy('name')
                 ->get()
@@ -184,6 +188,10 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+
+    Route::get('/guest', fn () => redirect()->route('guest.bookings.index'))
+        ->middleware('role:guest')
+        ->name('guest.dashboard');
 
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/notifications/{id}/open', [NotificationController::class, 'open'])->name('notifications.open');

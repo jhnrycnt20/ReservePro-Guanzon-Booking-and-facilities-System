@@ -17,19 +17,12 @@
         <div class="row g-3 mb-1">
             <div class="col-md-6">
                 <label class="form-label">Name</label>
-                <input type="text" name="name" class="form-control" value="{{ old('name', $accommodation->name) }}" required>
+                <input type="text" name="name" class="form-control" value="{{ old('name', $accommodation->name) }}" readonly required>
                 <x-accommodation-field-error field="name" />
             </div>
             <div class="col-md-6">
                 <label class="form-label">Number</label>
-                @php $selectedNumber = old('number', $accommodation->number); @endphp
-                <select name="number" class="form-select" required>
-                    <option value="" disabled @selected(! in_array((int) $selectedNumber, range(1, 50), true))>Select a number</option>
-                    @foreach(range(1, 50) as $number)
-                        <option value="{{ $number }}" @selected((string) $selectedNumber === (string) $number)>{{ $number }}</option>
-                    @endforeach
-                </select>
-                <x-accommodation-field-error field="number" />
+                <input type="text" class="form-control" value="{{ $accommodation->number }}" readonly>
             </div>
             <div class="col-md-4">
                 <label class="form-label">Type</label>
