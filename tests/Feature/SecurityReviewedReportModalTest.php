@@ -43,9 +43,13 @@ class SecurityReviewedReportModalTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertSee('bi-file-text', false)
-            ->assertSee('rp-report-detail-grid--read-only', false)
+            ->assertSee('Reports')
+            ->assertSee('rp-security-reviewed-report-modal', false)
+            ->assertSee('Description')
+            ->assertSee('Investigation result')
+            ->assertSee('Report information')
             ->assertDontSee('rp-report-review-card', false)
+            ->assertDontSee('rp-report-review-form', false)
             ->assertDontSee('Investigation completed');
     }
 }

@@ -287,7 +287,6 @@
             <div class="modal-content rp-admin-modal rp-acc-view-modal">
                 <div class="modal-header">
                     <div class="rp-acc-view-header-title">
-                        <span class="rp-acc-view-header-icon" aria-hidden="true"><i class="bi bi-building"></i></span>
                         <div>
                             <h2 class="modal-title h5" id="rpAccViewModalLabel{{ $item->id }}">Accommodation details</h2>
                         </div>
@@ -338,34 +337,28 @@
                                 <div class="rp-acc-view-meta">{{ $item->type->name ?? 'Accommodation' }} · No. {{ $item->number }}</div>
                                 <div class="rp-acc-view-title">{{ $item->name }}</div>
                             </div>
-                            <div class="rp-acc-view-badges">
-                                <span class="rp-acc-view-badge {{ $statusValue === 'available' ? 'is-available' : '' }}">{{ ucfirst(str_replace('_', ' ', $statusValue)) }}</span>
-                                <span class="rp-acc-view-badge {{ $item->is_active ? 'is-listed' : 'is-unlisted' }}">{{ $item->is_active ? 'Active listing' : 'Inactive listing' }}</span>
-                            </div>
                         </div>
 
                         <div class="rp-acc-view-details">
                             <div class="rp-acc-view-facts">
                                 <div class="rp-acc-view-fact">
-                                    <span class="rp-acc-view-fact-icon"><i class="bi bi-people" aria-hidden="true"></i></span>
                                     <div><span>Capacity</span><strong>{{ $item->capacity }} {{ (int) $item->capacity === 1 ? 'guest' : 'guests' }}</strong></div>
                                 </div>
                                 <div class="rp-acc-view-fact">
-                                    <span class="rp-acc-view-fact-icon"><i class="bi bi-cash-stack" aria-hidden="true"></i></span>
                                     <div><span>Rate</span><strong>₱{{ number_format((float) $item->rate, 2) }}</strong></div>
                                 </div>
                             </div>
 
                             <section class="rp-acc-view-section">
-                                <h3><i class="bi bi-card-text" aria-hidden="true"></i>Description</h3>
+                                <h3>Description</h3>
                                 <p>{{ $item->description ?: 'No description provided.' }}</p>
                             </section>
 
                             <section class="rp-acc-view-section">
-                                <h3><i class="bi bi-stars" aria-hidden="true"></i>Amenities</h3>
+                                <h3>Amenities</h3>
                                 <div class="rp-acc-view-amenities">
                                     @forelse($item->amenities as $amenity)
-                                        <span><i class="bi bi-check2" aria-hidden="true"></i>{{ $amenity->name }}</span>
+                                        <span>{{ $amenity->name }}</span>
                                     @empty
                                         <p>No amenities listed.</p>
                                     @endforelse

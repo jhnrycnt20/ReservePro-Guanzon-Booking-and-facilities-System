@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Security;
 
-use App\Enums\IncidentStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Security\InvestigateIncidentRequest;
 use App\Models\IncidentReport;
@@ -42,8 +41,6 @@ class InvestigationController extends Controller
 
         if ($request->filled('status')) {
             $query->where('status', $request->input('status'));
-        } else {
-            $query->whereIn('status', [IncidentStatus::Pending, IncidentStatus::Verified]);
         }
 
         ListFilters::applyIncidentSearch($query, $request->input('q'));

@@ -14095,30 +14095,15 @@ body.rp-page-booknow .rp-cottage-grid .rp-cottage-card-action {
 .rp-reservations-page .rp-resv-overview-item strong { color: #1f4b5d; font-size: 1rem; font-variant-numeric: tabular-nums; }
 .rp-reservations-page .rp-resv-overview-item > span:last-child > span { color: #6c7f85; font-size: .77rem; }
 .rp-reservations-page .rp-resv-table-card { border-color: #dbe5e3; border-radius: .8rem; box-shadow: 0 3px 12px rgba(28, 61, 68, .035); }
-.rp-reservations-page .rp-resv-table { min-width: 1400px; table-layout: fixed; }
-.rp-reservations-page .rp-resv-table th:nth-child(1),
-.rp-reservations-page .rp-resv-table td:nth-child(1) { width: 9%; }
-.rp-reservations-page .rp-resv-table th:nth-child(2),
-.rp-reservations-page .rp-resv-table td:nth-child(2) { width: 8%; }
-.rp-reservations-page .rp-resv-table th:nth-child(3),
-.rp-reservations-page .rp-resv-table td:nth-child(3) { width: 17%; }
-.rp-reservations-page .rp-resv-table th:nth-child(4),
-.rp-reservations-page .rp-resv-table td:nth-child(4) { width: 7%; }
-.rp-reservations-page .rp-resv-table th:nth-child(5),
-.rp-reservations-page .rp-resv-table td:nth-child(5) { width: 5%; }
-.rp-reservations-page .rp-resv-table th:nth-child(6),
-.rp-reservations-page .rp-resv-table td:nth-child(6) { width: 8%; }
-.rp-reservations-page .rp-resv-table th:nth-child(7),
-.rp-reservations-page .rp-resv-table td:nth-child(7) { width: 15%; }
-.rp-reservations-page .rp-resv-table th:nth-child(8),
-.rp-reservations-page .rp-resv-table td:nth-child(8) { width: 10%; }
-.rp-reservations-page .rp-resv-table th:nth-child(9),
-.rp-reservations-page .rp-resv-table td:nth-child(9) { width: 9%; }
-.rp-reservations-page .rp-resv-table th:nth-child(10),
-.rp-reservations-page .rp-resv-table td:nth-child(10) { width: 12%; }
+.rp-reservations-page .rp-resv-table {
+    width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+}
+.rp-reservations-page .rp-resv-table th,
+.rp-reservations-page .rp-resv-table td { width: 11.111%; }
 .rp-reservations-page .rp-resv-table thead th {
-    width: auto;
-    padding: .72rem 1.15rem;
+    padding: .72rem .65rem;
     background: #f0f5f4;
     color: #5d747c;
     font-size: .67rem;
@@ -14132,7 +14117,7 @@ body.rp-page-booknow .rp-cottage-grid .rp-cottage-card-action {
 .rp-reservations-page .rp-resv-table .rp-resv-pill.is-pay-paid { color: #16804b; }
 .rp-reservations-page .rp-resv-table .rp-resv-pill.is-status-confirmed { color: #397b9e; }
 .rp-reservations-page .rp-resv-table tbody td:nth-child(6) .rp-resv-booking-source,
-.rp-reservations-page .rp-resv-table tbody td:nth-child(9) .rp-resv-pill {
+.rp-reservations-page .rp-resv-table tbody td:nth-child(8) .rp-resv-pill {
     display: inline-flex;
     font-family: Arial, Helvetica, sans-serif !important;
     font-size: .9rem;
@@ -14141,7 +14126,7 @@ body.rp-page-booknow .rp-cottage-grid .rp-cottage-card-action {
     letter-spacing: normal;
 }
 .rp-reservations-page .rp-resv-row-status { display: inline-flex; align-items: center; flex-wrap: wrap; gap: .5rem; }
-.rp-reservations-page .rp-resv-table tbody td { padding: 1.4rem 1.15rem; }
+.rp-reservations-page .rp-resv-table tbody td { padding: 1.1rem .65rem; }
 .rp-reservations-page .rp-resv-guest-name,
 .rp-reservations-page .rp-resv-room-name { color: #183c47; font-size: .9rem; font-weight: 700; }
 .rp-reservations-page .rp-resv-id { display: inline-flex; align-items: center; color: #477687; font-size: .9rem; }

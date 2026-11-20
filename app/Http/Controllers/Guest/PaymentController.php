@@ -247,42 +247,6 @@ class PaymentController extends Controller
         return redirect()->away($checkout['checkout_url']);
     }
 
-    public function proceedWithoutOnlinePayment(Request $request): RedirectResponse
-    {
-        $draft = $this->bookingDraft($request);
-        if (! $draft) {
-            return redirect()->route('guest.bookings.index')
-                ->with('error', 'Your guest information was not found. Please start your reservation again.');
-        }
-
-        try {
-            $guest = $request->user()->guest;
-            if (! $guest) {
-                return redirect()->route('guest.bookings.index')
-                    ->with('error', 'Your guest profile was not found. Please update your profile before submitting a reservation.');
-            }
-
-            $booking = $this->bookingService->createReservation(
-                $draft['data'],
-                $guest,
-                $request->user()
-            );
-        } catch (ValidationException $exception) {
-            return redirect()->route('guest.payments.draft')
-                ->withErrors($exception->errors());
-        } catch (\Throwable $exception) {
-            report($exception);
-
-            return redirect()->route('guest.payments.draft')
-                ->with('error', 'We could not submit your reservation. Please review your details and try again.');
-        }
-
-        $request->session()->forget('guest_booking_draft');
-
-        return redirect()->route('guest.bookings.show', $booking)
-            ->with('success', 'Your reservation was submitted without online payment and is pending confirmation. Please arrange payment at the front desk.');
-    }
-
     public function sampleSuccessDraft(Request $request): RedirectResponse
     {
         abort_unless(app()->environment(['local', 'testing']), 404);

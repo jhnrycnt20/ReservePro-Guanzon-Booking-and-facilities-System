@@ -2,10 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Enums\BookingStatus;
 use App\Models\Accommodation;
 use App\Models\AccommodationType;
-use App\Models\Booking;
 use App\Models\Guest;
 use App\Models\Role;
 use App\Models\User;
@@ -17,7 +15,7 @@ class GuestSkipOnlinePaymentTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_guest_can_submit_reservation_without_online_payment(): void
+    public function test_guest_billing_draft_does_not_offer_skip_online_payment(): void
     {
         Notification::fake();
 
@@ -58,23 +56,7 @@ class GuestSkipOnlinePaymentTest extends TestCase
         $this->actingAs($user)->get(route('guest.payments.draft'))
             ->assertOk()
             ->assertSee('Continue to GCash')
-            ->assertSee('Proceed');
-
-        $response = $this->actingAs($user)->post(route('guest.payments.proceed-without-online-payment'));
-
-        $booking = Booking::query()->sole();
-        $response->assertRedirect(route('guest.bookings.show', $booking))
-            ->assertSessionMissing('guest_booking_draft')
-            ->assertSessionHas('success');
-        $this->assertSame($guest->id, $booking->guest_id);
-        $this->assertSame(BookingStatus::Pending, $booking->status);
-        $this->assertSame('0.00', $booking->paid_amount);
-        $this->assertDatabaseCount('payments', 0);
-
-        $this->actingAs($user)->get(route('guest.bookings.show', $booking))
-            ->assertOk()
-            ->assertSee('Room location')
-            ->assertSee('Room 1 is highlighted on the resort map.')
-            ->assertSee('rp-map-room rp-map-room--cabin is-selected', false);
+            ->assertDontSee('Skip online checkout')
+            ->assertDontSee('rp-payment-skip-actions', false);
     }
 }

@@ -91,7 +91,6 @@
                     <th scope="col" class="rp-resv-col-center">Guests</th>
                     <th scope="col">Booked via</th>
                     <th scope="col">Dates</th>
-                    <th scope="col" class="rp-resv-col-center">Reservation status</th>
                     <th scope="col" class="rp-resv-col-center">Payment status</th>
                     <th scope="col" class="rp-resv-col-center"><span class="visually-hidden">Next step</span></th>
                 </tr>
@@ -113,25 +112,6 @@
                             default => 'Unpaid',
                         };
                         $awaitingStay = in_array($statusValue, ['pending', 'approved'], true);
-                        if ($awaitingStay && $booking->isFullyPaid()) {
-                            $resStatus = 'ready';
-                            $resLabel = 'Ready';
-                        } elseif ($awaitingStay) {
-                            $resStatus = 'confirmed';
-                            $resLabel = 'Confirmed';
-                        } elseif ($statusValue === 'checked_in') {
-                            $resStatus = 'checked_in';
-                            $resLabel = 'Checked-in';
-                        } elseif ($statusValue === 'checked_out') {
-                            $resStatus = 'checked_out';
-                            $resLabel = 'Checked-out';
-                        } elseif ($statusValue === 'no_show') {
-                            $resStatus = 'no_show';
-                            $resLabel = 'No-show';
-                        } else {
-                            $resStatus = $statusValue;
-                            $resLabel = str_replace('_', ' ', ucwords($statusValue, '_'));
-                        }
                         $checkOutDue = $statusValue === 'checked_in' && $booking->checkOutDue();
                         $isEarlyCheckOut = $statusValue === 'checked_in' && $booking->isEarlyCheckOut();
                         $hasOpenIncidents = $booking->hasOpenIncidents();
@@ -158,12 +138,6 @@
                             @if($checkInDisplay)<small>Arrived {{ $checkInDisplay->format('M j, g:i A') }}</small>@endif
                             @if($checkOutDisplay)<small>Left {{ $checkOutDisplay->format('M j, g:i A') }}</small>@endif
                         </td>
-                        <td class="rp-resv-col-center">
-                            <span class="rp-resv-pill is-status-{{ $resStatus }}">{{ $resLabel }}</span>
-                            @if($checkOutDue)
-                                <span class="rp-resv-due">Due now</span>
-                            @endif
-                        </td>
                         <td class="rp-resv-col-center"><span class="rp-resv-pill is-pay-{{ $paymentKey }}">{{ $paymentLabel }}</span></td>
                         <td class="rp-resv-col-center text-nowrap">
                             <div class="rp-resv-actions">
@@ -173,7 +147,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="10" class="text-muted py-4 text-center">
+                        <td colspan="9" class="text-muted py-4 text-center">
                             @if($tab === 'logs')
                                 No check-in or check-out logs yet.
                             @elseif($tab === 'check_out')
@@ -593,28 +567,34 @@
     @endif
 
     @if($canCheckIn)
-    <div class="modal fade" id="rpCheckInModal{{ $booking->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="rpCheckInModal{{ $booking->id }}" tabindex="-1" aria-labelledby="rpCheckInModalLabel{{ $booking->id }}" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered rp-checkin-dialog">
             <div class="modal-content rp-admin-modal rp-checkin-modal">
                 <form method="POST" action="{{ route('front_desk.checkins.store', $booking) }}">
                     @csrf
                     <div class="modal-header">
-                        <h2 class="modal-title h5">Confirm check-in</h2>
+                        <h2 class="modal-title h5" id="rpCheckInModalLabel{{ $booking->id }}">Confirm check-in</h2>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="rp-checkin-summary">
                             <div class="rp-checkin-summary-item">
-                                <span>Guest</span><strong>{{ $guestName }}</strong><small>{{ $guestPhone }}</small>
+                                <span>Guest</span>
+                                <strong>{{ $guestName }}</strong>
+                                <small>{{ $guestPhone }}</small>
                             </div>
                             <div class="rp-checkin-summary-item">
-                                <span>Accommodation</span><strong>{{ $booking->accommodation?->name ?? '—' }}</strong><small>{{ $booking->short_number }}</small>
+                                <span>Accommodation</span>
+                                <strong>{{ $booking->accommodation?->name ?? '—' }}</strong>
+                                <small>{{ $booking->short_number }}</small>
                             </div>
                             <div class="rp-checkin-summary-item">
-                                <span>Stay</span><strong>{{ $booking->check_in_date->format('M j, Y') }} → {{ $booking->check_out_date->format('M j, Y') }}</strong>
+                                <span>Stay</span>
+                                <strong>{{ $booking->check_in_date->format('M j, Y') }} <span aria-hidden="true">→</span> {{ $booking->check_out_date->format('M j, Y') }}</strong>
                             </div>
                             <div class="rp-checkin-summary-item">
-                                <span>Balance</span><strong>₱0.00 · Paid</strong>
+                                <span>Balance</span>
+                                <strong>₱0.00 · Paid</strong>
                             </div>
                         </div>
                         <div class="rp-checkin-notes">
@@ -633,26 +613,38 @@
     @endif
 
     @if($canCheckOut)
-    <div class="modal fade" id="rpCheckOutModal{{ $booking->id }}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content rp-admin-modal">
+    <div class="modal fade" id="rpCheckOutModal{{ $booking->id }}" tabindex="-1" aria-labelledby="rpCheckOutModalLabel{{ $booking->id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered rp-checkout-dialog">
+            <div class="modal-content rp-admin-modal rp-checkout-modal">
                 <form method="POST" action="{{ route('front_desk.checkouts.store', $booking) }}">
                     @csrf
                     <div class="modal-header">
-                        <h2 class="modal-title h5">{{ $isEarlyCheckOut ? 'Early check-out' : 'Confirm check-out' }}</h2>
+                        <h2 class="modal-title h5" id="rpCheckOutModalLabel{{ $booking->id }}">{{ $isEarlyCheckOut ? 'Early check-out' : 'Confirm check-out' }}</h2>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="rp-resv-action-summary mb-3">
-                            <div><strong>{{ $guestName }}</strong></div>
-                            <div class="text-muted small">{{ $booking->short_number }} · {{ $booking->accommodation?->name ?? '—' }}</div>
-                            <div class="text-muted small">Scheduled out: {{ $booking->check_out_date->format('M j, Y') }} · {{ $checkOutTime }}</div>
-                            <div class="fw-semibold mt-1">Balance: ₱{{ number_format($remainingBalance, 2) }}</div>
-                            @if($checkOutDue)
-                                <span class="rp-resv-pill is-due mt-2">Due now</span>
-                            @elseif($isEarlyCheckOut)
-                                <span class="rp-resv-pill is-early mt-2">Early check-out</span>
-                            @endif
+                        <div class="rp-checkout-summary">
+                            <div class="rp-checkout-summary-item">
+                                <span>Guest</span>
+                                <strong>{{ $guestName }}</strong>
+                                <small>{{ $guestPhone }}</small>
+                            </div>
+                            <div class="rp-checkout-summary-item">
+                                <span>Accommodation</span>
+                                <strong>{{ $booking->accommodation?->name ?? '—' }}</strong>
+                                <small>{{ $booking->short_number }}</small>
+                            </div>
+                            <div class="rp-checkout-summary-item">
+                                <span>Scheduled out</span>
+                                <strong>{{ $booking->check_out_date->format('M j, Y') }} · {{ $checkOutTime }}</strong>
+                                @if($checkOutDue)
+                                    <small>Due now</small>
+                                @endif
+                            </div>
+                            <div class="rp-checkout-summary-item">
+                                <span>Balance</span>
+                                <strong>₱{{ number_format($remainingBalance, 2) }} · {{ $paymentLabel }}</strong>
+                            </div>
                         </div>
                         @if($hasOpenIncidents)
                             <div class="alert alert-warning py-2">
@@ -660,13 +652,13 @@
                             </div>
                         @endif
                         <div class="mb-3">
-                            <label class="form-label">Additional charges</label>
-                            <input type="number" step="0.01" min="0" name="additional_charges" class="form-control" value="0" @disabled($hasOpenIncidents)>
+                            <label class="form-label" for="rpCheckOutCharges{{ $booking->id }}">Additional charges</label>
+                            <input id="rpCheckOutCharges{{ $booking->id }}" type="number" step="0.01" min="0" name="additional_charges" class="form-control" value="0" @disabled($hasOpenIncidents)>
                             <div class="form-text">If you add extras, collect that balance first, then check out.</div>
                         </div>
                         <div class="mb-0">
-                            <label class="form-label">{{ $isEarlyCheckOut ? 'Reason for early check-out' : 'Notes (optional)' }}</label>
-                            <textarea name="notes" class="form-control" rows="3" placeholder="{{ $isEarlyCheckOut ? 'Required — why the guest is leaving early…' : 'Damages, late checkout, etc.' }}" @required($isEarlyCheckOut) @disabled($hasOpenIncidents)></textarea>
+                            <label class="form-label" for="rpCheckOutNotes{{ $booking->id }}">{{ $isEarlyCheckOut ? 'Reason for early check-out' : 'Notes (optional)' }}</label>
+                            <textarea id="rpCheckOutNotes{{ $booking->id }}" name="notes" class="form-control" rows="3" placeholder="{{ $isEarlyCheckOut ? 'Required — why the guest is leaving early…' : 'Damages, late checkout, etc.' }}" @required($isEarlyCheckOut) @disabled($hasOpenIncidents)></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">

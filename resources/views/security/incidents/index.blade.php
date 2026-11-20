@@ -122,7 +122,14 @@
 </div>
 
 @foreach($modalReports as $report)
-    @include('security.incidents.detail-modal', ['report' => $report])
+    @php
+        $reportStatus = $report->status instanceof \BackedEnum ? $report->status->value : (string) $report->status;
+    @endphp
+    @if($reportStatus === 'pending')
+        @include('security.incidents.detail-modal', ['report' => $report])
+    @else
+        @include('security.incidents.reviewed-detail-modal', ['report' => $report])
+    @endif
 @endforeach
 @endsection
 

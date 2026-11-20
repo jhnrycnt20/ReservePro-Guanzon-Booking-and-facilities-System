@@ -175,7 +175,7 @@
                     @error('resolution_notes')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                 </div>
                 <button type="submit" class="btn btn-rp-primary w-100 rp-report-submit">
-                    <i class="bi bi-arrow-right-circle me-1" aria-hidden="true"></i> Mark In Progress
+                    Mark In Progress
                 </button>
                 <p class="rp-report-help mb-0">
                     <i class="bi bi-info-circle" aria-hidden="true"></i>

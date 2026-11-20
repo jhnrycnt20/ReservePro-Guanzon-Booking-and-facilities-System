@@ -149,7 +149,7 @@
                                     @error('resolution_notes')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                                 </div>
                                 <button type="submit" class="btn btn-rp-primary w-100 rp-report-submit">
-                                    <i class="bi bi-arrow-right-circle me-1" aria-hidden="true"></i> Mark In Progress
+                                    Mark In Progress
                                 </button>
                             </form>
                         @elseif($status === 'in_progress')

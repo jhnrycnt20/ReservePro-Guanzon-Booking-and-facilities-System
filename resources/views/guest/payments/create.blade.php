@@ -102,20 +102,6 @@
                     </div>
                 @endif
                 <button type="submit" form="rpPaymentForm" class="rp-avail-btn-primary rp-payment-submit-button" @disabled(!$gcashAvailable)>Continue to GCash</button>
-                @if($isDraft)
-                    <div class="rp-payment-skip-actions">
-                        <span>Skip online checkout and submit your reservation.</span>
-                        <form method="POST" action="{{ route('guest.payments.proceed-without-online-payment') }}" class="rp-payment-skip-form">
-                            @csrf
-                            <button type="submit" class="rp-payment-proceed-button">Proceed</button>
-                        </form>
-                    </div>
-                @else
-                    <div class="rp-payment-skip-actions">
-                        <span>Return to your reservation without paying online.</span>
-                        <a href="{{ route('guest.bookings.show', $booking) }}" class="rp-payment-proceed-button">Proceed</a>
-                    </div>
-                @endif
                 <div class="rp-payment-secure-note">
                     <i class="bi {{ $gcashAvailable ? 'bi-lock' : 'bi-exclamation-circle' }}" aria-hidden="true"></i>
                     {{ $gcashAvailable ? "You'll be redirected to GCash for secure payment." : 'GCash checkout is currently unavailable.' }}

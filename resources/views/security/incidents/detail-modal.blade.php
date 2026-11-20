@@ -17,7 +17,6 @@
         <div class="modal-content rp-admin-modal rp-admin-report-modal rp-security-report-modal">
             <div class="modal-header">
                 <div class="rp-admin-report-header-copy rp-security-report-heading">
-                    <span class="rp-security-report-heading-icon" aria-hidden="true"><i class="bi bi-file-text"></i></span>
                     <h2 class="modal-title" id="rpSecurityReportModal{{ $report->id }}Label">Reports</h2>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
