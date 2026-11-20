@@ -36,10 +36,20 @@ services:
         value: lax
       - key: LOG_CHANNEL
         value: stderr
-      # Avoid smtp/mailpit (not available on Render). Use real SMTP env vars for inbox delivery.
+      # Gmail SMTP — set MAIL_PASSWORD in the Render dashboard (sync: false = secret, not in git).
       - key: MAIL_MAILER
-        value: log
+        value: smtp
+      - key: MAIL_HOST
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: "465"
+      - key: MAIL_ENCRYPTION
+        value: ssl
+      - key: MAIL_USERNAME
+        value: wangska1283@gmail.com
       - key: MAIL_FROM_ADDRESS
-        value: noreply@guanzonresort.com
+        value: wangska1283@gmail.com
       - key: MAIL_FROM_NAME
         value: ReservePro
+      - key: MAIL_PASSWORD
+        sync: false

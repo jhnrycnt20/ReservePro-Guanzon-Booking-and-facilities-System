@@ -59,7 +59,8 @@ if [ -f .env ]; then
         fi
     done
 
-    if grep -Eq '^MAIL_HOST=mailpit' .env || { [ -z "$(printenv MAIL_MAILER || true)" ] && grep -Eq '^MAIL_MAILER=smtp' .env; }; then
+    # Only strip legacy Mailpit hosts. Real Gmail SMTP comes from Render env vars.
+    if grep -Eq '^MAIL_HOST=mailpit' .env; then
         sed -i 's/^MAIL_MAILER=.*/MAIL_MAILER=log/' .env
         sed -i 's/^MAIL_HOST=.*/MAIL_HOST=127.0.0.1/' .env
     fi
