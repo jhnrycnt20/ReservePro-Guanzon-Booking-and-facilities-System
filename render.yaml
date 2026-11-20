@@ -45,11 +45,14 @@ services:
         value: "465"
       - key: MAIL_ENCRYPTION
         value: ssl
+      # Must match the Gmail account that owns the App Password set in the dashboard.
       - key: MAIL_USERNAME
-        value: wangska1283@gmail.com
+        value: johnreycanete2001@gmail.com
       - key: MAIL_FROM_ADDRESS
-        value: wangska1283@gmail.com
+        value: johnreycanete2001@gmail.com
       - key: MAIL_FROM_NAME
         value: ReservePro
+      # Secret: set this manually in Render → Environment (Gmail 16-char App Password).
+      # Blueprint sync:false does not copy your local .env password.
       - key: MAIL_PASSWORD
         sync: false
