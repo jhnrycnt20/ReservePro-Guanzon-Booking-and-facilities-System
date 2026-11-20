@@ -31,11 +31,6 @@
                             <i class="bi bi-check-circle" aria-hidden="true"></i>
                             <span>
                                 {{ session('status') }} Check your inbox and spam folder.
-                                @if (\App\Support\PasswordResetLinkBoard::enabled() && Route::has('dev.reset-links'))
-                                    <br>
-                                    <a href="{{ route('dev.reset-links') }}" style="color:#9ff0cb;text-decoration:underline;">Open reset links</a>
-                                    (<code>/dev/reset-links</code>)
-                                @endif
                             </span>
                         </div>
                     @endif

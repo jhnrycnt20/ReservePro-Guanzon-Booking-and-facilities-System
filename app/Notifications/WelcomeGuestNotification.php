@@ -2,8 +2,8 @@
 
 namespace App\Notifications;
 
+use App\Mail\GuanzonBrandedMail;
 use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class WelcomeGuestNotification extends Notification
@@ -14,7 +14,6 @@ class WelcomeGuestNotification extends Notification
     {
         $channels = ['database'];
 
-        // Skip SMTP on hosts without real mail config (Render defaults to unreachable smtp/mailpit).
         $mailer = (string) config('mail.default', 'smtp');
         $smtpHost = (string) config('mail.mailers.smtp.host', '');
         $canMail = in_array($mailer, ['log', 'array'], true)
@@ -27,18 +26,24 @@ class WelcomeGuestNotification extends Notification
         return $channels;
     }
 
-    public function toMail(object $notifiable): MailMessage
+    public function toMail(object $notifiable): GuanzonBrandedMail
     {
         $name = $notifiable->name ?? 'Guest';
         $app = config('app.name', 'ReservePro');
 
-        return (new MailMessage)
-            ->subject("Welcome to {$app}!")
-            ->greeting("Hello, {$name}!")
-            ->line("Your guest account on {$app} has been created successfully.")
-            ->line('You can now browse facilities, make reservations, and manage your bookings anytime.')
-            ->action('Go to My Bookings', url('/guest/bookings'))
-            ->line('If you did not create this account, please ignore this email or contact the resort.');
+        return (new GuanzonBrandedMail(
+            emailSubject: 'Welcome to Guanzon Resort',
+            heading: "Welcome, {$name}!",
+            introLines: [
+                "Your guest account on {$app} for Guanzon Resort is ready.",
+                'Browse facilities, reserve rooms and cottages, and manage your bookings anytime.',
+            ],
+            actionText: 'Go to My Bookings',
+            actionUrl: url('/guest/bookings'),
+            outroLines: [
+                'If you did not create this account, please ignore this email or contact the resort.',
+            ],
+        ))->to($notifiable->email);
     }
 
     public function toArray(object $notifiable): array

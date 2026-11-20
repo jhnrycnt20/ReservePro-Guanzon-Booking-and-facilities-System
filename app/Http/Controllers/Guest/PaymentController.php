@@ -86,8 +86,11 @@ class PaymentController extends Controller
 
         $isDraft = false;
         $gcashAvailable = filled(trim((string) config('services.paymongo.secret_key')));
+        $suggestedPromoCode = blank($booking->promo_code) && ((float) $booking->paid_amount) <= 0
+            ? $this->promoService->bestValidForAccommodation((int) $booking->accommodation_id)?->code
+            : null;
 
-        return response()->view('guest.payments.create', compact('booking', 'deposit', 'suggestedDeposit', 'isDraft', 'gcashAvailable'))
+        return response()->view('guest.payments.create', compact('booking', 'deposit', 'suggestedDeposit', 'isDraft', 'gcashAvailable', 'suggestedPromoCode'))
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
             ->header('Pragma', 'no-cache');
     }
@@ -98,6 +101,15 @@ class PaymentController extends Controller
         if (! $draft) {
             return redirect()->route('guest.bookings.index')
                 ->with('error', 'Your guest information was not found. Please start your reservation again.');
+        }
+
+        // Backfill promo for drafts started before auto-attach existed.
+        if (blank($draft['data']['promo_code'] ?? null)) {
+            $suggested = $this->promoService->bestValidForAccommodation((int) ($draft['data']['accommodation_id'] ?? 0));
+            if ($suggested) {
+                $draft['data']['promo_code'] = $suggested->code;
+                $request->session()->put('guest_booking_draft', $draft);
+            }
         }
 
         try {
@@ -130,8 +142,11 @@ class PaymentController extends Controller
         $suggestedDeposit = min($deposit, $remaining);
         $isDraft = true;
         $gcashAvailable = filled(trim((string) config('services.paymongo.secret_key')));
+        $suggestedPromoCode = blank($booking->promo_code)
+            ? $this->promoService->bestValidForAccommodation((int) $booking->accommodation_id)?->code
+            : null;
 
-        return response()->view('guest.payments.create', compact('booking', 'deposit', 'suggestedDeposit', 'isDraft', 'gcashAvailable'))
+        return response()->view('guest.payments.create', compact('booking', 'deposit', 'suggestedDeposit', 'isDraft', 'gcashAvailable', 'suggestedPromoCode'))
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
             ->header('Pragma', 'no-cache');
     }

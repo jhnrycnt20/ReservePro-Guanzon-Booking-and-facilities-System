@@ -177,6 +177,44 @@ class PromoRedemptionTest extends TestCase
         $this->assertSame(BookingStatus::Rejected, $booking->fresh()->status);
     }
 
+    public function test_draft_billing_auto_applies_promo_for_the_selected_room(): void
+    {
+        [$user, , $accommodation] = $this->guestAndAccommodation();
+        $other = Accommodation::query()->create([
+            'accommodation_type_id' => $accommodation->accommodation_type_id,
+            'name' => 'No Promo Room',
+            'number' => 'P-2',
+            'capacity' => 2,
+            'rate' => 1000,
+            'status' => 'available',
+            'is_active' => true,
+        ]);
+        $promo = Promo::query()->create([
+            'code' => 'ROOM20',
+            'name' => 'Room 20',
+            'discount_percent' => 20,
+            'applies_to_all' => false,
+            'is_active' => true,
+        ]);
+        $promo->accommodations()->sync([$accommodation->id]);
+
+        $this->actingAs($user)->post(route('guest.bookings.store'), $this->reservationData($accommodation, 1))
+            ->assertRedirect(route('guest.payments.draft'));
+
+        $this->assertSame('ROOM20', data_get(session('guest_booking_draft'), 'data.promo_code'));
+
+        $this->actingAs($user)->get(route('guest.payments.draft'))
+            ->assertOk()
+            ->assertSee('Promo')
+            ->assertSee('ROOM20')
+            ->assertSee('₱800.00');
+
+        $this->actingAs($user)->post(route('guest.bookings.store'), $this->reservationData($other, 5))
+            ->assertRedirect(route('guest.payments.draft'));
+
+        $this->assertNull(data_get(session('guest_booking_draft'), 'data.promo_code'));
+    }
+
     public function test_booking_items_sum_to_the_discounted_total_for_both_redemption_paths(): void
     {
         [$user, $guest, $accommodation] = $this->guestAndAccommodation();

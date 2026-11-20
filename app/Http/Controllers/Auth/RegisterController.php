@@ -34,6 +34,45 @@ class RegisterController extends Controller
         return redirect('/?signup=1');
     }
 
+    public function checkGmail(Request $request)
+    {
+        $email = strtolower(trim((string) $request->input('email', '')));
+
+        $format = Validator::make(
+            ['email' => $email],
+            ['email' => ['required', 'email', new GmailAddress]]
+        );
+
+        if ($format->fails()) {
+            return response()->json([
+                'ok' => false,
+                'exists' => false,
+                'message' => $format->errors()->first('email'),
+            ], 422);
+        }
+
+        try {
+            $exists = app(GmailExistenceChecker::class)->check($email) === true;
+        } catch (\Throwable $exception) {
+            report($exception);
+            $exists = false;
+        }
+
+        if (! $exists) {
+            return response()->json([
+                'ok' => false,
+                'exists' => false,
+                'message' => 'This Gmail does not exist. Please enter a real Gmail address.',
+            ], 422);
+        }
+
+        return response()->json([
+            'ok' => true,
+            'exists' => true,
+            'message' => null,
+        ]);
+    }
+
     public function register(Request $request)
     {
         $request->merge([
@@ -80,7 +119,7 @@ class RegisterController extends Controller
                 'max:255',
                 'regex:/^[\p{L}]+(?:[ \'\-.][\p{L}]+)*$/u',
             ],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email', new GmailAddress],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email', new GmailAddress(checkExists: true)],
             'phone' => [
                 'required',
                 'string',
@@ -106,34 +145,6 @@ class RegisterController extends Controller
             'password.confirmed' => 'Password confirmation does not match.',
             'address.max' => 'Address must not exceed 1000 characters.',
         ]);
-
-        // Require a confirmed-existing Gmail on local AND Render.
-        // Only === true may pass; false/null both block signup.
-        $validator->after(function ($validator) use ($data): void {
-            if ($validator->errors()->isNotEmpty()) {
-                return;
-            }
-
-            $email = strtolower(trim((string) ($data['email'] ?? '')));
-            if ($email === '') {
-                return;
-            }
-
-            try {
-                if (! app(GmailExistenceChecker::class)->exists($email)) {
-                    $validator->errors()->add(
-                        'email',
-                        'This Gmail does not exist. Please enter a real Gmail address.'
-                    );
-                }
-            } catch (\Throwable $exception) {
-                report($exception);
-                $validator->errors()->add(
-                    'email',
-                    'This Gmail does not exist. Please enter a real Gmail address.'
-                );
-            }
-        });
 
         return $validator;
     }

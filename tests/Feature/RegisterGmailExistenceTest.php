@@ -21,9 +21,12 @@ class RegisterGmailExistenceTest extends TestCase
     public function test_nonexistent_gmail_is_blocked_on_register(): void
     {
         $this->mock(GmailExistenceChecker::class, function ($mock) {
-            $mock->shouldReceive('exists')
+            $mock->shouldReceive('check')
                 ->once()
                 ->with('arowaxxx@gmail.com')
+                ->andReturn(false);
+            $mock->shouldReceive('exists')
+                ->zeroOrMoreTimes()
                 ->andReturn(false);
         });
 

@@ -91,9 +91,12 @@
                         <form method="POST" action="{{ $isDraft ? route('guest.payments.apply-draft-promo') : route('guest.bookings.apply_promo', $booking) }}#rp-promo-section">
                             @csrf
                             <div class="rp-promo-apply">
-                                <input type="text" id="promo_code" name="promo_code" class="form-control text-uppercase @error('promo_code') is-invalid @enderror" value="{{ old('promo_code') }}" placeholder="Enter promo code" maxlength="32">
+                                <input type="text" id="promo_code" name="promo_code" class="form-control text-uppercase @error('promo_code') is-invalid @enderror" value="{{ old('promo_code', $suggestedPromoCode ?? '') }}" placeholder="Enter promo code" maxlength="32" @if(! old('promo_code') && ! empty($suggestedPromoCode)) data-rp-promo-autofilled="1" @endif>
                                 <button type="submit" class="rp-btn-check-availability rp-btn-check-availability--inline">Apply</button>
                             </div>
+                            @if(! old('promo_code') && ! empty($suggestedPromoCode) && ! $errors->has('promo_code'))
+                                <div class="form-text text-success">Promo for this room is ready — tap Apply to use it.</div>
+                            @endif
                             @error('promo_code')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                         </form>
                     </div>

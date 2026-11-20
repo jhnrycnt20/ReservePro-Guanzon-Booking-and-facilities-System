@@ -39,6 +39,28 @@ class PromoService
         return $this->findForAccommodation($code, $accommodationId, true);
     }
 
+    /**
+     * Highest active discount that currently applies to this accommodation.
+     */
+    public function bestValidForAccommodation(int $accommodationId): ?Promo
+    {
+        if ($accommodationId <= 0) {
+            return null;
+        }
+
+        return Promo::query()
+            ->currentlyValid()
+            ->where(function ($query) use ($accommodationId) {
+                $query->where('applies_to_all', true)
+                    ->orWhereHas('accommodations', function ($accommodationQuery) use ($accommodationId) {
+                        $accommodationQuery->where('accommodations.id', $accommodationId);
+                    });
+            })
+            ->orderByDesc('discount_percent')
+            ->orderByDesc('id')
+            ->first();
+    }
+
     private function findForAccommodation(string $code, int $accommodationId, bool $lock): Promo
     {
         $normalized = $this->normalizeCode($code);

@@ -1925,12 +1925,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const hint = (name) => form.querySelector(`[data-rp-register-hint="${name}"]`);
         const submitBtn = form.querySelector('[type="submit"]');
         const touched = new Set();
+        const serverErrors = new Map();
         const detailsStep = form.querySelector('[data-rp-register-step="details"]');
         const passwordStep = form.querySelector('[data-rp-register-step="password"]');
         const notification = form.parentElement?.querySelector('[data-rp-register-notification]');
         const notificationMessage = notification?.querySelector('[data-rp-register-notification-message]');
         const initialNotification = notification?.dataset.rpRegisterInitialNotification?.trim() || '';
         let notificationTimer = null;
+        let checkingGmail = false;
+
+        fieldNames.forEach((name) => {
+            const input = field(name);
+            const message = feedback(name)?.textContent?.trim() || '';
+            if (input?.classList.contains('is-invalid') && message) {
+                touched.add(name);
+                serverErrors.set(name, { value: input.value, message });
+            }
+        });
         const hideNotification = () => {
             if (notificationTimer) window.clearTimeout(notificationTimer);
             notificationTimer = null;
@@ -1953,7 +1964,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         form.noValidate = true;
 
-        showStep(['password', 'password_confirmation'].some((name) => field(name)?.classList.contains('is-invalid')) ? 'password' : 'details');
+        const hasDetailServerError = ['name', 'email', 'phone'].some((name) => field(name)?.classList.contains('is-invalid'));
+        showStep(
+            hasDetailServerError
+                ? 'details'
+                : (['password', 'password_confirmation'].some((name) => field(name)?.classList.contains('is-invalid')) ? 'password' : 'details')
+        );
 
         const normalizePhone = (value) => String(value || '').replace(/[\s\-()]/g, '');
 
@@ -2058,6 +2074,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const validateField = (name, options = {}) => {
             const input = field(name);
             if (!input || !validators[name]) return true;
+            const serverError = serverErrors.get(name);
+            if (serverError && input.value === serverError.value) {
+                return setFieldState(name, serverError.message, options);
+            }
             return setFieldState(name, validators[name](input.value), options);
         };
 
@@ -2066,7 +2086,34 @@ document.addEventListener('DOMContentLoaded', () => {
             return fieldNames.map((name) => validateField(name, options)).every(Boolean);
         };
 
-        form.querySelector('[data-rp-register-next]')?.addEventListener('click', () => {
+        const verifyGmailExists = async (email) => {
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            const response = await fetch('/register/check-gmail', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN': token,
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: JSON.stringify({ email }),
+                credentials: 'same-origin',
+            });
+            let data = null;
+            try {
+                data = await response.json();
+            } catch (_) {
+                data = null;
+            }
+            if (!response.ok || data?.ok === false || data?.exists === false) {
+                return data?.message || 'This Gmail does not exist. Please enter a real Gmail address.';
+            }
+            return '';
+        };
+
+        form.querySelector('[data-rp-register-next]')?.addEventListener('click', async () => {
+            if (checkingGmail) return;
+            const nextBtn = form.querySelector('[data-rp-register-next]');
             const detailNames = ['name', 'email', 'phone'];
             detailNames.forEach((name) => touched.add(name));
             const valid = detailNames.map((name) => validateField(name, { force: true })).every(Boolean);
@@ -2075,9 +2122,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 detailNames.map(field).find((input) => input?.classList.contains('is-invalid'))?.focus();
                 return;
             }
-            hideNotification();
-            showStep('password');
-            field('password')?.focus();
+
+            const emailInput = field('email');
+            const email = emailInput?.value.trim().toLowerCase() || '';
+            checkingGmail = true;
+            if (nextBtn) {
+                nextBtn.disabled = true;
+                nextBtn.textContent = 'Checking email...';
+            }
+            try {
+                const gmailError = await verifyGmailExists(email);
+                if (gmailError) {
+                    serverErrors.set('email', { value: emailInput.value, message: gmailError });
+                    setFieldState('email', gmailError, { force: true });
+                    emailInput?.focus();
+                    hideNotification();
+                    return;
+                }
+                serverErrors.delete('email');
+                hideNotification();
+                showStep('password');
+                field('password')?.focus();
+            } catch (_) {
+                const message = 'This Gmail does not exist. Please enter a real Gmail address.';
+                serverErrors.set('email', { value: emailInput?.value || '', message });
+                setFieldState('email', message, { force: true });
+                emailInput?.focus();
+            } finally {
+                checkingGmail = false;
+                if (nextBtn) {
+                    nextBtn.disabled = false;
+                    nextBtn.textContent = 'Continue';
+                }
+            }
         });
         form.querySelector('[data-rp-register-back]')?.addEventListener('click', () => {
             showStep('details');
@@ -2092,6 +2169,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!input) return;
 
             input.addEventListener('input', () => {
+                const stored = serverErrors.get(name);
+                if (stored && input.value !== stored.value) {
+                    serverErrors.delete(name);
+                }
                 if (name === 'password') {
                     updatePasswordChecks();
                     if (touched.has('password_confirmation') || field('password_confirmation')?.value) {

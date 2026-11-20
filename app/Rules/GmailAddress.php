@@ -69,9 +69,8 @@ class GmailAddress implements ValidationRule
             return;
         }
 
-        $exists = app(GmailExistenceChecker::class)->check($email);
-
-        if ($exists === false) {
+        // Only a confirmed mailbox may pass (false and null both fail).
+        if (app(GmailExistenceChecker::class)->check($email) !== true) {
             $fail('This Gmail does not exist. Please enter a real Gmail address.');
         }
     }

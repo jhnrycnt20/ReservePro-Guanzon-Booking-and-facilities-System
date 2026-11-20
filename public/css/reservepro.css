@@ -1170,6 +1170,17 @@ body.rp-page-booknow .rp-public-nav .rp-nav-link:hover {
         min-width: 0;
     }
 
+    /* Keep long hero titles (e.g. Accommodations) on one line on phones */
+    .rp-hero h1 {
+        font-size: clamp(1.55rem, 7.4vw, 2.6rem);
+        letter-spacing: 0.04em;
+        padding: 0 .35rem;
+    }
+
+    .rp-hero-full {
+        padding: 0 4vw;
+    }
+
     .rp-public-nav-inner {
         padding: .75rem .85rem;
         overflow: visible;
@@ -1390,19 +1401,21 @@ a.rp-brand {
     font-family: var(--rp-display);
     font-weight: 600;
     color: #fff;
-    font-size: clamp(2.4rem, 11vw, 7.8rem);
+    font-size: clamp(1.85rem, 8.2vw, 7.8rem);
     line-height: 1.15;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     margin-bottom: .1rem;
     opacity: 0;
     animation: rp-fade-up 1.1s ease .2s forwards;
     max-width: 100%;
-    overflow-wrap: anywhere;
+    overflow-wrap: normal;
+    word-break: normal;
 }
 
 .rp-hero h1 span {
     align-self: center;
     max-width: 100%;
+    white-space: nowrap;
 }
 
 .rp-hero-subtext {

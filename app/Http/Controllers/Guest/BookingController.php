@@ -7,6 +7,7 @@ use App\Http\Requests\Guest\StoreBookingRequest;
 use App\Models\Accommodation;
 use App\Models\Booking;
 use App\Services\BookingService;
+use App\Services\PromoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -16,6 +17,7 @@ class BookingController extends Controller
 {
     public function __construct(
         protected BookingService $bookingService,
+        protected PromoService $promoService,
     ) {
     }
 
@@ -101,9 +103,19 @@ class BookingController extends Controller
     public function store(StoreBookingRequest $request): RedirectResponse
     {
         abort_unless($request->user()->guest, 403, 'Guest profile required.');
+
+        $data = $request->validated();
+        // If the selected room has an active promo, carry its code into billing automatically.
+        if (blank($data['promo_code'] ?? null)) {
+            $suggested = $this->promoService->bestValidForAccommodation((int) $data['accommodation_id']);
+            if ($suggested) {
+                $data['promo_code'] = $suggested->code;
+            }
+        }
+
         $request->session()->put('guest_booking_draft', [
             'user_id' => $request->user()->id,
-            'data' => $request->validated(),
+            'data' => $data,
         ]);
 
         return redirect()

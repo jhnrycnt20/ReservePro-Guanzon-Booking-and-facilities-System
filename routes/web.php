@@ -167,6 +167,10 @@ Route::redirect('/cookie-policy', '/privacy-policy#cookies');
 // Terms & Conditions is now a modal (see partials.terms-modal), not a standalone page.
 Route::redirect('/terms', '/');
 
+Route::post('/register/check-gmail', [\App\Http\Controllers\Auth\RegisterController::class, 'checkGmail'])
+    ->middleware(['guest', 'throttle:20,1'])
+    ->name('register.check-gmail');
+
 Auth::routes();
 
 if (\App\Support\PasswordResetLinkBoard::enabled()) {
